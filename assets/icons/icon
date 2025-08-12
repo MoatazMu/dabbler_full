@@ -1,0 +1,6 @@
+git init
+git add .
+git commit -m "chore: initialize project"
+git branch -M main
+git remote add origin git@github.com:MoatazMu/dabbler.git
+git push -u origin main
