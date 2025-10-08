@@ -178,7 +178,7 @@ class UserModel {
 
   /// Create UserModel from Supabase JSON response
   factory UserModel.fromSupabaseJson(Map<String, dynamic> json) {
-    final displayName = json['name'] as String? ?? '';
+    final displayName = json['display_name'] as String? ?? '';
     
     return UserModel(
       id: json['id'] as String,

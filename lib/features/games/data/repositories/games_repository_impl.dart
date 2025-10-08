@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/game.dart';
+import '../../domain/entities/player.dart';
 import '../../domain/repositories/games_repository.dart';
 import '../datasources/games_remote_data_source.dart';
 import '../models/game_model.dart';
@@ -521,6 +522,16 @@ class GamesRepositoryImpl implements GamesRepository {
       return Right(gameModel);
     } catch (e) {
       return Left(UnknownFailure('Failed to duplicate game: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Player>>> getGamePlayers(String gameId) async {
+    try {
+      final players = await remoteDataSource.getGamePlayers(gameId);
+      return Right(players.cast<Player>());
+    } catch (e) {
+      return Left(UnknownFailure('Failed to get game players: ${e.toString()}'));
     }
   }
 

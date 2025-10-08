@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import '../../domain/entities/game.dart';
 import '../../domain/usecases/cancel_game_usecase.dart';
+import '../../domain/repositories/games_repository.dart';
 
 enum MyGameType {
   upcoming,
@@ -180,22 +181,19 @@ class MyGamesState {
 }
 
 class MyGamesController extends StateNotifier<MyGamesState> {
-  final CancelGameUseCase _cancelGameUseCase;
+  final CancelGameUseCase? _cancelGameUseCase;
+  final GamesRepository _gamesRepository;
   final String userId;
   
-  // TODO: Add other use cases when available
-  // final GetUserGamesUseCase _getUserGamesUseCase;
-  // final GetGameStatisticsUseCase _getGameStatisticsUseCase;
-  // final CheckInGameUseCase _checkInGameUseCase;
-  // final ShareGameUseCase _shareGameUseCase;
-
   static const Duration _cacheValidity = Duration(minutes: 5);
   static const Duration _reminderCheckInterval = Duration(minutes: 1);
 
   MyGamesController({
-    required CancelGameUseCase cancelGameUseCase,
+    required CancelGameUseCase? cancelGameUseCase,
+    required GamesRepository gamesRepository,
     required this.userId,
   })  : _cancelGameUseCase = cancelGameUseCase,
+        _gamesRepository = gamesRepository,
         super(const MyGamesState()) {
     _initializeMyGames();
     _startReminderTimer();
@@ -217,19 +215,32 @@ class MyGamesController extends StateNotifier<MyGamesState> {
     state = state.copyWith(isLoadingUpcoming: true, error: null);
     
     try {
-      // TODO: Replace with actual repository call
-      await Future.delayed(const Duration(seconds: 1));
-      
-      final mockUpcomingGames = _generateMockUpcomingGames();
-      
-      state = state.copyWith(
-        upcomingGames: mockUpcomingGames,
-        isLoadingUpcoming: false,
-        lastUpdated: DateTime.now(),
+      // Fetch upcoming games from repository
+      final result = await _gamesRepository.getMyGames(
+        userId,
+        status: 'upcoming',
+        page: 1,
+        limit: 50,
       );
-      
-      // Update check-in reminders
-      _updateCheckInReminders();
+
+      result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoadingUpcoming: false,
+            error: failure.message,
+          );
+        },
+        (games) {
+          state = state.copyWith(
+            upcomingGames: games,
+            isLoadingUpcoming: false,
+            lastUpdated: DateTime.now(),
+          );
+          
+          // Update check-in reminders
+          _updateCheckInReminders();
+        },
+      );
       
     } catch (e) {
       state = state.copyWith(
@@ -244,14 +255,27 @@ class MyGamesController extends StateNotifier<MyGamesState> {
     state = state.copyWith(isLoadingPast: true, error: null);
     
     try {
-      // TODO: Replace with actual repository call
-      await Future.delayed(const Duration(milliseconds: 800));
-      
-      final mockPastGames = _generateMockPastGames();
-      
-      state = state.copyWith(
-        pastGames: mockPastGames,
-        isLoadingPast: false,
+      // Fetch past games from repository
+      final result = await _gamesRepository.getMyGames(
+        userId,
+        status: 'completed',
+        page: 1,
+        limit: 50,
+      );
+
+      result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoadingPast: false,
+            error: failure.message,
+          );
+        },
+        (games) {
+          state = state.copyWith(
+            pastGames: games,
+            isLoadingPast: false,
+          );
+        },
       );
       
     } catch (e) {
@@ -313,22 +337,29 @@ class MyGamesController extends StateNotifier<MyGamesState> {
     state = state.copyWith(isLoadingStatistics: true);
     
     try {
-      // TODO: Replace with actual repository call
-      await Future.delayed(const Duration(milliseconds: 600));
+      // Calculate statistics from actual games data
+      final allGames = [...state.upcomingGames, ...state.pastGames];
+      final now = DateTime.now();
+      final thisMonth = allGames.where((game) {
+        return game.scheduledDate.year == now.year && game.scheduledDate.month == now.month;
+      }).length;
       
-      final mockStatistics = GameStatistics(
-        totalGamesPlayed: 45,
-        totalGamesOrganized: 18,
-        gamesThisMonth: 6,
-        averageRating: 4.3,
-        favoritesSport: 'basketball',
-        totalPlayTime: const Duration(hours: 120),
-        cancelledGames: 3,
-        attendanceRate: 0.92,
+      final organized = allGames.where((game) => game.organizerId == userId).length;
+      final played = state.pastGames.length;
+      
+      final statistics = GameStatistics(
+        totalGamesPlayed: played,
+        totalGamesOrganized: organized,
+        gamesThisMonth: thisMonth,
+        averageRating: 0.0, // TODO: Calculate from game ratings
+        favoritesSport: 'basketball', // TODO: Find most played sport
+        totalPlayTime: Duration(hours: played * 2), // Estimate 2 hours per game
+        cancelledGames: 0, // TODO: Count cancelled games
+        attendanceRate: played > 0 ? 1.0 : 0.0, // TODO: Calculate actual rate
       );
       
       state = state.copyWith(
-        statistics: mockStatistics,
+        statistics: statistics,
         isLoadingStatistics: false,
       );
       
@@ -348,6 +379,12 @@ class MyGamesController extends StateNotifier<MyGamesState> {
 
   /// Cancel a game (organizer only)
   Future<void> cancelGame(String gameId, String reason) async {
+    // Check if cancel game use case is available
+    if (_cancelGameUseCase == null) {
+      state = state.copyWith(error: 'Cancel game feature not yet available');
+      return;
+    }
+    
     try {
       final result = await _cancelGameUseCase(CancelGameParams(
         gameId: gameId,
@@ -561,129 +598,6 @@ class MyGamesController extends StateNotifier<MyGamesState> {
                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     return '${weekdays[date.weekday - 1]}, ${months[date.month - 1]} ${date.day}';
-  }
-
-  List<Game> _generateMockUpcomingGames() {
-    final now = DateTime.now();
-    
-    return [
-      Game(
-        id: 'game1',
-        title: 'Evening Basketball',
-        description: 'Competitive basketball game',
-        sport: 'basketball',
-        scheduledDate: now.add(const Duration(days: 1)),
-        startTime: '18:00',
-        endTime: '20:00',
-        minPlayers: 6,
-        maxPlayers: 10,
-        currentPlayers: 8,
-        organizerId: userId, // User is organizer
-        skillLevel: 'intermediate',
-        pricePerPlayer: 15.0,
-        status: GameStatus.upcoming,
-        isPublic: true,
-        allowsWaitlist: true,
-        checkInEnabled: true,
-        createdAt: now.subtract(const Duration(days: 3)),
-        updatedAt: now,
-        venueId: 'venue1',
-      ),
-      Game(
-        id: 'game2',
-        title: 'Tennis Practice',
-        description: 'Casual tennis practice session',
-        sport: 'tennis',
-        scheduledDate: now.add(const Duration(days: 3)),
-        startTime: '10:00',
-        endTime: '12:00',
-        minPlayers: 2,
-        maxPlayers: 4,
-        currentPlayers: 3,
-        organizerId: 'other_user',
-        skillLevel: 'beginner',
-        pricePerPlayer: 25.0,
-        status: GameStatus.upcoming,
-        isPublic: true,
-        allowsWaitlist: false,
-        checkInEnabled: true,
-        createdAt: now.subtract(const Duration(days: 1)),
-        updatedAt: now,
-        venueId: 'venue2',
-      ),
-      Game(
-        id: 'game3',
-        title: 'Weekend Soccer',
-        description: 'Fun weekend soccer match',
-        sport: 'soccer',
-        scheduledDate: now.add(const Duration(days: 5)),
-        startTime: '15:00',
-        endTime: '17:00',
-        minPlayers: 14,
-        maxPlayers: 22,
-        currentPlayers: 18,
-        organizerId: userId, // User is organizer
-        skillLevel: 'mixed',
-        pricePerPlayer: 0.0, // Free game
-        status: GameStatus.upcoming,
-        isPublic: true,
-        allowsWaitlist: true,
-        checkInEnabled: true,
-        createdAt: now.subtract(const Duration(days: 5)),
-        updatedAt: now,
-      ),
-    ];
-  }
-
-  List<Game> _generateMockPastGames() {
-    final now = DateTime.now();
-    
-    return [
-      Game(
-        id: 'past_game1',
-        title: 'Morning Basketball',
-        description: 'Great morning game',
-        sport: 'basketball',
-        scheduledDate: now.subtract(const Duration(days: 2)),
-        startTime: '08:00',
-        endTime: '10:00',
-        minPlayers: 6,
-        maxPlayers: 10,
-        currentPlayers: 9,
-        organizerId: 'other_user',
-        skillLevel: 'intermediate',
-        pricePerPlayer: 20.0,
-        status: GameStatus.completed,
-        isPublic: true,
-        allowsWaitlist: true,
-        checkInEnabled: true,
-        createdAt: now.subtract(const Duration(days: 5)),
-        updatedAt: now.subtract(const Duration(days: 2)),
-        venueId: 'venue1',
-      ),
-      Game(
-        id: 'past_game2',
-        title: 'Volleyball Match',
-        description: 'Competitive volleyball',
-        sport: 'volleyball',
-        scheduledDate: now.subtract(const Duration(days: 7)),
-        startTime: '19:00',
-        endTime: '21:00',
-        minPlayers: 8,
-        maxPlayers: 12,
-        currentPlayers: 12,
-        organizerId: userId, // User organized this
-        skillLevel: 'advanced',
-        pricePerPlayer: 18.0,
-        status: GameStatus.completed,
-        isPublic: true,
-        allowsWaitlist: false,
-        checkInEnabled: true,
-        createdAt: now.subtract(const Duration(days: 10)),
-        updatedAt: now.subtract(const Duration(days: 7)),
-        venueId: 'venue3',
-      ),
-    ];
   }
 
   @override

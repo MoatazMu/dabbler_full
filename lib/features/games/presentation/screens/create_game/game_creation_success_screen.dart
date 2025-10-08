@@ -103,59 +103,61 @@ class _GameCreationSuccessScreenState extends State<GameCreationSuccessScreen>
           child: Column(
             children: [
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSuccessAnimation(),
-                    const SizedBox(height: 32),
-                    
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Game Created Successfully! 🎉',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          Text(
-                            'Your "${widget.gameData['title']}" game is now live and ready for players to join!',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 32),
-                    
-                    SlideTransition(
-                      position: _slideAnimation,
-                      child: FadeTransition(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    children: [
+                      _buildSuccessAnimation(),
+                      const SizedBox(height: 32),
+                      
+                      FadeTransition(
                         opacity: _fadeAnimation,
-                        child: _buildGameSummaryCard(),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Game Created Successfully! 🎉',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            
+                            Text(
+                              'Your "${widget.gameData['title']}" game is now live and ready for players to join!',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    SlideTransition(
-                      position: _slideAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: _buildShareSection(),
+                      
+                      const SizedBox(height: 32),
+                      
+                      SlideTransition(
+                        position: _slideAnimation,
+                        child: FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: _buildGameSummaryCard(),
+                        ),
                       ),
-                    ),
-                  ],
+                      
+                      const SizedBox(height: 24),
+                      
+                      SlideTransition(
+                        position: _slideAnimation,
+                        child: FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: _buildShareSection(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               

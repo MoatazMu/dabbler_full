@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/explore_filters.dart';
 import '../models/match_model.dart';
-import '../models/demo_data.dart';
 import '../services/location_service.dart';
-import '../services/user_service.dart';
 
 class ExploreViewModel extends ChangeNotifier {
   static final ExploreViewModel _instance = ExploreViewModel._internal();
@@ -11,7 +9,6 @@ class ExploreViewModel extends ChangeNotifier {
   ExploreViewModel._internal();
 
   final LocationService _locationService = LocationService();
-  final UserService _userService = UserService();
 
   List<Match> _matches = [];
   ExploreFilters? _currentFilters;
@@ -69,11 +66,12 @@ class ExploreViewModel extends ChangeNotifier {
         return false;
       }
 
-      // Simulate API call - replace with actual API implementation
-      await Future.delayed(const Duration(seconds: 2));
+      // TODO: Replace with real Supabase API implementation
+      // For now, return empty list - use GamesHomeScreen for real data
+      await Future.delayed(const Duration(seconds: 1));
       
-      // Use demo data for now
-      _matches = DemoData.getDemoMatches();
+      // No demo data - integrate with GamesRepository from features/games
+      _matches = [];
       
       _isLoading = false;
       notifyListeners();

@@ -47,14 +47,12 @@ class UserValidationService {
   Future<bool> checkUserExistsAdmin(String email) async {
     try {
       print('⚠️ [DEBUG] UserValidationService: Using deprecated admin method for: $email');
-      
       // This would require admin privileges
       final response = await Supabase.instance.client
           .from('auth.users')
           .select('id')
           .eq('email', email)
-          .single();
-      
+          .maybeSingle();
       final exists = response != null;
       print('🔍 [DEBUG] UserValidationService: Admin check result: $exists');
       return exists;

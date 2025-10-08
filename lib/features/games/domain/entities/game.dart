@@ -12,6 +12,7 @@ class Game {
   final String description;
   final String sport;
   final String? venueId;
+  final String? venueName; // Populated when venue data is joined
   
   // Date and time fields
   final DateTime scheduledDate;
@@ -27,6 +28,7 @@ class Game {
   final String organizerId;
   final String skillLevel; // beginner, intermediate, advanced, mixed
   final double pricePerPlayer;
+  final String currency; // USD, AED, EUR, etc.
   
   // Status and flags
   final GameStatus status;
@@ -47,6 +49,7 @@ class Game {
     required this.description,
     required this.sport,
     this.venueId,
+    this.venueName,
     required this.scheduledDate,
     required this.startTime,
     required this.endTime,
@@ -56,6 +59,7 @@ class Game {
     required this.organizerId,
     required this.skillLevel,
     required this.pricePerPlayer,
+    this.currency = 'USD',
     required this.status,
     required this.isPublic,
     required this.allowsWaitlist,
@@ -169,6 +173,7 @@ class Game {
     String? description,
     String? sport,
     String? venueId,
+    String? venueName,
     DateTime? scheduledDate,
     String? startTime,
     String? endTime,
@@ -192,6 +197,7 @@ class Game {
       description: description ?? this.description,
       sport: sport ?? this.sport,
       venueId: venueId ?? this.venueId,
+      venueName: venueName ?? this.venueName,
       scheduledDate: scheduledDate ?? this.scheduledDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,

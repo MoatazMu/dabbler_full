@@ -198,7 +198,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                 onChanged: (value) {
                   _themeService.setAutoThemeEnabled(value);
                 },
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
               ),
             ],
           ),

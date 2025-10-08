@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/constants/route_constants.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/helpers.dart';
 import '../../widgets/custom_button.dart';
@@ -84,7 +85,7 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
 
       if (mounted) {
         // Navigate to password creation screen with complete registration data
-        context.go('/set_password', extra: registrationData?.toMap());
+        context.go(RoutePaths.setPassword, extra: registrationData?.toMap());
       }
     } catch (e) {
       print('❌ [DEBUG] IntentSelectionScreen: Error collecting intent preferences: $e');
@@ -117,7 +118,7 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
       
       if (mounted) {
         // Navigate to password creation screen with complete registration data
-        context.go('/set_password', extra: registrationData?.toMap());
+        context.go(RoutePaths.setPassword, extra: registrationData?.toMap());
       }
     } catch (e) {
       print('❌ [DEBUG] IntentSelectionScreen: Error in skip: $e');

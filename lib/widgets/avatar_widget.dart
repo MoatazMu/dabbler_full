@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AvatarWidget extends StatelessWidget {
   final String? imageUrl;
@@ -48,18 +49,14 @@ class AvatarWidget extends StatelessWidget {
       child: imageUrl != null && imageUrl!.isNotEmpty
           ? ClipRRect(
               borderRadius: BorderRadius.circular(size / 2),
-              child: Image.network(
-                imageUrl!,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl!,
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildInitialsFallback(context, initials);
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return _buildInitialsFallback(context, initials);
-                },
+                fadeInDuration: const Duration(milliseconds: 150),
+                placeholder: (context, url) => _buildInitialsFallback(context, initials),
+                errorWidget: (context, url, error) => _buildInitialsFallback(context, initials),
               ),
             )
           : _buildInitialsFallback(context, initials),

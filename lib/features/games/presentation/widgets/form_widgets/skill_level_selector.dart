@@ -314,7 +314,7 @@ class SkillLevelSelector extends StatelessWidget {
         const SizedBox(height: 12),
         
         DropdownButtonFormField<SkillLevel>(
-          value: selectedLevel,
+          initialValue: selectedLevel,
           onChanged: enabled ? (value) {
             if (value != null) {
               onChanged?.call(value);

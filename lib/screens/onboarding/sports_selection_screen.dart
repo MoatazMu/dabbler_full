@@ -4,6 +4,7 @@ import '../../core/utils/constants.dart';
 import '../../core/utils/helpers.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/onboarding_progress.dart';
+import '../../utils/constants/route_constants.dart';
 import 'create_user_information.dart';
 
 class SportsSelectionScreen extends StatefulWidget {
@@ -31,19 +32,19 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
 
   Future<void> _loadExistingUserData() async {
     try {
-      print('🏃 [DEBUG] SportsSelectionScreen: Loading existing user data');
+      debugPrint('🏃 [DEBUG] SportsSelectionScreen: Loading existing user data');
       
       // Check if we have registration data from previous step
       if (widget.registrationData?.sports != null && widget.registrationData!.sports!.isNotEmpty) {
-        print('✅ [DEBUG] SportsSelectionScreen: Found sports in registration data: ${widget.registrationData!.sports}');
+        debugPrint('✅ [DEBUG] SportsSelectionScreen: Found sports in registration data: ${widget.registrationData!.sports}');
         setState(() {
           _selectedSports.addAll(widget.registrationData!.sports!);
         });
       } else {
-        print('🆕 [DEBUG] SportsSelectionScreen: No existing sports data, starting fresh');
+        debugPrint('🆕 [DEBUG] SportsSelectionScreen: No existing sports data, starting fresh');
       }
     } catch (e) {
-      print('❌ [DEBUG] SportsSelectionScreen: Error loading existing data: $e');
+      debugPrint('❌ [DEBUG] SportsSelectionScreen: Error loading existing data: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -77,19 +78,19 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
     setState(() => _isLoading = true);
 
     try {
-      print('🏃 [DEBUG] SportsSelectionScreen: Collecting sports preferences');
-      print('📋 [DEBUG] SportsSelectionScreen: Selected sports: ${_selectedSports.toList()}');
+      debugPrint('🏃 [DEBUG] SportsSelectionScreen: Collecting sports preferences');
+      debugPrint('📋 [DEBUG] SportsSelectionScreen: Selected sports: ${_selectedSports.toList()}');
 
       // Get registration data from previous step and add sports
       final registrationData = widget.registrationData?.copyWith(sports: _selectedSports.toList());
       
-      print('✅ [DEBUG] SportsSelectionScreen: Sports preferences collected successfully');
+      debugPrint('✅ [DEBUG] SportsSelectionScreen: Sports preferences collected successfully');
 
       if (mounted) {
-        context.go('/intent-selection', extra: registrationData?.toMap());
+        context.go(RoutePaths.intentSelection, extra: registrationData?.toMap());
       }
     } catch (e) {
-      print('❌ [DEBUG] SportsSelectionScreen: Error collecting sports preferences: $e');
+      debugPrint('❌ [DEBUG] SportsSelectionScreen: Error collecting sports preferences: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -109,18 +110,18 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
     setState(() => _isLoading = true);
 
     try {
-      print('🏃 [DEBUG] SportsSelectionScreen: Skipping sports selection, using default');
+      debugPrint('🏃 [DEBUG] SportsSelectionScreen: Skipping sports selection, using default');
       
       // Use default sports (football) and get registration data from previous step
       final registrationData = widget.registrationData?.copyWith(sports: ['football']);
       
-      print('✅ [DEBUG] SportsSelectionScreen: Using default sports: football');
+      debugPrint('✅ [DEBUG] SportsSelectionScreen: Using default sports: football');
       
       if (mounted) {
-        context.go('/intent-selection', extra: registrationData?.toMap());
+        context.go(RoutePaths.intentSelection, extra: registrationData?.toMap());
       }
     } catch (e) {
-      print('❌ [DEBUG] SportsSelectionScreen: Error in skip: $e');
+      debugPrint('❌ [DEBUG] SportsSelectionScreen: Error in skip: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:intl/intl.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../core/services/auth_service.dart';
+import '../../features/games/providers/games_providers.dart';
 
-class AllHistoryScreen extends StatefulWidget {
+class AllHistoryScreen extends ConsumerStatefulWidget {
   const AllHistoryScreen({super.key});
 
   @override
-  State<AllHistoryScreen> createState() => _AllHistoryScreenState();
+  ConsumerState<AllHistoryScreen> createState() => _AllHistoryScreenState();
 }
 
-class _AllHistoryScreenState extends State<AllHistoryScreen> {
+class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
   String selectedFilter = 'All';
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('All History'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => Navigator.pop(context),
-        ),
+      backgroundColor: Colors.transparent,
+      appBar: CustomAppBar(
+        actionIcon: Iconsax.calendar_copy,
       ),
       body: Column(
         children: [
+          const SizedBox(height: 100),
           _buildFilterSection(context),
                      Expanded(
              child: RefreshIndicator(
@@ -218,124 +221,66 @@ class _AllHistoryScreenState extends State<AllHistoryScreen> {
   }
 
   List<Map<String, dynamic>> _getFilteredHistory() {
-    // Combined and sorted history data
-    final allHistory = [
-      {
+    final user = _authService.getCurrentUser();
+    if (user == null) return [];
+
+    final myGamesState = ref.watch(myGamesControllerProvider(user.id));
+    final bookingsState = ref.watch(bookingsControllerProvider(user.id));
+
+    // Load data if not already loaded
+    if (myGamesState.pastGames.isEmpty && !myGamesState.isLoading) {
+      Future.microtask(() {
+        // Load past games - we'll need to add this method
+        ref.read(myGamesControllerProvider(user.id).notifier).refresh();
+      });
+    }
+
+    if (bookingsState.pastBookings.isEmpty && !bookingsState.isLoading) {
+      Future.microtask(() {
+        ref.read(bookingsControllerProvider(user.id).notifier).loadPastBookings(user.id);
+      });
+    }
+
+    // Combine games and bookings into unified history
+    final List<Map<String, dynamic>> allHistory = [];
+
+    // Add past games (already filtered for past in the controller)
+    for (final game in myGamesState.pastGames) {
+      final dateFormat = DateFormat('MMM d');
+      final timeFormat = DateFormat('h:mm a');
+      
+      allHistory.add({
         'type': 'game',
-        'title': 'Football Match',
-        'venue': 'Sports Arena',
-        'date': '2024-12-12',
-        'displayDate': 'Dec 12',
-        'time': '6:00 PM',
-        'price': '\$15',
-        'rating': '4.8',
+        'id': game.id,
+        'title': game.title,
+        'venue': game.venueName ?? 'Unknown Venue',
+        'date': game.scheduledDate.toIso8601String(),
+        'displayDate': dateFormat.format(game.scheduledDate),
+        'time': timeFormat.format(game.getScheduledStartDateTime()),
+        'price': '${game.pricePerPlayer.toStringAsFixed(0)} ${game.currency}',
+        'rating': '0.0', // TODO: Add rating system
         'status': 'completed',
-        'players': '11/11',
-      },
-      {
+        'players': '${game.currentPlayers}/${game.maxPlayers}',
+      });
+    }
+
+    // Add past bookings
+    for (final booking in bookingsState.pastBookings) {
+      final dateFormat = DateFormat('MMM d');
+      
+      allHistory.add({
         'type': 'booking',
-        'title': 'Sports Arena',
-        'venue': 'Sports Arena',
-        'date': '2024-12-12',
-        'displayDate': 'Dec 12',
-        'time': '6:00 PM - 8:00 PM',
-        'price': '\$50',
-        'sport': 'Football',
-        'status': 'completed',
-      },
-      {
-        'type': 'game',
-        'title': 'Basketball Game',
-        'venue': 'Community Center',
-        'date': '2024-12-10',
-        'displayDate': 'Dec 10',
-        'time': '7:00 PM',
-        'price': '\$12',
-        'rating': '4.6',
-        'status': 'completed',
-        'players': '10/10',
-      },
-      {
-        'type': 'booking',
-        'title': 'Community Center',
-        'venue': 'Community Center',
-        'date': '2024-12-10',
-        'displayDate': 'Dec 10',
-        'time': '7:00 PM - 9:00 PM',
-        'price': '\$35',
-        'sport': 'Basketball',
-        'status': 'completed',
-      },
-      {
-        'type': 'game',
-        'title': 'Tennis Match',
-        'venue': 'Riverside Club',
-        'date': '2024-12-08',
-        'displayDate': 'Dec 8',
-        'time': '5:00 PM',
-        'price': '\$20',
-        'rating': '4.9',
-        'status': 'completed',
-        'players': '4/4',
-      },
-      {
-        'type': 'booking',
-        'title': 'Tennis Court Booking',
-        'venue': 'Riverside Club',
-        'date': '2024-12-08',
-        'displayDate': 'Dec 8',
-        'time': '5:00 PM - 6:30 PM',
-        'price': '\$40',
-        'sport': 'Tennis',
-        'status': 'completed',
-      },
-      {
-        'type': 'game',
-        'title': 'Padel Session',
-        'venue': 'Elite Padel Center',
-        'date': '2024-12-07',
-        'displayDate': 'Dec 7',
-        'time': '7:00 PM',
-        'price': '\$25',
-        'rating': '4.7',
-        'status': 'completed',
-        'players': '4/4',
-      },
-      {
-        'type': 'booking',
-        'title': 'Padel Court Booking',
-        'venue': 'Elite Padel Center',
-        'date': '2024-12-07',
-        'displayDate': 'Dec 7',
-        'time': '7:00 PM - 8:30 PM',
-        'price': '\$60',
-        'sport': 'Padel',
-        'status': 'completed',
-      },
-      {
-        'type': 'game',
-        'title': 'Football Training',
-        'venue': 'Central Complex',
-        'date': '2024-12-05',
-        'displayDate': 'Dec 5',
-        'time': '4:00 PM',
-        'price': '\$10',
-        'rating': '4.7',
-        'status': 'completed',
-        'players': '8/10',
-      },
-      {
-        'type': 'booking',
-        'title': 'Basketball Court',
-        'venue': 'Downtown Gym',
-        'date': '2024-12-03',
-        'displayDate': 'Dec 3',
-        'time': '8:00 PM - 10:00 PM',
-        'price': '\$45',
-        'sport': 'Basketball',
-        'status': 'completed',
-      },
-    ];
+        'id': booking.id,
+        'title': booking.venueName,
+        'venue': booking.venueName,
+        'date': booking.bookingDate.toIso8601String(),
+        'displayDate': dateFormat.format(booking.bookingDate),
+        'time': '${booking.startTime} - ${booking.endTime}',
+        'price': '${booking.totalAmount.toStringAsFixed(0)} ${booking.currency}',
+        'sport': booking.courtNumber != null ? 'Court ${booking.courtNumber}' : '',
+        'status': booking.status.toString().split('.').last,
+      });
+    }
 
     // Filter based on selected filter
     List<Map<String, dynamic>> filtered;
@@ -575,13 +520,19 @@ class _AllHistoryScreenState extends State<AllHistoryScreen> {
   }
 
   Future<void> _refreshHistoryData(BuildContext context) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+    final user = _authService.getCurrentUser();
+    if (user == null) return;
+    
+    // Refresh both games and bookings
+    await Future.wait([
+      ref.read(myGamesControllerProvider(user.id).notifier).refresh(),
+      ref.read(bookingsControllerProvider(user.id).notifier).loadPastBookings(user.id),
+    ]);
     
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('📊 History data refreshed successfully!'),
+          content: Text('📊 History refreshed successfully!'),
           backgroundColor: Colors.indigo,
           duration: Duration(seconds: 2),
         ),

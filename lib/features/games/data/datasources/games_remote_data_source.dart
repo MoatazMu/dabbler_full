@@ -1,29 +1,45 @@
 import '../models/game_model.dart';
+import '../models/player_model.dart';
 
 // Custom exceptions for game operations
 class GameServerException implements Exception {
   final String message;
   GameServerException(this.message);
+  
+  @override
+  String toString() => message;
 }
 
 class GameNotFoundException implements Exception {
   final String message;
   GameNotFoundException(this.message);
+  
+  @override
+  String toString() => message;
 }
 
 class GameFullException implements Exception {
   final String message;
   GameFullException(this.message);
+  
+  @override
+  String toString() => message;
 }
 
 class InsufficientPlayersException implements Exception {
   final String message;
   InsufficientPlayersException(this.message);
+  
+  @override
+  String toString() => message;
 }
 
 class GameAlreadyStartedException implements Exception {
   final String message;
   GameAlreadyStartedException(this.message);
+  
+  @override
+  String toString() => message;
 }
 
 class UnauthorizedGameActionException implements Exception {
@@ -156,4 +172,7 @@ abstract class GamesRemoteDataSource {
     String newStartTime,
     String newEndTime,
   );
+
+  /// Gets all players for a specific game
+  Future<List<PlayerModel>> getGamePlayers(String gameId);
 }

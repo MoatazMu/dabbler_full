@@ -7,6 +7,7 @@ class GameModel extends Game {
     required super.description,
     required super.sport,
     super.venueId,
+    super.venueName,
     required super.scheduledDate,
     required super.startTime,
     required super.endTime,
@@ -16,6 +17,7 @@ class GameModel extends Game {
     required super.organizerId,
     required super.skillLevel,
     required super.pricePerPlayer,
+    super.currency,
     required super.status,
     required super.isPublic,
     required super.allowsWaitlist,
@@ -32,6 +34,7 @@ class GameModel extends Game {
       description: json['description'] as String? ?? '',
       sport: json['sport'] as String? ?? 'football',
       venueId: json['venue_id'] as String?,
+      venueName: _parseVenueName(json), // Parse from JOIN or direct field
       scheduledDate: _parseDate(json['scheduled_date']),
       startTime: json['start_time'] as String? ?? '09:00',
       endTime: json['end_time'] as String? ?? '10:00',
@@ -41,6 +44,7 @@ class GameModel extends Game {
       organizerId: json['organizer_id'] as String,
       skillLevel: json['skill_level'] as String? ?? 'beginner',
       pricePerPlayer: (json['price_per_player'] as num?)?.toDouble() ?? 0.0,
+      currency: json['currency'] as String? ?? 'USD',
       status: _parseGameStatus(json['status']),
       isPublic: json['is_public'] as bool? ?? true,
       allowsWaitlist: json['allows_waitlist'] as bool? ?? false,
@@ -95,6 +99,21 @@ class GameModel extends Game {
     return GameStatus.upcoming;
   }
 
+  static String? _parseVenueName(Map<String, dynamic> json) {
+    // Handle direct venue_name field
+    if (json['venue_name'] != null) {
+      return json['venue_name'] as String;
+    }
+    
+    // Handle JOIN result: venues: {name: "Venue Name"}
+    if (json['venues'] != null && json['venues'] is Map) {
+      final venueData = json['venues'] as Map<String, dynamic>;
+      return venueData['name'] as String?;
+    }
+    
+    return null;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -111,6 +130,7 @@ class GameModel extends Game {
       'organizer_id': organizerId,
       'skill_level': skillLevel,
       'price_per_player': pricePerPlayer,
+      'currency': currency,
       'status': status.toString().split('.').last,
       'is_public': isPublic,
       'allows_waitlist': allowsWaitlist,
@@ -136,6 +156,7 @@ class GameModel extends Game {
       'organizer_id': organizerId,
       'skill_level': skillLevel,
       'price_per_player': pricePerPlayer,
+      'currency': currency,
       'status': status.toString().split('.').last,
       'is_public': isPublic,
       'allows_waitlist': allowsWaitlist,
@@ -158,6 +179,7 @@ class GameModel extends Game {
       'max_players': maxPlayers,
       'skill_level': skillLevel,
       'price_per_player': pricePerPlayer,
+      'currency': currency,
       'status': status.toString().split('.').last,
       'is_public': isPublic,
       'allows_waitlist': allowsWaitlist,
@@ -183,6 +205,7 @@ class GameModel extends Game {
       organizerId: game.organizerId,
       skillLevel: game.skillLevel,
       pricePerPlayer: game.pricePerPlayer,
+      currency: game.currency,
       status: game.status,
       isPublic: game.isPublic,
       allowsWaitlist: game.allowsWaitlist,
@@ -200,6 +223,7 @@ class GameModel extends Game {
     String? description,
     String? sport,
     String? venueId,
+    String? venueName,
     DateTime? scheduledDate,
     String? startTime,
     String? endTime,
@@ -209,6 +233,7 @@ class GameModel extends Game {
     String? organizerId,
     String? skillLevel,
     double? pricePerPlayer,
+    String? currency,
     GameStatus? status,
     bool? isPublic,
     bool? allowsWaitlist,
@@ -223,6 +248,7 @@ class GameModel extends Game {
       description: description ?? this.description,
       sport: sport ?? this.sport,
       venueId: venueId ?? this.venueId,
+      venueName: venueName ?? this.venueName,
       scheduledDate: scheduledDate ?? this.scheduledDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -232,6 +258,7 @@ class GameModel extends Game {
       organizerId: organizerId ?? this.organizerId,
       skillLevel: skillLevel ?? this.skillLevel,
       pricePerPlayer: pricePerPlayer ?? this.pricePerPlayer,
+      currency: currency ?? this.currency,
       status: status ?? this.status,
       isPublic: isPublic ?? this.isPublic,
       allowsWaitlist: allowsWaitlist ?? this.allowsWaitlist,

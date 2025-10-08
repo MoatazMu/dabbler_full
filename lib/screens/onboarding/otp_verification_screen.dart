@@ -92,24 +92,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     try {
       print('🔐 [DEBUG] OtpVerificationScreen: Verifying OTP for phone: ${widget.phoneNumber}');
       
-      // Test OTP code for development
-      if (otpCode == '555555') {
-        print('🧪 [DEBUG] OtpVerificationScreen: Test OTP detected');
-        // Simulate successful verification
-        await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Test OTP verified successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Check if user needs to complete profile
-          await _checkUserProfileAndNavigate();
-        }
-        return;
-      }
-
       final authService = AuthService();
       await authService.verifyOtp(phone: widget.phoneNumber!, token: otpCode);
       

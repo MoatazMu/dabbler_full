@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/game_creation_model.dart';
 import '../services/storage_service.dart';
+import '../../features/games/domain/repositories/games_repository.dart';
+import '../../features/games/data/repositories/games_repository_impl.dart';
+import '../../features/games/data/datasources/supabase_games_datasource.dart';
 
 class GameCreationViewModel extends ChangeNotifier {
   GameCreationModel _state = GameCreationModel.initial();
   final StorageService _storageService = StorageService();
+  late final GamesRepository _gamesRepository;
 
   // Available venues for demo - in real app this would come from API
   List<VenueSlot> _availableVenues = [];
   List<String> _recentTeammates = [];
+
+  GameCreationViewModel() {
+    // Initialize the repository
+    final supabase = Supabase.instance.client;
+    final dataSource = SupabaseGamesDataSource(supabase);
+    _gamesRepository = GamesRepositoryImpl(remoteDataSource: dataSource);
+  }
 
   GameCreationModel get state => _state;
   List<VenueSlot> get availableVenues => List.unmodifiable(_availableVenues);
@@ -249,16 +261,42 @@ class GameCreationViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Simulate API call - in real app, this would fetch from backend
-      await Future.delayed(const Duration(seconds: 1));
+      // Fetch real venues from database
+      final response = await Supabase.instance.client
+          .from('venues')
+          .select()
+          .order('name');
       
-      _availableVenues = await _generateMockVenues();
+      if (response.isNotEmpty) {
+        _availableVenues = response.map((venueData) {
+          // Create VenueSlot from database data
+          // Note: This needs to be updated to fetch actual time slots from bookings
+          final tomorrow = DateTime.now().add(const Duration(days: 1));
+          return VenueSlot(
+            venueId: venueData['id'].toString(),
+            venueName: venueData['name'] ?? 'Unknown Venue',
+            location: venueData['address'] ?? '',
+            rating: (venueData['rating'] ?? 0.0).toDouble(),
+            timeSlot: TimeSlot(
+              startTime: tomorrow.copyWith(hour: 18, minute: 0),
+              duration: const Duration(hours: 2),
+              price: (venueData['base_price'] ?? 0.0).toDouble(),
+            ),
+            amenities: venueData['amenities'],
+          );
+        }).toList();
+      } else {
+        _availableVenues = [];
+      }
+      
       _state = _state.copyWith(isLoading: false, error: null);
     } catch (e) {
+      print('❌ Error loading venues: $e');
       _state = _state.copyWith(
         isLoading: false,
         error: 'Failed to load venues: $e',
       );
+      _availableVenues = [];
     }
     notifyListeners();
   }
@@ -417,12 +455,89 @@ class GameCreationViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Simulate API call to create game
-      await Future.delayed(const Duration(seconds: 2));
+      // Get current user ID
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Validate required fields
+      if (_state.gameTitle == null || _state.gameTitle!.isEmpty) {
+        throw Exception('Game title is required');
+      }
+      if (_state.selectedSport == null) {
+        throw Exception('Sport selection is required');
+      }
+      if (_state.selectedDate == null) {
+        throw Exception('Game date is required');
+      }
+      if (_state.selectedVenueSlot?.timeSlot.startTime == null) {
+        throw Exception('Start time is required');
+      }
+      if (_state.selectedVenueSlot?.timeSlot.endTime == null) {
+        throw Exception('End time is required');
+      }
+      if (_state.maxPlayers == null) {
+        throw Exception('Maximum players is required');
+      }
+      if (_state.totalCost == null) {
+        throw Exception('Price is required');
+      }
+      if (_state.skillLevel == null) {
+        throw Exception('Skill level is required');
+      }
+      if (_state.participationMode == null) {
+        throw Exception('Participation mode is required');
+      }
+      if (_state.allowWaitlist == null) {
+        throw Exception('Waitlist preference is required');
+      }
+
+      // Prepare game data for database - ONLY USER-PROVIDED DATA
+      final gameData = <String, dynamic>{
+        'title': _state.gameTitle!,
+        'sport': _state.selectedSport!,
+        'scheduled_date': _state.selectedDate!.toIso8601String().split('T')[0],
+        'start_time': '${_state.selectedVenueSlot!.timeSlot.startTime.hour.toString().padLeft(2, '0')}:${_state.selectedVenueSlot!.timeSlot.startTime.minute.toString().padLeft(2, '0')}',
+        'end_time': '${_state.selectedVenueSlot!.timeSlot.endTime.hour.toString().padLeft(2, '0')}:${_state.selectedVenueSlot!.timeSlot.endTime.minute.toString().padLeft(2, '0')}',
+        'max_players': _state.maxPlayers!,
+        'organizer_id': user.id,
+        'skill_level': _state.skillLevel!,
+        'price_per_player': _state.totalCost!.toDouble(),
+        'is_public': _state.participationMode == ParticipationMode.public,
+        'allows_waitlist': _state.allowWaitlist!,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
       
-      // In real app, this would make API call to backend
-      final gameData = _state.toJson();
-      print('Creating game with data: $gameData');
+      // Add optional fields only if provided by user
+      if (_state.gameDescription != null && _state.gameDescription!.isNotEmpty) {
+        gameData['description'] = _state.gameDescription;
+      }
+      
+      // Add venue_id if selected and is a valid UUID format
+      if (_state.selectedVenueSlot?.venueId != null) {
+        final venueId = _state.selectedVenueSlot!.venueId;
+        // Check if it's a valid UUID (contains hyphens and is proper length)
+        if (venueId.contains('-') && venueId.length >= 36) {
+          gameData['venue_id'] = venueId;
+        }
+      }
+
+      print('🎮 Creating game with data: $gameData');
+
+      // Create game via repository
+      final result = await _gamesRepository.createGame(gameData);
+      
+      result.fold(
+        (failure) {
+          print('❌ Failed to create game: ${failure.message}');
+          throw Exception(failure.message);
+        },
+        (game) {
+          print('✅ Game created successfully with ID: ${game.id}');
+        },
+      );
 
       // If this was a draft, delete it after successful creation
       if (_state.isDraft && _state.draftId != null) {
@@ -432,7 +547,9 @@ class GameCreationViewModel extends ChangeNotifier {
       _state = _state.copyWith(isLoading: false);
       notifyListeners();
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Exception in createGame: $e');
+      print('Stack trace: $stackTrace');
       _state = _state.copyWith(
         isLoading: false,
         error: 'Failed to create game: $e',
@@ -489,62 +606,6 @@ class GameCreationViewModel extends ChangeNotifier {
     }
     
     _state = _state.copyWith(totalCost: totalCost);
-  }
-
-  Future<List<VenueSlot>> _generateMockVenues() async {
-    final now = DateTime.now();
-    final tomorrow = now.add(const Duration(days: 1));
-    
-    return [
-      VenueSlot(
-        venueId: '1',
-        venueName: 'Al Ahly Sports Club',
-        location: 'Nasr City, Cairo',
-        rating: 4.8,
-        timeSlot: TimeSlot(
-          startTime: tomorrow.copyWith(hour: 18, minute: 0),
-          duration: const Duration(hours: 2),
-          price: 200.0,
-        ),
-        amenities: {
-          'parking': true,
-          'changing_rooms': true,
-          'refreshments': true,
-        },
-      ),
-      VenueSlot(
-        venueId: '2',
-        venueName: 'Sporting Club',
-        location: 'Alexandria',
-        rating: 4.6,
-        timeSlot: TimeSlot(
-          startTime: tomorrow.copyWith(hour: 20, minute: 0),
-          duration: const Duration(hours: 2),
-          price: 180.0,
-        ),
-        amenities: {
-          'parking': true,
-          'changing_rooms': true,
-        },
-      ),
-      VenueSlot(
-        venueId: '3',
-        venueName: 'New Cairo Sports Complex',
-        location: 'New Cairo',
-        rating: 4.9,
-        timeSlot: TimeSlot(
-          startTime: tomorrow.copyWith(hour: 16, minute: 0),
-          duration: const Duration(hours: 2),
-          price: 250.0,
-        ),
-        amenities: {
-          'parking': true,
-          'changing_rooms': true,
-          'refreshments': true,
-          'equipment_rental': true,
-        },
-      ),
-    ];
   }
 
   // Helper method to reconstruct GameFormat from saved data

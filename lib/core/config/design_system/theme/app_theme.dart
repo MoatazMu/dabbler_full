@@ -52,8 +52,8 @@ class DabblerTheme {
       cardColor: surfaceColor,
       dividerColor: dividerColor,
       shadowColor: brightness == Brightness.light 
-          ? Colors.black.withOpacity(0.1)
-          : Colors.black.withOpacity(0.3),
+          ? Colors.black.withValues(alpha: 0.1)
+          : Colors.black.withValues(alpha: 0.3),
 
       // Typography
       textTheme: _getTextTheme(textPrimaryColor, textSecondaryColor),

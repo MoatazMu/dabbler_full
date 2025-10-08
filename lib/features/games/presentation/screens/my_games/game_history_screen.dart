@@ -214,7 +214,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
         children: [
           Expanded(
             child: DropdownButtonFormField<String>(
-              value: _selectedSport,
+              initialValue: _selectedSport,
               decoration: const InputDecoration(
                 labelText: 'Sport',
                 border: OutlineInputBorder(),
@@ -235,7 +235,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           
           Expanded(
             child: DropdownButtonFormField<String>(
-              value: _selectedTimeRange,
+              initialValue: _selectedTimeRange,
               decoration: const InputDecoration(
                 labelText: 'Time Range',
                 border: OutlineInputBorder(),

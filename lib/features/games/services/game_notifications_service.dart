@@ -399,9 +399,6 @@ class GameNotificationsService {
             userId: notification.userId,
             notification: notification,
           );
-
-        default:
-          return false;
       }
     } catch (e) {
       debugPrint('Error sending notification via $channel: $e');

@@ -328,6 +328,11 @@ class AnalyticsService {
     // - Custom analytics endpoint: httpClient.post('/analytics', body: {...});
   }
 
+  /// Public wrapper to track arbitrary events
+  Future<void> trackEvent(String eventName, Map<String, dynamic> parameters) async {
+    await _trackEvent(eventName, parameters);
+  }
+
   /// Internal method to set user properties
   Future<void> _setUserProperties(Map<String, dynamic> properties) async {
     if (kDebugMode) {

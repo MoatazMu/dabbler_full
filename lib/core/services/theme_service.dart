@@ -52,26 +52,40 @@ class ThemeService extends ChangeNotifier {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     
-    // Load theme mode
+    // Load theme mode with validation
     final themeModeIndex = prefs.getInt(_themeModeKey) ?? ThemeMode.system.index;
-    _themeMode = ThemeMode.values[themeModeIndex];
+    if (themeModeIndex >= 0 && themeModeIndex < ThemeMode.values.length) {
+      _themeMode = ThemeMode.values[themeModeIndex];
+    } else {
+      _themeMode = ThemeMode.system; // Default for invalid values
+    }
     
     // Load auto theme setting
     _autoThemeEnabled = prefs.getBool(_autoThemeKey) ?? true;
     
-    // Load day start time
+    // Load day start time with validation
     final dayStartMinutes = prefs.getInt(_dayStartTimeKey) ?? 360; // 6:00 AM
+    final validatedDayStartMinutes = _validateTimeMinutes(dayStartMinutes, 360);
     _dayStartTime = TimeOfDay(
-      hour: dayStartMinutes ~/ 60,
-      minute: dayStartMinutes % 60,
+      hour: validatedDayStartMinutes ~/ 60,
+      minute: validatedDayStartMinutes % 60,
     );
     
-    // Load night start time
+    // Load night start time with validation
     final nightStartMinutes = prefs.getInt(_nightStartTimeKey) ?? 1080; // 6:00 PM
+    final validatedNightStartMinutes = _validateTimeMinutes(nightStartMinutes, 1080);
     _nightStartTime = TimeOfDay(
-      hour: nightStartMinutes ~/ 60,
-      minute: nightStartMinutes % 60,
+      hour: validatedNightStartMinutes ~/ 60,
+      minute: validatedNightStartMinutes % 60,
     );
+  }
+
+  // Validate time minutes are within valid range (0-1439 minutes in a day)
+  int _validateTimeMinutes(int minutes, int defaultValue) {
+    if (minutes < 0 || minutes >= 1440) { // 1440 minutes = 24 hours
+      return defaultValue;
+    }
+    return minutes;
   }
 
   // Save preferences to shared preferences

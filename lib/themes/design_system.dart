@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Legacy DS class for backwards compatibility
 class DS {
   // Spacing
   static const double gap2 = 2;
@@ -106,4 +107,112 @@ class DS {
       ),
     );
   }
-} 
+}
+
+// New comprehensive DesignSystem class for onboarding screens
+class DesignSystem {
+  static final DesignSystemColors colors = DesignSystemColors();
+  static final DesignSystemTypography typography = DesignSystemTypography();
+  static final DesignSystemSpacing spacing = DesignSystemSpacing();
+}
+
+class DesignSystemColors {
+  // Primary colors
+  Color get primary => const Color(0xFF2563EB);
+  Color get primaryLight => const Color(0xFF3B82F6);
+  Color get primaryDark => const Color(0xFF1D4ED8);
+  
+  // Secondary colors
+  Color get secondary => const Color(0xFF7C3AED);
+  Color get secondaryLight => const Color(0xFF8B5CF6);
+  Color get secondaryDark => const Color(0xFF6D28D9);
+  
+  // Surface colors
+  Color get background => const Color(0xFFFAFAFA);
+  Color get surface => Colors.white;
+  Color get surfaceVariant => const Color(0xFFF5F5F5);
+  
+  // Text colors
+  Color get textPrimary => const Color(0xFF1F2937);
+  Color get textSecondary => const Color(0xFF6B7280);
+  Color get textTertiary => const Color(0xFF9CA3AF);
+  
+  // Border colors
+  Color get border => const Color(0xFFE5E7EB);
+  Color get borderLight => const Color(0xFFF3F4F6);
+  
+  // Status colors
+  Color get success => const Color(0xFF10B981);
+  Color get warning => const Color(0xFFF59E0B);
+  Color get error => const Color(0xFFEF4444);
+  Color get info => const Color(0xFF3B82F6);
+}
+
+class DesignSystemTypography {
+  // Headlines
+  TextStyle get headlineLarge => const TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    letterSpacing: -0.5,
+  );
+  
+  TextStyle get headlineMedium => const TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.bold,
+    letterSpacing: -0.5,
+  );
+  
+  TextStyle get headlineSmall => const TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    letterSpacing: -0.25,
+  );
+  
+  // Titles
+  TextStyle get titleLarge => const TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.25,
+  );
+  
+  TextStyle get titleMedium => const TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.15,
+  );
+  
+  TextStyle get titleSmall => const TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.1,
+  );
+  
+  // Body text
+  TextStyle get bodyLarge => const TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 0.5,
+  );
+  
+  TextStyle get bodyMedium => const TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 0.25,
+  );
+  
+  TextStyle get bodySmall => const TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 0.4,
+  );
+}
+
+class DesignSystemSpacing {
+  // Spacing scale
+  double get xs => 4.0;
+  double get sm => 8.0;
+  double get md => 16.0;
+  double get lg => 24.0;
+  double get xl => 32.0;
+  double get xxl => 48.0;
+}

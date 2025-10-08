@@ -1,60 +1,181 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../../routes/app_routes.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../features/payments/domain/entities/payment_method.dart' as pm;
+import '../../features/payments/presentation/providers/payment_providers.dart';
+import '../../core/services/auth_service.dart';
 
-class PaymentMethodsScreen extends StatefulWidget {
+class PaymentMethodsScreen extends ConsumerStatefulWidget {
   const PaymentMethodsScreen({super.key});
 
   @override
-  State<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
+  ConsumerState<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
 }
 
-class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
-  final List<PaymentMethod> _paymentMethods = [
-    PaymentMethod(
-      id: '1',
-      type: PaymentType.card,
-      lastFour: '4567',
-      brand: 'Visa',
-      expiryDate: '12/25',
-      isDefault: true,
-    ),
-    PaymentMethod(
-      id: '2',
-      type: PaymentType.card,
-      lastFour: '8901',
-      brand: 'Mastercard',
-      expiryDate: '08/26',
-      isDefault: false,
-    ),
-    PaymentMethod(
-      id: '3',
-      type: PaymentType.paypal,
-      email: 'john.doe@email.com',
-      isDefault: false,
-    ),
-  ];
+class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
+  final _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadPaymentMethods();
+    });
+  }
+
+  Future<void> _loadPaymentMethods() async {
+    final userId = _authService.getCurrentUserId();
+    if (userId == null) return;
+
+    ref.read(paymentMethodsControllerProvider(userId).notifier).loadPaymentMethods();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment Methods'),
-        leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft),
-          onPressed: () => AppRoutes.goBack(context),
+    final userId = _authService.getCurrentUserId();
+    if (userId == null) {
+      return Scaffold(
+        appBar: CustomAppBar(
+          actionIcon: Iconsax.card_copy,
         ),
+        body: const Center(
+          child: Text('Please sign in to view payment methods'),
+        ),
+      );
+    }
+
+    final state = ref.watch(paymentMethodsControllerProvider(userId));
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: CustomAppBar(
+        actionIcon: Iconsax.card_copy,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : state.error != null
+              ? _buildErrorState(state.error!)
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 116, 20, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTransactionHistoryCard(context),
+                      const SizedBox(height: 16),
+                      _buildAddPaymentButton(context),
+                      const SizedBox(height: 24),
+                      _buildPaymentMethodsList(context, state.paymentMethods),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            LucideIcons.alertCircle,
+            color: Colors.red,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            error,
+            style: const TextStyle(color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _loadPaymentMethods,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTransactionHistoryCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed('/transactions');
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF813FD6),
+              Color(0xFF9D5CE8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF813FD6).withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
           children: [
-            _buildAddPaymentButton(context),
-            const SizedBox(height: 24),
-            _buildPaymentMethodsList(context),
-            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                LucideIcons.receipt,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Transaction History',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'View all your payments',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                LucideIcons.arrowRight,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
           ],
         ),
       ),
@@ -76,7 +197,41 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
-  Widget _buildPaymentMethodsList(BuildContext context) {
+  Widget _buildPaymentMethodsList(BuildContext context, List<pm.PaymentMethod> methods) {
+    if (methods.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Icon(
+                LucideIcons.creditCard,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No payment methods yet',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Add your first payment method to get started',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -91,10 +246,10 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _paymentMethods.length,
+          itemCount: methods.length,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final method = _paymentMethods[index];
+            final method = methods[index];
             return _buildPaymentMethodCard(context, method);
           },
         ),
@@ -102,7 +257,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
-  Widget _buildPaymentMethodCard(BuildContext context, PaymentMethod method) {
+  Widget _buildPaymentMethodCard(BuildContext context, pm.PaymentMethod method) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -115,7 +270,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                _getMethodIcon(method.type),
+                _getPaymentIcon(method.type),
                 color: _getMethodColor(method.type),
                 size: 24,
               ),
@@ -220,46 +375,62 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
-  IconData _getMethodIcon(PaymentType type) {
+  IconData _getPaymentIcon(pm.PaymentType type) {
     switch (type) {
-      case PaymentType.card:
+      case pm.PaymentType.card:
         return LucideIcons.creditCard;
-      case PaymentType.paypal:
+      case pm.PaymentType.paypal:
         return LucideIcons.wallet;
-      case PaymentType.bankTransfer:
+      case pm.PaymentType.applePay:
+        return LucideIcons.apple;
+      case pm.PaymentType.googlePay:
+        return LucideIcons.smartphone;
+      case pm.PaymentType.bankTransfer:
         return LucideIcons.building;
     }
   }
 
-  Color _getMethodColor(PaymentType type) {
+  Color _getMethodColor(pm.PaymentType type) {
     switch (type) {
-      case PaymentType.card:
+      case pm.PaymentType.card:
         return Colors.blue;
-      case PaymentType.paypal:
+      case pm.PaymentType.paypal:
         return Colors.orange;
-      case PaymentType.bankTransfer:
+      case pm.PaymentType.applePay:
+        return Colors.black;
+      case pm.PaymentType.googlePay:
         return Colors.green;
+      case pm.PaymentType.bankTransfer:
+        return Colors.teal;
     }
   }
 
-  String _getMethodTitle(PaymentMethod method) {
+  String _getMethodTitle(pm.PaymentMethod method) {
     switch (method.type) {
-      case PaymentType.card:
+      case pm.PaymentType.card:
         return '${method.brand} •••• ${method.lastFour}';
-      case PaymentType.paypal:
+      case pm.PaymentType.paypal:
         return 'PayPal';
-      case PaymentType.bankTransfer:
+      case pm.PaymentType.applePay:
+        return 'Apple Pay';
+      case pm.PaymentType.googlePay:
+        return 'Google Pay';
+      case pm.PaymentType.bankTransfer:
         return 'Bank Transfer';
     }
   }
 
-  String _getMethodSubtitle(PaymentMethod method) {
+  String _getMethodSubtitle(pm.PaymentMethod method) {
     switch (method.type) {
-      case PaymentType.card:
+      case pm.PaymentType.card:
         return 'Expires ${method.expiryDate}';
-      case PaymentType.paypal:
+      case pm.PaymentType.paypal:
         return method.email ?? '';
-      case PaymentType.bankTransfer:
+      case pm.PaymentType.applePay:
+        return 'Apple Wallet';
+      case pm.PaymentType.googlePay:
+        return 'Google Wallet';
+      case pm.PaymentType.bankTransfer:
         return 'Bank account ending in ${method.lastFour}';
     }
   }
@@ -298,74 +469,71 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
-  void _setAsDefault(PaymentMethod method) {
-    setState(() {
-      for (var m in _paymentMethods) {
-        m.isDefault = m.id == method.id;
-      }
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${_getMethodTitle(method)} set as default')),
-    );
+  Future<void> _setAsDefault(pm.PaymentMethod method) async {
+    final userId = _authService.getCurrentUserId();
+    if (userId == null) return;
+
+    final success = await ref
+        .read(paymentMethodsControllerProvider(userId).notifier)
+        .setDefaultPaymentMethod(method.id);
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${_getMethodTitle(method)} set as default')),
+      );
+    }
   }
 
-  void _editPaymentMethod(PaymentMethod method) {
+  void _editPaymentMethod(pm.PaymentMethod method) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Edit payment method coming soon!')),
     );
   }
 
-  void _deletePaymentMethod(PaymentMethod method) {
-    showDialog(
+  Future<void> _deletePaymentMethod(pm.PaymentMethod method) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Payment Method'),
-        content: Text('Are you sure you want to delete ${_getMethodTitle(method)}?'),
+        content: const Text(
+          'Are you sure you want to delete this payment method?',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                _paymentMethods.removeWhere((m) => m.id == method.id);
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Payment method deleted'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
     );
+
+    if (confirmed != true) return;
+
+    final userId = _authService.getCurrentUserId();
+    if (userId == null) return;
+
+    final success = await ref
+        .read(paymentMethodsControllerProvider(userId).notifier)
+        .deletePaymentMethod(method.id);
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Payment method deleted')),
+      );
+    } else if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to delete payment method'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
-
-enum PaymentType { card, paypal, bankTransfer }
-
-class PaymentMethod {
-  final String id;
-  final PaymentType type;
-  final String? lastFour;
-  final String? brand;
-  final String? expiryDate;
-  final String? email;
-  bool isDefault;
-
-  PaymentMethod({
-    required this.id,
-    required this.type,
-    this.lastFour,
-    this.brand,
-    this.expiryDate,
-    this.email,
-    this.isDefault = false,
-  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/venue.dart';
+import '../../domain/repositories/venues_repository.dart' as repo;
 
 enum VenueSortBy {
   distance,
@@ -175,14 +176,11 @@ class VenuesState {
 }
 
 class VenuesController extends StateNotifier<VenuesState> {
-  // TODO: Add repository dependencies when available
-  // final VenuesRepository _venuesRepository;
-  // final BookingsRepository _bookingsRepository;
-  // final UserRepository _userRepository;
+  final repo.VenuesRepository _venuesRepository;
 
   static const Duration _cacheValidity = Duration(minutes: 10);
 
-  VenuesController() : super(const VenuesState());
+  VenuesController(this._venuesRepository) : super(const VenuesState());
 
   /// Set user location and load nearby venues
   Future<void> setUserLocation(double latitude, double longitude) async {
@@ -196,23 +194,76 @@ class VenuesController extends StateNotifier<VenuesState> {
 
   /// Load venues based on current filters and location
   Future<void> loadVenues() async {
-    if (!_shouldRefresh()) return;
+    if (!_shouldRefresh()) {
+      print('⏭️ [CONTROLLER] Skipping refresh - data is fresh');
+      return;
+    }
 
+    print('🎮 [CONTROLLER] loadVenues called');
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: Replace with actual repository call
-      await Future.delayed(const Duration(seconds: 1));
-
-      final mockVenues = _generateMockVenues();
-      
-      state = state.copyWith(
-        venues: mockVenues,
-        isLoading: false,
-        lastUpdated: DateTime.now(),
+      final repoFilters = repo.VenueFilters(
+        sports: state.filters.sports.isEmpty ? null : state.filters.sports,
+        amenities: state.filters.amenities.isEmpty ? null : state.filters.amenities,
+        minPrice: state.filters.minPricePerHour,
+        maxPrice: state.filters.maxPricePerHour,
+        minRating: state.filters.minRating,
       );
 
+      print('🔧 [CONTROLLER] Applying filters: ${repoFilters.toJson()}');
+
+      // Don't pass 'distance' to database - it's not a column, we calculate it client-side
+      final dbSortBy = state.sortBy == VenueSortBy.distance ? 'name' : state.sortBy.name;
+      
+      final result = await _venuesRepository.getVenues(
+        filters: repoFilters,
+        sortBy: dbSortBy,
+        ascending: state.ascending,
+      );
+
+      result.fold(
+        (failure) {
+          print('❌ [CONTROLLER] Failed to load venues: ${failure.message}');
+          state = state.copyWith(
+            isLoading: false,
+            error: 'Failed to load venues: ${failure.message}',
+          );
+        },
+        (venues) {
+          print('✅ [CONTROLLER] Loaded ${venues.length} venues successfully');
+          
+          final venuesWithDistance = venues.map((venue) {
+            final distance = state.hasLocation
+                ? _calculateDistance(
+                    state.userLatitude!,
+                    state.userLongitude!,
+                    venue.latitude,
+                    venue.longitude,
+                  )
+                : 0.0;
+
+            return VenueWithDistance(
+              venue: venue,
+              distanceKm: distance,
+              isAvailable: true, // TODO: Check actual availability
+              isFavorite: false, // Will be updated by _updateFavoriteStatus
+            );
+          }).toList();
+
+          print('📍 [CONTROLLER] Created ${venuesWithDistance.length} VenueWithDistance objects');
+
+          state = state.copyWith(
+            venues: venuesWithDistance,
+            isLoading: false,
+            lastUpdated: DateTime.now(),
+          );
+          
+          _sortVenues();
+        },
+      );
     } catch (e) {
+      print('💥 [CONTROLLER] Exception in loadVenues: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Failed to load venues: $e',
@@ -301,22 +352,13 @@ class VenuesController extends StateNotifier<VenuesState> {
     state = state.copyWith(isLoadingFavorites: true);
 
     try {
-      // TODO: Replace with actual repository call
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Mock favorites
-      final mockFavorites = state.venues
-          .take(2)
-          .map((vwd) => vwd.venue)
-          .toList();
-
+      // TODO: Integrate with venuesRepository.getFavoriteVenues(userId)
+      // For now, favorites feature is disabled
+      
       state = state.copyWith(
-        favoriteVenues: mockFavorites,
+        favoriteVenues: [], // Favorites feature disabled
         isLoadingFavorites: false,
       );
-
-      // Update venues list to mark favorites
-      _updateFavoriteStatus();
 
     } catch (e) {
       state = state.copyWith(
@@ -420,101 +462,6 @@ class VenuesController extends StateNotifier<VenuesState> {
     ).toList();
     
     state = state.copyWith(venues: updatedVenues);
-  }
-
-  List<VenueWithDistance> _generateMockVenues() {
-    final userLat = state.userLatitude ?? 40.7831;
-    final userLng = state.userLongitude ?? -73.9712;
-    
-    final mockVenueData = [
-      {
-        'name': 'Downtown Sports Center',
-        'description': 'Modern sports facility with multiple courts',
-        'lat': userLat + 0.01,
-        'lng': userLng + 0.01,
-        'sports': ['basketball', 'volleyball', 'badminton'],
-        'amenities': ['parking', 'changing_rooms', 'equipment_rental'],
-        'rating': 4.5,
-        'price': 25.0,
-      },
-      {
-        'name': 'Elite Fitness Club',
-        'description': 'Premium fitness facility with tennis courts',
-        'lat': userLat - 0.02,
-        'lng': userLng + 0.015,
-        'sports': ['tennis', 'squash', 'badminton'],
-        'amenities': ['parking', 'changing_rooms', 'pro_shop', 'restaurant'],
-        'rating': 4.8,
-        'price': 45.0,
-      },
-      {
-        'name': 'Community Recreation Center',
-        'description': 'Affordable community sports facility',
-        'lat': userLat + 0.03,
-        'lng': userLng - 0.02,
-        'sports': ['basketball', 'volleyball', 'table_tennis'],
-        'amenities': ['parking', 'changing_rooms'],
-        'rating': 4.1,
-        'price': 15.0,
-      },
-      {
-        'name': 'Riverside Sports Complex',
-        'description': 'Large outdoor and indoor sports complex',
-        'lat': userLat - 0.04,
-        'lng': userLng - 0.03,
-        'sports': ['football', 'soccer', 'basketball', 'tennis'],
-        'amenities': ['parking', 'changing_rooms', 'equipment_rental', 'cafe'],
-        'rating': 4.3,
-        'price': 30.0,
-      },
-      {
-        'name': 'Urban Court Network',
-        'description': 'Network of courts across the city',
-        'lat': userLat + 0.05,
-        'lng': userLng + 0.04,
-        'sports': ['basketball', 'tennis', 'volleyball'],
-        'amenities': ['changing_rooms', 'equipment_rental'],
-        'rating': 4.0,
-        'price': 20.0,
-      },
-    ];
-
-    return mockVenueData.map((data) {
-      final venue = Venue(
-        id: 'venue_${data['name'].toString().toLowerCase().replaceAll(' ', '_')}',
-        name: data['name'] as String,
-        description: data['description'] as String,
-        addressLine1: '${data['name']} Address',
-        city: 'New York',
-        state: 'NY',
-        country: 'USA',
-        postalCode: '10001',
-        latitude: data['lat'] as double,
-        longitude: data['lng'] as double,
-        openingTime: '06:00',
-        closingTime: '22:00',
-        rating: data['rating'] as double,
-        totalRatings: 50 + DateTime.now().millisecond % 200,
-        pricePerHour: data['price'] as double,
-        currency: 'USD',
-        supportedSports: data['sports'] as List<String>,
-        amenities: data['amenities'] as List<String>,
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        updatedAt: DateTime.now(),
-      );
-
-      final distance = _calculateDistance(
-        userLat, userLng,
-        data['lat'] as double, data['lng'] as double,
-      );
-
-      return VenueWithDistance(
-        venue: venue,
-        distanceKm: distance,
-        isAvailable: DateTime.now().millisecond % 3 != 0, // Random availability
-        isFavorite: false, // Will be updated by _updateFavoriteStatus
-      );
-    }).toList();
   }
 
   /// Calculate distance between two points using Haversine formula

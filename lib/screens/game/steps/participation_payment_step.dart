@@ -331,7 +331,7 @@ class _ParticipationPaymentStepState extends State<ParticipationPaymentStep> {
               Switch(
                 value: allowWaitlist,
                 onChanged: (value) => widget.viewModel.toggleWaitlist(value),
-                activeColor: context.colors.primary,
+                activeThumbColor: context.colors.primary,
               ),
             ],
           ),

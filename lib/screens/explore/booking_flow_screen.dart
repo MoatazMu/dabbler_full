@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../themes/design_system.dart';
+import '../../features/games/providers/games_providers.dart';
+import '../../features/games/domain/repositories/venues_repository.dart';
 import 'booking_summary_modal.dart';
 import 'payment_sheet.dart';
 import 'booking_success_screen.dart';
 
-class BookingFlowScreen extends StatefulWidget {
+class BookingFlowScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> venue;
   
   const BookingFlowScreen({
@@ -14,10 +17,10 @@ class BookingFlowScreen extends StatefulWidget {
   });
 
   @override
-  State<BookingFlowScreen> createState() => _BookingFlowScreenState();
+  ConsumerState<BookingFlowScreen> createState() => _BookingFlowScreenState();
 }
 
-class _BookingFlowScreenState extends State<BookingFlowScreen> {
+class _BookingFlowScreenState extends ConsumerState<BookingFlowScreen> {
   DateTime? selectedDate;
   String? selectedTime;
   String? selectedSport;
@@ -26,21 +29,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   bool isSlotLocked = false;
   String? lockError;
   
-  // Mock available slots data
-  final List<Map<String, dynamic>> _availableSlots = [
-    {'time': '09:00', 'price': 120, 'available': true},
-    {'time': '10:00', 'price': 120, 'available': true},
-    {'time': '11:00', 'price': 120, 'available': true},
-    {'time': '12:00', 'price': 150, 'available': false},
-    {'time': '13:00', 'price': 150, 'available': true},
-    {'time': '14:00', 'price': 150, 'available': true},
-    {'time': '15:00', 'price': 150, 'available': true},
-    {'time': '16:00', 'price': 180, 'available': true},
-    {'time': '17:00', 'price': 180, 'available': true},
-    {'time': '18:00', 'price': 200, 'available': true},
-    {'time': '19:00', 'price': 200, 'available': true},
-    {'time': '20:00', 'price': 200, 'available': true},
-  ];
+  List<TimeSlot> _availableSlots = [];
+  bool _isLoadingSlots = false;
+  String? _slotsError;
 
   @override
   void initState() {
@@ -50,6 +41,44 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     if (sports.isNotEmpty) {
       selectedSport = sports.first;
     }
+  }
+
+  Future<void> _loadAvailableSlots() async {
+    if (selectedDate == null) return;
+
+    final venueId = widget.venue['id'] as String?;
+    if (venueId == null) return;
+
+    setState(() {
+      _isLoadingSlots = true;
+      _slotsError = null;
+    });
+
+    final venuesRepository = ref.read(venuesRepositoryProvider);
+    final result = await venuesRepository.checkAvailability(
+      venueId,
+      selectedDate!,
+      sport: selectedSport,
+    );
+
+    result.fold(
+      (failure) {
+        if (mounted) {
+          setState(() {
+            _isLoadingSlots = false;
+            _slotsError = 'Failed to load available slots';
+          });
+        }
+      },
+      (slots) {
+        if (mounted) {
+          setState(() {
+            _availableSlots = slots;
+            _isLoadingSlots = false;
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -189,6 +218,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   setState(() {
                     selectedSport = sport;
                   });
+                  if (selectedDate != null) {
+                    _loadAvailableSlots(); // Reload slots for new sport
+                  }
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -294,6 +326,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                     selectedDate = date;
                     selectedTime = null; // Reset time when date changes
                   });
+                  _loadAvailableSlots(); // Load slots for new date
                 },
                 child: Container(
                   width: 60,
@@ -357,75 +390,141 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 2.5,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: _availableSlots.length,
-          itemBuilder: (context, index) {
-            final slot = _availableSlots[index];
-            final time = slot['time'] as String;
-            final price = slot['price'] as int;
-            final available = slot['available'] as bool;
-            final isSelected = selectedTime == time;
-            
-            return GestureDetector(
-              onTap: available ? () {
-                setState(() {
-                  selectedTime = time;
-                });
-              } : null,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isSelected 
-                      ? DS.primary 
-                      : available 
-                          ? DS.surface 
-                          : Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
+        
+        // Loading state
+        if (_isLoadingSlots)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        
+        // Error state
+        else if (_slotsError != null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                children: [
+                  Icon(
+                    LucideIcons.alertCircle,
+                    color: DS.error,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _slotsError!,
+                    style: DS.body.copyWith(color: DS.error),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _loadAvailableSlots,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          )
+        
+        // Empty state
+        else if (_availableSlots.isEmpty && selectedDate != null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text(
+                'No available slots for this date',
+                style: DS.body.copyWith(color: DS.onSurfaceVariant),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        
+        // Slots grid
+        else if (_availableSlots.isNotEmpty)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 2.5,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemCount: _availableSlots.length,
+            itemBuilder: (context, index) {
+              final slot = _availableSlots[index];
+              final time = slot.startTime;
+              final price = slot.price ?? 150;
+              final available = slot.isAvailable;
+              final isSelected = selectedTime == time;
+              
+              return GestureDetector(
+                onTap: available ? () {
+                  setState(() {
+                    selectedTime = time;
+                  });
+                } : null,
+                child: Container(
+                  decoration: BoxDecoration(
                     color: isSelected 
                         ? DS.primary 
-                        : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                        : available 
+                            ? DS.surface 
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isSelected 
+                          ? DS.primary 
+                          : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        time,
+                        style: DS.caption.copyWith(
+                          color: isSelected 
+                              ? Colors.white 
+                              : available 
+                                  ? DS.onSurface 
+                                  : DS.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'AED ${price.toStringAsFixed(0)}',
+                        style: DS.caption.copyWith(
+                          color: isSelected 
+                              ? Colors.white.withOpacity(0.8)
+                              : available 
+                                  ? DS.onSurfaceVariant 
+                                  : DS.onSurfaceVariant.withOpacity(0.5),
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      time,
-                      style: DS.caption.copyWith(
-                        color: isSelected 
-                            ? Colors.white 
-                            : available 
-                                ? DS.onSurface 
-                                : DS.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'AED $price',
-                      style: DS.caption.copyWith(
-                        color: isSelected 
-                            ? Colors.white.withOpacity(0.8)
-                            : available 
-                                ? DS.onSurfaceVariant 
-                                : DS.onSurfaceVariant.withOpacity(0.5),
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
+              );
+            },
+          )
+        
+        // Initial state - no date selected
+        else
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text(
+                'Please select a date first',
+                style: DS.body.copyWith(color: DS.onSurfaceVariant),
+                textAlign: TextAlign.center,
               ),
-            );
-          },
-        ),
+            ),
+          ),
       ],
     );
   }
@@ -615,10 +714,15 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
 
   int _getSelectedSlotPrice() {
     final slot = _availableSlots.firstWhere(
-      (slot) => slot['time'] == selectedTime,
-      orElse: () => {'price': 150},
+      (slot) => slot.startTime == selectedTime,
+      orElse: () => const TimeSlot(
+        startTime: '',
+        endTime: '',
+        isAvailable: false,
+        price: 150,
+      ),
     );
-    return slot['price'] as int;
+    return (slot.price ?? 150).toInt();
   }
 
   Future<bool> _lockSlot() async {

@@ -142,23 +142,21 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
     }
 
     // Combine date and time
-    if (selectedTime != null) {
-      final newDateTime = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        selectedTime.hour,
-        selectedTime.minute,
-      );
+    final newDateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
 
-      setState(() {
-        _selectedDateTime = newDateTime;
-        _updateController();
-      });
+    setState(() {
+      _selectedDateTime = newDateTime;
+      _updateController();
+    });
 
-      widget.onChanged(_selectedDateTime);
+    widget.onChanged(_selectedDateTime);
     }
-  }
 
   Future<DateTime?> _showCustomDatePicker() async {
     final now = DateTime.now();

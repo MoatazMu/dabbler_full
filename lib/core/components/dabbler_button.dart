@@ -103,7 +103,7 @@ class DabblerButton extends StatelessWidget {
     }
 
     return baseStyle.copyWith(
-      color: onPressed == null ? color.withOpacity(0.5) : color,
+      color: onPressed == null ? color.withValues(alpha: 0.5) : color,
       fontSize: fontSize,
     );
   }
@@ -115,14 +115,14 @@ class DabblerButton extends StatelessWidget {
     switch (variant) {
       case ButtonVariant.primary:
         backgroundColor = onPressed == null
-            ? DabblerColors.primary.withOpacity(0.5)
+            ? DabblerColors.primary.withValues(alpha: 0.5)
             : DabblerColors.primary;
         break;
       case ButtonVariant.secondary:
         backgroundColor = Colors.transparent;
         border = Border.all(
           color: onPressed == null
-              ? DabblerColors.primary.withOpacity(0.5)
+              ? DabblerColors.primary.withValues(alpha: 0.5)
               : DabblerColors.primary,
           width: 1,
         );

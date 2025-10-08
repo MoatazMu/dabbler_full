@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../services/game_completion_rewards_handler.dart';
+import '../../../../../core/services/auth_service.dart';
 
 class PostGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
@@ -19,10 +21,12 @@ class PostGameScreen extends StatefulWidget {
 class _PostGameScreenState extends State<PostGameScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late GameCompletionRewardsHandler _rewardsHandler;
   
   final Map<String, Map<String, int>> _playerRatings = {};
   bool _hasRated = false;
   bool _showQuickRating = true;
+  bool _rewardsProcessed = false;
   
   final List<Map<String, dynamic>> _players = [
     {
@@ -73,7 +77,9 @@ class _PostGameScreenState extends State<PostGameScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _rewardsHandler = GameCompletionRewardsHandler();
     _initializeRatings();
+    _processGameRewards();
   }
 
   void _initializeRatings() {
@@ -83,6 +89,72 @@ class _PostGameScreenState extends State<PostGameScreen>
         'sportsmanship': 0,
       };
     }
+  }
+
+  /// Process rewards for game completion
+  Future<void> _processGameRewards() async {
+    if (_rewardsProcessed) return;
+    
+    try {
+      final authService = AuthService();
+      final currentUser = authService.getCurrentUser();
+      
+      if (currentUser == null || !mounted) return;
+
+      // Extract game data
+      final gameId = widget.gameData['id'] ?? 'unknown';
+      final sport = widget.gameData['sport'] ?? 'unknown';
+      final teamAScore = widget.gameResults['teamAScore'] ?? 0;
+      final teamBScore = widget.gameResults['teamBScore'] ?? 0;
+      final gameDuration = Duration(minutes: widget.gameResults['duration'] ?? 60);
+      
+      // Determine if current user won (simplified logic)
+      final isWinner = _determineIfWinner(currentUser.id, teamAScore, teamBScore);
+      
+      // Prepare game stats
+      final gameStats = {
+        'score': isWinner ? (teamAScore > teamBScore ? teamAScore : teamBScore) : (teamAScore < teamBScore ? teamAScore : teamBScore),
+        'teamAScore': teamAScore,
+        'teamBScore': teamBScore,
+        'mvp': widget.gameResults['mvpId'] == currentUser.id,
+        'goals': widget.gameResults['playerStats']?[currentUser.id]?['goals'] ?? 0,
+        'assists': widget.gameResults['playerStats']?[currentUser.id]?['assists'] ?? 0,
+        'points': widget.gameResults['playerStats']?[currentUser.id]?['points'] ?? 0,
+        'rebounds': widget.gameResults['playerStats']?[currentUser.id]?['rebounds'] ?? 0,
+      };
+
+      // Process rewards
+      await _rewardsHandler.handleGameCompletion(
+        userId: currentUser.id,
+        gameId: gameId,
+        sport: sport,
+        isWinner: isWinner,
+        gameDuration: gameDuration,
+        gameStats: gameStats,
+        context: context,
+      );
+
+      _rewardsProcessed = true;
+    } catch (e) {
+      debugPrint('Error processing game rewards: $e');
+    }
+  }
+
+  /// Determine if the current user won (simplified logic)
+  bool _determineIfWinner(String userId, int teamAScore, int teamBScore) {
+    // In a real implementation, you would check which team the user was on
+    // For now, assuming user was on Team A if they're the first player
+    final userPlayer = _players.firstWhere(
+      (player) => player['id'] == userId,
+      orElse: () => _players.first,
+    );
+    
+    final userTeam = userPlayer['team'] ?? 'A';
+    
+    if (teamAScore == teamBScore) return false; // Tie
+    
+    return (userTeam == 'A' && teamAScore > teamBScore) ||
+           (userTeam == 'B' && teamBScore > teamAScore);
   }
 
   @override
@@ -200,7 +272,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                 Container(
                   width: 2,
                   height: 60,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                 ),
                 
                 Column(
@@ -864,7 +936,7 @@ class _PostGameScreenState extends State<PostGameScreen>
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 24),
@@ -974,7 +1046,7 @@ class _PostGameScreenState extends State<PostGameScreen>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, -2),

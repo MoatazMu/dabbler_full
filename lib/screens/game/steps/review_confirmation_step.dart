@@ -522,7 +522,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
                   });
                   widget.viewModel.updateGameReminders(value);
                 },
-                activeColor: context.colors.primary,
+                activeThumbColor: context.colors.primary,
               ),
             ],
           ),

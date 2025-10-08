@@ -1,31 +1,73 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../presentation/controllers/games_controller.dart';
-import '../presentation/controllers/create_game_controller.dart';
+// import '../presentation/controllers/create_game_controller.dart'; // TODO: Uncomment when BookingsRepository implemented
 import '../presentation/controllers/game_detail_controller.dart';
 import '../presentation/controllers/venues_controller.dart';
 import '../presentation/controllers/my_games_controller.dart';
+import '../presentation/controllers/bookings_controller.dart';
 import '../domain/usecases/find_games_usecase.dart';
-import '../domain/usecases/create_game_usecase.dart';
+// import '../domain/usecases/create_game_usecase.dart'; // TODO: Uncomment when BookingsRepository implemented
 import '../domain/usecases/join_game_usecase.dart';
-import '../domain/usecases/cancel_game_usecase.dart';
+// import '../domain/usecases/cancel_game_usecase.dart'; // TODO: Uncomment when BookingsRepository implemented
 import '../domain/entities/game.dart';
 import '../domain/entities/venue.dart';
+import '../domain/repositories/bookings_repository.dart';
+import '../data/repositories/games_repository_impl.dart';
+import '../data/repositories/venues_repository_impl.dart';
+import '../data/repositories/bookings_repository_impl.dart';
+import '../data/datasources/supabase_games_datasource.dart';
+import '../data/datasources/venues_datasource.dart';
+import '../data/datasources/bookings_datasource.dart';
+import '../data/datasources/bookings_remote_data_source.dart';
+
+// =============================================================================
+// DATA SOURCE PROVIDERS
+// =============================================================================
+
+/// Provides the Supabase client instance
+final supabaseClientProvider = Provider<SupabaseClient>((ref) {
+  return Supabase.instance.client;
+});
+
+/// Provides the games remote data source
+final gamesDataSourceProvider = Provider<SupabaseGamesDataSource>((ref) {
+  return SupabaseGamesDataSource(ref.watch(supabaseClientProvider));
+});
+
+/// Provides the venues remote data source
+final venuesDataSourceProvider = Provider<SupabaseVenuesDataSource>((ref) {
+  return SupabaseVenuesDataSource(ref.watch(supabaseClientProvider));
+});
+
+/// Provides the bookings remote data source  
+final bookingsDataSourceProvider = Provider<BookingsDataSource>((ref) {
+  return SupabaseBookingsDataSource(ref.watch(supabaseClientProvider));
+});
 
 // =============================================================================
 // REPOSITORY PROVIDERS
 // =============================================================================
 
-// TODO: Implement these when repositories are available
+/// Provides the games repository with Supabase implementation
 final gamesRepositoryProvider = Provider((ref) {
-  throw UnimplementedError('GamesRepository not implemented yet');
+  return GamesRepositoryImpl(
+    remoteDataSource: ref.watch(gamesDataSourceProvider),
+  );
 });
 
+/// Provides the venues repository
 final venuesRepositoryProvider = Provider((ref) {
-  throw UnimplementedError('VenuesRepository not implemented yet');
+  return VenuesRepositoryImpl(
+    remoteDataSource: ref.watch(venuesDataSourceProvider),
+  );
 });
 
-final bookingsRepositoryProvider = Provider((ref) {
-  throw UnimplementedError('BookingsRepository not implemented yet');
+/// Provides the bookings repository
+final bookingsRepositoryProvider = Provider<BookingsRepository>((ref) {
+  return BookingsRepositoryImpl(
+    remoteDataSource: ref.watch(bookingsDataSourceProvider) as BookingsRemoteDataSource,
+  );
 });
 
 // =============================================================================
@@ -38,13 +80,19 @@ final findGamesUseCaseProvider = Provider<FindGamesUseCase>((ref) {
   );
 });
 
-final createGameUseCaseProvider = Provider<CreateGameUseCase>((ref) {
-  return CreateGameUseCase(
-    gamesRepository: ref.watch(gamesRepositoryProvider),
-    venuesRepository: ref.watch(venuesRepositoryProvider),
-    bookingsRepository: ref.watch(bookingsRepositoryProvider),
-  );
-});
+// TODO: Uncomment when BookingsRepository is implemented
+// final createGameUseCaseProvider = Provider<CreateGameUseCase>((ref) {
+//   final bookingsRepo = ref.watch(bookingsRepositoryProvider);
+//   // Throw error if bookings repo is accessed before implementation
+//   if (bookingsRepo == null) {
+//     throw UnimplementedError('BookingsRepository not yet implemented');
+//   }
+//   return CreateGameUseCase(
+//     gamesRepository: ref.watch(gamesRepositoryProvider),
+//     venuesRepository: ref.watch(venuesRepositoryProvider),
+//     bookingsRepository: bookingsRepo,
+//   );
+// });
 
 final joinGameUseCaseProvider = Provider<JoinGameUseCase>((ref) {
   return JoinGameUseCase(
@@ -52,12 +100,18 @@ final joinGameUseCaseProvider = Provider<JoinGameUseCase>((ref) {
   );
 });
 
-final cancelGameUseCaseProvider = Provider<CancelGameUseCase>((ref) {
-  return CancelGameUseCase(
-    gamesRepository: ref.watch(gamesRepositoryProvider),
-    bookingsRepository: ref.watch(bookingsRepositoryProvider),
-  );
-});
+// TODO: Uncomment when BookingsRepository is implemented
+// final cancelGameUseCaseProvider = Provider<CancelGameUseCase>((ref) {
+//   final bookingsRepo = ref.watch(bookingsRepositoryProvider);
+//   // Throw error if bookings repo is accessed before implementation
+//   if (bookingsRepo == null) {
+//     throw UnimplementedError('BookingsRepository not yet implemented');
+//   }
+//   return CancelGameUseCase(
+//     gamesRepository: ref.watch(gamesRepositoryProvider),
+//     bookingsRepository: bookingsRepo,
+//   );
+// });
 
 // =============================================================================
 // CONTROLLER PROVIDERS
@@ -70,23 +124,34 @@ final gamesControllerProvider = StateNotifierProvider<GamesController, GamesStat
   );
 });
 
-/// Create game controller for multi-step game creation
-final createGameControllerProvider = StateNotifierProvider<CreateGameController, CreateGameState>((ref) {
-  return CreateGameController(
-    createGameUseCase: ref.watch(createGameUseCaseProvider),
-  );
-});
+// TODO: Uncomment when BookingsRepository is implemented
+// Create game controller for multi-step game creation
+// final createGameControllerProvider = StateNotifierProvider<CreateGameController, CreateGameState>((ref) {
+//   return CreateGameController(
+//     createGameUseCase: ref.watch(createGameUseCaseProvider),
+//   );
+// });
 
 /// Venues controller for venue discovery and management
 final venuesControllerProvider = StateNotifierProvider<VenuesController, VenuesState>((ref) {
-  return VenuesController();
+  final venuesRepository = ref.watch(venuesRepositoryProvider);
+  return VenuesController(venuesRepository);
 });
 
 /// My games controller for user's personal game management
 final myGamesControllerProvider = StateNotifierProvider.family<MyGamesController, MyGamesState, String>((ref, userId) {
   return MyGamesController(
-    cancelGameUseCase: ref.watch(cancelGameUseCaseProvider),
+    // TODO: Add cancelGameUseCase when BookingsRepository is implemented
+    cancelGameUseCase: null,
+    gamesRepository: ref.watch(gamesRepositoryProvider),
     userId: userId,
+  );
+});
+
+/// Bookings controller for user's venue bookings
+final bookingsControllerProvider = StateNotifierProvider.family<BookingsController, BookingsState, String>((ref, userId) {
+  return BookingsController(
+    ref.watch(bookingsRepositoryProvider),
   );
 });
 
@@ -94,6 +159,8 @@ final myGamesControllerProvider = StateNotifierProvider.family<MyGamesController
 final gameDetailControllerProvider = StateNotifierProvider.family<GameDetailController, GameDetailState, GameDetailParams>((ref, params) {
   return GameDetailController(
     joinGameUseCase: ref.watch(joinGameUseCaseProvider),
+    gamesRepository: ref.watch(gamesRepositoryProvider),
+    venuesRepository: ref.watch(venuesRepositoryProvider),
     gameId: params.gameId,
     currentUserId: params.currentUserId,
   );
@@ -130,6 +197,80 @@ final todayGamesProvider = Provider.family<List<Game>, String>((ref, userId) {
 final thisWeekGamesProvider = Provider.family<List<Game>, String>((ref, userId) {
   final myGamesState = ref.watch(myGamesControllerProvider(userId));
   return myGamesState.thisWeekGames;
+});
+
+// =============================================================================
+// ASYNC PROVIDERS FOR REAL-TIME DATA
+// =============================================================================
+
+/// Current user's ID from Supabase auth
+final currentUserIdProvider = Provider<String?>((ref) {
+  return ref.watch(supabaseClientProvider).auth.currentUser?.id;
+});
+
+/// Fetches user's upcoming games from Supabase
+final userUpcomingGamesProvider = FutureProvider.autoDispose<List<Game>>((ref) async {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) return [];
+  
+  final repository = ref.watch(gamesRepositoryProvider);
+  final result = await repository.getMyGames(
+    userId,
+    status: 'upcoming',
+    limit: 50,
+  );
+  
+  return result.fold(
+    (failure) {
+      // Log error but return empty list to avoid breaking UI
+      print('Error loading games: ${failure.message}');
+      return [];
+    },
+    (games) {
+      // Sort by date (earliest first)
+      games.sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
+      return games;
+    },
+  );
+});
+
+/// Fetches user's next upcoming game
+final nextUpcomingGameProvider = Provider.autoDispose<AsyncValue<Game?>>((ref) {
+  final gamesAsync = ref.watch(userUpcomingGamesProvider);
+  
+  return gamesAsync.when(
+    data: (games) {
+      if (games.isEmpty) return const AsyncValue.data(null);
+      // Return the first game (earliest scheduled)
+      return AsyncValue.data(games.first);
+    },
+    loading: () => const AsyncValue.loading(),
+    error: (error, stack) => AsyncValue.error(error, stack),
+  );
+});
+
+/// Fetches all public games from Supabase (for Explore screen)
+final publicGamesProvider = FutureProvider.autoDispose<List<Game>>((ref) async {
+  print('🔍 [DEBUG] publicGamesProvider: Fetching public games...');
+  
+  final repository = ref.watch(gamesRepositoryProvider);
+  final result = await repository.getGames(
+    filters: {'is_public': true, 'status': 'upcoming'},
+    limit: 100,
+  );
+  
+  return result.fold(
+    (failure) {
+      print('❌ [ERROR] publicGamesProvider: ${failure.message}');
+      throw Exception(failure.message);
+    },
+    (games) {
+      print('✅ [DEBUG] publicGamesProvider: Loaded ${games.length} public games');
+      // Sort by date (earliest first)
+      games.sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
+      return games;
+    },
+  );
 });
 
 /// Active check-in reminders
@@ -263,10 +404,11 @@ final myGamesActionsProvider = Provider.family<MyGamesActions, String>((ref, use
   return MyGamesActions(ref, userId);
 });
 
-/// Create game actions provider
-final createGameActionsProvider = Provider((ref) {
-  return CreateGameActions(ref);
-});
+// TODO: Uncomment when BookingsRepository and CreateGameController are implemented
+// /// Create game actions provider
+// final createGameActionsProvider = Provider((ref) {
+//   return CreateGameActions(ref);
+// });
 
 // =============================================================================
 // SUPPORTING CLASSES
@@ -383,68 +525,70 @@ class MyGamesActions {
   }
 }
 
-class CreateGameActions {
-  final Ref _ref;
-  CreateGameActions(this._ref);
+// TODO: Uncomment when BookingsRepository and CreateGameController are implemented
+// class CreateGameActions {
+//   final Ref _ref;
+//   CreateGameActions(this._ref);
 
-  void selectSport(String sport) {
-    _ref.read(createGameControllerProvider.notifier).selectSport(sport);
-  }
+//   void selectSport(String sport) {
+//     _ref.read(createGameControllerProvider.notifier).selectSport(sport);
+//   }
 
-  void setDateTime({DateTime? date, String? startTime, String? endTime}) {
-    _ref.read(createGameControllerProvider.notifier).setDateTime(
-      date: date,
-      startTime: startTime,
-      endTime: endTime,
-    );
-  }
+//   void setDateTime({DateTime? date, String? startTime, String? endTime}) {
+//     _ref.read(createGameControllerProvider.notifier).setDateTime(
+//       date: date,
+//       startTime: startTime,
+//       endTime: endTime,
+//     );
+//   }
 
-  void selectVenue(Venue? venue) {
-    _ref.read(createGameControllerProvider.notifier).selectVenue(venue);
-  }
+//   void selectVenue(Venue? venue) {
+//     _ref.read(createGameControllerProvider.notifier).selectVenue(venue);
+//   }
 
-  void configureGame({
-    String? title,
-    String? description,
-    String? skillLevel,
-    double? pricePerPlayer,
-    bool? isPublic,
-    bool? allowWaitlist,
-  }) {
-    _ref.read(createGameControllerProvider.notifier).configureGame(
-      title: title,
-      description: description,
-      skillLevel: skillLevel,
-      pricePerPlayer: pricePerPlayer,
-      isPublic: isPublic,
-      allowWaitlist: allowWaitlist,
-    );
-  }
+//   void configureGame({
+//     String? title,
+//     String? description,
+//     String? skillLevel,
+//     double? pricePerPlayer,
+//     bool? isPublic,
+//     bool? allowWaitlist,
+//   }) {
+//     _ref.read(createGameControllerProvider.notifier).configureGame(
+//       title: title,
+//       description: description,
+//       skillLevel: skillLevel,
+//       pricePerPlayer: pricePerPlayer,
+//       isPublic: isPublic,
+//       allowWaitlist: allowWaitlist,
+//     );
+//   }
 
-  void configurePlayerSettings({int? minPlayers, int? maxPlayers}) {
-    _ref.read(createGameControllerProvider.notifier).configurePlayerSettings(
-      minPlayers: minPlayers,
-      maxPlayers: maxPlayers,
-    );
-  }
+//   void configurePlayerSettings({int? minPlayers, int? maxPlayers}) {
+//     _ref.read(createGameControllerProvider.notifier).configurePlayerSettings(
+//       minPlayers: minPlayers,
+//       maxPlayers: maxPlayers,
+//     );
+//   }
 
-  void nextStep() {
-    _ref.read(createGameControllerProvider.notifier).nextStep();
-  }
+//   void nextStep() {
+//     _ref.read(createGameControllerProvider.notifier).nextStep();
+//   }
 
-  void previousStep() {
-    _ref.read(createGameControllerProvider.notifier).previousStep();
-  }
+//   void previousStep() {
+//     _ref.read(createGameControllerProvider.notifier).previousStep();
+//   }
 
-  void goToStep(CreateGameStep step) {
-    _ref.read(createGameControllerProvider.notifier).goToStep(step);
-  }
+//   void goToStep(CreateGameStep step) {
+//     _ref.read(createGameControllerProvider.notifier).goToStep(step);
+//   }
 
-  Future<void> reviewAndCreate(String organizerId) async {
-    await _ref.read(createGameControllerProvider.notifier).reviewAndCreate(organizerId);
-  }
+//   Future<void> reviewAndCreate(String organizerId) async {
+//     await _ref.read(createGameControllerProvider.notifier).reviewAndCreate(organizerId);
+//   }
 
-  void reset() {
-    _ref.read(createGameControllerProvider.notifier).reset();
-  }
-}
+//   void reset() {
+//     _ref.read(createGameControllerProvider.notifier).reset();
+//   }
+// }
+

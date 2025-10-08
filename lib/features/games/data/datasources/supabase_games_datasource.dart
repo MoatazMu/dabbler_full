@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'games_remote_data_source.dart';
 import '../models/game_model.dart';
+import '../models/player_model.dart';
 
 class SupabaseGamesDataSource implements GamesRemoteDataSource {
   final SupabaseClient _supabaseClient;
@@ -42,12 +43,16 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   @override
   Future<GameModel> createGame(Map<String, dynamic> gameData) async {
     try {
+      print('📤 [Datasource] Inserting game with data: $gameData');
+      
       // Insert game
       final gameResponse = await _supabaseClient
           .from('games')
           .insert(gameData)
           .select()
           .single();
+
+      print('✅ [Datasource] Game inserted successfully: ${gameResponse['id']}');
 
       // Add organizer as first player
       await _supabaseClient.from('game_players').insert({
@@ -57,10 +62,16 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
         'joined_at': DateTime.now().toIso8601String(),
       });
 
+      print('✅ [Datasource] Organizer added to game_players');
+
       return GameModel.fromJson(gameResponse);
     } on PostgrestException catch (e) {
+      print('❌ [Datasource] PostgrestException: ${e.message}');
+      print('❌ [Datasource] Error code: ${e.code}');
+      print('❌ [Datasource] Error details: ${e.details}');
       throw GameServerException('Database error: ${e.message}');
     } catch (e) {
+      print('❌ [Datasource] General exception: ${e.toString()}');
       throw GameServerException('Failed to create game: ${e.toString()}');
     }
   }
@@ -74,7 +85,12 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     bool ascending = true,
   }) async {
     try {
-      var query = _supabaseClient.from('games').select('*');
+      print('🔍 [DEBUG] getGames called with filters: $filters');
+      
+      // JOIN with venues table to get venue name
+      var query = _supabaseClient
+          .from('games')
+          .select('*, venues!games_venue_id_fkey(name)');
 
       // Apply basic filters
       if (filters != null) {
@@ -90,17 +106,28 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
         if (filters['status'] != null) {
           query = query.eq('status', filters['status']);
         }
+        if (filters['is_public'] != null) {
+          query = query.eq('is_public', filters['is_public']);
+        }
       }
 
+      print('🔍 [DEBUG] Executing getGames query...');
       // Apply sorting and pagination
       final response = await query
           .order(sortBy ?? 'scheduled_date', ascending: ascending)
           .range((page - 1) * limit, page * limit - 1);
       
+      print('🔍 [DEBUG] getGames response: ${response.length} games found');
+      if (response.isNotEmpty) {
+        print('🔍 [DEBUG] First public game: ${response.first}');
+      }
+      
       return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
     } on PostgrestException catch (e) {
+      print('❌ [ERROR] getGames PostgrestException: ${e.message}');
       throw GameServerException('Database error: ${e.message}');
     } catch (e) {
+      print('❌ [ERROR] getGames failed: $e');
       throw GameServerException('Failed to get games: ${e.toString()}');
     }
   }
@@ -195,7 +222,7 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     try {
       final response = await _supabaseClient
           .from('games')
-          .select('*')
+          .select('*, venues!games_venue_id_fkey(name)')
           .eq('id', gameId)
           .single();
 
@@ -218,26 +245,38 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     int limit = 20,
   }) async {
     try {
+      print('🔍 [DEBUG] getMyGames called with userId: $userId, status: $status');
+      
+      // Get games where user is organizer, JOIN with venues
       var query = _supabaseClient
           .from('games')
-          .select('''
-            *,
-            game_players!inner(player_id, status)
-          ''')
-          .eq('game_players.player_id', userId);
+          .select('*, venues!games_venue_id_fkey(name)')
+          .eq('organizer_id', userId);
 
       if (status != null) {
         query = query.eq('status', status);
       }
 
+      print('🔍 [DEBUG] Executing query...');
       final response = await query
-          .order('scheduled_date', ascending: false)
+          .order('scheduled_date', ascending: true)
           .range((page - 1) * limit, page * limit - 1);
       
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+      print('🔍 [DEBUG] Query response: ${response.length} games found');
+      if (response.isNotEmpty) {
+        print('🔍 [DEBUG] First game: ${response.first}');
+      }
+      
+      final games = response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+      print('🔍 [DEBUG] Parsed ${games.length} games successfully');
+      
+      return games;
     } on PostgrestException catch (e) {
+      print('❌ [ERROR] PostgrestException: ${e.message}, code: ${e.code}');
       throw GameServerException('Database error: ${e.message}');
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ [ERROR] Failed to get user games: $e');
+      print('Stack trace: $stackTrace');
       throw GameServerException('Failed to get user games: ${e.toString()}');
     }
   }
@@ -252,7 +291,7 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     try {
       var searchQuery = _supabaseClient
           .from('games')
-          .select('*')
+          .select('*, venues!games_venue_id_fkey(name)')
           .textSearch('title', query);
 
       if (filters != null) {
@@ -518,6 +557,23 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
       return GameModel.fromJson(response);
     } catch (e) {
       throw GameServerException('Failed to duplicate game: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<PlayerModel>> getGamePlayers(String gameId) async {
+    try {
+      final response = await _supabaseClient
+          .from('game_players')
+          .select('*')
+          .eq('game_id', gameId)
+          .order('joined_at', ascending: true);
+      
+      return response.map<PlayerModel>((json) => PlayerModel.fromJson(json)).toList();
+    } on PostgrestException catch (e) {
+      throw GameServerException('Database error: ${e.message}');
+    } catch (e) {
+      throw GameServerException('Failed to get game players: ${e.toString()}');
     }
   }
 

@@ -3,42 +3,81 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../features/splash/presentation/pages/splash_page.dart';
-import '../screens/home/home_screen.dart';
-import '../features/error/presentation/pages/error_page.dart';
-import '../features/authentication/presentation/screens/login_screen.dart';
-import '../features/authentication/presentation/screens/register_screen.dart';
-import '../features/authentication/presentation/screens/enter_password_screen.dart';
-import '../features/authentication/presentation/screens/forgot_password_screen.dart';
-import '../features/authentication/presentation/screens/reset_password_screen.dart';
+
+
+
+// Onboarding screens
+import '../screens/onboarding/phone_input_screen.dart';
+import '../screens/onboarding/email_input_screen.dart';
+import '../screens/onboarding/otp_verification_screen.dart';
 import '../screens/onboarding/create_user_information.dart';
 import '../screens/onboarding/sports_selection_screen.dart';
 import '../screens/onboarding/intent_selection_screen.dart';
 import '../screens/onboarding/set_password_screen.dart';
 import '../screens/onboarding/welcome_screen.dart';
+
+// Authentication screens
+import '../features/authentication/presentation/screens/forgot_password_screen.dart';
+import '../features/authentication/presentation/screens/enter_password_screen.dart';
+import '../features/authentication/presentation/screens/reset_password_screen.dart';
+import '../features/authentication/presentation/screens/register_screen.dart';
+
+// Core screens
+import '../features/error/presentation/pages/error_page.dart';
+import '../screens/design_system_demo.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/social/social_screen.dart';
+import '../screens/explore/explore_screen.dart';
+import '../screens/activities/activities_screen_v2.dart';
+import '../screens/rewards/rewards_screen.dart';
+
+// Profile screens
+import '../features/profile/presentation/screens/profile/profile_screen.dart';
+import '../features/profile/presentation/screens/profile_edit_screen.dart';
+import '../features/profile/presentation/screens/settings/settings_screen.dart';
+import '../features/profile/presentation/screens/settings/profile_avatar_screen.dart';
+import '../features/profile/presentation/screens/settings/profile_sports_screen.dart';
+import '../features/profile/presentation/screens/settings/account_management_screen.dart';
+import '../features/profile/presentation/screens/settings/privacy_settings_screen.dart';
+import '../features/profile/presentation/screens/settings/notification_settings_screen.dart';
+import '../features/profile/presentation/screens/preferences/game_preferences_screen.dart';
+import '../features/profile/presentation/screens/preferences/availability_preferences_screen.dart';
+import '../screens/profile/theme_settings_screen.dart';
+import '../screens/onboarding/language_selection_screen.dart';
+import '../screens/support/help_center_screen.dart';
+import '../features/profile/presentation/screens/support/contact_support_screen.dart';
+import '../features/profile/presentation/screens/support/bug_report_screen.dart';
+import '../features/profile/presentation/screens/about/terms_of_service_screen.dart';
+import '../features/profile/presentation/screens/about/privacy_policy_screen.dart';
+import '../features/profile/presentation/screens/about/licenses_screen.dart';
+
+// Transactions screens
+import '../screens/transactions/transactions_screen.dart';
+
+// Notifications screens
+import '../screens/notifications/notifications_screen_v2.dart';
+
+// Game screens
+import '../screens/game/create_game_screen.dart';
+
+// Social screens
+import '../screens/posts/add_post_screen.dart';
+import '../features/social/presentation/screens/social_feed_screen.dart';
+import '../features/social/presentation/screens/social_search_screen.dart';
+import '../features/social/presentation/screens/placeholders/social_profile_screen.dart';
+import '../features/social/presentation/screens/social_feed/post_detail_screen.dart';
+import '../features/social/presentation/screens/onboarding/social_onboarding_welcome_screen.dart';
+import '../features/social/presentation/screens/onboarding/social_onboarding_friends_screen.dart';
+import '../features/social/presentation/screens/onboarding/social_onboarding_privacy_screen.dart';
+import '../features/social/presentation/screens/onboarding/social_onboarding_notifications_screen.dart';
+import '../features/social/presentation/screens/onboarding/social_onboarding_complete_screen.dart';
+
+// Utilities
 import '../utils/constants/route_constants.dart';
 import '../features/authentication/presentation/providers/auth_providers.dart';
-import '../screens/design_system_demo.dart';
-// Game feature imports - TODO: Uncomment when screens are implemented
-// import '../features/games/presentation/screens/games_home_screen.dart';
-// import '../features/games/presentation/screens/available_games_screen.dart';
-// import '../features/games/presentation/screens/game_detail_screen.dart';
-// import '../features/games/presentation/screens/venues_list_screen.dart';
-// import '../features/games/presentation/screens/venue_detail_screen.dart';
-// import '../features/games/presentation/screens/create_game_basic_info_screen.dart';
-// import '../features/games/presentation/screens/create_game_venue_selection_screen.dart';
-// import '../features/games/presentation/screens/create_game_date_time_screen.dart';
-// import '../features/games/presentation/screens/create_game_player_settings_screen.dart';
-// import '../features/games/presentation/screens/create_game_pricing_screen.dart';
-// import '../features/games/presentation/screens/create_game_additional_details_screen.dart';
-// import '../features/games/presentation/screens/create_game_review_screen.dart';
-// import '../features/games/presentation/screens/game_checkin_screen.dart';
-// import '../features/games/presentation/screens/game_lobby_screen.dart';
-// import '../features/games/presentation/screens/live_game_screen.dart';
-// import '../features/games/presentation/screens/post_game_screen.dart';
-// import '../features/games/presentation/screens/my_games_screen.dart';
-// import '../features/games/presentation/screens/game_history_screen.dart';
-import '../features/games/presentation/screens/create_game/create_game_screen.dart';
+import '../utils/transitions/page_transitions.dart';
+
+// Import RegistrationData from the correct location
 
 
 // Export GoRouter instance for use in main.dart
@@ -57,13 +96,16 @@ class AppRouter {
 
   static final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: RoutePaths.splash,
-    debugLogDiagnostics: false, // reduce noisy full route dumps in console
+    initialLocation: RoutePaths.phoneInput, // Start with phone input screen
+    debugLogDiagnostics: true, // Enable debug logging to see what's happening
     observers: [_routeObserver],
     errorBuilder: (context, state) => ErrorPage(
       message: state.error?.message,
     ),
-  redirect: _handleRedirect,
+    // Restore redirects for proper navigation flow
+    redirect: _handleRedirect,
+    // Refresh router when auth state changes
+    refreshListenable: routerRefreshNotifier,
     routes: _routes,
   );
 
@@ -74,495 +116,734 @@ class AppRouter {
   ) async {
     if (kDebugMode && _routeLogging) {
       // Compact single-line log
-      debugPrint('🔍 route check -> ${state.matchedLocation}');
+      debugPrint('🔍 [ROUTER] redirect check -> ${state.matchedLocation}');
     }
 
-    // Access Riverpod container to read auth/guest state
-    final container = ProviderScope.containerOf(context, listen: false);
-    final isAuthenticated = container.read(isAuthenticatedProvider);
-    final isGuest = container.read(isGuestProvider);
+    try {
+      // Access Riverpod container to read auth/guest state
+      final container = ProviderScope.containerOf(context, listen: false);
+      final isAuthenticated = container.read(isAuthenticatedProvider);
+      final isGuest = container.read(isGuestProvider);
+      
+      // Also read the full auth state for debugging
+      final authState = container.read(simpleAuthProvider);
 
-    if (kDebugMode && _routeLogging) {
-      debugPrint('🔍 auth: auth=$isAuthenticated guest=$isGuest');
-    }
+      if (kDebugMode && _routeLogging) {
+        debugPrint('🔍 [ROUTER] auth=$isAuthenticated guest=$isGuest loading=${authState.isLoading} error=${authState.error}');
+      }
 
     // Centralised set for auth/onboarding related routes
     const authPaths = <String>{
-      // core auth
-      RoutePaths.login,
       RoutePaths.register,
       RoutePaths.enterPassword,
       RoutePaths.forgotPassword,
       RoutePaths.resetPassword,
-      // onboarding / profile setup
       RoutePaths.createUserInfo,
-      '/welcome',
-      '/sports_selection',
-      '/intent_selection',
-      '/sports-selection',
-      '/intent-selection',
+      RoutePaths.sportsSelection,
+      RoutePaths.intentSelection,
+      RoutePaths.welcome,
       RoutePaths.setPassword,
-      '/set-password',
-      '/create-user-info',
-      // demos (treated as public/auth-like so we don't lock user out if already logged in)
       '/design_system_demo',
-      '/design-system-demo',
-      '/design system demo',
+      RoutePaths.phoneInput, // Use correct route constant
+      RoutePaths.emailInput, // Add email input as auth path
     };
 
     final loc = state.matchedLocation;
     final isOnAuthPage = authPaths.contains(loc);
 
-    // If not authenticated and not guest, force to login (except splash)
-    if (!isAuthenticated && !isGuest && !isOnAuthPage && loc != RoutePaths.splash) {
-      if (kDebugMode && _routeLogging) debugPrint('🔁 redirect -> login');
-      return RoutePaths.login;
-    }
+      // Don't redirect while auth state is loading
+      if (authState.isLoading) {
+        if (kDebugMode && _routeLogging) debugPrint('🔍 [ROUTER] Auth state loading, staying on current page');
+        return null;
+      }
 
-    // If authenticated or guest and on auth page (except welcome), go home
-    if ((isAuthenticated || isGuest) && isOnAuthPage && loc != '/welcome') {
-      if (kDebugMode && _routeLogging) debugPrint('🔁 redirect -> home');
-      return RoutePaths.home;
-    }
+      // If not authenticated, always stay on onboarding/auth screens
+      if (!isAuthenticated) {
+        // If not on an auth page, redirect to phone input
+        if (!isOnAuthPage) {
+          if (kDebugMode && _routeLogging) debugPrint('🔁 [ROUTER] redirect -> ${RoutePaths.phoneInput}');
+          return RoutePaths.phoneInput;
+        }
+        // Stay on auth page
+        if (kDebugMode && _routeLogging) debugPrint('🔍 [ROUTER] Staying on auth page: $loc');
+        return null;
+      }
 
-    return null;
+      // If authenticated and on an auth page (except welcome), go home
+      if (isAuthenticated && isOnAuthPage && loc != '/welcome') {
+        if (kDebugMode && _routeLogging) debugPrint('🔁 [ROUTER] ✅ Authenticated user on auth page, redirect -> home');
+        return RoutePaths.home;
+      }
+
+      if (kDebugMode && _routeLogging) debugPrint('🔍 [ROUTER] No redirect needed for: $loc');
+      return null;
+    } catch (e) {
+      if (kDebugMode && _routeLogging) debugPrint('❌ [ROUTER] Error in redirect logic: $e');
+      return null;
+    }
   }
 
-  // Route Definitions
+  // Route Definitions - Minimal working set
   static List<RouteBase> get _routes => [
-        GoRoute(
-          path: RoutePaths.splash,
-          name: RouteNames.splash,
-          builder: (context, state) => const SplashPage(),
-        ),
-        GoRoute(
-          path: RoutePaths.home,
-          name: RouteNames.home,
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
-          path: '${RoutePaths.error}:message',
-          name: RouteNames.error,
-          builder: (context, state) {
-            final message = state.pathParameters['message'];
-            return ErrorPage(message: message);
-          },
-        ),
-        // Auth Routes
-        GoRoute(
-          path: RoutePaths.login,
-          name: RouteNames.login,
-          builder: (context, state) => const LoginScreen(),
-        ),
-        GoRoute(
-          path: RoutePaths.forgotPassword,
-          name: RouteNames.forgotPassword,
-          builder: (context, state) => const ForgotPasswordScreen(),
-        ),
-        GoRoute(
-          path: RoutePaths.register,
-          name: RouteNames.register,
-          builder: (context, state) => const RegisterScreen(),
-        ),
-        GoRoute(
-          path: RoutePaths.enterPassword,
-          name: RouteNames.enterPassword,
-          builder: (context, state) {
-            final extra = state.extra;
-            final email = extra is String
-                ? extra
-                : (extra is Map && extra['email'] is String ? extra['email'] as String : '');
-            return EnterPasswordScreen(email: email);
-          },
-        ),
-        GoRoute(
-          path: RoutePaths.resetPassword,
-          name: RouteNames.resetPassword,
-          builder: (context, state) => const ResetPasswordScreen(),
-        ),
-        GoRoute(
-          path: RoutePaths.createUserInfo,
-          name: RouteNames.createUserInfo,
-          builder: (context, state) {
-            final extra = state.extra;
-            String email = '';
-            bool forceNew = false;
-            if (extra is String) {
-              email = extra;
-            } else if (extra is Map) {
-              if (extra['email'] is String) email = extra['email'] as String;
-              if (extra['forceNew'] is bool) forceNew = extra['forceNew'] as bool;
-            }
-            return CreateUserInformation(email: email, forceNew: forceNew);
-          },
-        ),
-        // Design System Demo (public)
-        GoRoute(
-          path: '/design_system_demo',
-          builder: (context, state) => const DesignSystemDemo(),
-        ),
-        // Aliases for convenience; redirect to the canonical path
-        GoRoute(
-          path: '/design-system-demo',
-          redirect: (context, state) => '/design_system_demo',
-        ),
-        GoRoute(
-          path: '/design system demo',
-          redirect: (context, state) => '/design_system_demo',
-        ),
-        GoRoute(
-          path: '/sports_selection',
-          builder: (context, state) {
-            final extra = state.extra;
-            final reg = extra is Map<String, dynamic>
-                ? RegistrationData.fromMap(extra)
-                : null;
-            return SportsSelectionScreen(registrationData: reg);
-          },
-        ),
-        GoRoute(
-          path: '/sports-selection',
-          builder: (context, state) {
-            final extra = state.extra;
-            final reg = extra is Map<String, dynamic>
-                ? RegistrationData.fromMap(extra)
-                : null;
-            return SportsSelectionScreen(registrationData: reg);
-          },
-        ),
-        GoRoute(
-          path: '/intent_selection',
-          builder: (context, state) {
-            final extra = state.extra;
-            final reg = extra is Map<String, dynamic>
-                ? RegistrationData.fromMap(extra)
-                : null;
-            return IntentSelectionScreen(registrationData: reg);
-          },
-        ),
-        GoRoute(
-          path: '/intent-selection',
-          builder: (context, state) {
-            final extra = state.extra;
-            final reg = extra is Map<String, dynamic>
-                ? RegistrationData.fromMap(extra)
-                : null;
-            return IntentSelectionScreen(registrationData: reg);
-          },
-        ),
-        GoRoute(
-          path: RoutePaths.setPassword,
-          name: RouteNames.setPassword,
-          builder: (context, state) {
-            final extra = state.extra;
-            final reg = extra is Map<String, dynamic>
-                ? RegistrationData.fromMap(extra)
-                : null;
-            return SetPasswordScreen(registrationData: reg);
-          },
-        ),
-        GoRoute(
-          path: '/set-password',
-          builder: (context, state) {
-            final extra = state.extra;
-            final reg = extra is Map<String, dynamic>
-                ? RegistrationData.fromMap(extra)
-                : null;
-            return SetPasswordScreen(registrationData: reg);
-          },
-        ),
-        GoRoute(
-          path: '/create-user-info',
-          builder: (context, state) {
-            final extra = state.extra;
-            String email = '';
-            bool forceNew = false;
-            if (extra is String) {
-              email = extra;
-            } else if (extra is Map) {
-              if (extra['email'] is String) email = extra['email'] as String;
-              if (extra['forceNew'] is bool) forceNew = extra['forceNew'] as bool;
-            }
-            return CreateUserInformation(email: email, forceNew: forceNew);
-          },
-        ),
-        GoRoute(
-          path: '/welcome',
-          name: 'welcome',
-          builder: (context, state) {
-            print('🔍 [DEBUG] Welcome route matched! Extra: ${state.extra}');
-            final extra = state.extra;
-            final displayName = extra is String
-                ? extra
-                : (extra is Map && extra['displayName'] is String ? extra['displayName'] as String : 'Player');
-            print('🔍 [DEBUG] Display name resolved: $displayName');
-            return WelcomeScreen(displayName: displayName);
-          },
-        ),
-        // Test route to verify router is working
-        GoRoute(
-          path: '/test-welcome',
-          builder: (context, state) => Scaffold(
-            body: Center(child: Text('Test Welcome Route Works!')),
-          ),
-        ),
+
         
-        // ====================
-        // GAMES FEATURE ROUTES
-        // ====================
-        
-        // Main Games Routes
         GoRoute(
-          path: '/games',
-          name: 'games',
-          builder: (context, state) => const SizedBox(), // TODO: wire GamesHomeScreen
-          routes: [
-            GoRoute(
-              path: 'available',
-              name: 'available-games',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-            GoRoute(
-              path: 'my-games',
-              name: 'my-games',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-            GoRoute(
-              path: 'history',
-              name: 'game-history',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-          ],
-        ),
-
-        // Game Detail Routes (with deep linking)
-        GoRoute(
-          path: '/games/:gameId',
-          name: 'game-detail',
-          builder: (context, state) => const SizedBox(), // TODO: wire GameDetailScreen
-          routes: [
-            GoRoute(
-              path: 'join',
-              name: 'join-game',
-              pageBuilder: (context, state) => const MaterialPage(child: SizedBox()), // TODO
-            ),
-            GoRoute(
-              path: 'checkin',
-              name: 'game-checkin',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-            GoRoute(
-              path: 'lobby',
-              name: 'game-lobby',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-            GoRoute(
-              path: 'live',
-              name: 'live-game',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-            GoRoute(
-              path: 'post-game',
-              name: 'post-game',
-              builder: (context, state) => const SizedBox(), // TODO
-            ),
-          ],
-        ),
-
-        // Game Creation Flow (single entrypoint hosting the whole wizard)
-        GoRoute(
-          path: '/create-game',
-          name: 'create-game',
-          pageBuilder: (context, state) => CustomTransitionPage(
+          path: RoutePaths.phoneInput,
+          pageBuilder: (context, state) => FadeTransitionPage(
             key: state.pageKey,
-            child: const CreateGameScreen(),
-            transitionsBuilder: _slideTransition,
+            child: const PhoneInputScreen(),
           ),
         ),
-        // Legacy camelCase route alias (cleanup: remove once all references updated)
-        GoRoute(
-          path: '/gameCreate',
-          redirect: (context, state) => '/create-game',
-        ),
-        // Backward compatibility: redirect old entrypoint to the new one
-        GoRoute(
-          path: '/create-game/basic-info',
-          name: 'create-game-basic-info',
-          redirect: (context, state) => '/create-game',
-        ),
-        GoRoute(
-          path: '/create-game/venue-selection',
-          name: 'create-game-venue-selection',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SizedBox(), // CreateGameVenueSelectionScreen(),
-            transitionsBuilder: _modalTransition,
-          ),
-        ),
-        GoRoute(
-          path: '/create-game/date-time',
-          name: 'create-game-date-time',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SizedBox(), // CreateGameDateTimeScreen(),
-            transitionsBuilder: _slideTransition,
-          ),
-        ),
-        GoRoute(
-          path: '/create-game/player-settings',
-          name: 'create-game-player-settings',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SizedBox(), // CreateGamePlayerSettingsScreen(),
-            transitionsBuilder: _slideTransition,
-          ),
-        ),
-        GoRoute(
-          path: '/create-game/pricing',
-          name: 'create-game-pricing',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SizedBox(), // CreateGamePricingScreen(),
-            transitionsBuilder: _slideTransition,
-          ),
-        ),
-        GoRoute(
-          path: '/create-game/additional-details',
-          name: 'create-game-additional-details',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SizedBox(), // CreateGameAdditionalDetailsScreen(),
-            transitionsBuilder: _slideTransition,
-          ),
-        ),
-        GoRoute(
-          path: '/create-game/review',
-          name: 'create-game-review',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SizedBox(), // CreateGameReviewScreen(),
-            transitionsBuilder: _slideTransition,
-          ),
-        ),
-
-        // Venue Routes
-        GoRoute(
-          path: '/venues',
-          name: 'venues-list',
-          builder: (context, state) => const SizedBox(), // TODO: VenuesListScreen
-        ),
-        GoRoute(
-          path: '/venues/:venueId',
-          name: 'venue-detail',
-          builder: (context, state) => const SizedBox(), // TODO: VenueDetailScreen
-        ),
-        
-        // Add more routes here...
-      ];
-
-  // Custom Transition Builders
-  static Widget _slideTransition(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return SlideTransition(
-      position: animation.drive(
-        Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-            .chain(CurveTween(curve: Curves.easeInOut)),
+    
+    // Email input route
+    GoRoute(
+      path: RoutePaths.emailInput,
+      pageBuilder: (context, state) => FadeTransitionPage(
+        key: state.pageKey,
+        child: const EmailInputScreen(),
       ),
-      child: child,
-    );
-  }
-
-  static Widget _modalTransition(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return SlideTransition(
-      position: animation.drive(
-        Tween(begin: const Offset(0.0, 1.0), end: Offset.zero)
-            .chain(CurveTween(curve: Curves.easeOutCubic)),
+    ),
+    
+    // OTP verification route
+    GoRoute(
+      path: RoutePaths.otpVerification,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        final phone = extra is Map ? extra['phone'] as String? : extra as String?;
+        return FadeTransitionPage(
+          key: state.pageKey,
+          child: OtpVerificationScreen(phoneNumber: phone),
+        );
+      },
+    ),
+    
+    // Enter password route
+    GoRoute(
+      path: RoutePaths.enterPassword,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        final email = extra is Map ? extra['email'] as String? : extra as String?;
+        return FadeTransitionPage(
+          key: state.pageKey,
+          child: EnterPasswordScreen(email: email ?? ''),
+        );
+      },
+    ),
+    
+    // Forgot password route
+    GoRoute(
+      path: RoutePaths.forgotPassword,
+      pageBuilder: (context, state) => FadeTransitionPage(
+        key: state.pageKey,
+        child: const ForgotPasswordScreen(),
       ),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
+    ),
+    
+    // Reset password route
+    GoRoute(
+      path: RoutePaths.resetPassword,
+      pageBuilder: (context, state) => FadeTransitionPage(
+        key: state.pageKey,
+        child: const ResetPasswordScreen(),
       ),
-    );
-  }
+    ),
+    
+    // Register route
+    GoRoute(
+      path: RoutePaths.register,
+      pageBuilder: (context, state) => FadeTransitionPage(
+        key: state.pageKey,
+        child: const RegisterScreen(),
+      ),
+    ),
+    
+    // Create user information route
+    GoRoute(
+      path: RoutePaths.createUserInfo,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        final email = extra is Map ? extra['email'] as String? : extra as String?;
+        final forceNew = extra is Map ? extra['forceNew'] as bool? : false;
+        return SlideTransitionPage(
+          key: state.pageKey,
+          child: CreateUserInformation(email: email ?? '', forceNew: forceNew ?? false),
+          direction: SlideDirection.fromLeft,
+        );
+      },
+    ),
+    
+    // Language selection route (placeholder)
+    GoRoute(
+      path: '/language_selection',
+      pageBuilder: (context, state) => FadeTransitionPage(
+        key: state.pageKey,
+        child: const Scaffold(
+          body: Center(child: Text('Language Selection - Coming Soon')),
+        ),
+      ),
+    ),
+    
+    // Sports selection route
+    GoRoute(
+      path: RoutePaths.sportsSelection,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        RegistrationData? registrationData;
+        if (extra is Map) {
+          registrationData = RegistrationData.fromMap(Map<String, dynamic>.from(extra));
+        }
+        return SlideTransitionPage(
+          key: state.pageKey,
+          child: SportsSelectionScreen(registrationData: registrationData),
+          direction: SlideDirection.fromLeft,
+        );
+      },
+    ),
+    
+    // Intent selection route
+    GoRoute(
+      path: RoutePaths.intentSelection,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        RegistrationData? registrationData;
+        if (extra is Map) {
+          registrationData = RegistrationData.fromMap(Map<String, dynamic>.from(extra));
+        }
+        return SlideTransitionPage(
+          key: state.pageKey,
+          child: IntentSelectionScreen(registrationData: registrationData),
+          direction: SlideDirection.fromLeft,
+        );
+      },
+    ),
+    
+    // Set password route
+    GoRoute(
+      path: RoutePaths.setPassword,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        RegistrationData? registrationData;
+        if (extra is Map) {
+          registrationData = RegistrationData.fromMap(Map<String, dynamic>.from(extra));
+        }
+        return SlideTransitionPage(
+          key: state.pageKey,
+          child: SetPasswordScreen(registrationData: registrationData),
+          direction: SlideDirection.fromLeft,
+        );
+      },
+    ),
+    
+    // Welcome route
+    GoRoute(
+      path: RoutePaths.welcome,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        final displayName = extra is Map ? extra['displayName'] as String? : 'Player';
+        return ScaleTransitionPage(
+          key: state.pageKey,
+          child: WelcomeScreen(displayName: displayName ?? 'Player'),
+        );
+      },
+    ),
+    
+    // Home route
+    GoRoute(
+      path: RoutePaths.home,
+      name: RouteNames.home,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const HomeScreen(),
+      ),
+    ),
+    
+    // Social/Community route
+    GoRoute(
+      path: RoutePaths.social,
+      name: RouteNames.social,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const SocialScreen(),
+      ),
+    ),
+    
+    // Explore/Sports route
+    GoRoute(
+      path: RoutePaths.explore,
+      name: RouteNames.explore,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const ExploreScreen(),
+      ),
+    ),
+    
+    // Activities route
+    GoRoute(
+      path: RoutePaths.activities,
+      name: RouteNames.activities,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const ActivitiesScreenV2(),
+      ),
+    ),
+    
+    // Rewards route
+    GoRoute(
+      path: RoutePaths.rewards,
+      name: RouteNames.rewards,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const RewardsScreen(),
+      ),
+    ),
+    
+    // Profile route
+    GoRoute(
+      path: RoutePaths.profile,
+      name: RouteNames.profile,
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const ProfileScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // Notifications route
+    GoRoute(
+      path: RoutePaths.notifications,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const NotificationsScreenV2(),
+      ),
+    ),
+    
+    // Profile Edit route
+    GoRoute(
+      path: '/profile/edit',
+      pageBuilder: (context, state) => BottomSheetTransitionPage(
+        key: state.pageKey,
+        child: const ProfileEditScreen(),
+      ),
+    ),
+    
+    // Profile Photo route
+    GoRoute(
+      path: '/profile/photo',
+      pageBuilder: (context, state) => ScaleTransitionPage(
+        key: state.pageKey,
+        child: const ProfileAvatarScreen(),
+      ),
+    ),
+    
+    // Profile Sports Preferences route
+    GoRoute(
+      path: '/profile/sports-preferences',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const ProfileSportsScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // Settings route
+    GoRoute(
+      path: '/settings',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const SettingsScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // Transactions route
+    GoRoute(
+      path: '/transactions',
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const TransactionsScreen(),
+      ),
+    ),
+    
+    // Game Creation Routes
+    GoRoute(
+      path: RoutePaths.createGame,
+      name: RouteNames.createGame,
+      pageBuilder: (context, state) => BottomSheetTransitionPage(
+        key: state.pageKey,
+        child: const CreateGameScreen(),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.createGameBasicInfo,
+      name: RouteNames.createGameBasicInfo,
+      pageBuilder: (context, state) => BottomSheetTransitionPage(
+        key: state.pageKey,
+        child: const CreateGameScreen(),
+      ),
+    ),
+    
+    // Settings sub-routes
+    GoRoute(
+      path: '/settings/account',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const AccountManagementScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/settings/privacy',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const PrivacySettingsScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/settings/notifications',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const NotificationSettingsScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/settings/theme',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const ThemeSettingsScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/settings/language',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const LanguageSelectionScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // Preferences routes
+    GoRoute(
+      path: '/preferences/games',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const GamePreferencesScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/preferences/availability',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const AvailabilityPreferencesScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // Help & Support routes
+    GoRoute(
+      path: '/help/center',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const HelpCenterScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/help/contact',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const ContactSupportScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    GoRoute(
+      path: '/help/bug-report',
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const BugReportScreen(),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // About routes
+    GoRoute(
+      path: '/about/terms',
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const TermsOfServiceScreen(),
+      ),
+    ),
+    
+    GoRoute(
+      path: '/about/privacy',
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const PrivacyPolicyScreen(),
+      ),
+    ),
+    
+    GoRoute(
+      path: '/about/licenses',
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const LicensesScreen(),
+      ),
+    ),
+    
+    // Add Post route
+    GoRoute(
+      path: RoutePaths.addPost,
+      name: 'add-post',
+      pageBuilder: (context, state) => BottomSheetTransitionPage(
+        key: state.pageKey,
+        child: const AddPostScreen(),
+      ),
+    ),
+    
+    // Social Create Post route (alias for add post)
+    GoRoute(
+      path: RoutePaths.socialCreatePost,
+      name: RouteNames.socialCreatePost,
+      pageBuilder: (context, state) => BottomSheetTransitionPage(
+        key: state.pageKey,
+        child: const AddPostScreen(),
+      ),
+    ),
+    
+    // Social Routes
+    GoRoute(
+      path: RoutePaths.socialFeed,
+      name: RouteNames.socialFeed,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const SocialFeedScreen(),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialSearch,
+      name: RouteNames.socialSearch,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const SocialSearchScreen(),
+      ),
+    ),
+    
+    GoRoute(
+      path: '${RoutePaths.socialPostDetail}/:postId',
+      name: RouteNames.socialPostDetail,
+      pageBuilder: (context, state) {
+        final postId = state.pathParameters['postId'] ?? '';
+        return ScaleTransitionPage(
+          key: state.pageKey,
+          child: PostDetailScreen(postId: postId),
+        );
+      },
+    ),
+    
+    GoRoute(
+      path: '${RoutePaths.socialProfile}/:userId',
+      name: RouteNames.socialProfile,
+      pageBuilder: (context, state) {
+        final userId = state.pathParameters['userId'] ?? '';
+        return SharedAxisTransitionPage(
+          key: state.pageKey,
+          child: SocialProfileScreen(userId: userId),
+          type: SharedAxisType.horizontal,
+        );
+      },
+    ),
+    
+    // Social Onboarding Routes
+    GoRoute(
+      path: RoutePaths.socialOnboardingWelcome,
+      name: RouteNames.socialOnboardingWelcome,
+      pageBuilder: (context, state) => SlideTransitionPage(
+        key: state.pageKey,
+        child: const SocialOnboardingWelcomeScreen(),
+        direction: SlideDirection.fromLeft,
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialOnboardingFriends,
+      name: RouteNames.socialOnboardingFriends,
+      pageBuilder: (context, state) => SlideTransitionPage(
+        key: state.pageKey,
+        child: const SocialOnboardingFriendsScreen(),
+        direction: SlideDirection.fromLeft,
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialOnboardingPrivacy,
+      name: RouteNames.socialOnboardingPrivacy,
+      pageBuilder: (context, state) => SlideTransitionPage(
+        key: state.pageKey,
+        child: const SocialOnboardingPrivacyScreen(),
+        direction: SlideDirection.fromLeft,
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialOnboardingNotifications,
+      name: RouteNames.socialOnboardingNotifications,
+      pageBuilder: (context, state) => SlideTransitionPage(
+        key: state.pageKey,
+        child: const SocialOnboardingNotificationsScreen(),
+        direction: SlideDirection.fromLeft,
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialOnboardingComplete,
+      name: RouteNames.socialOnboardingComplete,
+      pageBuilder: (context, state) => ScaleTransitionPage(
+        key: state.pageKey,
+        child: const SocialOnboardingCompleteScreen(),
+      ),
+    ),
+    
+    // Placeholder Social Routes (for routes referenced in code but screens don't exist yet)
+    GoRoute(
+      path: RoutePaths.socialChatList,
+      name: RouteNames.socialChatList,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Chat List'),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialFriends,
+      name: RouteNames.socialFriends,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Friends'),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialNotifications,
+      name: RouteNames.socialNotifications,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Social Notifications'),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialMessages,
+      name: RouteNames.socialMessages,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Messages'),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialChat,
+      name: RouteNames.socialChat,
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Chat'),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialEditPost,
+      name: RouteNames.socialEditPost,
+      pageBuilder: (context, state) => BottomSheetTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Edit Post'),
+      ),
+    ),
+    
+    GoRoute(
+      path: RoutePaths.socialAnalytics,
+      name: RouteNames.socialAnalytics,
+      pageBuilder: (context, state) => SharedAxisTransitionPage(
+        key: state.pageKey,
+        child: const _PlaceholderScreen(title: 'Social Analytics'),
+        type: SharedAxisType.horizontal,
+      ),
+    ),
+    
+    // Error route
+    GoRoute(
+      path: '${RoutePaths.error}:message',
+      name: RouteNames.error,
+      pageBuilder: (context, state) {
+        final message = state.pathParameters['message'];
+        return FadeTransitionPage(
+          key: state.pageKey,
+          child: ErrorPage(message: message),
+        );
+      },
+    ),
+    
+    // Design system demo route
+    GoRoute(
+      path: '/design_system_demo',
+      name: 'design-system-demo',
+      pageBuilder: (context, state) => FadeThroughTransitionPage(
+        key: state.pageKey,
+        child: const DesignSystemDemo(),
+      ),
+    ),
+  ];
 
-  // Route Guard for Game Organizer Actions
-  // (Removed unused _requiresGameOrganizerAuth helper to satisfy lints.)
 }
 
-/// Navigation Helper Methods
-extension NavigationExtension on BuildContext {
-  /// Navigate to the home page
-  void navigateToHome() => goNamed(RouteNames.home);
-
-  /// Navigate to the error page
-  void navigateToError(String message) => goNamed(
-        RouteNames.error,
-        pathParameters: {'message': message},
-      );
-
-  /// Navigate back if possible, otherwise go to home
-  void navigateBack() {
-    if (canPop()) {
-      pop();
-    } else {
-      goNamed(RouteNames.home);
-    }
-  }
-
-  // Game Navigation Methods
-  void navigateToGames() => go('/games');
-  void navigateToAvailableGames() => go('/games/available');
-  void navigateToMyGames() => go('/games/my-games');
-  void navigateToGameHistory() => go('/games/history');
+/// Placeholder screen for routes that don't have screens implemented yet
+class _PlaceholderScreen extends StatelessWidget {
+  final String title;
   
-  void navigateToGameDetail(String gameId) => go('/games/$gameId');
-  void navigateToJoinGame(String gameId) => go('/games/$gameId/join');
-  void navigateToGameCheckin(String gameId) => go('/games/$gameId/checkin');
-  void navigateToGameLobby(String gameId) => go('/games/$gameId/lobby');
-  void navigateToLiveGame(String gameId) => go('/games/$gameId/live');
-  void navigateToPostGame(String gameId) => go('/games/$gameId/post-game');
+  const _PlaceholderScreen({required this.title});
   
-  void navigateToCreateGame() => go('/create-game');
-  void navigateToCreateGameVenueSelection() => go('/create-game/venue-selection');
-  void navigateToCreateGameDateTime() => go('/create-game/date-time');
-  void navigateToCreateGamePlayerSettings() => go('/create-game/player-settings');
-  void navigateToCreateGamePricing() => go('/create-game/pricing');
-  void navigateToCreateGameAdditionalDetails() => go('/create-game/additional-details');
-  void navigateToCreateGameReview() => go('/create-game/review');
-  
-  void navigateToVenuesList() => go('/venues');
-  void navigateToVenueDetail(String venueId) => go('/venues/$venueId');
-}
-
-// Custom Transition Page
-class CustomTransitionPage<T> extends Page<T> {
-  final Widget child;
-  final RouteTransitionsBuilder transitionsBuilder;
-
-  const CustomTransitionPage({
-    required this.child,
-    required this.transitionsBuilder,
-    super.key,
-    super.name,
-    super.arguments,
-    super.restorationId,
-  });
-
   @override
-  Route<T> createRoute(BuildContext context) {
-    return PageRouteBuilder<T>(
-      settings: this,
-      pageBuilder: (context, animation, secondaryAnimation) => child,
-      transitionsBuilder: transitionsBuilder,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.construction,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '$title\nComing Soon',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

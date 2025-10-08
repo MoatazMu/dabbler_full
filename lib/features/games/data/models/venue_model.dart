@@ -29,32 +29,48 @@ class VenueModel extends Venue {
   });
 
   factory VenueModel.fromJson(Map<String, dynamic> json) {
-    return VenueModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String? ?? '',
-      addressLine1: json['address_line_1'] as String? ?? json['address'] as String? ?? '',
-      addressLine2: json['address_line_2'] as String?,
-      city: json['city'] as String? ?? '',
-      state: json['state'] as String? ?? '',
-      country: json['country'] as String? ?? '',
-      postalCode: json['postal_code'] as String? ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      phone: json['phone'] as String?,
-      email: json['email'] as String?,
-      website: json['website'] as String?,
-      openingTime: json['opening_time'] as String? ?? '09:00',
-      closingTime: json['closing_time'] as String? ?? '18:00',
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      totalRatings: json['total_ratings'] as int? ?? 0,
-      pricePerHour: (json['price_per_hour'] as num?)?.toDouble() ?? 0.0,
-      currency: json['currency'] as String? ?? 'USD',
-      supportedSports: _parseStringList(json['supported_sports']) ?? [],
-      amenities: _parseAmenities(json['venue_amenities'] ?? json['amenities']) ?? [],
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
+    try {
+      print('🏟️ [DEBUG] Parsing venue: ${json['name']}');
+      return VenueModel(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        description: json['description'] as String? ?? '',
+        addressLine1: json['address_line1'] as String? ?? json['address_line_1'] as String? ?? '',
+        addressLine2: json['address_line2'] as String? ?? json['address_line_2'] as String?,
+        city: json['city'] as String? ?? '',
+        state: json['state'] as String? ?? '',
+        country: json['country'] as String? ?? '',
+        postalCode: json['postal_code'] as String? ?? '',
+        latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+        longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+        phone: json['phone_number'] as String? ?? json['phone'] as String?,
+        email: json['email'] as String?,
+        website: json['website'] as String?,
+        openingTime: _parseTime(json['opening_time']) ?? '09:00',
+        closingTime: _parseTime(json['closing_time']) ?? '18:00',
+        rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+        totalRatings: json['total_ratings'] as int? ?? 0,
+        pricePerHour: (json['price_per_hour'] as num?)?.toDouble() ?? 0.0,
+        currency: json['currency'] as String? ?? 'USD',
+        // TODO: Add supported_sports column to database or create venue_sports table
+        supportedSports: _parseStringList(json['supported_sports']) ?? ['Football', 'Padel'], // Default sports
+        amenities: _parseAmenities(json['venue_amenities'] ?? json['amenities']) ?? [],
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
+    } catch (e, stackTrace) {
+      print('❌ [ERROR] Failed to parse venue: $e');
+      print('JSON: $json');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  static String? _parseTime(dynamic timeData) {
+    if (timeData == null) return null;
+    if (timeData is String) return timeData;
+    // Handle PostgreSQL time format
+    return timeData.toString();
   }
 
   static List<String>? _parseStringList(dynamic listData) {

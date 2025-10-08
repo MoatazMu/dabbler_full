@@ -1,103 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../providers/games_providers.dart';
+import '../../../../../core/services/auth_service.dart';
+import '../join_game/game_detail_screen.dart';
 
-class MyGamesScreen extends StatefulWidget {
-  const MyGamesScreen({super.key});
+class MyGamesScreen extends ConsumerStatefulWidget {
+  final Map<String, dynamic>? initialNewGame;
+  const MyGamesScreen({super.key, this.initialNewGame});
 
   @override
-  State<MyGamesScreen> createState() => _MyGamesScreenState();
+  ConsumerState<MyGamesScreen> createState() => _MyGamesScreenState();
 }
 
-class _MyGamesScreenState extends State<MyGamesScreen>
+class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isCalendarView = false;
-  
-  final List<Map<String, dynamic>> _upcomingGames = [
-    {
-      'id': '1',
-      'title': 'Soccer at Central Park',
-      'sport': 'Soccer',
-      'date': DateTime.now().add(const Duration(days: 2)),
-      'time': '10:00 AM',
-      'venue': {
-        'name': 'Central Park Fields',
-        'address': '123 Park Ave, NYC',
-        'distance': '0.8 miles',
-      },
-      'players': {'current': 8, 'max': 12},
-      'isOrganizer': false,
-      'status': 'confirmed',
-    },
-    {
-      'id': '2',
-      'title': 'Basketball Pickup Game',
-      'sport': 'Basketball',
-      'date': DateTime.now().add(const Duration(days: 5)),
-      'time': '6:00 PM',
-      'venue': {
-        'name': 'Local Sports Center',
-        'address': '456 Sports Blvd',
-        'distance': '1.2 miles',
-      },
-      'players': {'current': 6, 'max': 10},
-      'isOrganizer': true,
-      'status': 'confirmed',
-    },
-    {
-      'id': '3',
-      'title': 'Tennis Doubles',
-      'sport': 'Tennis',
-      'date': DateTime.now().add(const Duration(days: 7)),
-      'time': '2:00 PM',
-      'venue': {
-        'name': 'Tennis Club',
-        'address': '789 Tennis Dr',
-        'distance': '2.1 miles',
-      },
-      'players': {'current': 4, 'max': 4},
-      'isOrganizer': false,
-      'status': 'waitlist',
-    },
-  ];
-
-  final List<Map<String, dynamic>> _pastGames = [
-    {
-      'id': '4',
-      'title': 'Morning Soccer',
-      'sport': 'Soccer',
-      'date': DateTime.now().subtract(const Duration(days: 3)),
-      'time': '9:00 AM',
-      'venue': {'name': 'City Stadium'},
-      'players': {'current': 10, 'max': 12},
-      'isOrganizer': false,
-      'result': 'Team A won 3-2',
-      'rating': 4.5,
-    },
-    {
-      'id': '5',
-      'title': 'Basketball Tournament',
-      'sport': 'Basketball',
-      'date': DateTime.now().subtract(const Duration(days: 10)),
-      'time': '7:00 PM',
-      'venue': {'name': 'Sports Complex'},
-      'players': {'current': 8, 'max': 8},
-      'isOrganizer': true,
-      'result': 'Team B won 85-78',
-      'rating': 4.8,
-    },
-    {
-      'id': '6',
-      'title': 'Volleyball Fun',
-      'sport': 'Volleyball',
-      'date': DateTime.now().subtract(const Duration(days: 15)),
-      'time': '5:00 PM',
-      'venue': {'name': 'Beach Courts'},
-      'players': {'current': 12, 'max': 12},
-      'isOrganizer': false,
-      'result': 'Great game!',
-      'rating': 4.2,
-    },
-  ];
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -113,6 +33,19 @@ class _MyGamesScreenState extends State<MyGamesScreen>
 
   @override
   Widget build(BuildContext context) {
+    final userId = _authService.getCurrentUserId();
+    
+    if (userId == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('My Games')),
+        body: const Center(
+          child: Text('Please sign in to view your games'),
+        ),
+      );
+    }
+
+    final myGamesState = ref.watch(myGamesControllerProvider(userId));
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Games'),
@@ -121,11 +54,11 @@ class _MyGamesScreenState extends State<MyGamesScreen>
           tabs: [
             Tab(
               icon: const Icon(Icons.upcoming),
-              text: 'Upcoming (${_upcomingGames.length})',
+              text: 'Upcoming (${myGamesState.upcomingGames.length})',
             ),
             Tab(
               icon: const Icon(Icons.history),
-              text: 'Past (${_pastGames.length})',
+              text: 'Past (${myGamesState.pastGames.length})',
             ),
           ],
         ),
@@ -141,26 +74,41 @@ class _MyGamesScreenState extends State<MyGamesScreen>
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _buildStatsHeader(),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildUpcomingTab(),
-                _buildPastTab(),
-              ],
-            ),
-          ),
-        ],
-      ),
+      body: myGamesState.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : myGamesState.error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Error: ${myGamesState.error}'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.read(myGamesControllerProvider(userId).notifier).refresh();
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
+                  children: [
+                    _buildStatsHeader(myGamesState),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildUpcomingTab(myGamesState.upcomingGames),
+                          _buildPastTab(myGamesState.pastGames),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Navigate to create game
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Opening game creation...')),
-          );
+          context.push('/create-game');
         },
         icon: const Icon(Icons.add),
         label: const Text('Create Game'),
@@ -168,10 +116,10 @@ class _MyGamesScreenState extends State<MyGamesScreen>
     );
   }
 
-  Widget _buildStatsHeader() {
-    final totalGames = _upcomingGames.length + _pastGames.length;
-    final organizerGames = [..._upcomingGames, ..._pastGames]
-        .where((game) => game['isOrganizer'] == true)
+  Widget _buildStatsHeader(myGamesState) {
+    final totalGames = myGamesState.upcomingGames.length + myGamesState.pastGames.length;
+    final organizerGames = [...myGamesState.upcomingGames, ...myGamesState.pastGames]
+        .where((game) => game.organizerId == _authService.getCurrentUserId())
         .length;
     
     return Container(
@@ -207,7 +155,7 @@ class _MyGamesScreenState extends State<MyGamesScreen>
           Expanded(
             child: _buildStatCard(
               'This Month',
-              _getThisMonthCount().toString(),
+              '0', // TODO: Calculate from real games
               Icons.calendar_today,
               Colors.green,
             ),
@@ -247,32 +195,105 @@ class _MyGamesScreenState extends State<MyGamesScreen>
     );
   }
 
-  Widget _buildUpcomingTab() {
+  Widget _buildUpcomingTab(List games) {
     if (_isCalendarView) {
-      return _buildCalendarView();
+      return _buildCalendarView(games);
+    }
+
+    if (games.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No upcoming games', style: TextStyle(fontSize: 18, color: Colors.grey)),
+            SizedBox(height: 8),
+            Text('Create or join a game to get started!', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _upcomingGames.length,
+      itemCount: games.length,
       itemBuilder: (context, index) {
-        final game = _upcomingGames[index];
+        final game = games[index];
         return _buildUpcomingGameCard(game);
       },
     );
   }
 
-  Widget _buildPastTab() {
+  Widget _buildPastTab(List games) {
+    if (games.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.history, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No past games', style: TextStyle(fontSize: 18, color: Colors.grey)),
+            SizedBox(height: 8),
+            Text('Your completed games will appear here', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _pastGames.length,
+      itemCount: games.length,
       itemBuilder: (context, index) {
-        final game = _pastGames[index];
+        final game = games[index];
         return _buildPastGameCard(game);
       },
     );
   }
 
+  Widget _buildCalendarView(List games) {
+    // TODO: Implement calendar view with real Game entities
+    return const Center(
+      child: Text('Calendar view coming soon'),
+    );
+  }
+  
+  Widget _buildUpcomingGameCard(dynamic game) {
+    // Simple card for now - TODO: Full implementation with Game entity
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        title: Text(game.title),
+        subtitle: Text('${game.scheduledDate.toString().split(' ')[0]} • ${game.startTime}'),
+        trailing: Text('${game.currentPlayers}/${game.maxPlayers}'),
+        onTap: () {
+          // Navigate to game details
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => GameDetailScreen(gameId: game.id),
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
+  Widget _buildPastGameCard(dynamic game) {
+    // Simple card for now - TODO: Full implementation with Game entity
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        title: Text(game.title),
+        subtitle: Text('${game.scheduledDate.toString().split(' ')[0]} • Completed'),
+        trailing: const Icon(Icons.check_circle, color: Colors.green),
+      ),
+    );
+  }
+  
+  /* ====================================================================
+     OLD IMPLEMENTATION - Commented out for update to use Game entities
+     ================================================================= */
+  /* 
   Widget _buildCalendarView() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -330,15 +351,17 @@ class _MyGamesScreenState extends State<MyGamesScreen>
       ),
     );
   }
-
-  Widget _buildUpcomingGameCard(Map<String, dynamic> game) {
-    final isToday = _isToday(game['date']);
-    final isTomorrow = _isTomorrow(game['date']);
+  */  // End of old calendar view implementation
+  
+  /* OLD CARD IMPLEMENTATIONS - TODO: Update for Game entities
+  Widget _buildUpcomingGameCard(dynamic game) {
+    final isToday = _isToday(game.scheduledDate);
+    final isTomorrow = _isTomorrow(game.scheduledDate);
     
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => _viewGameDetails(game),
+  onTap: () => _openGameDetailsScreen(game),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -365,59 +388,65 @@ class _MyGamesScreenState extends State<MyGamesScreen>
                         
                         Row(
                           children: [
-                            if (isToday)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red[100],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  'TODAY',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red[700],
+                            Expanded(
+                              child: Wrap(
+                                spacing: 8,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  if (isToday)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[100],
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        'TODAY',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red[700],
+                                        ),
+                                      ),
+                                    )
+                                  else if (isTomorrow)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange[100],
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        'TOMORROW',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange[700],
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    Text(
+                                      _formatDate(game['date']),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  Text(
+                                    (game['time'] ?? '').toString(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                              )
-                            else if (isTomorrow)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange[100],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  'TOMORROW',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange[700],
-                                  ),
-                                ),
-                              )
-                            else
-                              Text(
-                                _formatDate(game['date']),
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            
-                            const SizedBox(width: 8),
-                            
-                            Text(
-                              game['time'],
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
+                                ],
                               ),
                             ),
-                            
-                            const Spacer(),
-                            
                             if (game['isOrganizer'])
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -500,7 +529,7 @@ class _MyGamesScreenState extends State<MyGamesScreen>
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => _viewGameDetails(game),
+  onTap: () => _openGameDetailsScreen(game),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -773,109 +802,12 @@ class _MyGamesScreenState extends State<MyGamesScreen>
     }
   }
 
-  void _viewGameDetails(Map<String, dynamic> game) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        maxChildSize: 0.9,
-        minChildSize: 0.5,
-        builder: (context, scrollController) => Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              Text(
-                game['title'],
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              _buildDetailRow(Icons.sports, 'Sport', game['sport']),
-              _buildDetailRow(Icons.calendar_today, 'Date', _formatDate(game['date'])),
-              _buildDetailRow(Icons.access_time, 'Time', game['time']),
-              _buildDetailRow(Icons.location_on, 'Venue', game['venue']['name']),
-              if (game['venue']['address'] != null)
-                _buildDetailRow(Icons.place, 'Address', game['venue']['address']),
-              _buildDetailRow(Icons.people, 'Players', 
-                  '${game['players']['current']}/${game['players']['max']}'),
-              
-              const SizedBox(height: 24),
-              
-              Row(
-                children: [
-                  if (game['venue']['address'] != null)
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _getDirections(game),
-                        icon: const Icon(Icons.directions),
-                        label: const Text('Directions'),
-                      ),
-                    ),
-                  
-                  if (game['venue']['address'] != null) const SizedBox(width: 12),
-                  
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                      label: const Text('Close'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  void _openGameDetailsScreen(Map<String, dynamic> game) {
+    final id = (game['id'] ?? '').toString();
+    context.push('/games/$id', extra: {'game': game});
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 80,
-            child: Text(
-              label,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // (Removed old bottom sheet helper widgets)
 
   void _handleQuickAction(Map<String, dynamic> game, String action) {
     switch (action) {
@@ -883,7 +815,7 @@ class _MyGamesScreenState extends State<MyGamesScreen>
         _getDirections(game);
         break;
       case 'details':
-        _viewGameDetails(game);
+  _openGameDetailsScreen(game);
         break;
       case 'cancel':
         _cancelParticipation(game);
@@ -942,4 +874,5 @@ class _MyGamesScreenState extends State<MyGamesScreen>
       SnackBar(content: Text('Managing game: ${game['title']}')),
     );
   }
+  */  // End of commented out old implementation
 }

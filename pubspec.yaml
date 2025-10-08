@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  path_provider: ^2.1.2
   flutter:
     sdk: flutter
 
@@ -40,6 +41,9 @@ dependencies:
   
   # Lucide Icons - Beautiful icon library
   lucide_icons: ^0.257.0
+  
+  # Iconsax - Beautiful outline and bold icons from iconsax.io
+  iconsax_flutter: ^1.0.0
   
   # Local storage for theme preferences
   shared_preferences: ^2.3.2
@@ -57,6 +61,12 @@ dependencies:
   
   # Flutter Staggered Grid View - Beautiful layouts
   flutter_staggered_grid_view: ^0.7.0
+  
+  # FL Chart - Beautiful charts and graphs
+  fl_chart: ^0.69.0
+  
+  # Smooth Page Indicator - Elegant page indicators
+  smooth_page_indicator: ^1.2.0
   
   # GoRouter - Clean, minimal navigation
   go_router: ^12.0.0
@@ -81,23 +91,47 @@ dependencies:
   # Image picker for avatar uploads
   image_picker: ^1.0.7
   
+  # Image processing and manipulation
+  image: ^4.5.4
+  
+  # Path manipulation utilities
+  path: ^1.9.0
+  
+  # Confetti animations for celebrations
+  confetti: ^0.7.0
+  
+  # Audio player for sound effects
+  audioplayers: ^6.1.0
+  
   # Internationalization
   intl: ^0.19.0
   dartz: ^0.10.1
+
+  # Equatable for value comparison
+  equatable: ^2.0.5
 
   # Shimmer effects for loading states
   shimmer: ^3.0.0
   # Sharing
   share_plus: ^10.0.2
+  # URL launcher for opening external apps and links
+  url_launcher: ^6.3.0
   # App review prompts
   in_app_review: ^2.0.9
   # Connectivity status
   connectivity_plus: ^6.0.5
+  # UUID generation
+  uuid: ^4.3.3
+  # Cryptographic functions
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.3
+  mockito: ^5.4.4
+  build_runner: ^2.4.8
+  integration_test:
+    sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -105,7 +139,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.4.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -121,6 +154,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/Avatar/
     - assets/logo.png
     - .env
 

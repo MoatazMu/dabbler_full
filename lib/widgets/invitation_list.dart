@@ -21,6 +21,9 @@ class InvitePlayer {
     required this.source,
     this.lastPlayedDate,
   });
+
+  // Getter for display name (uses name field for compatibility)
+  String get displayName => name;
 }
 
 enum PlayerSource { contact, teammate, search }
@@ -54,7 +57,6 @@ class AntdButton extends StatelessWidget {
         case AntdButtonSize.large:
           return const EdgeInsets.symmetric(vertical: 18, horizontal: 32);
         case AntdButtonSize.medium:
-        default:
           return const EdgeInsets.symmetric(vertical: 12, horizontal: 24);
       }
     }();
@@ -227,7 +229,7 @@ class _InvitationListState extends State<InvitationList> with TickerProviderStat
 
   Widget _buildAntdPlayerTag(BuildContext context, InvitePlayer player) {
     return Chip(
-      label: Text(player.name.split(' ').first),
+      label: Text(player.displayName.split(' ').first),
       avatar: _buildPlayerAvatar(context, player, size: 20),
       onDeleted: () => widget.onPlayerToggle(player),
       backgroundColor: context.colors.primary.withValues(alpha: 0.08),
@@ -374,7 +376,7 @@ class _InvitationListState extends State<InvitationList> with TickerProviderStat
     final isSelected = widget.selectedPlayers.any((p) => p.id == player.id);
     return ListTile(
       leading: _buildPlayerAvatar(context, player, size: 36),
-      title: Text(player.name, style: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+      title: Text(player.displayName, style: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
       subtitle: player.email != null ? Text(player.email!, style: context.textTheme.bodySmall) : null,
       trailing: AntdButton(
         type: isSelected ? AntdButtonType.primary : AntdButtonType.defaultType,

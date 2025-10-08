@@ -1,7 +1,7 @@
 class SupabaseConfig {
   // Supabase project credentials
-  static const String url = 'https://vegfirgvmkppbhwbaura.supabase.co';
-  static const String anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ2Zpcmd2bWtwcGJod2JhdXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExMjg4NTYsImV4cCI6MjA2NjcwNDg1Nn0.K-tT2KiQMWxb1p3KqsEpIv-SIYFtl5RIGLdPIXyTm6M';
+  static const String url = 'https://ekmhrxdwgegxkdkdukgq.supabase.co';
+  static const String anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbWhyeGR3Z2VneGtka2R1a2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMjcyNjIsImV4cCI6MjA2OTgwMzI2Mn0.xzE24mCrAJsZk58Hni4TfXvbHYgf-LHJjCzpgCmuaFA';
   
   // Storage bucket names
   static const String avatarsBucket = 'avatars';

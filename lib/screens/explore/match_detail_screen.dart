@@ -393,7 +393,6 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
   Widget _buildRosterSection() {
     final participants = widget.match.participants;
     final maxParticipants = widget.match.maxParticipants;
-    final spotsLeft = maxParticipants - participants.length;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

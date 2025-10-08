@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:intl/intl.dart';
 import '../../themes/app_theme.dart';
-import 'all_history_screen.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../core/services/auth_service.dart';
+import '../../features/games/providers/games_providers.dart';
+import '../../features/games/domain/entities/game.dart';
+import '../../features/games/domain/entities/booking.dart';
+import 'all_history_screen_new.dart' as audit_log;
 
-class ActivitiesScreen extends StatefulWidget {
+/// Activities screen showing user's games and bookings with real Supabase data
+class ActivitiesScreen extends ConsumerStatefulWidget {
   const ActivitiesScreen({super.key});
 
   @override
-  State<ActivitiesScreen> createState() => _ActivitiesScreenState();
+  ConsumerState<ActivitiesScreen> createState() => _ActivitiesScreenState();
 }
 
-class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerProviderStateMixin {
+class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -25,14 +35,20 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
     super.dispose();
   }
 
-  Future<void> _refreshGames(BuildContext context) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _refreshGames() async {
+    final user = _authService.getCurrentUser();
+    if (user == null) return;
+    
+    // Refresh both games and bookings
+    await Future.wait([
+      ref.read(myGamesControllerProvider(user.id).notifier).refresh(),
+      ref.read(bookingsControllerProvider(user.id).notifier).loadUpcomingBookings(user.id),
+    ]);
     
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🎮 Games refreshed successfully!'),
+          content: Text('🎮 Activities refreshed successfully!'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         ),
@@ -40,14 +56,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
     }
   }
 
-  Future<void> _refreshBookings(BuildContext context) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _refreshBookings() async {
+    // TODO: Implement bookings refresh when BookingsRepository is ready
+    await Future.delayed(const Duration(seconds: 1));
     
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('📅 Bookings refreshed successfully!'),
+          content: Text('📅 Bookings feature coming soon!'),
           backgroundColor: Colors.blue,
           duration: Duration(seconds: 2),
         ),
@@ -103,7 +119,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AllHistoryScreen(),
+                          builder: (context) => const audit_log.AllHistoryScreen(),
                         ),
                       );
                     },
@@ -114,7 +130,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
           ),
           Container(
             margin: const EdgeInsets.only(top: 8),
-            child: TabBar(
+            child: Material(
+              color: Colors.transparent,
+              child: TabBar(
               controller: _tabController,
               tabs: const [
                 Tab(
@@ -144,6 +162,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
               indicatorWeight: 3,
               indicatorSize: TabBarIndicatorSize.tab,
               labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
             ),
           ),
         ],
@@ -154,9 +173,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.transparent,
+      appBar: const CustomAppBar(
+        actionIcon: Iconsax.calendar_copy,
+      ),
       body: Column(
         children: [
+          const SizedBox(height: 100),
           _buildEnhancedHeader(context),
           Expanded(
             child: TabBarView(
@@ -173,31 +196,81 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
   }
 
   Widget _buildJoinedGamesTab(BuildContext context) {
+    final user = _authService.getCurrentUser();
+    
+    if (user == null) {
+      return const Center(
+        child: Text('Please log in to view your games'),
+      );
+    }
+    
+    final myGamesState = ref.watch(myGamesControllerProvider(user.id));
+    final upcomingGames = myGamesState.upcomingGames;
+    final isLoading = myGamesState.isLoadingUpcoming;
+    final error = myGamesState.error;
+    
     return RefreshIndicator(
-      onRefresh: () => _refreshGames(context),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader(
-              context,
-              'Upcoming Games',
-              '3 games',
-              Icons.schedule,
-            ),
-            // const SizedBox(height: 16),
-            _buildUpcomingGamesList(context),
-          ],
-        ),
-      ),
+      onRefresh: _refreshGames,
+      child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(LucideIcons.alertCircle, size: 48, color: Colors.red),
+                      const SizedBox(height: 16),
+                      Text('Error: $error'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _refreshGames,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : upcomingGames.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.calendar, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            'No upcoming games',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Join a game to see it here',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(
+                            context,
+                            'Upcoming Games',
+                            '${upcomingGames.length} ${upcomingGames.length == 1 ? "game" : "games"}',
+                            Icons.schedule,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildUpcomingGamesList(context, upcomingGames),
+                        ],
+                      ),
+                    ),
     );
   }
 
   Widget _buildBookingsTab(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => _refreshBookings(context),
+      onRefresh: _refreshBookings,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         physics: const AlwaysScrollableScrollPhysics(),
@@ -258,64 +331,44 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildUpcomingGamesList(BuildContext context) {
-    final upcomingGames = [
-      {
-        'title': 'Football Match',
-        'venue': 'Central Sports Complex',
-        'date': 'Today',
-        'time': '6:00 PM',
-        'players': '9/11',
-        'status': 'confirmed',
-        'host': 'Alex M.',
-        'sport': 'Football',
-      },
-      {
-        'title': 'Padel Session',
-        'venue': 'Elite Padel Center',
-        'date': 'Tomorrow',
-        'time': '7:00 PM',
-        'players': '3/4',
-        'status': 'confirmed',
-        'host': 'Carlos R.',
-        'sport': 'Padel',
-      },
-      {
-        'title': 'Basketball Game',
-        'venue': 'Downtown Court',
-        'date': 'Tomorrow',
-        'time': '7:30 PM',
-        'players': '8/10',
-        'status': 'confirmed',
-        'host': 'Sarah K.',
-        'sport': 'Basketball',
-      },
-      {
-        'title': 'Tennis Doubles',
-        'venue': 'Riverside Club',
-        'date': 'Wed, Dec 18',
-        'time': '5:00 PM',
-        'players': '3/4',
-        'status': 'waiting',
-        'host': 'Mike R.',
-        'sport': 'Tennis',
-      },
-    ];
-
+  Widget _buildUpcomingGamesList(BuildContext context, List<Game> upcomingGames) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: upcomingGames.length,
       itemBuilder: (context, index) {
         final game = upcomingGames[index];
-        return _buildGameCard(context, game);
+        return _buildGameCardFromEntity(context, game);
       },
     );
   }
 
 
 
-  Widget _buildGameCard(BuildContext context, Map<String, String> game) {
+  /// Build game card from real Game entity (Supabase data)
+  Widget _buildGameCardFromEntity(BuildContext context, Game game) {
+    // Format date and time
+    final dateFormat = DateFormat('MMM d');
+    final timeFormat = DateFormat('h:mm a');
+    final now = DateTime.now();
+    final gameDateTime = game.scheduledDate;
+    
+    String dateDisplay;
+    if (gameDateTime.year == now.year && 
+        gameDateTime.month == now.month && 
+        gameDateTime.day == now.day) {
+      dateDisplay = 'Today';
+    } else if (gameDateTime.year == now.year && 
+               gameDateTime.month == now.month && 
+               gameDateTime.day == now.day + 1) {
+      dateDisplay = 'Tomorrow';
+    } else {
+      dateDisplay = dateFormat.format(gameDateTime);
+    }
+    
+    final timeDisplay = timeFormat.format(gameDateTime);
+    final playersDisplay = '${game.currentPlayers}/${game.maxPlayers}';
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -349,7 +402,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    game['title'] ?? '',
+                    game.title,
                     style: context.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -370,7 +423,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    game['venue'] ?? '',
+                    game.venueName ?? 'Venue TBD',
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colors.onSurfaceVariant,
                     ),
@@ -391,7 +444,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
-                    '${game['date'] ?? ''}, ${game['time'] ?? ''}',
+                    '$dateDisplay, $timeDisplay',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -413,7 +466,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    game['players'] ?? '',
+                    playersDisplay,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.w600,
@@ -434,161 +487,229 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
     );
   }
 
+  // TODO: Remove legacy _buildGameCard method - no longer needed as we use _buildGameCardFromEntity with real data
+
   Widget _buildActiveBookingsList(BuildContext context) {
-    final activeBookings = [
-      {
-        'venue': 'Central Sports Complex',
-        'date': 'Today',
-        'time': '6:00 PM - 8:00 PM',
-        'sport': 'Football',
-        'price': '\$50',
-        'status': 'confirmed',
-      },
-      {
-        'venue': 'Elite Padel Center',
-        'date': 'Tomorrow',
-        'time': '7:00 PM - 8:30 PM',
-        'sport': 'Padel',
-        'price': '\$60',
-        'status': 'confirmed',
-      },
-      {
-        'venue': 'Riverside Tennis Club',
-        'date': 'Wed, Dec 18',
-        'time': '5:00 PM - 6:30 PM',
-        'sport': 'Tennis',
-        'price': '\$40',
-        'status': 'confirmed',
-      },
-    ];
+    final user = _authService.getCurrentUser();
+    if (user == null) {
+      return Center(
+        child: Text(
+          'Please log in to view bookings',
+          style: context.textTheme.bodyLarge,
+        ),
+      );
+    }
+
+    final bookingsState = ref.watch(bookingsControllerProvider(user.id));
+
+    // Load bookings on first build
+    ref.listen(bookingsControllerProvider(user.id), (previous, next) {
+      if (previous == null && next.upcomingBookings.isEmpty && !next.isLoading) {
+        Future.microtask(() {
+          ref.read(bookingsControllerProvider(user.id).notifier).loadUpcomingBookings(user.id);
+        });
+      }
+    });
+
+    if (bookingsState.isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (bookingsState.error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(
+            bookingsState.error!,
+            style: context.textTheme.bodyLarge?.copyWith(color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    if (bookingsState.upcomingBookings.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Text(
+            'No active bookings',
+            style: context.textTheme.bodyLarge,
+          ),
+        ),
+      );
+    }
 
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: activeBookings.length,
+      itemCount: bookingsState.upcomingBookings.length,
       itemBuilder: (context, index) {
-        final booking = activeBookings[index];
-        return _buildBookingCard(context, booking, true);
+        final booking = bookingsState.upcomingBookings[index];
+        return _buildBookingCardFromEntity(context, booking);
       },
     );
   }
 
 
 
-  Widget _buildBookingCard(BuildContext context, Map<String, String> booking, bool isActive) {
+  Widget _buildBookingCardFromEntity(BuildContext context, Booking booking) {
+    final dateFormat = DateFormat('MMM d');
+    
+    // Format booking date
+    final isToday = booking.bookingDate.year == DateTime.now().year &&
+                    booking.bookingDate.month == DateTime.now().month &&
+                    booking.bookingDate.day == DateTime.now().day;
+    final isTomorrow = booking.bookingDate.difference(DateTime.now()).inDays == 1;
+    
+    final dateStr = isToday ? 'Today' : 
+                    isTomorrow ? 'Tomorrow' : 
+                    dateFormat.format(booking.bookingDate);
+    
+    // Format time range
+    final timeStr = '${booking.startTime} - ${booking.endTime}';
+    
+    // Format price
+    final priceStr = '${booking.currency} ${booking.totalAmount.toStringAsFixed(0)}';
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: context.violetCardBg, // ✅ Violet card background
+        color: context.violetCardBg,
         borderRadius: BorderRadius.circular(16),
-        // ✅ No borders - pure violet shade design
       ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          booking['venue']!,
-                          style: context.textTheme.headlineSmall?.copyWith(  // ✅ ShadCN typography
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          booking['sport']!,
-                          style: context.textTheme.bodySmall?.copyWith(  // ✅ ShadCN typography
-                            color: context.colors.onSecondary,
-                          ),
-                        ),
-                      ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      booking.venueName,
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
+                    const SizedBox(height: 4),
+                    if (booking.courtNumber != null)
                       Text(
-                        booking['price']!,
-                        style: context.textTheme.headlineSmall?.copyWith(  // ✅ ShadCN typography
-                          fontWeight: FontWeight.w700,
-                          color: context.colors.primary,  // ✅ ShadCN color
+                        'Court ${booking.courtNumber}',
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: context.colors.onSecondary,
                         ),
                       ),
-                      _buildStatusBadge(context, booking['status']!),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  _buildInfoChip(context, Icons.calendar_today, '${booking['date']} • ${booking['time']}'),
+                  Text(
+                    priceStr,
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                  _buildStatusBadge(context, booking.status.toString().split('.').last),
                 ],
               ),
-              if (isActive) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('📍 View venue details - Coming soon!'),
-                              backgroundColor: context.colors.primary,  // ✅ Theme color
-                            ),
-                          );
-                        },
-                        child: const Text('View Details'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          _showCancelDialog(context);
-                        },
-                        icon: const Icon(Icons.cancel_outlined, color: Colors.white),
-                        label: const Text('Cancel'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: context.colors.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Spacer(),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('🔄 Book again - Coming soon!'),
-                            backgroundColor: context.colors.secondary,  // ✅ Theme color
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.refresh_outlined, color: context.colors.secondary),
-                      label: const Text('Book Again'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: context.colors.secondary,
-                        side: BorderSide(color: context.colors.secondary),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ],
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildInfoChip(context, Icons.calendar_today, '$dateStr • $timeStr'),
+            ],
+          ),
+          if (booking.status == BookingStatus.confirmed) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('📍 View venue details - Coming soon!'),
+                          backgroundColor: context.colors.primary,
+                        ),
+                      );
+                    },
+                    child: const Text('View Details'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _showCancelBookingDialog(context, booking);
+                    },
+                    icon: const Icon(Icons.cancel_outlined, color: Colors.white),
+                    label: const Text('Cancel'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.colors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showCancelBookingDialog(BuildContext context, Booking booking) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cancel Booking?'),
+          content: Text('Are you sure you want to cancel your booking at ${booking.venueName}?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Keep Booking'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                
+                final user = _authService.getCurrentUser();
+                if (user != null) {
+                  await ref.read(bookingsControllerProvider(user.id).notifier)
+                      .cancelBooking(booking.id, 'User requested cancellation');
+                  
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Booking cancelled successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Cancel Booking'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -662,34 +783,4 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with SingleTickerPr
     );
   }
 
-  void _showCancelDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Cancel Booking', style: Theme.of(context).textTheme.headlineSmall),
-        content: Text(
-          'Are you sure you want to cancel this booking? This action cannot be undone.',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Keep Booking'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('❌ Booking cancelled successfully'),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
-              );
-            },
-            child: const Text('Cancel Booking'),
-          ),
-        ],
-      ),
-    );
-  }
 } 

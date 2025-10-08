@@ -89,8 +89,8 @@ class MockUserService {
     await _initializeProfile();
     
     // Update profile with registration data
-    if (registrationData['name'] != null) {
-      _userProfile!['name'] = registrationData['name'];
+    if (registrationData['display_name'] != null) {
+      _userProfile!['display_name'] = registrationData['display_name'];
     }
     if (registrationData['age'] != null) {
       _userProfile!['age'] = registrationData['age'];

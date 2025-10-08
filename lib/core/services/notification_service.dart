@@ -86,6 +86,13 @@ class NotificationService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Method to reset service state for testing
+  void resetForTesting() {
+    _notifications.clear();
+    _isLoading = false;
+    notifyListeners();
+  }
+
   List<NotificationModel> getNotificationsByType(NotificationType type) {
     return _notifications.where((n) => n.type == type).toList();
   }

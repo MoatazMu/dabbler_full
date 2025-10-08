@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../../providers/games_providers.dart';
+import '../../../../../core/services/auth_service.dart';
 
 class GameDetailScreen extends ConsumerStatefulWidget {
   final String gameId;
@@ -49,19 +52,64 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
+    final currentUserId = authService.getCurrentUserId();
+    
+    if (currentUserId == null) {
+      return const Scaffold(
+        body: Center(child: Text('Please log in to view game details')),
+      );
+    }
+    
+    final detailState = ref.watch(
+      gameDetailControllerProvider(
+        GameDetailParams(
+          gameId: widget.gameId,
+          currentUserId: currentUserId,
+        ),
+      ),
+    );
+    
+    if (detailState.isLoading || !detailState.hasGame) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    if (detailState.error != null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error: ${detailState.error}'),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
+    final game = detailState.game!;
+    
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
         slivers: [
-          _buildSliverAppBar(),
-          _buildGameContent(),
+          _buildSliverAppBar(game),
+          _buildGameContent(game, detailState),
         ],
       ),
-      bottomNavigationBar: _buildBottomBar(),
+      bottomNavigationBar: _buildBottomBar(game, detailState),
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(dynamic game) {
     return SliverAppBar(
       expandedHeight: 300.0,
       floating: false,
@@ -120,7 +168,7 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Basketball Game at Central Park', // TODO: Get from state
+                    game.title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -139,9 +187,9 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
                           color: Colors.orange,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          'BASKETBALL',
-                          style: TextStyle(
+                        child: Text(
+                          game.sport.toUpperCase(),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -188,11 +236,11 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
     );
   }
 
-  Widget _buildGameContent() {
+  Widget _buildGameContent(dynamic game, dynamic detailState) {
     return SliverToBoxAdapter(
       child: Column(
         children: [
-          _buildQuickInfo(),
+          _buildQuickInfo(game),
           _buildGameDescription(),
           _buildPlayersSection(),
           _buildVenueSection(),
@@ -204,248 +252,36 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
     );
   }
 
-  Widget _buildQuickInfo() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Date and Time
-              Row(
+  Widget _buildQuickInfo(dynamic game) {
+    final dateFormat = DateFormat('EEEE, MMM dd');
+    final formattedDate = dateFormat.format(game.scheduledDate);
+    
+    return Consumer(
+      builder: (context, ref, child) {
+        final detailState = ref.watch(gameDetailControllerProvider(
+          GameDetailParams(gameId: widget.gameId, currentUserId: null)
+        ));
+        
+        final venue = detailState.venue;
+        
+        return Container(
+          margin: const EdgeInsets.all(16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.calendar_today, color: Colors.blue),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Tomorrow, Dec 15',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '6:00 PM - 8:00 PM',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              
-              // Location
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.green[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.location_on, color: Colors.green),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Central Park Basketball Court',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '1.2 km away • 123 Main St',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: _showDirections,
-                    child: const Text('Directions'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              
-              // Price
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.purple[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.monetization_on, color: Colors.purple),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Free to Play',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'No cost per player',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGameDescription() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.description, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text(
-                    'Description',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Join us for a friendly basketball game at Central Park! We\'re looking for intermediate level players who want to have fun and get some exercise. The game will be 5v5 with substitutions as needed.\n\nPlease bring your own water bottle and wear appropriate athletic shoes. We\'ll provide the basketballs.',
-                style: TextStyle(fontSize: 14, height: 1.5),
-              ),
-              const SizedBox(height: 12),
-              
-              // Game Rules/Requirements
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange[200]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info, color: Colors.orange[700], size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Game Requirements',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('• Intermediate skill level'),
-                    const Text('• Athletic shoes required'),
-                    const Text('• Bring water bottle'),
-                    const Text('• Age 18+ only'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlayersSection() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Row(
+                  // Date and Time
+                  Row(
                     children: [
-                      Icon(Icons.people, color: Colors.blue),
-                      SizedBox(width: 8),
-                      Text(
-                        'Players (8/10)',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.blue[100],
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: _viewAllPlayers,
-                    child: const Text('View All'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              
-              // Players List Preview
-              ...List.generate(
-                4,
-                (index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.blue[300],
-                        child: Text('P${index + 1}'),
+                        child: const Icon(Icons.calendar_today, color: Colors.blue),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -453,70 +289,320 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Player ${index + 1}',
-                              style: const TextStyle(fontWeight: FontWeight.w500),
+                              formattedDate,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text(
-                              'Intermediate • ${20 + index * 5} games played',
+                              '${game.startTime} - ${game.endTime}',
                               style: TextStyle(
                                 color: Colors.grey[600],
-                                fontSize: 12,
+                                fontSize: 14,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      if (index == 0) // Organizer
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.amber[100],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            'ORGANIZER',
-                            style: TextStyle(
-                              color: Colors.orange[800],
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                     ],
                   ),
-                ),
-              ),
-              
-              if (8 < 10) // Still spots available
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green[200]!),
-                  ),
-                  child: Row(
+                  const SizedBox(height: 16),
+                  
+                  // Location
+                  Row(
                     children: [
-                      Icon(Icons.add_circle, color: Colors.green[700]),
-                      const SizedBox(width: 8),
-                      Text(
-                        '2 spots still available!',
-                        style: TextStyle(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.green[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.location_on, color: Colors.green),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              venue?.name ?? 'Venue',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              venue != null 
+                                ? '${venue.addressLine1}, ${venue.city}' 
+                                : 'Address not available',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _showDirections,
+                        child: const Text('Directions'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Price
+                  Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.purple[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.monetization_on, color: Colors.purple),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              game.pricePerPlayer > 0 
+                                ? '${game.currency} ${game.pricePerPlayer.toStringAsFixed(0)}' 
+                                : 'Free to Play',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              game.pricePerPlayer > 0 
+                                ? 'Per player' 
+                                : 'No cost per player',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGameDescription() {
+    return Consumer(
+      builder: (context, ref, child) {
+        final detailState = ref.watch(gameDetailControllerProvider(
+          GameDetailParams(gameId: widget.gameId, currentUserId: null)
+        ));
+        
+        final game = detailState.game;
+        if (game == null) return const SizedBox.shrink();
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.description, color: Colors.blue),
+                      SizedBox(width: 8),
+                      Text(
+                        'Description',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    game.description,
+                    style: const TextStyle(fontSize: 14, height: 1.5),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Game Rules/Requirements
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info, color: Colors.orange[700], size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Game Requirements',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text('• ${game.skillLevel} skill level'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPlayersSection() {
+    return Consumer(
+      builder: (context, ref, child) {
+        final detailState = ref.watch(gameDetailControllerProvider(
+          GameDetailParams(gameId: widget.gameId, currentUserId: null)
+        ));
+        
+        final game = detailState.game;
+        if (game == null) return const SizedBox.shrink();
+        
+        return Container(
+          margin: const EdgeInsets.all(16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.people, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Players (${game.currentPlayers}/${game.maxPlayers})',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      TextButton(
+                        onPressed: _viewAllPlayers,
+                        child: const Text('View All'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Players List Preview
+                  ...List.generate(
+                    4,
+                    (index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.blue[300],
+                            child: Text('P${index + 1}'),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Player ${index + 1}',
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  'Intermediate • ${20 + index * 5} games played',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (index == 0) // Organizer
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.amber[100],
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'ORGANIZER',
+                                style: TextStyle(
+                                  color: Colors.orange[800],
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  if (game.currentPlayers < game.maxPlayers) // Still spots available
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.add_circle, color: Colors.green[700]),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${game.maxPlayers - game.currentPlayers} ${game.maxPlayers - game.currentPlayers == 1 ? 'spot' : 'spots'} still available!',
+                            style: TextStyle(
+                              color: Colors.green[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -781,7 +867,7 @@ class _GameDetailScreenState extends ConsumerState<GameDetailScreen>
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(dynamic game, dynamic detailState) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

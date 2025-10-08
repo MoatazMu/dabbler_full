@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/auth_service.dart';
+import 'package:dabbler/utils/constants/route_constants.dart';
+import 'package:dabbler/features/authentication/presentation/providers/auth_providers.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -9,15 +13,12 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        leading: IconButton(
-          icon: Icon(LucideIcons.arrowLeft),
-                      onPressed: () => context.pop(),
-        ),
+      backgroundColor: Colors.transparent,
+      appBar: CustomAppBar(
+        actionIcon: Iconsax.setting_2_copy,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.fromLTRB(20, 116, 20, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -468,10 +469,12 @@ class SettingsScreen extends StatelessWidget {
                 
                 try {
                   await AuthService().signOut();
+                  // Proactively notify router (legacy screen not using SimpleAuthNotifier)
+                  try { routerRefreshNotifier.notifyAuthStateChanged(); } catch (_) {}
                   
                   if (context.mounted) {
-                    // Navigate to root (phone input screen)
-                    context.go('/');
+                    // Navigate to primary auth entry (phone input)
+                    context.go(RoutePaths.phoneInput);
                     
                     // Show success message
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -620,8 +623,10 @@ class SettingsScreen extends StatelessWidget {
         ),
         trailing: Switch(
           value: value,
-          onChanged: onChanged,
-          activeColor: Theme.of(context).colorScheme.primary,
+          onChanged: (v) {
+            Future.delayed(const Duration(milliseconds: 350), () => onChanged(v));
+          },
+          activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

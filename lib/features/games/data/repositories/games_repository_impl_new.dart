@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/game.dart';
+import '../../domain/entities/player.dart';
 import '../../domain/repositories/games_repository.dart';
 import '../datasources/games_remote_data_source.dart';
 import '../models/game_model.dart';
@@ -537,6 +538,16 @@ class GamesRepositoryImpl implements GamesRepository {
     if (sortBy != null) buffer.write('_sort_$sortBy');
     if (ascending != null) buffer.write('_asc_$ascending');
     return buffer.toString();
+  }
+
+  @override
+  Future<Either<Failure, List<Player>>> getGamePlayers(String gameId) async {
+    try {
+      final players = await remoteDataSource.getGamePlayers(gameId);
+      return Right(players.cast<Player>());
+    } catch (e) {
+      return Left(UnknownFailure('Failed to get game players: ${e.toString()}'));
+    }
   }
 
   // Clear cache method for external use

@@ -29,7 +29,6 @@ class DabblerTypography {
   // Line Heights
   static const double _tightLineHeight = 1.2;
   static const double _normalLineHeight = 1.5;
-  static const double _looseLineHeight = 1.8;
 
   // Display Styles
   static TextStyle headline1({double scale = 1.0}) => TextStyle(

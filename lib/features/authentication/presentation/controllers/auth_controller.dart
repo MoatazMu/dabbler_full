@@ -4,9 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../../domain/entities/user.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
-import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/usecase.dart';
-import '../../domain/repositories/auth_repository.dart';
+import 'package:dabbler/core/services/auth_service.dart';
 
 class AuthState {
   final User? user;
@@ -25,12 +24,10 @@ class AuthState {
 }
 
 class AuthController extends StateNotifier<AuthState> {
-  final AuthRepository repository;
   final GetCurrentUserUseCase getCurrentUser;
-  final LogoutUseCase logout;
   late final StreamSubscription<supa.AuthState> _authSub;
 
-  AuthController({required this.repository, required this.getCurrentUser, required this.logout}) : super(const AuthState()) {
+  AuthController({required this.getCurrentUser}) : super(const AuthState()) {
     _init();
     // Listen to Supabase auth changes to keep session & user in sync
     _authSub = supa.Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
@@ -67,22 +64,12 @@ class AuthController extends StateNotifier<AuthState> {
       },
       (user) async {
         // Try to also fetch current session so isAuthenticated can become true
-    final sessionResult = await repository.getCurrentSession();
-        sessionResult.fold(
-          (failure) {
-            // We still keep the user; auth may require email confirmation
-            // Fallback: attempt direct Supabase session access
-      final supaSession = supa.Supabase.instance.client.auth.currentSession;
-            if (supaSession != null) {
-              state = state.copyWith(user: user, session: _convertSession(supaSession, user), isLoading: false, error: null);
-            } else {
-              state = state.copyWith(user: user, isLoading: false, error: null);
-            }
-          },
-          (session) {
-            state = state.copyWith(user: user, session: session, isLoading: false, error: null);
-          },
-        );
+        final supaSession = supa.Supabase.instance.client.auth.currentSession;
+        if (supaSession != null) {
+          state = state.copyWith(user: user, session: _convertSession(supaSession, user), isLoading: false, error: null);
+        } else {
+          state = state.copyWith(user: user, isLoading: false, error: null);
+        }
       },
     );
     // TODO: Listen to Supabase auth changes and update state
@@ -91,11 +78,12 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> signOut() async {
     state = state.copyWith(isLoading: true);
-    final result = await logout(NoParams());
-    result.fold(
-      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
-      (_) => state = const AuthState(),
-    );
+    try {
+      await AuthService().signOut();
+      state = const AuthState();
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
   }
 
   /// Refresh authentication state (useful after signup/signin)

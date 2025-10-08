@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/auth_service.dart';
-import '../../core/utils/constants.dart';
-import '../../core/utils/test_data.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/input_field.dart';
+import '../../utils/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/authentication/presentation/providers/auth_providers.dart';
 
-class EmailInputScreen extends StatefulWidget {
+class EmailInputScreen extends ConsumerStatefulWidget {
   const EmailInputScreen({super.key});
 
   @override
-  State<EmailInputScreen> createState() => _EmailInputScreenState();
+  ConsumerState<EmailInputScreen> createState() => _EmailInputScreenState();
 }
 
-class _EmailInputScreenState extends State<EmailInputScreen> {
+class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _isLoading = false;
+  String? _errorMessage;
+  String? _successMessage;
   bool _isEmailValid = false;
 
   @override
+  void initState() {
+    super.initState();
+    debugPrint('📧 [DEBUG] EmailInputScreen: initState called');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    debugPrint('📧 [DEBUG] EmailInputScreen: didChangeDependencies called');
+  }
+
+  @override
   void dispose() {
+    debugPrint('📧 [DEBUG] EmailInputScreen: dispose called');
     _emailController.dispose();
     super.dispose();
   }
@@ -45,62 +59,60 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
+    
+    debugPrint('📧 [DEBUG] EmailInputScreen: _handleSubmit started');
+    
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+    
+    final email = _emailController.text.trim();
+    debugPrint('📧 [DEBUG] EmailInputScreen: Email: $email');
+    
     try {
-      final email = _emailController.text.trim();
-      final authService = AuthService();
-      
-      print('🔍 [DEBUG] EmailInputScreen: Processing email: $email');
-      
-      // Check if this is a test user first
-      final testUser = TestData.getUserByEmail(email);
-      if (testUser != null) {
-        print('🧪 [DEBUG] EmailInputScreen: Test user found: $email');
-        // Test user exists - redirect to enter password screen
-        if (mounted) {
-          context.push('/enter_password', extra: {'email': email});
-        }
-        return;
-      }
+      debugPrint('📧 [DEBUG] EmailInputScreen: Processing email: $email');
       
       // Check if user exists in database
-      print('🔍 [DEBUG] EmailInputScreen: Checking if user exists in database: $email');
+      debugPrint('🔍 [DEBUG] EmailInputScreen: Checking if user exists in database: $email');
+      final authService = AuthService();
       final userExists = await authService.checkUserExistsByEmail(email);
       
       if (userExists) {
-        print('✅ [DEBUG] EmailInputScreen: User exists in database: $email');
+        debugPrint('✅ [DEBUG] EmailInputScreen: User exists in database: $email');
         // User exists - redirect to enter password screen
         if (mounted) {
-          context.push('/enter_password', extra: {'email': email});
+          context.push(RoutePaths.enterPassword, extra: {'email': email});
         }
       } else {
-        print('🆕 [DEBUG] EmailInputScreen: New user, redirecting to profile creation: $email');
+        debugPrint('🆕 [DEBUG] EmailInputScreen: New user, redirecting to profile creation: $email');
         // User doesn't exist - redirect to profile creation (account will be created there)
         if (mounted) {
-          context.push('/create_user_information', extra: {'email': email, 'forceNew': true});
+          context.push(RoutePaths.createUserInfo, extra: {'email': email, 'forceNew': true});
         }
       }
     } catch (e) {
-      print('❌ [DEBUG] EmailInputScreen: Error in _handleSubmit: $e');
+      debugPrint('❌ [DEBUG] EmailInputScreen: Error in _handleSubmit: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('An error occurred. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          _errorMessage = 'An error occurred. Please try again.';
+        });
       }
+      return; // Don't navigate if there's an error
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('📧 [DEBUG] EmailInputScreen: build called');
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
@@ -110,142 +122,143 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.language),
-            onPressed: () => context.push('/language_selection'),
+            onPressed: () {
+              debugPrint('🌐 [DEBUG] EmailInputScreen: Language button pressed');
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Language button pressed!')),
+              );
+            },
             tooltip: 'Select Language',
           ),
         ],
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 32),
-                  // Header
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          'Welcome to Dabbler Player',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Enter your email to get started',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-                  // Email Input
-                  CustomInputField(
-                    controller: _emailController,
-                    label: 'Email Address',
-                    placeholder: 'Enter your email address',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: _validateEmail,
-                    onChanged: _onEmailChanged,
-                  ),
-                  const SizedBox(height: 36),
-                  // Get Started Button (Primary)
-                  CustomButton(
-                    onPressed: (_isLoading || !_isEmailValid) ? null : _handleSubmit,
-                    text: _isLoading ? 'Sending...' : 'Continue',
-                  ),
-                  const SizedBox(height: 20),
-                  // Continue as Guest Button (Secondary)
-                  CustomButton(
-                    onPressed: () {
-                      context.go('/home');
-                    },
-                    text: 'Continue as Guest',
-                    variant: ButtonVariant.secondary,
-                  ),
-                  const SizedBox(height: 16),
-                  // Continue with Phone Button (Secondary)
-                  CustomButton(
-                    onPressed: () => context.push('/'),
-                    text: 'Continue with Phone',
-                    variant: ButtonVariant.secondary,
-                  ),
-                  const SizedBox(height: 32),
-                  // Test Data Section (Development Only)
-                  if (const bool.fromEnvironment('dart.vm.product') == false) ...[
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '🧪 Test Emails',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[700],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: TestData.testUsers.map((user) {
-                              return GestureDetector(
-                                onTap: () {
-                                  _emailController.text = user['email']!;
-                                  _onEmailChanged(user['email']!);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    user['email']!,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.blue[700],
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  // Terms and Privacy
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'By continuing, you agree to our Terms of Service and Privacy Policy',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 32),
+              // Simple test header
+              const Center(
+                child: Text(
+                  'Welcome to Dabbler Player',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+              const Center(
+                child: Text(
+                  'Enter your email to get started',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 48),
+              
+              // Simple email input
+              Form(
+                key: _formKey,
+                child: TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    hintText: 'Enter your email address',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: _onEmailChanged,
+                  validator: _validateEmail,
+                ),
+              ),
+              
+              const SizedBox(height: 36),
+              
+              // Simple continue button
+              ElevatedButton(
+                onPressed: _isLoading ? null : () {
+                  debugPrint('📧 [DEBUG] EmailInputScreen: Continue button pressed');
+                  debugPrint('📧 [DEBUG] EmailInputScreen: Button state - mounted: $mounted, isLoading: $_isLoading');
+                  
+                  _handleSubmit();
+                },
+                child: Text(_isLoading ? 'Sending...' : 'Continue'),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Continue as Guest button
+              OutlinedButton(
+                onPressed: () async {
+                  debugPrint('👤 [DEBUG] EmailInputScreen: Guest button pressed');
+                  debugPrint('👤 [DEBUG] EmailInputScreen: Button state - mounted: $mounted');
+                  
+                  // Sign in as guest first
+                  try {
+                    debugPrint('👤 [DEBUG] EmailInputScreen: Signing in as guest...');
+                    final guestSignIn = ref.read(guestSignInProvider);
+                    await guestSignIn();
+                    debugPrint('👤 [DEBUG] EmailInputScreen: Guest sign in successful');
+                    
+                    // Then navigate to home
+                    if (mounted) {
+                      debugPrint('👤 [DEBUG] EmailInputScreen: Navigating to home...');
+                      context.go(RoutePaths.home);
+                      debugPrint('📧 [DEBUG] EmailInputScreen: Navigation successful');
+                    }
+                  } catch (e) {
+                    debugPrint('❌ [DEBUG] EmailInputScreen: Guest sign in or navigation error: $e');
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Guest sign in failed: $e')),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Continue as Guest'),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Continue with Phone button
+              OutlinedButton(
+                onPressed: () {
+                  debugPrint('📱 [DEBUG] EmailInputScreen: Phone button pressed');
+                  debugPrint('📱 [DEBUG] EmailInputScreen: Button state - mounted: $mounted');
+                  
+                  // Navigate to phone input
+                  try {
+                    debugPrint('📱 [DEBUG] EmailInputScreen: Navigating to phone input...');
+                    context.go(RoutePaths.phoneInput);
+                    debugPrint('📱 [DEBUG] EmailInputScreen: Navigation successful');
+                  } catch (e) {
+                    debugPrint('❌ [DEBUG] EmailInputScreen: Navigation error: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Navigation failed: $e')),
+                    );
+                  }
+                },
+                child: const Text('Continue with Phone'),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Debug info
+              if (_errorMessage != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  color: Colors.red.withOpacity(0.1),
+                  child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                ),
+              
+              if (_successMessage != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  color: Colors.green.withOpacity(0.1),
+                  child: Text(_successMessage!, style: const TextStyle(color: Colors.green)),
+                ),
+            ],
           ),
         ),
       ),

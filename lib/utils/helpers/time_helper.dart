@@ -2,15 +2,6 @@ import 'package:intl/intl.dart';
 
 /// Utility class for time-related operations in games
 class TimeHelper {
-  static const List<String> _timeZones = [
-    'America/New_York',
-    'America/Chicago', 
-    'America/Denver',
-    'America/Los_Angeles',
-    'Europe/London',
-    'Europe/Paris',
-    'Asia/Tokyo',
-  ];
 
   /// Format game time range (6:00 PM - 8:00 PM)
   static String formatGameTimeRange(

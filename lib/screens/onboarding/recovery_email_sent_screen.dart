@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/services/mock_auth_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/utils/constants.dart';
 import '../../widgets/custom_button.dart';
 
@@ -13,19 +13,17 @@ class RecoveryEmailSentScreen extends StatefulWidget {
 }
 
 class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
-  bool _isResending = false;
+  final bool _isResending = false;
 
   Future<void> _handleResendEmail() async {
-    setState(() => _isResending = true);
-
     try {
-      final authService = MockAuthService();
+      final authService = AuthService();
       await authService.sendPasswordResetEmail(widget.email);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Recovery email sent successfully'),
+            content: Text('Recovery email sent again!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -34,14 +32,10 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text('Failed to resend email: $e'),
             backgroundColor: Colors.red,
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isResending = false);
       }
     }
   }

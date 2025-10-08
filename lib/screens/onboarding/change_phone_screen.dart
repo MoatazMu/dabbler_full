@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/services/mock_auth_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/validators.dart';
 import '../../widgets/custom_button.dart';
@@ -38,8 +38,8 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
     try {
       final fullPhoneNumber = '$_selectedCountryCode${_phoneController.text.replaceAll(RegExp(r'[^\d]'), '')}';
       
-      final authService = MockAuthService();
-      await authService.sendOtp(fullPhoneNumber);
+      final authService = AuthService();
+      await authService.signInWithPhone(phone: fullPhoneNumber);
       
       if (mounted) {
         Navigator.pushNamed(

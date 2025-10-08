@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import 'auth_service.dart';
+import 'profile_cache_service.dart';
 
 class UserService extends ChangeNotifier {
   static final UserService _instance = UserService._internal();
@@ -40,7 +41,14 @@ class UserService extends ChangeNotifier {
   // Load user from Supabase
   Future<void> _loadUserFromSupabase() async {
     try {
-      final userProfile = await _authService.getUserProfile();
+      // Prefer cached basic profile first for fast startup
+      final cache = ProfileCacheService();
+      final basic = await cache.getOwnProfile(
+        fields: const ['id','name','email','avatar_url','updated_at'],
+        preferCache: true,
+        revalidate: true,
+      );
+      final userProfile = basic ?? await _authService.getUserProfile(fields: ['id','name','email','avatar_url','updated_at','age','gender','sports','intent','phone']);
       if (userProfile != null) {
         _currentUser = UserModel.fromSupabaseJson(userProfile);
         await _saveUserToStorage(); // Cache locally
@@ -99,27 +107,14 @@ class UserService extends ChangeNotifier {
 
 
 
-  // Create default user
-  UserModel _createDefaultUser() {
-    return UserModel(
-      id: 'default_user',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@email.com',
-      phone: '+1 234 567 8900',
-      bio: 'Sports enthusiast who loves playing football and basketball. Always looking for new games to join!',
-      language: 'en',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-  }
+  
 
   // Update user profile
   Future<void> updateUser(UserModel updatedUser) async {
     try {
       // Update in Supabase first
       await _authService.updateUserProfile(
-        name: updatedUser.firstName,
+        displayName: updatedUser.firstName,
         age: updatedUser.age,
         gender: updatedUser.gender,
         sports: updatedUser.sports,
@@ -129,6 +124,17 @@ class UserService extends ChangeNotifier {
 
       
       await _saveUserToStorage();
+      // Update cache selectively
+      final userId = updatedUser.id;
+      await ProfileCacheService().updateProfilePartial(userId, {
+        'name': updatedUser.firstName,
+        'age': updatedUser.age,
+        'gender': updatedUser.gender,
+        'sports': updatedUser.sports,
+        'intent': updatedUser.intent,
+        'email': updatedUser.email,
+        'avatar_url': updatedUser.profileImageUrl,
+      });
       
       // Clear greeting cache when user info changes
       await _clearGreetingCache();
@@ -138,6 +144,16 @@ class UserService extends ChangeNotifier {
       // Fallback to local update only
       _currentUser = updatedUser;
       await _saveUserToStorage();
+      final userId = updatedUser.id;
+      await ProfileCacheService().updateProfilePartial(userId, {
+        'name': updatedUser.firstName,
+        'age': updatedUser.age,
+        'gender': updatedUser.gender,
+        'sports': updatedUser.sports,
+        'intent': updatedUser.intent,
+        'email': updatedUser.email,
+        'avatar_url': updatedUser.profileImageUrl,
+      });
       await _clearGreetingCache();
       notifyListeners();
     }
@@ -166,12 +182,22 @@ class UserService extends ChangeNotifier {
         
         // Update in Supabase using updateUserProfile
         await _authService.updateUserProfile(
-          name: displayName,
+          displayName: displayName,
+          bio: bio,
+          phone: phone,
+          language: language,
         );
         
         _currentUser = updatedUser;
         
         await _saveUserToStorage();
+        await ProfileCacheService().updateProfilePartial(updatedUser.id, {
+          'name': displayName,
+          'email': email,
+          'phone': phone,
+          'bio': bio,
+          'language': language,
+        });
         await _clearGreetingCache();
         notifyListeners();
       } catch (e) {
@@ -187,6 +213,13 @@ class UserService extends ChangeNotifier {
         );
         _currentUser = updatedUser;
         await _saveUserToStorage();
+        await ProfileCacheService().updateProfilePartial(updatedUser.id, {
+          'name': displayName,
+          'email': email,
+          'phone': phone,
+          'bio': bio,
+          'language': language,
+        });
         await _clearGreetingCache();
         notifyListeners();
       }

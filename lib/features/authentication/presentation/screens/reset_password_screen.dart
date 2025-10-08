@@ -77,7 +77,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           await AuthService().updatePassword(_password);
                           if (!mounted) return;
                           // After successful reset, go to login to sign in
-                          context.go(RoutePaths.login);
+                          context.go(RoutePaths.phoneInput);
                         } catch (e) {
                           setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
                         } finally {

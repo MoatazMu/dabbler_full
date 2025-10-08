@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/auth_service.dart';
+import '../providers/auth_providers.dart';
 import '../../../../utils/constants/route_constants.dart';
 
 class EnterPasswordScreen extends ConsumerStatefulWidget {
@@ -14,13 +15,81 @@ class EnterPasswordScreen extends ConsumerStatefulWidget {
 
 class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _password = '';
-  bool _obscure = true;
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signIn() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final authService = AuthService();
+      final result = await authService.signInWithEmail(
+        email: widget.email,
+        password: _passwordController.text,
+      );
+
+      if (result.user != null) {
+        print('🔐 [DEBUG] EnterPasswordScreen: Login successful, user: ${result.user?.email}');
+        
+        // Handle successful login with the new method
+        print('🔐 [DEBUG] EnterPasswordScreen: Handling successful login...');
+        await ref.read(simpleAuthProvider.notifier).handleSuccessfulLogin();
+        
+        // Check if auth state was updated properly
+        final authState = ref.read(simpleAuthProvider);
+        print('🔐 [DEBUG] EnterPasswordScreen: Auth state after refresh - authenticated: ${authState.isAuthenticated}, loading: ${authState.isLoading}');
+        
+        // Let GoRouter redirect based on updated auth state; do not navigate manually
+        return;
+      } else {
+        print('❌ [DEBUG] EnterPasswordScreen: Login failed - no user returned');
+        setState(() {
+          _errorMessage = 'Invalid email or password';
+        });
+      }
+    } catch (e) {
+      print('❌ [DEBUG] EnterPasswordScreen: Exception during login: $e');
+      print('❌ [DEBUG] EnterPasswordScreen: Exception type: ${e.runtimeType}');
+      
+      final errText = e.toString().toLowerCase();
+      final isInvalidCreds = errText.contains('invalid login credentials') || errText.contains('invalid_credentials');
+
+      setState(() {
+        _errorMessage = isInvalidCreds
+            ? 'Invalid email or password'
+            : 'Sign in failed: ${e.toString()}';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(loginControllerProvider);
-    final controller = ref.read(loginControllerProvider.notifier);
     return Scaffold(
       appBar: AppBar(title: const Text('Enter Password')),
       body: SafeArea(
@@ -37,49 +106,56 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Email: ${widget.email}', style: const TextStyle(fontSize: 16)),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => context.go(RoutePaths.phoneInput),
+                        child: const Text('Change Email'),
+                      ),
                       const SizedBox(height: 24),
                       TextFormField(
+                        controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                            onPressed: () => setState(() => _obscure = !_obscure),
+                            icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
                         ),
-                        obscureText: _obscure,
+                        obscureText: _obscurePassword,
                         validator: (v) => v == null || v.isEmpty ? 'Enter password' : null,
-                        onChanged: (v) => _password = v,
                         textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
+                        onFieldSubmitted: (_) => _signIn(),
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
+                        height: 48,
                         child: ElevatedButton(
-                          onPressed: state.isLoading
-                              ? null
-                              : () async {
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    controller.updateEmail(widget.email);
-                                    controller.updatePassword(_password);
-                                    await controller.login();
-                                    
-                                    // Check the state after login completion
-                                    final currentState = ref.read(loginControllerProvider);
-                                    if (currentState.session != null && currentState.error == null) {
-                                      print('✅ [DEBUG] Login successful, navigating to home');
-                                      if (context.mounted) {
-                                        context.go('/home');
-                                      }
-                                    } else if (currentState.error != null) {
-                                      print('❌ [DEBUG] Login failed: ${currentState.error}');
-                                      // Error will be displayed by the error text widget below
-                                    }
-                                  }
-                                },
-                          child: state.isLoading
-                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                              : const Text('Login'),
+                          onPressed: _isLoading ? null : _signIn,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20, 
+                                  width: 20, 
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -90,9 +166,9 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
                           child: const Text('Forgot Password?'),
                         ),
                       ),
-                      if (state.error != null) ...[
+                      if (_errorMessage != null) ...[
                         const SizedBox(height: 8),
-                        Text(state.error!, style: const TextStyle(color: Colors.red)),
+                        Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
                       ],
                     ],
                   ),

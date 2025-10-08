@@ -40,44 +40,65 @@ class SupabaseVenuesDataSource implements VenuesRemoteDataSource {
     bool ascending = true,
   }) async {
     try {
+      print('🔍 [DEBUG] getVenues called with filters: $filters');
+      
       final cacheKey = 'venues_${filters.hashCode}_${page}_$limit';
       
       // Check cache first
       if (_isCacheValid(cacheKey)) {
+        print('📦 [DEBUG] Returning ${_listCache[cacheKey]!.length} venues from cache');
         return _listCache[cacheKey]!;
       }
 
       var query = _supabaseClient
           .from('venues')
-          .select('''
-            *,
-            amenities,
-            photos,
-            sport_configs(*)
-          ''');
+          .select('*');
 
       // Apply filters
       if (filters != null) {
-        if (filters['sport'] != null) {
-          query = query.contains('supported_sports', [filters['sport']]);
+        // TODO: Add sport filtering when venue_sports relationship table is created
+        // For now, skip sports filtering
+        /* 
+        final sports = filters['sports'] ?? filters['sport'];
+        if (sports != null) {
+          if (sports is List && sports.isNotEmpty) {
+            query = query.contains('supported_sports', sports);
+          } else if (sports is String) {
+            query = query.contains('supported_sports', [sports]);
+          }
         }
+        */
+        
         if (filters['city'] != null) {
           query = query.eq('city', filters['city']);
         }
         if (filters['amenities'] != null && filters['amenities'] is List) {
-          query = query.overlaps('amenities', filters['amenities']);
+          final amenitiesList = filters['amenities'] as List;
+          if (amenitiesList.isNotEmpty) {
+            // TODO: Add amenities filtering when column exists
+            // query = query.overlaps('amenities', amenitiesList);
+          }
         }
         if (filters['min_rating'] != null) {
-          query = query.gte('average_rating', filters['min_rating']);
+          query = query.gte('rating', filters['min_rating']);
         }
-        if (filters['is_available'] == true) {
-          query = query.eq('is_available', true);
+        if (filters['min_price'] != null) {
+          query = query.gte('price_per_hour', filters['min_price']);
+        }
+        if (filters['max_price'] != null) {
+          query = query.lte('price_per_hour', filters['max_price']);
         }
       }
 
       final response = await query
+          .eq('is_active', true) // Only show active venues
           .order(sortBy ?? 'name', ascending: ascending)
           .range((page - 1) * limit, page * limit - 1);
+
+      print('✅ [DEBUG] Fetched ${response.length} venues from database');
+      if (response.isNotEmpty) {
+        print('📍 [DEBUG] First venue: ${response.first['name']}');
+      }
 
       final venues = response.map<VenueModel>((json) => VenueModel.fromJson(json)).toList();
 
@@ -85,10 +106,13 @@ class SupabaseVenuesDataSource implements VenuesRemoteDataSource {
       _listCache[cacheKey] = venues;
       _cacheTimestamps[cacheKey] = DateTime.now();
 
+      print('🎯 [DEBUG] Returning ${venues.length} parsed venues');
       return venues;
     } on PostgrestException catch (e) {
+      print('❌ [ERROR] PostgrestException: ${e.message}, code: ${e.code}');
       throw VenueServerException('Database error: ${e.message}');
     } catch (e) {
+      print('❌ [ERROR] Failed to get venues: $e');
       throw VenueServerException('Failed to get venues: ${e.toString()}');
     }
   }

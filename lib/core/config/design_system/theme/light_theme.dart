@@ -24,17 +24,17 @@ class DabblerLightTheme {
   static const Color divider = Color(0xFFE5E7EB);
   
   // Overlay Colors
-  static Color overlay = Colors.black.withOpacity(0.5);
+  static Color overlay = Colors.black.withValues(alpha: 0.5);
   
   // Shadow Colors
   static List<BoxShadow> get shadows => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withValues(alpha: 0.05),
       offset: const Offset(0, 1),
       blurRadius: 2,
     ),
     BoxShadow(
-      color: Colors.black.withOpacity(0.1),
+      color: Colors.black.withValues(alpha: 0.1),
       offset: const Offset(0, 1),
       blurRadius: 3,
     ),

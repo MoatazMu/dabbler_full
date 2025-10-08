@@ -3,12 +3,12 @@ import '../screens/explore/match_detail_screen.dart';
 import '../features/venues/presentation/screens/venue_detail_screen.dart';
 import '../screens/explore/booking_flow_screen.dart';
 import '../screens/explore/booking_success_screen.dart';
-import '../screens/profile/profile_screen.dart';
+import '../features/profile/presentation/screens/profile/profile_screen.dart';
 import '../screens/profile/settings_screen.dart';
 import '../screens/profile/edit_profile_screen.dart';
 import '../screens/profile/payment_methods_screen.dart';
 import '../screens/game/create_game_screen.dart';
-import '../screens/game/game_detail_screen.dart';
+import '../features/games/presentation/screens/join_game/game_detail_screen.dart';
 import '../screens/game/invite_players_screen.dart';
 import '../screens/onboarding/phone_input_screen.dart';
 import '../screens/onboarding/otp_verification_screen.dart';
@@ -26,13 +26,31 @@ import '../screens/loyalty/badge_detail_screen.dart';
 import '../screens/bookings/checkin_screen.dart';
 import '../screens/bookings/rate_game_screen.dart';
 import '../screens/bookings/rebook_flow.dart';
-import '../screens/notifications/notifications_screen.dart';
+import '../screens/notifications/notifications_screen_v2.dart';
 import '../screens/notifications/notification_settings_screen.dart';
-import '../features/splash/presentation/pages/splash_page.dart';
-import '../widgets/bottom_nav.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/social/social_screen.dart';
+import '../screens/explore/explore_screen.dart';
+import '../screens/activities/activities_screen_v2.dart';
+
+import '../features/profile/presentation/screens/onboarding/onboarding_welcome_screen.dart';
+import '../features/profile/presentation/screens/onboarding/onboarding_basic_info_screen.dart';
+import '../features/profile/presentation/screens/onboarding/onboarding_sports_screen.dart';
+import '../features/profile/presentation/screens/onboarding/onboarding_preferences_screen.dart';
+import '../features/profile/presentation/screens/onboarding/onboarding_privacy_screen.dart';
+import '../features/profile/presentation/screens/onboarding/onboarding_completion_screen.dart';
+
+// Page transition types
+enum PageTransitionType {
+  slideUp,
+  slideLeft,
+  slideRight,
+  fadeIn,
+  scale,
+}
 
 class AppRoutes {
-  // Main navigation routes (handled by bottom navigation)
+  // Main navigation routes (handled by GoRouter)
   static const String home = '/';
   static const String explore = '/explore';
   static const String bookings = '/bookings';
@@ -60,6 +78,26 @@ class AppRoutes {
   static const String paymentMethods = '/paymentMethods';
   static const String themeSettings = '/themeSettings';
   
+  // Enhanced profile routes
+  static const String profileCompletion = '/profileCompletion';
+  static const String profileOnboarding = '/profileOnboarding';
+  static const String profileSettings = '/profileSettings';
+  static const String profilePrivacy = '/profilePrivacy';
+  static const String profileSports = '/profileSports';
+  static const String profileStats = '/profileStats';
+  static const String profileAvatar = '/profileAvatar';
+  static const String profileDataExport = '/profileDataExport';
+  static const String profileAccountDeletion = '/profileAccountDeletion';
+  static const String profileViewProfile = '/profileViewProfile'; // View another user's profile
+  
+  // Comprehensive onboarding routes
+  static const String onboardingWelcome = '/onboarding/welcome';
+  static const String onboardingBasicInfo = '/onboarding/basic-info';
+  static const String onboardingSports = '/onboarding/sports';
+  static const String onboardingPreferences = '/onboarding/preferences';
+  static const String onboardingPrivacy = '/onboarding/privacy';
+  static const String onboardingCompletion = '/onboarding/completion';
+  
   // Onboarding routes
   static const String phoneInput = '/phoneInput';
   static const String otpVerification = '/otpVerification';
@@ -80,18 +118,18 @@ class AppRoutes {
   static const String badgeDetail = '/badgeDetail';
   
   // Other routes
-  static const String splash = '/splash';
   static const String yourMatches = '/yourMatches';
   static const String chat = '/chat';
+  static const String social = '/social';
   static const String login = '/login';
   static const String notifications = '/notifications';
   static const String notificationSettings = '/notificationSettings';
 
   static Map<String, WidgetBuilder> get routes => {
-    splash: (context) => const SplashPage(),
-    home: (context) => const BottomNavigation(currentIndex: 0),
-    explore: (context) => const BottomNavigation(currentIndex: 1),
-    bookings: (context) => const BottomNavigation(currentIndex: 2),
+    home: (context) => const HomeScreen(),
+    explore: (context) => const ExploreScreen(),
+    bookings: (context) => const ActivitiesScreenV2(),
+    social: (context) => const SocialScreen(),
   };
 
   // Navigation helper methods
@@ -101,6 +139,10 @@ class AppRoutes {
 
   static void navigateToExplore(BuildContext context) {
     Navigator.pushNamed(context, explore);
+  }
+
+  static void navigateToSocial(BuildContext context) {
+    Navigator.pushNamed(context, social);
   }
 
   static void navigateToBookings(BuildContext context) {
@@ -203,23 +245,160 @@ class AppRoutes {
     Navigator.pop(context);
   }
 
+  // Enhanced profile navigation methods
+  static void navigateToProfileCompletion(BuildContext context, {Map<String, dynamic>? arguments}) {
+    Navigator.pushNamed(context, profileCompletion, arguments: arguments);
+  }
+
+  static void navigateToProfileOnboarding(BuildContext context, {String? step}) {
+    Navigator.pushNamed(context, profileOnboarding, arguments: {'step': step});
+  }
+
+  static void navigateToProfileSettings(BuildContext context, {String? section}) {
+    Navigator.pushNamed(context, profileSettings, arguments: {'section': section});
+  }
+
+  static void navigateToProfilePrivacy(BuildContext context) {
+    Navigator.pushNamed(context, profilePrivacy);
+  }
+
+  static void navigateToProfileSports(BuildContext context) {
+    Navigator.pushNamed(context, profileSports);
+  }
+
+  static void navigateToProfileStats(BuildContext context, {String? userId}) {
+    Navigator.pushNamed(context, profileStats, arguments: {'userId': userId});
+  }
+
+  static void navigateToProfileAvatar(BuildContext context) {
+    Navigator.pushNamed(context, profileAvatar);
+  }
+
+  static void navigateToProfileDataExport(BuildContext context) {
+    Navigator.pushNamed(context, profileDataExport);
+  }
+
+  static void navigateToProfileAccountDeletion(BuildContext context) {
+    Navigator.pushNamed(context, profileAccountDeletion);
+  }
+
+  static void navigateToViewProfile(BuildContext context, String userId, {String? heroTag}) {
+    Navigator.pushNamed(context, profileViewProfile, arguments: {
+      'userId': userId,
+      'heroTag': heroTag,
+    });
+  }
+
+  // Navigation with custom transitions
+  static void navigateToProfileWithTransition(
+    BuildContext context, 
+    String routeName, 
+    {
+      Map<String, dynamic>? arguments,
+      PageTransitionType transition = PageTransitionType.slideUp,
+    }
+  ) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return _getPageForRoute(routeName, arguments);
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return _buildTransition(transition, animation, child);
+        },
+        settings: RouteSettings(name: routeName, arguments: arguments),
+      ),
+    );
+  }
+
+  // Deep linking helpers
+  static void handleProfileDeepLink(BuildContext context, Uri uri) {
+    final path = uri.path;
+    final queryParams = uri.queryParameters;
+    
+    if (path.startsWith('/profile/')) {
+      final segments = path.split('/');
+      if (segments.length >= 3) {
+        final userId = segments[2];
+        if (userId == 'me' || userId == 'current') {
+          navigateToProfile(context);
+        } else {
+          navigateToViewProfile(context, userId);
+        }
+      }
+    } else if (path == '/profile/completion') {
+      navigateToProfileCompletion(context, arguments: queryParams);
+    } else if (path == '/profile/onboarding') {
+      navigateToProfileOnboarding(context, step: queryParams['step']);
+    } else if (path == '/profile/settings') {
+      navigateToProfileSettings(context, section: queryParams['section']);
+    }
+  }
+
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      // Splash route
-      case splash:
-        return MaterialPageRoute(builder: (_) => const SplashPage());
+
       
       // Main navigation routes
       case home:
-        return MaterialPageRoute(builder: (_) => const BottomNavigation(currentIndex: 0));
+        return MaterialPageRoute(builder: (_) => const HomeScreen());
       case explore:
-        return MaterialPageRoute(builder: (_) => const BottomNavigation(currentIndex: 1));
+        return MaterialPageRoute(builder: (_) => const ExploreScreen());
       case bookings:
-        return MaterialPageRoute(builder: (_) => const BottomNavigation(currentIndex: 2));
+        return MaterialPageRoute(builder: (_) => const ActivitiesScreenV2());
       
       // Profile routes
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
+      case editProfile:
+        return MaterialPageRoute(builder: (_) => const EditProfileScreen());
+      case settingsScreen:
+        return MaterialPageRoute(builder: (_) => const SettingsScreen());
+      case paymentMethods:
+        return MaterialPageRoute(builder: (_) => const PaymentMethodsScreen());
+      
+      // Enhanced profile routes
+      case profileCompletion:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Profile Completion - Coming Soon'))
+        ));
+      case profileOnboarding:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Profile Onboarding - Coming Soon'))
+        ));
+      case profileSettings:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Profile Settings - Coming Soon'))
+        ));
+      case profilePrivacy:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Privacy Settings - Coming Soon'))
+        ));
+      case profileSports:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Sports Profile - Coming Soon'))
+        ));
+      case profileStats:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Profile Stats - Coming Soon'))
+        ));
+      case profileAvatar:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Avatar Upload - Coming Soon'))
+        ));
+      case profileDataExport:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Data Export - Coming Soon'))
+        ));
+      case profileAccountDeletion:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Account Deletion - Coming Soon'))
+        ));
+      case profileViewProfile:
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('View Profile - Coming Soon'))
+        ));
       
       // Game routes
       case gameCreate:
@@ -269,17 +448,9 @@ class AppRoutes {
         final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(builder: (_) => RebookFlow(gameId: args['gameId']));
       
-      // Profile routes
-      case editProfile:
-        return MaterialPageRoute(builder: (_) => const EditProfileScreen());
-      case settingsScreen:
-        return MaterialPageRoute(builder: (_) => const SettingsScreen());
-      case paymentMethods:
-        return MaterialPageRoute(builder: (_) => const PaymentMethodsScreen());
-      
       // Notification routes
       case notifications:
-        return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+        return MaterialPageRoute(builder: (_) => const NotificationsScreenV2());
       case notificationSettings:
         return MaterialPageRoute(builder: (_) => const NotificationSettingsScreen());
       
@@ -300,6 +471,20 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const LanguageSelectionScreen());
       case changePhone:
         return MaterialPageRoute(builder: (_) => const ChangePhoneScreen());
+      
+      // Comprehensive onboarding routes
+      case onboardingWelcome:
+        return MaterialPageRoute(builder: (_) => const ProfileOnboardingWelcomeScreen());
+      case onboardingBasicInfo:
+        return MaterialPageRoute(builder: (_) => const OnboardingBasicInfoScreen());
+      case onboardingSports:
+        return MaterialPageRoute(builder: (_) => const OnboardingSportsScreen());
+      case onboardingPreferences:
+        return MaterialPageRoute(builder: (_) => const OnboardingPreferencesScreen());
+      case onboardingPrivacy:
+        return MaterialPageRoute(builder: (_) => const OnboardingPrivacyScreen());
+      case onboardingCompletion:
+        return MaterialPageRoute(builder: (_) => const OnboardingCompletionScreen());
       
       // Support routes
       case helpCenter:
@@ -324,6 +509,121 @@ class AppRoutes {
             body: Center(child: Text('Page not found')),
           ),
         );
+    }
+  }
+
+  // Helper methods for transitions and page building
+  static Widget _getPageForRoute(String routeName, Map<String, dynamic>? arguments) {
+    switch (routeName) {
+      case profile:
+        return const ProfileScreen();
+      case editProfile:
+        return const EditProfileScreen();
+      case settingsScreen:
+        return const SettingsScreen();
+      case profileSettings:
+        // TODO: Create ProfileSettingsScreen
+        return const Scaffold(body: Center(child: Text('Profile Settings - Coming Soon')));
+      case profilePrivacy:
+        // TODO: Create ProfilePrivacyScreen
+        return const Scaffold(body: Center(child: Text('Privacy Settings - Coming Soon')));
+      case profileSports:
+        // TODO: Create ProfileSportsScreen  
+        return const Scaffold(body: Center(child: Text('Sports Profile - Coming Soon')));
+      case profileStats:
+        // TODO: Create ProfileStatsScreen
+        return const Scaffold(body: Center(child: Text('Profile Stats - Coming Soon')));
+      case profileAvatar:
+        // TODO: Create ProfileAvatarScreen
+        return const Scaffold(body: Center(child: Text('Avatar Upload - Coming Soon')));
+      case profileDataExport:
+        // TODO: Create ProfileDataExportScreen
+        return const Scaffold(body: Center(child: Text('Data Export - Coming Soon')));
+      case profileAccountDeletion:
+        // TODO: Create ProfileAccountDeletionScreen
+        return const Scaffold(body: Center(child: Text('Account Deletion - Coming Soon')));
+      case profileViewProfile:
+        // TODO: Create ViewProfileScreen
+        return const Scaffold(body: Center(child: Text('View Profile - Coming Soon')));
+      case profileCompletion:
+        // TODO: Create ProfileCompletionScreen
+        return const Scaffold(body: Center(child: Text('Profile Completion - Coming Soon')));
+      case profileOnboarding:
+        // TODO: Create ProfileOnboardingScreen
+        return const Scaffold(body: Center(child: Text('Profile Onboarding - Coming Soon')));
+      default:
+        return const Scaffold(body: Center(child: Text('Page not found')));
+    }
+  }
+
+  static Widget _buildTransition(PageTransitionType type, Animation<double> animation, Widget child) {
+    switch (type) {
+      case PageTransitionType.slideUp:
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.0, 1.0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          child: child,
+        );
+      case PageTransitionType.slideLeft:
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          child: child,
+        );
+      case PageTransitionType.slideRight:
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-1.0, 0.0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          child: child,
+        );
+      case PageTransitionType.fadeIn:
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      case PageTransitionType.scale:
+        return ScaleTransition(
+          scale: Tween<double>(
+            begin: 0.0,
+            end: 1.0,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          child: child,
+        );
+    }
+  }
+
+  // Route protection helpers
+  static bool isProtectedRoute(String routeName) {
+    const protectedRoutes = {
+      profile,
+      editProfile,
+      settingsScreen,
+      profileSettings,
+      profilePrivacy,
+      profileSports,
+      profileStats,
+      profileAvatar,
+      profileDataExport,
+      profileAccountDeletion,
+      profileCompletion,
+      profileOnboarding,
+    };
+    return protectedRoutes.contains(routeName);
+  }
+
+  static void navigateWithAuthCheck(BuildContext context, String routeName, {Map<String, dynamic>? arguments}) {
+    if (isProtectedRoute(routeName)) {
+      // TODO: Check authentication status
+      // For now, assume user is authenticated
+      Navigator.pushNamed(context, routeName, arguments: arguments);
+    } else {
+      Navigator.pushNamed(context, routeName, arguments: arguments);
     }
   }
 }

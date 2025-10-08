@@ -34,7 +34,7 @@ class BookingSuccessScreen extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: DS.primary.withOpacity(0.1),
+                  color: DS.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -74,7 +74,7 @@ class BookingSuccessScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: DS.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.1)),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1)),
                 ),
                 child: Column(
                   children: [
@@ -85,7 +85,7 @@ class BookingSuccessScreen extends StatelessWidget {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: DS.primary.withOpacity(0.1),
+                            color: DS.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(

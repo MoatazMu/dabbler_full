@@ -71,7 +71,8 @@ class AppTheme {
       brightness: Brightness.light,
     primarySwatch: Colors.purple,
     primaryColor: _violetPrimary,
-    scaffoldBackgroundColor: VioletShades.lightBackground,
+    // Make scaffold transparent to reveal global background gradient
+    scaffoldBackgroundColor: Colors.transparent,
     
     // Color scheme
     colorScheme: const ColorScheme.light(
@@ -89,7 +90,8 @@ class AppTheme {
     
     // App bar theme
     appBarTheme: const AppBarTheme(
-      backgroundColor: VioletShades.lightSurfaceVariant,
+      // Transparent so the global background can softly bleed through if needed
+      backgroundColor: Colors.transparent,
       foregroundColor: VioletShades.lightTextPrimary,
       elevation: 0,
       centerTitle: true,
@@ -194,7 +196,8 @@ class AppTheme {
       brightness: Brightness.dark,
     primarySwatch: Colors.purple,
     primaryColor: _violetPrimaryDarkMode,
-    scaffoldBackgroundColor: VioletShades.darkBackground,
+    // Make scaffold transparent to reveal global background gradient
+    scaffoldBackgroundColor: Colors.transparent,
     
     // Color scheme
     colorScheme: const ColorScheme.dark(
@@ -212,7 +215,8 @@ class AppTheme {
     
     // App bar theme
     appBarTheme: const AppBarTheme(
-      backgroundColor: VioletShades.darkSurfaceVariant,
+      // Transparent so the global background can softly bleed through if needed
+      backgroundColor: Colors.transparent,
       foregroundColor: VioletShades.darkTextPrimary,
       elevation: 0,
       centerTitle: true,

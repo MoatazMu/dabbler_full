@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/game.dart';
+import '../entities/player.dart';
 
 abstract class GamesRepository {
   /// Creates a new game with the provided data
@@ -140,4 +141,7 @@ abstract class GamesRepository {
     String newStartTime,
     String newEndTime,
   );
+
+  /// Gets all players for a specific game
+  Future<Either<Failure, List<Player>>> getGamePlayers(String gameId);
 }

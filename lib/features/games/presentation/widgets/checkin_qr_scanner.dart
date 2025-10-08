@@ -370,7 +370,6 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       case ScannerState.manual:
         return const SizedBox.shrink();
       case ScannerState.scanning:
-      default:
         return const SizedBox.shrink();
     }
 
@@ -622,4 +621,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
   void simulateFailedScan(String error) {
     _simulateQRError(error);
   }
+
+  // Getter for the last scanned code
+  String? get lastScannedCode => _lastScannedCode;
 }

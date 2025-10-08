@@ -29,7 +29,7 @@ class SupabaseInit {
   /// Check if Supabase is properly configured
   static bool isConfigured() {
     return SupabaseConfig.url != 'https://your-project-ref.supabase.co' &&
-           SupabaseConfig.anonKey != 'your-anon-key-here';
+           SupabaseConfig.anonKey != 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbWhyeGR3Z2VneGtka2R1a2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMjcyNjIsImV4cCI6MjA2OTgwMzI2Mn0.xzE24mCrAJsZk58Hni4TfXvbHYgf-LHJjCzpgCmuaFA';
   }
 
   /// Get configuration status message

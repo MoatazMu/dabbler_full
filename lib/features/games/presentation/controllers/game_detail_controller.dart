@@ -4,6 +4,8 @@ import '../../domain/entities/game.dart';
 import '../../domain/entities/venue.dart';
 import '../../domain/entities/player.dart';
 import '../../domain/usecases/join_game_usecase.dart';
+import '../../domain/repositories/games_repository.dart';
+import '../../domain/repositories/venues_repository.dart';
 
 enum JoinGameStatus {
   canJoin,
@@ -146,20 +148,20 @@ class GameDetailState {
 
 class GameDetailController extends StateNotifier<GameDetailState> {
   final JoinGameUseCase _joinGameUseCase;
+  final GamesRepository _gamesRepository;
+  final VenuesRepository _venuesRepository;
   final String gameId;
   final String? currentUserId;
-  
-  // TODO: Add other use cases when available
-  // final GetGameDetailsUseCase _getGameDetailsUseCase;
-  // final GetVenueDetailsUseCase _getVenueDetailsUseCase;
-  // final GetGamePlayersUseCase _getGamePlayersUseCase;
-  // final GetWeatherUseCase _getWeatherUseCase;
 
   GameDetailController({
     required JoinGameUseCase joinGameUseCase,
+    required GamesRepository gamesRepository,
+    required VenuesRepository venuesRepository,
     required this.gameId,
     this.currentUserId,
   })  : _joinGameUseCase = joinGameUseCase,
+        _gamesRepository = gamesRepository,
+        _venuesRepository = venuesRepository,
         super(const GameDetailState()) {
     _initializeGameDetail();
   }
@@ -207,43 +209,24 @@ class GameDetailController extends StateNotifier<GameDetailState> {
   /// Load game basic details
   Future<void> _loadGameDetails() async {
     try {
-      // TODO: Replace with actual repository call
-      // final result = await _getGameDetailsUseCase(gameId);
+      final result = await _gamesRepository.getGame(gameId);
       
-      // Mock implementation for now
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // For demo purposes, create a mock game
-      final mockGame = Game(
-        id: gameId,
-        title: 'Basketball Game',
-        description: 'Friendly basketball match',
-        sport: 'basketball',
-        scheduledDate: DateTime.now().add(const Duration(days: 1)),
-        startTime: '18:00',
-        endTime: '20:00',
-        minPlayers: 6,
-        maxPlayers: 10,
-        currentPlayers: 7,
-        organizerId: 'organizer123',
-        skillLevel: 'intermediate',
-        pricePerPlayer: 15.0,
-        status: GameStatus.upcoming,
-        isPublic: true,
-        allowsWaitlist: true,
-        checkInEnabled: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        updatedAt: DateTime.now(),
-        venueId: 'venue123',
+      result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            error: 'Failed to load game: ${failure.message}',
+          );
+        },
+        (game) {
+          state = state.copyWith(
+            game: game,
+            isOrganizer: currentUserId == game.organizerId,
+            isLoading: false,
+            lastUpdated: DateTime.now(),
+          );
+        },
       );
-      
-      state = state.copyWith(
-        game: mockGame,
-        isOrganizer: currentUserId == mockGame.organizerId,
-        isLoading: false,
-        lastUpdated: DateTime.now(),
-      );
-      
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -259,40 +242,22 @@ class GameDetailController extends StateNotifier<GameDetailState> {
     state = state.copyWith(isLoadingVenue: true);
     
     try {
-      // TODO: Replace with actual repository call
-      // final result = await _getVenueDetailsUseCase(state.game!.venueId!);
+      final result = await _venuesRepository.getVenue(state.game!.venueId!);
       
-      await Future.delayed(const Duration(milliseconds: 300));
-      
-      // Mock venue for demo
-      final mockVenue = Venue(
-        id: state.game!.venueId!,
-        name: 'Downtown Sports Center',
-        description: 'Modern sports facility with multiple courts',
-        addressLine1: '123 Sports Avenue',
-        city: 'Downtown',
-        state: 'NY',
-        country: 'USA',
-        postalCode: '10001',
-        latitude: 40.7831,
-        longitude: -73.9712,
-        openingTime: '06:00',
-        closingTime: '22:00',
-        rating: 4.5,
-        totalRatings: 150,
-        pricePerHour: 25.0,
-        currency: 'USD',
-        supportedSports: ['basketball', 'volleyball', 'badminton'],
-        amenities: ['parking', 'changing_rooms', 'equipment_rental'],
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        updatedAt: DateTime.now(),
+      result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoadingVenue: false,
+            error: 'Failed to load venue: ${failure.message}',
+          );
+        },
+        (venue) {
+          state = state.copyWith(
+            venue: venue,
+            isLoadingVenue: false,
+          );
+        },
       );
-      
-      state = state.copyWith(
-        venue: mockVenue,
-        isLoadingVenue: false,
-      );
-      
     } catch (e) {
       state = state.copyWith(
         isLoadingVenue: false,
@@ -306,63 +271,31 @@ class GameDetailController extends StateNotifier<GameDetailState> {
     state = state.copyWith(isLoadingPlayers: true);
     
     try {
-      // TODO: Replace with actual repository call
-      // final result = await _getGamePlayersUseCase(gameId);
+      final result = await _gamesRepository.getGamePlayers(gameId);
       
-      await Future.delayed(const Duration(milliseconds: 400));
-      
-      // Mock players for demo
-      final mockPlayers = <Player>[
-        Player(
-          id: 'player1',
-          playerId: 'user1',
-          gameId: gameId,
-          status: PlayerStatus.confirmed,
-          teamAssignment: TeamAssignment.unassigned,
-          playerName: 'John Smith',
-          joinedAt: DateTime.now().subtract(const Duration(hours: 2)),
-          isOrganizer: false,
-          hasPaid: true,
-          createdAt: DateTime.now().subtract(const Duration(days: 100)),
-          updatedAt: DateTime.now(),
-        ),
-        Player(
-          id: 'player2',
-          playerId: 'user2',
-          gameId: gameId,
-          status: PlayerStatus.confirmed,
-          teamAssignment: TeamAssignment.unassigned,
-          playerName: 'Sarah Johnson',
-          joinedAt: DateTime.now().subtract(const Duration(hours: 1)),
-          isOrganizer: false,
-          hasPaid: true,
-          createdAt: DateTime.now().subtract(const Duration(days: 150)),
-          updatedAt: DateTime.now(),
-        ),
-      ];
-      
-      final mockWaitlistedPlayers = <Player>[
-        Player(
-          id: 'player3',
-          playerId: 'user3',
-          gameId: gameId,
-          status: PlayerStatus.waitlisted,
-          teamAssignment: TeamAssignment.unassigned,
-          playerName: 'Mike Wilson',
-          joinedAt: DateTime.now().subtract(const Duration(minutes: 30)),
-          isOrganizer: false,
-          hasPaid: false,
-          createdAt: DateTime.now().subtract(const Duration(days: 50)),
-          updatedAt: DateTime.now(),
-        ),
-      ];
-      
-      state = state.copyWith(
-        players: mockPlayers,
-        waitlistedPlayers: mockWaitlistedPlayers,
-        isLoadingPlayers: false,
+      result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoadingPlayers: false,
+            error: 'Failed to load players',
+          );
+        },
+        (allPlayers) {
+          // Split players into confirmed and waitlisted
+          final confirmedPlayers = allPlayers
+              .where((p) => p.status == PlayerStatus.confirmed)
+              .toList();
+          final waitlistedPlayers = allPlayers
+              .where((p) => p.status == PlayerStatus.waitlisted)
+              .toList();
+          
+          state = state.copyWith(
+            players: confirmedPlayers,
+            waitlistedPlayers: waitlistedPlayers,
+            isLoadingPlayers: false,
+          );
+        },
       );
-      
     } catch (e) {
       state = state.copyWith(
         isLoadingPlayers: false,
@@ -378,28 +311,16 @@ class GameDetailController extends StateNotifier<GameDetailState> {
     state = state.copyWith(isLoadingWeather: true);
     
     try {
-      // TODO: Replace with actual weather API call
-      // final result = await _getWeatherUseCase(WeatherParams(
+      // TODO: Integrate weather API (OpenWeather, WeatherAPI, etc.)
+      // For now, weather feature is disabled
+      // final result = await _weatherService.getWeather(
       //   latitude: state.venue!.latitude,
       //   longitude: state.venue!.longitude,
       //   date: state.game!.scheduledDate,
-      // ));
-      
-      await Future.delayed(const Duration(milliseconds: 600));
-      
-      // Mock weather for demo
-      final mockWeather = WeatherInfo(
-        condition: 'sunny',
-        temperature: 22,
-        description: 'Clear sky, perfect for outdoor activities',
-        iconUrl: 'https://example.com/sunny.png',
-        humidity: 45,
-        windSpeed: 8.5,
-        uvIndex: 6,
-      );
+      // );
       
       state = state.copyWith(
-        weather: mockWeather,
+        weather: null, // Weather feature disabled
         isLoadingWeather: false,
       );
       

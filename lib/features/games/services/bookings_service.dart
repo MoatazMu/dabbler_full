@@ -499,8 +499,14 @@ class BookingsService {
 
   // POLICY MANAGEMENT
   Future<CancellationPolicy> _getCancellationPolicy(String venueId) async {
-    // This would fetch from repository or use default policy
-    return CancellationPolicy.defaultPolicy();
+    try {
+      // Use the injected service to get venue-specific policy
+      return await _cancellationPolicyService.getPolicyForVenue(venueId);
+    } catch (e) {
+      // Fallback to default policy if service fails
+      debugPrint('Failed to fetch cancellation policy for venue $venueId: $e');
+      return CancellationPolicy.defaultPolicy();
+    }
   }
 
   // BOOKING QUERIES

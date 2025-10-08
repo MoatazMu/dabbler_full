@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'analytics_constants.dart';
@@ -28,7 +29,7 @@ class AnalyticsStorage {
       final eventsJson = existingEvents.map((e) => e.toJson()).toList();
       await prefs.setString(_eventsKey, jsonEncode(eventsJson));
     } catch (e) {
-      print('Error storing analytics event: $e');
+      debugPrint('Error storing analytics event: $e');
     }
   }
 
@@ -45,7 +46,7 @@ class AnalyticsStorage {
           .map((json) => AnalyticsEvent.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error retrieving analytics events: $e');
+      debugPrint('Error retrieving analytics events: $e');
       return [];
     }
   }
@@ -56,7 +57,7 @@ class AnalyticsStorage {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_eventsKey);
     } catch (e) {
-      print('Error clearing analytics events: $e');
+      debugPrint('Error clearing analytics events: $e');
     }
   }
 
@@ -75,7 +76,7 @@ class AnalyticsStorage {
       final eventsJson = remainingEvents.map((e) => e.toJson()).toList();
       await prefs.setString(_eventsKey, jsonEncode(eventsJson));
     } catch (e) {
-      print('Error removing analytics events: $e');
+      debugPrint('Error removing analytics events: $e');
     }
   }
 
@@ -85,7 +86,7 @@ class AnalyticsStorage {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_sessionKey, jsonEncode(session.toJson()));
     } catch (e) {
-      print('Error storing analytics session: $e');
+      debugPrint('Error storing analytics session: $e');
     }
   }
 
@@ -105,7 +106,7 @@ class AnalyticsStorage {
         properties: Map<String, dynamic>.from(sessionJson['properties'] ?? {}),
       );
     } catch (e) {
-      print('Error retrieving analytics session: $e');
+      debugPrint('Error retrieving analytics session: $e');
       return null;
     }
   }
@@ -116,7 +117,7 @@ class AnalyticsStorage {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_userPropertiesKey, jsonEncode(properties));
     } catch (e) {
-      print('Error storing user properties: $e');
+      debugPrint('Error storing user properties: $e');
     }
   }
 
@@ -130,7 +131,7 @@ class AnalyticsStorage {
       
       return Map<String, dynamic>.from(jsonDecode(propertiesString));
     } catch (e) {
-      print('Error retrieving user properties: $e');
+      debugPrint('Error retrieving user properties: $e');
       return {};
     }
   }
@@ -148,7 +149,7 @@ class AnalyticsStorage {
       
       return deviceId;
     } catch (e) {
-      print('Error getting device ID: $e');
+      debugPrint('Error getting device ID: $e');
       return const Uuid().v4();
     }
   }
@@ -162,7 +163,7 @@ class AnalyticsStorage {
       await prefs.remove(_userPropertiesKey);
       // Keep device ID for continuity
     } catch (e) {
-      print('Error clearing analytics data: $e');
+      debugPrint('Error clearing analytics data: $e');
     }
   }
 
@@ -185,7 +186,7 @@ class AnalyticsStorage {
             : null,
       };
     } catch (e) {
-      print('Error getting storage stats: $e');
+      debugPrint('Error getting storage stats: $e');
       return {};
     }
   }
@@ -373,7 +374,7 @@ class AnalyticsEventQueue {
       await AnalyticsStorage.clearEvents();
       
     } catch (e) {
-      print('Error uploading analytics events: $e');
+      debugPrint('Error uploading analytics events: $e');
     } finally {
       _isUploading = false;
     }
@@ -390,7 +391,7 @@ class AnalyticsEventQueue {
       
       // Simulate API call
       // In a real implementation, you would send this to your analytics service
-      print('Uploading ${batch.length} analytics events');
+      debugPrint('Uploading ${batch.length} analytics events');
       
       // Add delay to simulate network call
       await Future.delayed(const Duration(milliseconds: 100));

@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/booking_model.dart';
+import 'bookings_remote_data_source.dart';
 
 // Custom exceptions for bookings
 class BookingServerException implements Exception {
@@ -23,8 +24,9 @@ class BookingNotFoundException implements Exception {
   BookingNotFoundException(this.message);
 }
 
-abstract class BookingsDataSource {
+abstract class BookingsDataSource extends BookingsRemoteDataSource {
   /// Creates a new booking with transaction support
+  @override
   Future<BookingModel> createBooking(
     String userId,
     String venueId,
@@ -38,6 +40,7 @@ abstract class BookingsDataSource {
   });
 
   /// Gets bookings for a user
+  @override
   Future<List<BookingModel>> getUserBookings(
     String userId, {
     Map<String, dynamic>? filters,
@@ -48,15 +51,18 @@ abstract class BookingsDataSource {
   });
 
   /// Gets a single booking
+  @override
   Future<BookingModel> getBooking(String bookingId);
 
   /// Updates booking details
+  @override
   Future<BookingModel> updateBooking(
     String bookingId,
     Map<String, dynamic> updates,
   );
 
   /// Cancels a booking with refund logic
+  @override
   Future<BookingModel> cancelBooking(
     String bookingId,
     String reason, {
@@ -75,6 +81,7 @@ abstract class BookingsDataSource {
   });
 
   /// Gets conflicting bookings for a time slot
+  @override
   Future<List<BookingModel>> getConflictingBookings(
     String venueId,
     String date,
@@ -85,6 +92,7 @@ abstract class BookingsDataSource {
   });
 
   /// Processes refund for a booking
+  @override
   Future<Map<String, dynamic>> processRefund(
     String bookingId,
     double amount,
@@ -92,6 +100,7 @@ abstract class BookingsDataSource {
   );
 
   /// Gets upcoming bookings
+  @override
   Future<List<BookingModel>> getUpcomingBookings(
     String userId, {
     int days = 7,
@@ -100,6 +109,7 @@ abstract class BookingsDataSource {
   });
 
   /// Gets past bookings
+  @override
   Future<List<BookingModel>> getPastBookings(
     String userId, {
     int days = 30,
@@ -108,6 +118,7 @@ abstract class BookingsDataSource {
   });
 
   /// Extends booking duration
+  @override
   Future<BookingModel> extendBooking(
     String bookingId,
     int additionalMinutes,
@@ -637,6 +648,60 @@ class SupabaseBookingsDataSource implements BookingsDataSource {
       throw BookingServerException('Database error: ${e.message}');
     } catch (e) {
       throw BookingServerException('Failed to get venue booking history: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<bool> checkSlotAvailability(
+    String venueId,
+    String date,
+    String startTime,
+    String endTime, {
+    String? sport,
+    String? courtNumber,
+    String? excludeBookingId,
+  }) async {
+    try {
+      // Check for conflicting bookings
+      final conflicts = await getConflictingBookings(
+        venueId,
+        date,
+        startTime,
+        endTime,
+        sport: sport,
+        courtNumber: courtNumber,
+      );
+      
+      // Filter out the excluded booking if provided
+      final relevantConflicts = excludeBookingId != null
+          ? conflicts.where((b) => b.id != excludeBookingId).toList()
+          : conflicts;
+      
+      return relevantConflicts.isEmpty;
+    } catch (e) {
+      throw BookingServerException('Failed to check slot availability: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<bool> sendBookingReminder(String bookingId) async {
+    try {
+      // TODO: Implement reminder sending via Supabase Edge Function or email service
+      // For now, return true as a placeholder
+      return true;
+    } catch (e) {
+      throw BookingServerException('Failed to send booking reminder: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<String> getBookingQRCode(String bookingId) async {
+    try {
+      // TODO: Implement QR code generation
+      // For now, return a placeholder URL
+      return 'https://api.qrserver.com/v1/create-qr-code/?data=$bookingId&size=200x200';
+    } catch (e) {
+      throw BookingServerException('Failed to get booking QR code: ${e.toString()}');
     }
   }
 }

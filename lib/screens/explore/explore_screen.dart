@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:dabbler/utils/constants/route_constants.dart';
 import '../../themes/app_theme.dart';
+import '../../widgets/custom_app_bar.dart';
 import '../../themes/design_system.dart';
 import 'match_list_screen.dart';
 import '../../features/venues/presentation/screens/venue_detail_screen.dart';
+import '../../features/games/providers/games_providers.dart';
+import '../../features/games/presentation/controllers/venues_controller.dart' as vc;
 
 class VenueCard extends StatelessWidget {
   final Map<String, dynamic> venue;
@@ -33,7 +40,6 @@ class VenueCard extends StatelessWidget {
     final reviews = (venue['reviews'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
     final distance = venue['distance'] as String? ?? '';
     final hasQuickSlot = slots.any((slot) => slot['available'] == true && slot['isSoon'] == true);
-    final ctaLabel = isClosed ? 'Closed Today' : hasQuickSlot ? 'Book Now' : 'View Slots';
     final ctaEnabled = !isClosed && (hasQuickSlot || slots.isNotEmpty);
     final showRating = reviews.length >= 3 && rating >= 3.0;
     final maxNameLength = 26;
@@ -440,7 +446,6 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateMixin {
   late TabController _mainTabController; // Games/Venues
-  int _selectedMainTabIndex = 0;
   int _selectedSportIndex = 0;
   bool _isSearching = false;
   String _searchQuery = '';
@@ -473,9 +478,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _mainTabController = TabController(length: 2, vsync: this);
     _mainTabController.addListener(() {
       if (_mainTabController.indexIsChanging) {
-        setState(() {
-          _selectedMainTabIndex = _mainTabController.index;
-        });
+        setState(() {});
       }
     });
   }
@@ -511,8 +514,13 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: const CustomAppBar(
+        actionIcon: Iconsax.search_normal_copy,
+      ),
       body: Column(
         children: [
+          const SizedBox(height: 100),
           // Enhanced Header
           _buildEnhancedHeader(),
 
@@ -596,6 +604,20 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                 color: Colors.white.withValues(alpha: 0.9),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            FilledButton.icon(
+                              onPressed: () => context.push(RoutePaths.createGame),
+                              icon: const Icon(Icons.add_circle_outline),
+                              label: const Text('Create game'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF813FD6),
+                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                 ),
@@ -636,7 +658,9 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
           ),
           Container(
             margin: const EdgeInsets.only(top: 8),
-            child: TabBar(
+            child: Material(
+              color: Colors.transparent,
+              child: TabBar(
               controller: _mainTabController,
               tabs: const [
                 Tab(
@@ -666,6 +690,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
               indicatorWeight: 3,
               indicatorSize: TabBarIndicatorSize.tab,
               labelStyle: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
             ),
           ),
         ],
@@ -731,20 +756,16 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   }
 }
 
-class _VenuesTabContent extends StatefulWidget {
+class _VenuesTabContent extends ConsumerStatefulWidget {
   final String selectedSport;
   final String searchQuery;
   const _VenuesTabContent({required this.selectedSport, required this.searchQuery});
 
   @override
-  State<_VenuesTabContent> createState() => _VenuesTabContentState();
+  ConsumerState<_VenuesTabContent> createState() => _VenuesTabContentState();
 }
 
-class _VenuesTabContentState extends State<_VenuesTabContent> {
-  final List<Map<String, dynamic>> _venues = [];
-  bool _isLoading = true;
-  bool _hasError = false;
-  bool _hasMoreData = false;
+class _VenuesTabContentState extends ConsumerState<_VenuesTabContent> {
   final ScrollController _scrollController = ScrollController();
 
   // Advanced filter state
@@ -917,135 +938,21 @@ class _VenuesTabContentState extends State<_VenuesTabContent> {
     }
   }
 
-  // Mock venue data - in real app, this would come from API
-  final List<Map<String, dynamic>> _allVenues = [
-    {
-      'id': '1',
-      'name': 'Al Wasl Sports Club',
-      'location': 'Al Jaddaf, Dubai',
-      'sports': ['Football', 'Padel'],
-      'images': ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400'],
-      'rating': 4.8,
-      'isOpen': true,
-      'slots': [
-        {'time': '18:00', 'available': true, 'isSoon': true},
-        {'time': '20:00', 'available': true, 'isSoon': false},
-      ],
-      'reviews': [{}, {}, {}],
-      'distance': '2.1 km',
-    },
-    {
-      'id': '2',
-      'name': 'Padel Pro UAE',
-      'location': 'Al Quoz, Dubai',
-      'sports': ['Padel'],
-      'images': ['https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400'],
-      'rating': 4.7,
-      'isOpen': true,
-      'slots': [
-        {'time': '19:00', 'available': true, 'isSoon': true},
-      ],
-      'reviews': [{}, {}, {}, {}],
-      'distance': '3.4 km',
-    },
-    {
-      'id': '3',
-      'name': 'Dubai Tennis Stadium',
-      'location': 'Garhoud, Dubai',
-      'sports': ['Padel', 'Tennis'],
-      'images': ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400'],
-      'rating': 4.9,
-      'isOpen': true,
-      'slots': [],
-      'reviews': [{}, {}, {}],
-      'distance': '5.0 km',
-    },
-    {
-      'id': '4',
-      'name': 'Sharjah Cricket Stadium',
-      'location': 'Sharjah, UAE',
-      'sports': ['Cricket'],
-      'images': ['https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400'],
-      'rating': 4.5,
-      'isOpen': false,
-      'slots': [],
-      'reviews': [{}, {}, {}, {}, {}],
-      'distance': '18 km',
-    },
-    {
-      'id': '5',
-      'name': 'Mushrif Park Field',
-      'location': 'Mushrif, Dubai',
-      'sports': ['Football'],
-      'images': ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400'],
-      'rating': 4.2,
-      'isOpen': true,
-      'slots': [
-        {'time': '10:00', 'available': true, 'isSoon': false},
-        {'time': '12:00', 'available': true, 'isSoon': false},
-      ],
-      'reviews': [{}, {}, {}, {}, {}, {}],
-      'distance': '1.5 km',
-    },
-    {
-      'id': '6',
-      'name': 'Padel Point',
-      'location': 'Jumeirah, Dubai',
-      'sports': ['Padel'],
-      'images': ['https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400'],
-      'rating': 4.8,
-      'isOpen': true,
-      'slots': [
-        {'time': '11:00', 'available': true, 'isSoon': true},
-        {'time': '13:00', 'available': true, 'isSoon': false},
-      ],
-      'reviews': [{}, {}, {}, {}, {}, {}, {}],
-      'distance': '2.8 km',
-    },
-    {
-      'id': '7',
-      'name': 'Dubai International Cricket Stadium',
-      'location': 'Sports City, Dubai',
-      'sports': ['Cricket'],
-      'images': ['https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400'],
-      'rating': 4.6,
-      'isOpen': true,
-      'slots': [
-        {'time': '14:00', 'available': true, 'isSoon': false},
-        {'time': '16:00', 'available': true, 'isSoon': false},
-      ],
-      'reviews': [{}, {}, {}, {}, {}, {}, {}, {}],
-      'distance': '10 km',
-    },
-    {
-      'id': '8',
-      'name': 'Al Nasr Basketball Arena',
-      'location': 'Oud Metha, Dubai',
-      'sports': ['Basketball'],
-      'images': ['https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400'],
-      'rating': 4.4,
-      'isOpen': true,
-      'slots': [
-        {'time': '09:00', 'available': true, 'isSoon': false},
-        {'time': '11:00', 'available': true, 'isSoon': false},
-      ],
-      'reviews': [{}, {}, {}, {}, {}, {}, {}, {}, {}],
-      'distance': '1.2 km',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _loadVenues();
+    // Load venues with sport filter on init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _applyFilter();
+    });
   }
 
   @override
   void didUpdateWidget(_VenuesTabContent oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedSport != widget.selectedSport) {
-      _refreshVenues();
+      _applyFilter();
     }
   }
 
@@ -1056,124 +963,59 @@ class _VenuesTabContentState extends State<_VenuesTabContent> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 200) {
-      _loadMoreVenues();
-    }
+    // Infinite scroll can be implemented if needed
   }
 
-  Future<void> _loadVenues() async {
-    if (_isLoading) return;
+  void _applyFilter() {
+    // Update venues controller with sport filter
+    final filters = vc.VenueFilters(
+      sports: [widget.selectedSport],
+      minRating: _selectedRating > 0 ? _selectedRating : null,
+      minPricePerHour: _selectedPriceRange.start > 0 ? _selectedPriceRange.start : null,
+      maxPricePerHour: _selectedPriceRange.end < 500 ? _selectedPriceRange.end : null,
+    );
     
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
-
-    try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(milliseconds: 800));
-      
-      final filteredVenues = _allVenues
-          .where((venue) {
-            final sports = venue['sports'] as List<dynamic>;
-            return sports.contains(widget.selectedSport);
-          })
-          .toList();
-
-      setState(() {
-        _venues.clear();
-        _venues.addAll(filteredVenues.take(5)); // Load first 5
-        _hasMoreData = filteredVenues.length > 5;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _hasError = true;
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _loadMoreVenues() async {
-    if (_isLoading || !_hasMoreData) return;
-    
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      final filteredVenues = _allVenues
-          .where((venue) {
-            final sports = venue['sports'] as List<dynamic>;
-            return sports.contains(widget.selectedSport);
-          })
-          .toList();
-
-      final remainingVenues = filteredVenues.skip(_venues.length).take(3);
-      
-      setState(() {
-        _venues.addAll(remainingVenues);
-        _hasMoreData = _venues.length < filteredVenues.length;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    ref.read(venuesControllerProvider.notifier).updateFilters(filters);
   }
 
   Future<void> _refreshVenues() async {
-    setState(() {
-      _venues.clear();
-      _hasMoreData = true;
-    });
-    await _loadVenues();
+    await ref.read(venuesControllerProvider.notifier).refresh();
   }
 
-  void _onVenueTap(Map<String, dynamic> venue) {
+  void _onVenueTap(String venueId) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => VenueDetailScreen(venueId: venue['id'] ?? ''),
+        builder: (context) => VenueDetailScreen(venueId: venueId),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final venuesState = ref.watch(venuesControllerProvider);
+    final venues = venuesState.venues;
+    
+    // Apply search query filter
     final query = widget.searchQuery.toLowerCase();
-    List<Map<String, dynamic>> filteredVenues = query.isEmpty
-        ? _venues
-        : _venues.where((venue) {
-            final name = (venue['name'] as String? ?? '').toLowerCase();
-            final location = (venue['location'] as String? ?? '').toLowerCase();
-            return name.contains(query) || location.contains(query);
+    final filteredVenues = query.isEmpty
+        ? venues
+        : venues.where((venueWithDistance) {
+            final name = venueWithDistance.venue.name.toLowerCase();
+            final city = venueWithDistance.venue.city.toLowerCase();
+            return name.contains(query) || city.contains(query);
           }).toList();
-    // Apply advanced filters
-    filteredVenues = filteredVenues.where((venue) {
-      if (_selectedSport != null && venue['sport'] != _selectedSport) return false;
-      if (_selectedArea != null && venue['location'] != _selectedArea) return false;
-      if (venue['price'] != null) {
-        final price = double.tryParse(venue['price'].toString()) ?? 0;
-        if (price < _selectedPriceRange.start || price > _selectedPriceRange.end) return false;
-      }
-      if (_selectedRating > 0 && (venue['rating'] ?? 0) < _selectedRating) return false;
-      if (_selectedAmenities.isNotEmpty) {
-        final amenities = (venue['amenities'] as List<dynamic>? ?? []).map((e) => e.toString()).toSet();
-        if (!_selectedAmenities.every((a) => amenities.contains(a))) return false;
-      }
-      return true;
-    }).toList();
-    if (_hasError && filteredVenues.isEmpty) {
+    
+    // Show error state
+    if (venuesState.error != null && filteredVenues.isEmpty && !venuesState.isLoading) {
       return _buildErrorState();
     }
-    if (filteredVenues.isEmpty && !_isLoading) {
+    
+    // Show empty state
+    if (filteredVenues.isEmpty && !venuesState.isLoading) {
       return _buildEmptyState();
     }
+    
+    // Show venues list
     return Column(
       children: [
         Container(
@@ -1239,23 +1081,55 @@ class _VenuesTabContentState extends State<_VenuesTabContent> {
         Expanded(
           child: RefreshIndicator(
             onRefresh: _refreshVenues,
-            child: ListView.separated(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              itemCount: filteredVenues.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final venue = filteredVenues[index];
-                return VenueCard(
-                  venue: venue,
-                  onTap: () => _onVenueTap(venue),
-                  isLoading: false,
-                );
-              },
-            ),
+            child: venuesState.isLoading && filteredVenues.isEmpty
+                ? _buildLoadingState()
+                : ListView.separated(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    itemCount: filteredVenues.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final venueWithDistance = filteredVenues[index];
+                      final venue = venueWithDistance.venue;
+                      
+                      // Convert Venue entity to Map for VenueCard
+                      final venueMap = {
+                        'id': venue.id,
+                        'name': venue.name,
+                        'location': '${venue.city}, ${venue.country}',
+                        'sports': venue.supportedSports,
+                        'images': [], // TODO: Add venue images
+                        'rating': venue.rating,
+                        'isOpen': true, // TODO: Check actual operating hours
+                        'slots': [], // TODO: Add available slots
+                        'reviews': List.generate(venue.totalRatings, (_) => {}),
+                        'distance': venueWithDistance.formattedDistance,
+                        'price': venue.pricePerHour.toString(),
+                        'amenities': venue.amenities,
+                      };
+                      
+                      return VenueCard(
+                        venue: venueMap,
+                        onTap: () => _onVenueTap(venue.id),
+                        isLoading: false,
+                      );
+                    },
+                  ),
           ),
         ),
       ],
+    );
+  }
+  
+  Widget _buildLoadingState() {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      itemCount: 5,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => VenueCard(
+        venue: const {},
+        isLoading: true,
+      ),
     );
   }
 
@@ -1297,7 +1171,7 @@ class _VenuesTabContentState extends State<_VenuesTabContent> {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: _loadVenues,
+              onPressed: _refreshVenues,
               icon: const Icon(LucideIcons.refreshCw),
               label: const Text('Retry'),
               style: DS.primaryButton,
@@ -1357,12 +1231,4 @@ class _VenuesTabContentState extends State<_VenuesTabContent> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
 }

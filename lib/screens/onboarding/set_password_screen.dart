@@ -8,6 +8,7 @@ import '../../widgets/input_field.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/onboarding_service.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
+import '../../utils/constants/route_constants.dart';
 import 'create_user_information.dart' show RegistrationData;
 
 class SetPasswordScreen extends ConsumerStatefulWidget {
@@ -54,11 +55,11 @@ class _SetPasswordScreenState extends ConsumerState<SetPasswordScreen> {
       final onboardingService = OnboardingService();
 
       // Check if user already exists before attempting signup
-      print('🔍 [DEBUG] SetPasswordScreen: Checking if user already exists: $normalizedEmail');
+  // ...existing code...
       
       final userExists = await authService.checkUserExistsByEmail(normalizedEmail);
       if (userExists) {
-        print('⚠️ [DEBUG] SetPasswordScreen: User already exists, redirecting to login');
+  // ...existing code...
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -72,26 +73,70 @@ class _SetPasswordScreenState extends ConsumerState<SetPasswordScreen> {
 
       bool createdAccount = false;
       try {
-        print('👤 [DEBUG] SetPasswordScreen: Creating new account for: $normalizedEmail');
+  // ...existing code...
         
-        // Create account with complete user metadata so database trigger creates proper profile
+        // ============================================================
+        // Validate ALL mandatory fields before signup
+        // Required: display_name, age, gender, sports, intent
+        // ============================================================
+        
+        // 1. Validate name (display_name)
+        if (registrationData.name == null || registrationData.name!.trim().isEmpty) {
+          throw Exception('Name is required. Please go back and enter your name.');
+        }
+        if (registrationData.name!.trim().length < 2) {
+          throw Exception('Name must be at least 2 characters. Please go back and update.');
+        }
+        if (registrationData.name!.trim().length > 50) {
+          throw Exception('Name must be 50 characters or less. Please go back and update.');
+        }
+        
+        // 2. Validate age
+        if (registrationData.age == null) {
+          throw Exception('Age is required. Please go back and enter your age.');
+        }
+        if (registrationData.age! < 13 || registrationData.age! > 120) {
+          throw Exception('Age must be between 13 and 120. Please go back and update.');
+        }
+        
+        // 3. Validate gender (ONLY 'male' or 'female' allowed)
+        if (registrationData.gender == null || registrationData.gender!.trim().isEmpty) {
+          throw Exception('Gender is required. Please go back and select your gender.');
+        }
+        final gender = registrationData.gender!.trim().toLowerCase();
+        if (gender != 'male' && gender != 'female') {
+          throw Exception('Gender must be either Male or Female. Please go back and select a valid option.');
+        }
+        
+        // 4. Validate sports (array can be empty, but must exist)
+        // Sports is optional during onboarding, will default to empty array
+        
+        // 5. Validate intent
+        if (registrationData.intent == null || registrationData.intent!.trim().isEmpty) {
+          throw Exception('Intent is required. Please go back and select your intent.');
+        }
+        
+        print('📋 [DEBUG] SetPasswordScreen: All mandatory fields validated');
+        print('📊 [DEBUG] name="${registrationData.name}", age=${registrationData.age}, gender=${registrationData.gender}, sports=${registrationData.sports}, intent=${registrationData.intent}');
+        
+        // Create account with complete user metadata
         await authService.signUpWithEmailAndMetadata(
           email: normalizedEmail, 
           password: password,
           metadata: {
-            'name': registrationData.name,
+            'name': registrationData.name!.trim(),
             'age': registrationData.age,
-            'gender': registrationData.gender,
-            'sports': registrationData.sports,
-            'intent': registrationData.intent,
+            'gender': registrationData.gender!.trim(),
+            'sports': registrationData.sports ?? [],
+            'intent': registrationData.intent!.trim(),
           }
         );
         
         createdAccount = true;
-        print('✅ [DEBUG] SetPasswordScreen: Account created successfully with complete profile');
+  // ...existing code...
       } catch (e) {
         final msg = e.toString();
-        print('❌ [DEBUG] SetPasswordScreen: Signup error: $msg');
+  // ...existing code...
         
         if (msg.contains('already registered') || msg.contains('user_already_exists')) {
           if (!mounted) return;
@@ -129,36 +174,27 @@ class _SetPasswordScreenState extends ConsumerState<SetPasswordScreen> {
         rethrow;
       }
 
-      // Ensure authenticated if necessary
+            // Ensure authenticated if necessary
       if (!authService.isAuthenticated() && createdAccount) {
         // If email confirmations disabled, signUp usually authenticates. Otherwise, sign in.
         try {
-      await authService.signInWithEmail(email: normalizedEmail, password: password);
+          await authService.signInWithEmail(email: normalizedEmail, password: password);
         } catch (_) {/* ignore */}
       }
 
       // Profile was already created with complete data by the database trigger
-      print('✅ [DEBUG] SetPasswordScreen: User profile created automatically during signup');
+  // ...existing code...
       await onboardingService.markOnboardingComplete();
 
-      // Refresh auth state to update Riverpod providers
-      print('🔄 [DEBUG] SetPasswordScreen: Refreshing auth state...');
-      await ref.read(authControllerProvider.notifier).refreshAuthState();
-      
-      // Verify the user is now authenticated
-      final isAuthenticated = ref.read(authControllerProvider).isAuthenticated;
-      print('✅ [DEBUG] SetPasswordScreen: Auth state refreshed - isAuthenticated: $isAuthenticated');
+      // Refresh the SimpleAuthNotifier to update the router's auth state
+  // ...existing code...
+      await ref.read(simpleAuthProvider.notifier).refreshAuthState();
 
-      if (!mounted) return;
-      
-      if (isAuthenticated) {
-        // Navigate to welcome screen with user's display name
+      // Navigate directly to welcome screen since account was just created
+      if (mounted) {
         final displayName = registrationData.name ?? 'Player';
-        print('🎉 [DEBUG] SetPasswordScreen: User authenticated, navigating to welcome screen for: $displayName');
-        context.go('/welcome', extra: {'displayName': displayName});
-      } else {
-        print('❌ [DEBUG] SetPasswordScreen: User not authenticated after refresh, redirecting to login');
-        context.go('/login');
+  // ...existing code...
+        context.go(RoutePaths.welcome, extra: {'displayName': displayName});
       }
     } catch (e) {
       if (!mounted) return;

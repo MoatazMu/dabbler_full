@@ -488,15 +488,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     );
   }
 
-  void _handleBackPressed(BuildContext context) {
-    final state = _viewModel.state;
-    
-    if (state.previousStep != null) {
-      _viewModel.previousStep();
-    } else {
-      Navigator.of(context).pop();
-    }
-  }
+  
 
   void _handleNextPressed() async {
     final state = _viewModel.state;

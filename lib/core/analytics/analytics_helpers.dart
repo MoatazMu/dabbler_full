@@ -187,7 +187,6 @@ class GameCreationAnalytics {
   static const String _priceSettings = 'price_settings';
   static const String _timeSettings = 'time_settings';
   static const String _reviewAndCreate = 'review_and_create';
-  static const String _completed = 'completed';
   static const String _abandoned = 'abandoned';
 
   static Future<void> trackSportSelection(String sportType) {

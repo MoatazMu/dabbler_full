@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'game_type_selection_screen.dart';
 import 'datetime_selection_screen.dart';
 import 'venue_selection_screen.dart';
@@ -430,16 +431,41 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   }
 
   void _onViewGame() {
-    // Navigate to game detail screen
-    Navigator.of(context).pushReplacementNamed(
-      '/games/detail',
-      arguments: 'new-game-id', // TODO: Use actual game ID
-    );
+    // After creation, send user to My Games with the new game pre-inserted
+    final newGame = <String, dynamic>{
+      'id': _gameData['bookingId'] ?? _gameData['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      'title': _gameData['title'] ?? '${_gameData['sport'] ?? 'Game'}',
+      'sport': _gameData['sport'] ?? 'Game',
+      'date': _gameData['date'] ?? DateTime.now(),
+      'time': _gameData['time'] ?? _formatTime(_gameData['startTime']),
+      'venue': _gameData['venue'] ?? {'name': 'TBD', 'distance': ''},
+      'players': {
+        'current': (_gameData['minPlayers'] is int) ? _gameData['minPlayers'] : 1,
+        'max': (_gameData['maxPlayers'] is int) ? _gameData['maxPlayers'] : 10,
+      },
+      'isOrganizer': true,
+      'status': 'confirmed',
+    };
+
+  if (!mounted) return;
+  // Replace flow with My Games and pass the newly created game
+  context.go('/games/my-games', extra: {'newGame': newGame});
   }
 
   void _onGoHome() {
     // Navigate back to home screen
     Navigator.of(context).pushReplacementNamed('/');
+  }
+
+  String _formatTime(dynamic timeOfDay) {
+    if (timeOfDay is TimeOfDay) {
+      final h = timeOfDay.hourOfPeriod == 0 ? 12 : timeOfDay.hourOfPeriod;
+      final m = timeOfDay.minute.toString().padLeft(2, '0');
+      final suffix = timeOfDay.period == DayPeriod.am ? 'AM' : 'PM';
+      return '$h:$m $suffix';
+    }
+    if (timeOfDay is String) return timeOfDay;
+    return 'Time TBD';
   }
 
   void _setDefaultsForSport(String sport) {

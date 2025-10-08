@@ -107,12 +107,12 @@ class DabblerColors {
 
   // Overlay Colors
   static Color overlay(Color color, {required double opacity}) {
-    return color.withOpacity(opacity);
+    return color.withValues(alpha: opacity);
   }
 
   // Helper Methods
   static Color withOpacity(Color color, double opacity) {
-    return color.withOpacity(opacity);
+    return color.withValues(alpha: opacity);
   }
 
   static MaterialColor createMaterialColor(Color color) {
