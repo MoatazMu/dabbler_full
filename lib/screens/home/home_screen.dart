@@ -13,6 +13,8 @@ import '../../widgets/action_cards.dart';
 import '../../widgets/svg_avatar.dart';
 import '../../features/games/providers/games_providers.dart';
 import '../../features/games/presentation/screens/join_game/game_detail_screen.dart';
+import '../../example/feed_example.dart' as feed_example;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Modern home screen for Dabbler
 class HomeScreen extends ConsumerStatefulWidget {
@@ -25,11 +27,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final AuthService _authService = AuthService();
   Map<String, dynamic>? _userProfile;
+  bool _didDemoFeed = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
+    // Trigger a one-time demo feed fetch after mount if authenticated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeTriggerDemoFeed();
+    });
   }
 
   Future<void> _loadUserProfile() async {
@@ -43,6 +50,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } catch (e) {
       print('Error loading user profile: $e');
     }
+  }
+
+  void _maybeTriggerDemoFeed() {
+    if (_didDemoFeed) return;
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return; // only after auth
+    _didDemoFeed = true;
+    // Fire and forget; logs to console for validation
+    feed_example
+        .demoFetchFeed()
+        .catchError((e, st) => debugPrint('demoFetchFeed error: $e'));
   }
 
   String _getGreeting() {

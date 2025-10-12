@@ -390,6 +390,7 @@ class RewardsAnalyticsService extends ChangeNotifier {
   // Configuration
   static const Duration _batchInterval = Duration(seconds: 30);
   static const int _batchSize = 50;
+  // ignore: unused_field
   static const Duration _sessionTimeout = Duration(minutes: 30);
 
   // Getters
@@ -897,7 +898,6 @@ class RewardsAnalyticsService extends ChangeNotifier {
           },
         };
       case ReportType.custom:
-      default:
         return {
           'customMetric1': random.nextInt(1000),
           'customMetric2': random.nextDouble() * 100,
