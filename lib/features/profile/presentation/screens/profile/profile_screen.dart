@@ -10,6 +10,8 @@ import '../../../domain/entities/user_profile.dart';
 import '../../../domain/entities/sports_profile.dart';
 import '../../widgets/profile_rewards_widget.dart';
 import '../../../../../utils/constants/route_constants.dart';
+import '../../../../../widgets/profile_name_text.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -218,12 +220,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            profile?.getDisplayName() ?? 'Add Your Name',
+          ProfileNameText(
+            userId: Supabase.instance.client.auth.currentUser!.id,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
-            textAlign: TextAlign.center,
+            maxLines: 1,
           ),
           if (profile?.bio != null) ...[
             const SizedBox(height: 8),

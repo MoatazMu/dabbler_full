@@ -82,6 +82,7 @@ class GameCompletionRewardsHandler {
   }
 
   /// Get tier based on milestone count
+  // ignore: unused_element
   BadgeTier _getTierForMilestone(int count) {
     if (count >= 100) return BadgeTier.diamond;
     if (count >= 50) return BadgeTier.platinum;
@@ -91,6 +92,7 @@ class GameCompletionRewardsHandler {
   }
 
   /// Get tier based on win streak
+  // ignore: unused_element
   BadgeTier _getTierForWinStreak(int streak) {
     if (streak >= 20) return BadgeTier.platinum;
     if (streak >= 10) return BadgeTier.gold;
@@ -99,6 +101,7 @@ class GameCompletionRewardsHandler {
   }
 
   /// Get milestone name for achievement
+  // ignore: unused_element
   String _getMilestoneName(int count) {
     switch (count) {
       case 5: return 'Newcomer';

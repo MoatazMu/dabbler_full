@@ -34,10 +34,6 @@ class AchievementPreferences {
     this.celebrateProgress = true,
   });
 
-  void _refreshData() {
-    // Placeholder for refresh logic
-  }
-
   AchievementPreferences copyWith({
     bool? showHiddenAchievements,
     bool? trackProgressNotifications,
