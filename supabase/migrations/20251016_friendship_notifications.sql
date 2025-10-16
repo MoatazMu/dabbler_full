@@ -43,8 +43,8 @@ begin
         'You have a new friend request',
         '/friends/requests',
         jsonb_build_object('requester_id', NEW.user_id, 'friendship_id', NEW.id)
-      )
-      on conflict on constraint uniq_notif_friend_request do nothing;
+  )
+  on conflict do nothing;
     end if;
 
     return null;
@@ -64,8 +64,8 @@ begin
           'Friendship confirmed',
           '/friends',
           jsonb_build_object('friend_id', NEW.friend_id, 'friendship_id', NEW.id, 'event', 'accepted')
-        )
-        on conflict on constraint uniq_notif_friend_accepted do nothing;
+  )
+  on conflict do nothing;
 
         -- To user B about A
         insert into public.notifications (user_id, type, title, message, action_route, data)
@@ -76,8 +76,8 @@ begin
           'Friendship confirmed',
           '/friends',
           jsonb_build_object('friend_id', NEW.user_id, 'friendship_id', NEW.id, 'event', 'accepted')
-        )
-        on conflict on constraint uniq_notif_friend_accepted do nothing;
+  )
+  on conflict do nothing;
       end if;
       -- (Optional) You can add branches for declined/blocked here if you use those statuses.
     end if;
@@ -97,8 +97,8 @@ begin
       'You are no longer friends',
       '/friends',
       jsonb_build_object('former_friend_id', OLD.friend_id, 'friendship_id', OLD.id, 'event', 'removed')
-    )
-    on conflict on constraint uniq_notif_friend_removed do nothing;
+  )
+  on conflict do nothing;
 
     insert into public.notifications (user_id, type, title, message, action_route, data)
     values (
@@ -108,8 +108,8 @@ begin
       'You are no longer friends',
       '/friends',
       jsonb_build_object('former_friend_id', OLD.user_id, 'friendship_id', OLD.id, 'event', 'removed')
-    )
-    on conflict on constraint uniq_notif_friend_removed do nothing;
+  )
+  on conflict do nothing;
 
     return null;
   end if;
