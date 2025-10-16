@@ -35,8 +35,13 @@ class VenueModel extends Venue {
         id: json['id'] as String,
         name: json['name'] as String,
         description: json['description'] as String? ?? '',
-        addressLine1: json['address_line1'] as String? ?? json['address_line_1'] as String? ?? '',
-        addressLine2: json['address_line2'] as String? ?? json['address_line_2'] as String?,
+        addressLine1:
+            json['address_line1'] as String? ??
+            json['address_line_1'] as String? ??
+            '',
+        addressLine2:
+            json['address_line2'] as String? ??
+            json['address_line_2'] as String?,
         city: json['city'] as String? ?? '',
         state: json['state'] as String? ?? '',
         country: json['country'] as String? ?? '',
@@ -53,8 +58,11 @@ class VenueModel extends Venue {
         pricePerHour: (json['price_per_hour'] as num?)?.toDouble() ?? 0.0,
         currency: json['currency'] as String? ?? 'USD',
         // TODO: Add supported_sports column to database or create venue_sports table
-        supportedSports: _parseStringList(json['supported_sports']) ?? ['Football', 'Padel'], // Default sports
-        amenities: _parseAmenities(json['venue_amenities'] ?? json['amenities']) ?? [],
+        supportedSports:
+            _parseStringList(json['supported_sports']) ??
+            ['Football', 'Padel'], // Default sports
+        amenities:
+            _parseAmenities(json['venue_amenities'] ?? json['amenities']) ?? [],
         createdAt: DateTime.parse(json['created_at'] as String),
         updatedAt: DateTime.parse(json['updated_at'] as String),
       );
@@ -75,34 +83,36 @@ class VenueModel extends Venue {
 
   static List<String>? _parseStringList(dynamic listData) {
     if (listData == null) return null;
-    
+
     if (listData is List) {
       return listData.map((item) => item.toString()).toList();
     }
-    
+
     if (listData is String) {
       if (listData.contains(',')) {
         return listData.split(',').map((s) => s.trim()).toList();
       }
       return [listData];
     }
-    
+
     return null;
   }
 
   static List<String>? _parseAmenities(dynamic amenitiesData) {
     if (amenitiesData == null) return null;
-    
+
     if (amenitiesData is List) {
       // Handle array of amenity objects
       return amenitiesData.map((item) {
         if (item is Map<String, dynamic>) {
-          return item['name'] as String? ?? item['amenity'] as String? ?? item.toString();
+          return item['name'] as String? ??
+              item['amenity'] as String? ??
+              item.toString();
         }
         return item.toString();
       }).toList();
     }
-    
+
     return _parseStringList(amenitiesData);
   }
 
@@ -183,7 +193,7 @@ class VenueModel extends Venue {
   // Get formatted distance string
   String getFormattedDistance(double fromLatitude, double fromLongitude) {
     final distance = distanceFrom(fromLatitude, fromLongitude);
-    
+
     if (distance < 1000) {
       return '${distance.round()}m away';
     } else {
@@ -200,12 +210,13 @@ class VenueModel extends Venue {
   @override
   String get fullAddress {
     final parts = <String>[addressLine1];
-    if (addressLine2 != null && addressLine2!.isNotEmpty) parts.add(addressLine2!);
+    if (addressLine2 != null && addressLine2!.isNotEmpty)
+      parts.add(addressLine2!);
     if (city.isNotEmpty) parts.add(city);
     if (state.isNotEmpty) parts.add(state);
     if (country.isNotEmpty) parts.add(country);
     if (postalCode.isNotEmpty) parts.add(postalCode);
-    
+
     return parts.join(', ');
   }
 
@@ -218,15 +229,17 @@ class VenueModel extends Venue {
   // Check if venue has specific amenity
   @override
   bool hasAmenity(String amenityName) {
-    return amenities.any((amenity) => 
-        amenity.toLowerCase().contains(amenityName.toLowerCase()));
+    return amenities.any(
+      (amenity) => amenity.toLowerCase().contains(amenityName.toLowerCase()),
+    );
   }
 
   // Check if venue supports specific sport
   @override
   bool supportsSport(String sportName) {
-    return supportedSports.any((sport) => 
-        sport.toLowerCase().contains(sportName.toLowerCase()));
+    return supportedSports.any(
+      (sport) => sport.toLowerCase().contains(sportName.toLowerCase()),
+    );
   }
 
   // Get price display text

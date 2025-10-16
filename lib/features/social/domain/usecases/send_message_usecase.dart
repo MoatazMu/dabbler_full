@@ -68,38 +68,77 @@ class SendMessageUseCase {
   static const int maxMediaFiles = 10;
   static const int maxFileSize = 100 * 1024 * 1024; // 100MB
   static const List<String> allowedVideoFormats = ['mp4', 'mov', 'avi', 'mkv'];
-  static const List<String> allowedImageFormats = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-  static const List<String> allowedDocumentFormats = ['pdf', 'doc', 'docx', 'txt'];
+  static const List<String> allowedImageFormats = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'webp',
+  ];
+  static const List<String> allowedDocumentFormats = [
+    'pdf',
+    'doc',
+    'docx',
+    'txt',
+  ];
 
   SendMessageUseCase(this._chatRepository);
 
-  Future<Either<Failure, SendMessageResult>> call(SendMessageParams params) async {
+  Future<Either<Failure, SendMessageResult>> call(
+    SendMessageParams params,
+  ) async {
     try {
       // Validate input parameters
       final validationResult = await _validateParams(params);
       if (validationResult.isLeft()) {
-        return Left(validationResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          validationResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
 
       // Check conversation permissions
       final permissionResult = await _checkConversationPermissions(params);
       if (permissionResult.isLeft()) {
-        return Left(permissionResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          permissionResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
 
       // Validate and process content
       final contentResult = await _processContent(params);
       if (contentResult.isLeft()) {
-        return Left(contentResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          contentResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
-      final processedContent = contentResult.fold((_) => throw Exception('Unexpected failure'), (r) => r);
+      final processedContent = contentResult.fold(
+        (_) => throw Exception('Unexpected failure'),
+        (r) => r,
+      );
 
       // Process media attachments
       final mediaResult = await _processMediaAttachments(params);
       if (mediaResult.isLeft()) {
-        return Left(mediaResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          mediaResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
-      final mediaUrls = mediaResult.fold((_) => throw Exception('Unexpected failure'), (r) => r);
+      final mediaUrls = mediaResult.fold(
+        (_) => throw Exception('Unexpected failure'),
+        (r) => r,
+      );
 
       // Encrypt content if required
       final encryptionResult = await _encryptContentIfNeeded(
@@ -107,9 +146,17 @@ class SendMessageUseCase {
         params.encryptContent,
       );
       if (encryptionResult.isLeft()) {
-        return Left(encryptionResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          encryptionResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
-      final encryptedData = encryptionResult.fold((_) => throw Exception('Unexpected failure'), (r) => r);
+      final encryptedData = encryptionResult.fold(
+        (_) => throw Exception('Unexpected failure'),
+        (r) => r,
+      );
 
       // Process mentions
       final mentionsResult = _processMentions(
@@ -132,32 +179,47 @@ class SendMessageUseCase {
       if (!isOnline && params.allowOfflineQueue) {
         sendResult = await _queueMessageForLater(messageData, params.priority);
         if (sendResult.isRight()) {
-          return Right(SendMessageResult(
-            message: sendResult.fold((_) => throw Exception('Unexpected failure'), (r) => r),
-            uploadedMediaUrls: mediaUrls,
-            isEncrypted: encryptedData.isEncrypted,
-            queuedForOffline: true,
-            warnings: ['Message queued for delivery when online'],
-            deliveryMetadata: {
-              'queued_at': DateTime.now().toIso8601String(),
-              'priority': params.priority,
-            },
-          ));
+          return Right(
+            SendMessageResult(
+              message: sendResult.fold(
+                (_) => throw Exception('Unexpected failure'),
+                (r) => r,
+              ),
+              uploadedMediaUrls: mediaUrls,
+              isEncrypted: encryptedData.isEncrypted,
+              queuedForOffline: true,
+              warnings: ['Message queued for delivery when online'],
+              deliveryMetadata: {
+                'queued_at': DateTime.now().toIso8601String(),
+                'priority': params.priority,
+              },
+            ),
+          );
         }
       } else if (!isOnline) {
-        return Left(NetworkFailure(
-          message: 'No internet connection and offline queuing is disabled',
-        ));
+        return Left(
+          NetworkFailure(
+            message: 'No internet connection and offline queuing is disabled',
+          ),
+        );
       }
 
       // Send message online
       sendResult = await _sendMessageWithRetry(messageData, params);
-      
+
       if (sendResult.isLeft()) {
-        return Left(sendResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          sendResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
 
-      final sentMessage = sendResult.fold((_) => throw Exception('Unexpected failure'), (r) => r);
+      final sentMessage = sendResult.fold(
+        (_) => throw Exception('Unexpected failure'),
+        (r) => r,
+      );
 
       // Update conversation timestamp
       final conversationUpdated = await _updateConversationTimestamp(
@@ -177,65 +239,77 @@ class SendMessageUseCase {
       // Log message sending for analytics
       await _logMessageSending(params, sentMessage);
 
-      return Right(SendMessageResult(
-        message: sentMessage,
-        uploadedMediaUrls: mediaUrls,
-        isEncrypted: encryptedData.isEncrypted,
-        queuedForOffline: false,
-        conversationUpdated: conversationUpdated,
-        notifiedUsers: notifiedUsers,
-        warnings: processedContent.warnings,
-        deliveryMetadata: {
-          'sent_at': sentMessage.sentAt.toIso8601String(),
-          'delivery_method': 'online',
-        },
-      ));
-
+      return Right(
+        SendMessageResult(
+          message: sentMessage,
+          uploadedMediaUrls: mediaUrls,
+          isEncrypted: encryptedData.isEncrypted,
+          queuedForOffline: false,
+          conversationUpdated: conversationUpdated,
+          notifiedUsers: notifiedUsers,
+          warnings: processedContent.warnings,
+          deliveryMetadata: {
+            'sent_at': sentMessage.sentAt.toIso8601String(),
+            'delivery_method': 'online',
+          },
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to send message: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(message: 'Failed to send message: ${e.toString()}'),
+      );
     }
   }
 
   /// Validates input parameters
-  Future<Either<Failure, void>> _validateParams(SendMessageParams params) async {
+  Future<Either<Failure, void>> _validateParams(
+    SendMessageParams params,
+  ) async {
     // Validate content based on message type
     if (params.type == MessageType.text) {
       if (params.content.trim().isEmpty) {
-        return Left(ValidationFailure(
-          message: 'Message content cannot be empty',
-        ));
+        return Left(
+          ValidationFailure(message: 'Message content cannot be empty'),
+        );
       }
 
       if (params.content.length > maxContentLength) {
-        return Left(ValidationFailure(
-          message: 'Message content cannot exceed $maxContentLength characters',
-        ));
+        return Left(
+          ValidationFailure(
+            message:
+                'Message content cannot exceed $maxContentLength characters',
+          ),
+        );
       }
     }
 
     // Validate media files count
-    final totalMediaCount = (params.mediaFiles?.length ?? 0) + 
-                           (params.existingMediaUrls?.length ?? 0);
-    
+    final totalMediaCount =
+        (params.mediaFiles?.length ?? 0) +
+        (params.existingMediaUrls?.length ?? 0);
+
     if (totalMediaCount > maxMediaFiles) {
-      return Left(ValidationFailure(
-        message: 'Cannot attach more than $maxMediaFiles media files',
-      ));
+      return Left(
+        ValidationFailure(
+          message: 'Cannot attach more than $maxMediaFiles media files',
+        ),
+      );
     }
 
     // Validate media files if provided
     if (params.mediaFiles != null) {
       for (int i = 0; i < params.mediaFiles!.length; i++) {
         final file = params.mediaFiles![i];
-        
+
         // Check file size
         final fileSize = await file.length();
         if (fileSize > maxFileSize) {
-          return Left(ValidationFailure(
-            message: 'File ${file.path.split('/').last} exceeds maximum size of ${maxFileSize ~/ (1024 * 1024)}MB',
-          ));
+          return Left(
+            ValidationFailure(
+              message:
+                  'File ${file.path.split('/').last} exceeds maximum size of ${maxFileSize ~/ (1024 * 1024)}MB',
+            ),
+          );
         }
 
         // Check file format
@@ -245,43 +319,43 @@ class SendMessageUseCase {
           ...allowedVideoFormats,
           ...allowedDocumentFormats,
         ];
-        
+
         if (!allAllowedFormats.contains(extension)) {
-          return Left(ValidationFailure(
-            message: 'File format .$extension is not supported',
-          ));
+          return Left(
+            ValidationFailure(
+              message: 'File format .$extension is not supported',
+            ),
+          );
         }
       }
     }
 
     // Validate conversation ID format
     if (!_isValidId(params.conversationId)) {
-      return Left(ValidationFailure(
-        message: 'Invalid conversation ID format',
-      ));
+      return Left(ValidationFailure(message: 'Invalid conversation ID format'));
     }
 
     // Validate reply to message ID if provided
-    if (params.replyToMessageId != null && !_isValidId(params.replyToMessageId!)) {
-      return Left(ValidationFailure(
-        message: 'Invalid reply message ID format',
-      ));
+    if (params.replyToMessageId != null &&
+        !_isValidId(params.replyToMessageId!)) {
+      return Left(
+        ValidationFailure(message: 'Invalid reply message ID format'),
+      );
     }
 
     // Validate priority
     if (params.priority < 1 || params.priority > 5) {
-      return Left(ValidationFailure(
-        message: 'Message priority must be between 1 and 5',
-      ));
+      return Left(
+        ValidationFailure(message: 'Message priority must be between 1 and 5'),
+      );
     }
 
     return const Right(null);
   }
 
   /// Checks conversation permissions
-  Future<Either<Failure, ConversationPermissions>> _checkConversationPermissions(
-    SendMessageParams params,
-  ) async {
+  Future<Either<Failure, ConversationPermissions>>
+  _checkConversationPermissions(SendMessageParams params) async {
     try {
       // Get conversation details and user's role
       final conversationResult = await _chatRepository.getConversation(
@@ -289,29 +363,46 @@ class SendMessageUseCase {
       );
 
       if (conversationResult.isLeft()) {
-        return Left(conversationResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          conversationResult.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
 
       // Note: conversation variable is not used in the current implementation
       // final conversation = conversationResult.fold((_) => throw Exception('Unexpected failure'), (r) => r);
 
       // Check if user is a participant
-      final userPermissions = await _chatRepository.getUserPermissionsInConversation(
-        params.conversationId,
-        params.userId,
-      );
+      final userPermissions = await _chatRepository
+          .getUserPermissionsInConversation(
+            params.conversationId,
+            params.userId,
+          );
 
       if (userPermissions.isLeft()) {
-        return Left(userPermissions.fold((l) => l, (_) => throw Exception('Unexpected success')));
+        return Left(
+          userPermissions.fold(
+            (l) => l,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
 
-      final permissions = userPermissions.fold((_) => throw Exception('Unexpected failure'), (r) => r);
+      final permissions = userPermissions.fold(
+        (_) => throw Exception('Unexpected failure'),
+        (r) => r,
+      );
 
       // Check basic sending permissions
       if (!permissions.canSendMessages) {
-        return Left(AuthorizationFailure(
-          message: 'You do not have permission to send messages in this conversation',
-        ));
+        return Left(
+          AuthorizationFailure(
+            message:
+                'You do not have permission to send messages in this conversation',
+          ),
+        );
       }
 
       // Check if conversation is archived or deleted
@@ -324,31 +415,39 @@ class SendMessageUseCase {
 
       // Check media sending permissions
       if ((params.mediaFiles != null && params.mediaFiles!.isNotEmpty) ||
-          (params.existingMediaUrls != null && params.existingMediaUrls!.isNotEmpty)) {
+          (params.existingMediaUrls != null &&
+              params.existingMediaUrls!.isNotEmpty)) {
         if (!permissions.canSendMedia) {
-          return Left(AuthorizationFailure(
-            message: 'You do not have permission to send media in this conversation',
-          ));
+          return Left(
+            AuthorizationFailure(
+              message:
+                  'You do not have permission to send media in this conversation',
+            ),
+          );
         }
       }
 
       // Check rate limiting
       if (permissions.isRateLimited) {
-        return Left(BusinessLogicFailure(
-          message: 'Message sending rate limit exceeded',
-          details: {
-            'retry_after': permissions.rateLimitResetAt != null
-              ? permissions.rateLimitResetAt!.difference(DateTime.now())
-              : const Duration(minutes: 1),
-          },
-        ));
+        return Left(
+          BusinessLogicFailure(
+            message: 'Message sending rate limit exceeded',
+            details: {
+              'retry_after': permissions.rateLimitResetAt != null
+                  ? permissions.rateLimitResetAt!.difference(DateTime.now())
+                  : const Duration(minutes: 1),
+            },
+          ),
+        );
       }
 
       return Right(permissions);
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to check conversation permissions: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to check conversation permissions: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -370,7 +469,7 @@ class SendMessageUseCase {
       if (urlMatches.isNotEmpty) {
         final urls = urlMatches.map((match) => match.group(0)).toList();
         metadata['urls'] = urls;
-        
+
         // Validate URLs (basic check)
         for (final url in urls) {
           if (url != null && !_isValidUrl(url)) {
@@ -380,10 +479,16 @@ class SendMessageUseCase {
       }
 
       // Check for excessive caps
-      final capsCount = processedContent.split('').where((char) => 
-        char == char.toUpperCase() && char.toLowerCase() != char.toUpperCase()).length;
+      final capsCount = processedContent
+          .split('')
+          .where(
+            (char) =>
+                char == char.toUpperCase() &&
+                char.toLowerCase() != char.toUpperCase(),
+          )
+          .length;
       final capsPercentage = capsCount / processedContent.length;
-      
+
       if (capsPercentage > 0.7 && processedContent.length > 10) {
         warnings.add('Message contains excessive capital letters');
       }
@@ -394,15 +499,19 @@ class SendMessageUseCase {
         warnings.add('Message contains excessive repeated characters');
       }
 
-      return Right(ProcessedMessageContent(
-        content: processedContent,
-        warnings: warnings,
-        metadata: metadata,
-      ));
+      return Right(
+        ProcessedMessageContent(
+          content: processedContent,
+          warnings: warnings,
+          metadata: metadata,
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to process message content: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to process message content: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -421,22 +530,34 @@ class SendMessageUseCase {
       // Upload new media files if provided
       if (params.mediaFiles != null && params.mediaFiles!.isNotEmpty) {
         final uploadResult = await _chatRepository.uploadMessageMedia(
-          params.mediaFiles!.map((f) => f.path).toList(), // Convert File to String path
+          params.mediaFiles!
+              .map((f) => f.path)
+              .toList(), // Convert File to String path
         );
 
         if (uploadResult.isLeft()) {
-          return Left(uploadResult.fold((l) => l, (_) => throw Exception('Unexpected success')));
+          return Left(
+            uploadResult.fold(
+              (l) => l,
+              (_) => throw Exception('Unexpected success'),
+            ),
+          );
         }
 
-        final uploadedUrls = uploadResult.fold((_) => throw Exception('Unexpected failure'), (r) => r);
+        final uploadedUrls = uploadResult.fold(
+          (_) => throw Exception('Unexpected failure'),
+          (r) => r,
+        );
         allMediaUrls.addAll(uploadedUrls);
       }
 
       return Right(allMediaUrls);
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to process media attachments: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to process media attachments: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -447,31 +568,32 @@ class SendMessageUseCase {
   ) async {
     try {
       if (!encryptContent) {
-        return Right(EncryptedContent(
-          content: content,
-          isEncrypted: false,
-        ));
+        return Right(EncryptedContent(content: content, isEncrypted: false));
       }
 
       // This would typically use an encryption service
       final encryptedContent = await _encryptMessage(content);
-      
-      return Right(EncryptedContent(
-        content: encryptedContent,
-        isEncrypted: true,
-      ));
+
+      return Right(
+        EncryptedContent(content: encryptedContent, isEncrypted: true),
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to encrypt message content: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to encrypt message content: ${e.toString()}',
+        ),
+      );
     }
   }
 
   /// Processes mentions in the message
-  List<String> _processMentions(String content, List<String>? explicitMentions) {
+  List<String> _processMentions(
+    String content,
+    List<String>? explicitMentions,
+  ) {
     final mentionRegex = RegExp(r'@([a-zA-Z0-9_]+)');
     final matches = mentionRegex.allMatches(content);
-    
+
     final contentMentions = matches
         .map((match) => match.group(1)?.toLowerCase())
         .where((mention) => mention != null)
@@ -480,7 +602,7 @@ class SendMessageUseCase {
 
     final allMentions = <String>{};
     allMentions.addAll(contentMentions);
-    
+
     if (explicitMentions != null) {
       allMentions.addAll(explicitMentions);
     }
@@ -526,11 +648,16 @@ class SendMessageUseCase {
     int priority,
   ) async {
     try {
-      return await _chatRepository.queueMessageForOffline(messageData, priority);
+      return await _chatRepository.queueMessageForOffline(
+        messageData,
+        priority,
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to queue message for offline: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to queue message for offline: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -541,7 +668,7 @@ class SendMessageUseCase {
   ) async {
     const maxRetries = 3;
     int attempts = 0;
-    
+
     while (attempts < maxRetries) {
       try {
         final result = await _chatRepository.sendMessage(
@@ -552,17 +679,20 @@ class SendMessageUseCase {
           replyToMessageId: messageData['reply_to_message_id'] as String?,
           metadata: messageData['metadata'] as Map<String, dynamic>?,
         );
-        
+
         if (result.isRight()) {
           return result;
         }
-        
+
         // Check if error is retryable
-        final error = result.fold((l) => l, (_) => throw Exception('Unexpected success'));
+        final error = result.fold(
+          (l) => l,
+          (_) => throw Exception('Unexpected success'),
+        );
         if (!_isRetryableError(error)) {
           return result;
         }
-        
+
         attempts++;
         if (attempts < maxRetries) {
           // Exponential backoff
@@ -571,16 +701,21 @@ class SendMessageUseCase {
       } catch (e) {
         attempts++;
         if (attempts >= maxRetries) {
-          return Left(ServerFailure(
-            message: 'Failed to send message after $maxRetries attempts: ${e.toString()}',
-          ));
+          return Left(
+            ServerFailure(
+              message:
+                  'Failed to send message after $maxRetries attempts: ${e.toString()}',
+            ),
+          );
         }
       }
     }
-    
-    return Left(ServerFailure(
-      message: 'Failed to send message after $maxRetries attempts',
-    ));
+
+    return Left(
+      ServerFailure(
+        message: 'Failed to send message after $maxRetries attempts',
+      ),
+    );
   }
 
   /// Updates conversation timestamp
@@ -606,10 +741,13 @@ class SendMessageUseCase {
     ChatMessageModel message,
   ) async {
     final notifiedUsers = <String>[];
-    
+
     try {
       for (final mention in mentions) {
-        final notificationSent = await _sendMentionNotification(mention, message);
+        final notificationSent = await _sendMentionNotification(
+          mention,
+          message,
+        );
         if (notificationSent) {
           notifiedUsers.add(mention);
         }
@@ -622,7 +760,10 @@ class SendMessageUseCase {
   }
 
   /// Sends notification for a mention
-  Future<bool> _sendMentionNotification(String mentionedUser, ChatMessageModel message) async {
+  Future<bool> _sendMentionNotification(
+    String mentionedUser,
+    ChatMessageModel message,
+  ) async {
     try {
       // This would typically call a notification service
       return true;
@@ -632,7 +773,11 @@ class SendMessageUseCase {
   }
 
   /// Updates user activity metrics
-  Future<void> _updateUserMetrics(String userId, String actionType, ChatMessageModel message) async {
+  Future<void> _updateUserMetrics(
+    String userId,
+    String actionType,
+    ChatMessageModel message,
+  ) async {
     try {
       // This would typically update user activity metrics
     } catch (e) {
@@ -641,7 +786,10 @@ class SendMessageUseCase {
   }
 
   /// Logs message sending for analytics
-  Future<void> _logMessageSending(SendMessageParams params, ChatMessageModel message) async {
+  Future<void> _logMessageSending(
+    SendMessageParams params,
+    ChatMessageModel message,
+  ) async {
     try {
       // In a real implementation, this would call:
       // await _analyticsService.logEvent('message_sent', {
@@ -679,7 +827,7 @@ class SendMessageUseCase {
   /// Validates ID format (assuming UUID)
   bool _isValidId(String id) {
     final uuidRegex = RegExp(
-      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
     );
     return uuidRegex.hasMatch(id);
   }
@@ -713,10 +861,7 @@ class EncryptedContent {
   final String content;
   final bool isEncrypted;
 
-  const EncryptedContent({
-    required this.content,
-    required this.isEncrypted,
-  });
+  const EncryptedContent({required this.content, required this.isEncrypted});
 }
 
 /// Conversation permissions model
@@ -740,11 +885,11 @@ class ConversationPermissions {
 
 /// Extended methods for ChatRepository
 extension SendMessageRepositoryMethods on ChatRepository {
-  Future<Either<Failure, ConversationPermissions>> getUserPermissionsInConversation(
-    String conversationId,
-    String userId,
-  ) {
-    throw UnimplementedError('getUserPermissionsInConversation not implemented');
+  Future<Either<Failure, ConversationPermissions>>
+  getUserPermissionsInConversation(String conversationId, String userId) {
+    throw UnimplementedError(
+      'getUserPermissionsInConversation not implemented',
+    );
   }
 
   Future<Either<Failure, List<String>>> uploadMessageMedia(
@@ -762,14 +907,14 @@ extension SendMessageRepositoryMethods on ChatRepository {
     throw UnimplementedError('queueMessageForOffline not implemented');
   }
 
-  Future<Either<Failure, ChatMessageModel>> sendMessage(
-    {required String conversationId,
+  Future<Either<Failure, ChatMessageModel>> sendMessage({
+    required String conversationId,
     required String content,
     required MessageType messageType,
     List<String>? mediaUrls,
     String? replyToMessageId,
     Map<String, dynamic>? metadata,
-    }) {
+  }) {
     throw UnimplementedError('sendMessage not implemented');
   }
 

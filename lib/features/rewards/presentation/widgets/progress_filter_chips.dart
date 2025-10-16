@@ -31,132 +31,148 @@ class ProgressFilterChips extends StatelessWidget {
           // All filter chip
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.all_inclusive, size: 16),
-                  const SizedBox(width: 6),
-                  const Text('All'),
-                  if (showCounts && statusCounts != null)
-                    Container(
-                      margin: const EdgeInsets.only(left: 6),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+            child:
+                FilterChip(
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.all_inclusive, size: 16),
+                          const SizedBox(width: 6),
+                          const Text('All'),
+                          if (showCounts && statusCounts != null)
+                            Container(
+                              margin: const EdgeInsets.only(left: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: selectedStatus == null
+                                    ? Colors.white.withOpacity(0.2)
+                                    : Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                _getTotalCount().toString(),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: selectedStatus == null
+                                      ? Colors.white
+                                      : Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      decoration: BoxDecoration(
+                      selected: selectedStatus == null,
+                      onSelected: (selected) {
+                        if (selected) onStatusChanged(null);
+                      },
+                      selectedColor: Theme.of(
+                        context,
+                      ).primaryColor.withOpacity(0.2),
+                      checkmarkColor: Theme.of(context).primaryColor,
+                      labelStyle: TextStyle(
                         color: selectedStatus == null
-                            ? Colors.white.withOpacity(0.2)
-                            : Theme.of(context).primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey[700],
+                        fontWeight: selectedStatus == null
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
-                      child: Text(
-                        _getTotalCount().toString(),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: selectedStatus == null
-                              ? Colors.white
-                              : Theme.of(context).primaryColor,
-                        ),
-                      ),
+                    )
+                    .animate()
+                    .fadeIn(duration: 200.ms)
+                    .slideX(
+                      begin: -0.3,
+                      end: 0,
+                      duration: 200.ms,
+                      curve: Curves.easeOutCubic,
                     ),
-                ],
-              ),
-              selected: selectedStatus == null,
-              onSelected: (selected) {
-                if (selected) onStatusChanged(null);
-              },
-              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
-              checkmarkColor: Theme.of(context).primaryColor,
-              labelStyle: TextStyle(
-                color: selectedStatus == null
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey[700],
-                fontWeight: selectedStatus == null
-                    ? FontWeight.w600
-                    : FontWeight.w500,
-              ),
-            ).animate()
-              .fadeIn(duration: 200.ms)
-              .slideX(
-                begin: -0.3,
-                end: 0,
-                duration: 200.ms,
-                curve: Curves.easeOutCubic,
-              ),
           ),
-          
+
           // Status filter chips
           ...availableStatuses.asMap().entries.map((entry) {
             final index = entry.key;
             final status = entry.value;
             final isSelected = selectedStatus == status;
             final count = statusCounts?[status] ?? 0;
-            
+
             return Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: FilterChip(
-                label: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _getStatusIcon(status),
-                      size: 16,
-                      color: isSelected ? Colors.white : _getStatusColor(status),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(_getStatusName(status)),
-                    if (showCounts && count > 0)
-                      Container(
-                        margin: const EdgeInsets.only(left: 6),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+              child:
+                  FilterChip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _getStatusIcon(status),
+                              size: 16,
+                              color: isSelected
+                                  ? Colors.white
+                                  : _getStatusColor(status),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(_getStatusName(status)),
+                            if (showCounts && count > 0)
+                              Container(
+                                margin: const EdgeInsets.only(left: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? Colors.white.withOpacity(0.2)
+                                      : _getStatusColor(
+                                          status,
+                                        ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  count.toString(),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : _getStatusColor(status),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        decoration: BoxDecoration(
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          onStatusChanged(selected ? status : null);
+                        },
+                        selectedColor: _getStatusColor(status),
+                        backgroundColor: Colors.grey[100],
+                        checkmarkColor: Colors.white,
+                        labelStyle: TextStyle(
                           color: isSelected
-                              ? Colors.white.withOpacity(0.2)
-                              : _getStatusColor(status).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
+                              ? Colors.white
+                              : _getStatusColor(status),
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                         ),
-                        child: Text(
-                          count.toString(),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? Colors.white
-                                : _getStatusColor(status),
-                          ),
-                        ),
+                      )
+                      .animate()
+                      .fadeIn(
+                        duration: 200.ms,
+                        delay: Duration(milliseconds: index * 50),
+                      )
+                      .slideX(
+                        begin: -0.3,
+                        end: 0,
+                        duration: 200.ms,
+                        delay: Duration(milliseconds: index * 50),
+                        curve: Curves.easeOutCubic,
                       ),
-                  ],
-                ),
-                selected: isSelected,
-                onSelected: (selected) {
-                  onStatusChanged(selected ? status : null);
-                },
-                selectedColor: _getStatusColor(status),
-                backgroundColor: Colors.grey[100],
-                checkmarkColor: Colors.white,
-                labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : _getStatusColor(status),
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-              ).animate()
-                .fadeIn(
-                  duration: 200.ms,
-                  delay: Duration(milliseconds: index * 50),
-                )
-                .slideX(
-                  begin: -0.3,
-                  end: 0,
-                  duration: 200.ms,
-                  delay: Duration(milliseconds: index * 50),
-                  curve: Curves.easeOutCubic,
-                ),
             );
           }),
         ],

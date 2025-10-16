@@ -9,11 +9,8 @@ import 'create_user_information.dart';
 
 class SportsSelectionScreen extends StatefulWidget {
   final RegistrationData? registrationData;
-  
-  const SportsSelectionScreen({
-    super.key,
-    this.registrationData,
-  });
+
+  const SportsSelectionScreen({super.key, this.registrationData});
 
   @override
   State<SportsSelectionScreen> createState() => _SportsSelectionScreenState();
@@ -32,19 +29,28 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
 
   Future<void> _loadExistingUserData() async {
     try {
-      debugPrint('🏃 [DEBUG] SportsSelectionScreen: Loading existing user data');
-      
+      debugPrint(
+        '🏃 [DEBUG] SportsSelectionScreen: Loading existing user data',
+      );
+
       // Check if we have registration data from previous step
-      if (widget.registrationData?.sports != null && widget.registrationData!.sports!.isNotEmpty) {
-        debugPrint('✅ [DEBUG] SportsSelectionScreen: Found sports in registration data: ${widget.registrationData!.sports}');
+      if (widget.registrationData?.sports != null &&
+          widget.registrationData!.sports!.isNotEmpty) {
+        debugPrint(
+          '✅ [DEBUG] SportsSelectionScreen: Found sports in registration data: ${widget.registrationData!.sports}',
+        );
         setState(() {
           _selectedSports.addAll(widget.registrationData!.sports!);
         });
       } else {
-        debugPrint('🆕 [DEBUG] SportsSelectionScreen: No existing sports data, starting fresh');
+        debugPrint(
+          '🆕 [DEBUG] SportsSelectionScreen: No existing sports data, starting fresh',
+        );
       }
     } catch (e) {
-      debugPrint('❌ [DEBUG] SportsSelectionScreen: Error loading existing data: $e');
+      debugPrint(
+        '❌ [DEBUG] SportsSelectionScreen: Error loading existing data: $e',
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -78,25 +84,35 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
     setState(() => _isLoading = true);
 
     try {
-      debugPrint('🏃 [DEBUG] SportsSelectionScreen: Collecting sports preferences');
-      debugPrint('📋 [DEBUG] SportsSelectionScreen: Selected sports: ${_selectedSports.toList()}');
+      debugPrint(
+        '🏃 [DEBUG] SportsSelectionScreen: Collecting sports preferences',
+      );
+      debugPrint(
+        '📋 [DEBUG] SportsSelectionScreen: Selected sports: ${_selectedSports.toList()}',
+      );
 
       // Get registration data from previous step and add sports
-      final registrationData = widget.registrationData?.copyWith(sports: _selectedSports.toList());
-      
-      debugPrint('✅ [DEBUG] SportsSelectionScreen: Sports preferences collected successfully');
+      final registrationData = widget.registrationData?.copyWith(
+        sports: _selectedSports.toList(),
+      );
+
+      debugPrint(
+        '✅ [DEBUG] SportsSelectionScreen: Sports preferences collected successfully',
+      );
 
       if (mounted) {
-        context.go(RoutePaths.intentSelection, extra: registrationData?.toMap());
+        context.go(
+          RoutePaths.intentSelection,
+          extra: registrationData?.toMap(),
+        );
       }
     } catch (e) {
-      debugPrint('❌ [DEBUG] SportsSelectionScreen: Error collecting sports preferences: $e');
+      debugPrint(
+        '❌ [DEBUG] SportsSelectionScreen: Error collecting sports preferences: $e',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -110,24 +126,30 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
     setState(() => _isLoading = true);
 
     try {
-      debugPrint('🏃 [DEBUG] SportsSelectionScreen: Skipping sports selection, using default');
-      
+      debugPrint(
+        '🏃 [DEBUG] SportsSelectionScreen: Skipping sports selection, using default',
+      );
+
       // Use default sports (football) and get registration data from previous step
-      final registrationData = widget.registrationData?.copyWith(sports: ['football']);
-      
-      debugPrint('✅ [DEBUG] SportsSelectionScreen: Using default sports: football');
-      
+      final registrationData = widget.registrationData?.copyWith(
+        sports: ['football'],
+      );
+
+      debugPrint(
+        '✅ [DEBUG] SportsSelectionScreen: Using default sports: football',
+      );
+
       if (mounted) {
-        context.go(RoutePaths.intentSelection, extra: registrationData?.toMap());
+        context.go(
+          RoutePaths.intentSelection,
+          extra: registrationData?.toMap(),
+        );
       }
     } catch (e) {
       debugPrint('❌ [DEBUG] SportsSelectionScreen: Error in skip: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -150,64 +172,73 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
           children: [
             // Onboarding Progress
             OnboardingProgress(),
-            
+
             // Main Content
             Expanded(
               child: _isLoadingData
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                      padding: const EdgeInsets.all(
+                        AppConstants.defaultPadding,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: 32),
-                          
+
                           // Header
                           Text(
                             'What sports do you play?',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.headlineMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           Text(
                             'Select all the sports you\'re interested in',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: Colors.grey[600]),
                             textAlign: TextAlign.center,
                           ),
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // Sports Grid
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 1.2,
-                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 1.2,
+                                ),
                             itemCount: AppConstants.availableSports.length,
                             itemBuilder: (context, index) {
                               final sport = AppConstants.availableSports[index];
-                              final isSelected = _selectedSports.contains(sport);
-                              
+                              final isSelected = _selectedSports.contains(
+                                sport,
+                              );
+
                               return GestureDetector(
                                 onTap: () => _toggleSport(sport),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: isSelected ? Colors.blue[50] : Colors.grey[50],
+                                    color: isSelected
+                                        ? Colors.blue[50]
+                                        : Colors.grey[50],
                                     border: Border.all(
-                                      color: isSelected ? Colors.blue : Colors.grey[300]!,
+                                      color: isSelected
+                                          ? Colors.blue
+                                          : Colors.grey[300]!,
                                       width: isSelected ? 2 : 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                                    borderRadius: BorderRadius.circular(
+                                      AppConstants.borderRadius,
+                                    ),
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -215,15 +246,24 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
                                       Icon(
                                         AppHelpers.getSportIcon(sport),
                                         size: 32,
-                                        color: isSelected ? Colors.blue[700] : Colors.grey[600],
+                                        color: isSelected
+                                            ? Colors.blue[700]
+                                            : Colors.grey[600],
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
                                         AppHelpers.getSportDisplayName(sport),
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                          color: isSelected ? Colors.blue[700] : Colors.grey[700],
-                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w600
+                                                  : FontWeight.normal,
+                                              color: isSelected
+                                                  ? Colors.blue[700]
+                                                  : Colors.grey[700],
+                                            ),
                                         textAlign: TextAlign.center,
                                       ),
                                       if (isSelected) ...[
@@ -240,17 +280,17 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
                               );
                             },
                           ),
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // Continue Button
                           CustomButton(
                             onPressed: _isLoading ? null : _handleSubmit,
                             text: _isLoading ? 'Continuing...' : 'Continue',
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
                           // Skip Button
                           TextButton(
                             onPressed: _isLoading ? null : _handleSkip,
@@ -259,7 +299,7 @@ class _SportsSelectionScreenState extends State<SportsSelectionScreen> {
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 32),
                         ],
                       ),

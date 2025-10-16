@@ -53,7 +53,9 @@ class LocationPermissionModal extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withOpacity(0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -77,9 +79,9 @@ class LocationPermissionModal extends StatelessWidget {
           // Title
           Text(
             'Location Access Required',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -182,19 +184,16 @@ class LocationPermissionModal extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Popular areas:',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               children: commonAreas.take(6).map((area) {
                 return ActionChip(
-                  label: Text(
-                    area,
-                    style: const TextStyle(fontSize: 12),
-                  ),
+                  label: Text(area, style: const TextStyle(fontSize: 12)),
                   onPressed: () {
                     controller.text = area;
                   },
@@ -222,4 +221,4 @@ class LocationPermissionModal extends StatelessWidget {
       ),
     );
   }
-} 
+}

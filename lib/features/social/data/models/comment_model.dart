@@ -43,7 +43,8 @@ class CommentModel {
       content: json['content'] as String,
       parentCommentId: json['parent_comment_id'] as String?,
       mentions: (json['mentions'] as List<dynamic>?)?.cast<String>() ?? [],
-      reactions: (json['reactions'] as Map<String, dynamic>?)?.cast<String, int>(),
+      reactions: (json['reactions'] as Map<String, dynamic>?)
+          ?.cast<String, int>(),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       isEdited: json['is_edited'] as bool? ?? false,

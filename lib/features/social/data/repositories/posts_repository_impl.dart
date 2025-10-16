@@ -47,38 +47,41 @@ abstract class PostsFailure extends Failure {
 }
 
 class PostsServerFailure extends PostsFailure {
-  const PostsServerFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Posts server error');
+  const PostsServerFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Posts server error');
 }
 
 class PostsCacheFailure extends PostsFailure {
-  const PostsCacheFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Posts cache error');
+  const PostsCacheFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Posts cache error');
 }
 
 class PostNotFoundFailure extends PostsFailure {
-  const PostNotFoundFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Post not found');
+  const PostNotFoundFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Post not found');
 }
 
 class PostValidationFailure extends PostsFailure {
-  const PostValidationFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Post validation error');
+  const PostValidationFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Post validation error');
 }
 
 class MediaUploadFailure extends PostsFailure {
-  const MediaUploadFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Media upload error');
+  const MediaUploadFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Media upload error');
 }
 
 class UnauthorizedPostActionFailure extends PostsFailure {
-  const UnauthorizedPostActionFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Unauthorized post action');
+  const UnauthorizedPostActionFailure({
+    String? message,
+    super.code,
+    super.details,
+  }) : super(message: message ?? 'Unauthorized post action');
 }
 
 class UnknownPostsFailure extends PostsFailure {
-  const UnknownPostsFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Unknown posts error');
+  const UnknownPostsFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Unknown posts error');
 }
 
 /// Implementation of PostsRepository with caching and optimistic updates
@@ -93,7 +96,7 @@ class PostsRepositoryImpl implements PostsRepository {
   final Map<String, List<PostModel>> _commentsCache = {};
   final Map<String, List<ReactionModel>> _reactionsCache = {};
   final Map<String, List<PostModel>> _bookmarksCache = {};
-  
+
   // Cache TTL
   final Map<String, DateTime> _cacheTimestamps = {};
   static const Duration _feedCacheDuration = Duration(minutes: 3);
@@ -106,9 +109,7 @@ class PostsRepositoryImpl implements PostsRepository {
   final Set<String> _optimisticBookmarks = {};
   final Set<String> _optimisticLikes = {};
 
-  PostsRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  PostsRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Either<Failure, SocialFeedModel>> getSocialFeed({
@@ -172,7 +173,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsCacheException catch (e) {
       return Left(PostsCacheFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get social feed: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get social feed: $e'),
+      );
     }
   }
 
@@ -191,7 +194,9 @@ class PostsRepositoryImpl implements PostsRepository {
     try {
       // Validate input
       if (content.trim().isEmpty && (mediaUrls?.isEmpty ?? true)) {
-        return Left(PostValidationFailure(message: 'Post content or media is required'));
+        return Left(
+          PostValidationFailure(message: 'Post content or media is required'),
+        );
       }
 
       // Create optimistic post
@@ -261,7 +266,7 @@ class PostsRepositoryImpl implements PostsRepository {
 
       // Fetch from remote
       final post = await remoteDataSource.getPost(postId);
-      
+
       // Update cache
       _postsCache[postId] = post;
 
@@ -316,7 +321,7 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<Either<Failure, bool>> deletePost(String postId) async {
     try {
       final success = await remoteDataSource.deletePost(postId);
-      
+
       if (success) {
         _postsCache.remove(postId);
         _invalidateFeedCaches();
@@ -342,8 +347,9 @@ class PostsRepositoryImpl implements PostsRepository {
     PostVisibility? visibility,
   }) async {
     try {
-      final cacheKey = 'user_posts_${userId}_${page}_${limit}_${visibility?.toString() ?? 'all'}';
-      
+      final cacheKey =
+          'user_posts_${userId}_${page}_${limit}_${visibility?.toString() ?? 'all'}';
+
       if (_isCacheValid(cacheKey, _postCacheDuration)) {
         final cached = _userPostsCache[cacheKey];
         if (cached != null) {
@@ -382,7 +388,7 @@ class PostsRepositoryImpl implements PostsRepository {
   }) async {
     try {
       final cacheKey = 'game_posts_${gameId}_${page}_$limit';
-      
+
       if (_isCacheValid(cacheKey, _postCacheDuration)) {
         final cached = _gamePostsCache[cacheKey];
         if (cached != null) {
@@ -517,7 +523,7 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<Either<Failure, bool>> removeReactionFromPost(String postId) async {
     try {
       final success = await remoteDataSource.removeReactionFromPost(postId);
-      
+
       if (success) {
         _optimisticReactions.remove(postId);
         _optimisticLikes.remove(postId);
@@ -561,7 +567,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to remove reaction from post: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to remove reaction from post: $e'),
+      );
     }
   }
 
@@ -573,8 +581,9 @@ class PostsRepositoryImpl implements PostsRepository {
     int limit = 50,
   }) async {
     try {
-      final cacheKey = 'reactions_${postId}_${reactionType?.toString() ?? 'all'}_${page}_$limit';
-      
+      final cacheKey =
+          'reactions_${postId}_${reactionType?.toString() ?? 'all'}_${page}_$limit';
+
       if (_isCacheValid(cacheKey, _reactionsCacheDuration)) {
         final cached = _reactionsCache[cacheKey];
         if (cached != null) {
@@ -598,7 +607,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get post reactions: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get post reactions: $e'),
+      );
     }
   }
 
@@ -607,14 +618,20 @@ class PostsRepositoryImpl implements PostsRepository {
     String postId,
   ) async {
     try {
-      final groupedReactions = await remoteDataSource.getGroupedPostReactions(postId);
+      final groupedReactions = await remoteDataSource.getGroupedPostReactions(
+        postId,
+      );
       return Right(groupedReactions);
     } on PostNotFoundException catch (e) {
       return Left(PostNotFoundFailure(message: e.message));
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get grouped post reactions: $e'));
+      return Left(
+        UnknownPostsFailure(
+          message: 'Failed to get grouped post reactions: $e',
+        ),
+      );
     }
   }
 
@@ -675,7 +692,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to comment on post: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to comment on post: $e'),
+      );
     }
   }
 
@@ -687,8 +706,9 @@ class PostsRepositoryImpl implements PostsRepository {
     SortDirection sortDirection = SortDirection.asc,
   }) async {
     try {
-      final cacheKey = 'comments_${postId}_${page}_${limit}_${sortDirection.toString()}';
-      
+      final cacheKey =
+          'comments_${postId}_${page}_${limit}_${sortDirection.toString()}';
+
       if (_isCacheValid(cacheKey, _postCacheDuration)) {
         final cached = _commentsCache[cacheKey];
         if (cached != null) {
@@ -712,7 +732,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get post comments: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get post comments: $e'),
+      );
     }
   }
 
@@ -733,21 +755,31 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to react to comment: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to react to comment: $e'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, bool>> removeReactionFromComment(String commentId) async {
+  Future<Either<Failure, bool>> removeReactionFromComment(
+    String commentId,
+  ) async {
     try {
-      final success = await remoteDataSource.removeReactionFromComment(commentId);
+      final success = await remoteDataSource.removeReactionFromComment(
+        commentId,
+      );
       return Right(success);
     } on PostNotFoundException catch (e) {
       return Left(PostNotFoundFailure(message: e.message));
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to remove reaction from comment: $e'));
+      return Left(
+        UnknownPostsFailure(
+          message: 'Failed to remove reaction from comment: $e',
+        ),
+      );
     }
   }
 
@@ -814,7 +846,7 @@ class PostsRepositoryImpl implements PostsRepository {
       _optimisticBookmarks.add(postId);
 
       final success = await remoteDataSource.bookmarkPost(postId);
-      
+
       if (!success) {
         _optimisticBookmarks.remove(postId);
       }
@@ -836,7 +868,7 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<Either<Failure, bool>> removeBookmark(String postId) async {
     try {
       final success = await remoteDataSource.removeBookmark(postId);
-      
+
       if (success) {
         _optimisticBookmarks.remove(postId);
         _invalidateBookmarksCache();
@@ -848,7 +880,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to remove bookmark: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to remove bookmark: $e'),
+      );
     }
   }
 
@@ -859,7 +893,7 @@ class PostsRepositoryImpl implements PostsRepository {
   }) async {
     try {
       final cacheKey = 'bookmarks_${page}_$limit';
-      
+
       if (_isCacheValid(cacheKey, _postCacheDuration)) {
         final cached = _bookmarksCache[cacheKey];
         if (cached != null) {
@@ -879,7 +913,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get bookmarked posts: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get bookmarked posts: $e'),
+      );
     }
   }
 
@@ -948,7 +984,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get trending posts: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get trending posts: $e'),
+      );
     }
   }
 
@@ -971,7 +1009,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get posts by tags: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get posts by tags: $e'),
+      );
     }
   }
 
@@ -992,7 +1032,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get posts mentioning user: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get posts mentioning user: $e'),
+      );
     }
   }
 
@@ -1010,7 +1052,9 @@ class PostsRepositoryImpl implements PostsRepository {
     } on PostsServerException catch (e) {
       return Left(PostsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownPostsFailure(message: 'Failed to get post analytics: $e'));
+      return Left(
+        UnknownPostsFailure(message: 'Failed to get post analytics: $e'),
+      );
     }
   }
 
@@ -1034,7 +1078,7 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<Either<Failure, bool>> deleteComment(String commentId) async {
     try {
       final success = await remoteDataSource.deleteComment(commentId);
-      
+
       if (success) {
         _invalidateAllCommentsCache();
       }
@@ -1109,7 +1153,7 @@ class PostsRepositoryImpl implements PostsRepository {
   /// Apply optimistic updates to feed
   SocialFeedModel _applyFeedOptimizations(SocialFeedModel feed) {
     final optimizedPosts = List<PostModel>.from(feed.posts);
-    
+
     // Add optimistic posts
     _optimisticPosts.forEach((id, post) {
       if (!optimizedPosts.any((p) => p.id == id)) {
@@ -1137,7 +1181,9 @@ class PostsRepositoryImpl implements PostsRepository {
           isLiked: true,
           gameId: post.gameId,
           locationName: post.locationName,
-          isBookmarked: _optimisticBookmarks.contains(post.id) ? true : post.isBookmarked,
+          isBookmarked: _optimisticBookmarks.contains(post.id)
+              ? true
+              : post.isBookmarked,
           authorBio: post.authorBio,
           authorVerified: post.authorVerified,
           tags: post.tags,
@@ -1161,13 +1207,19 @@ class PostsRepositoryImpl implements PostsRepository {
 
   /// Invalidate reactions cache for specific post
   void _invalidateReactionsCache(String postId) {
-    _cacheTimestamps.removeWhere((key, _) => key.startsWith('reactions_$postId'));
-    _reactionsCache.removeWhere((key, _) => key.startsWith('reactions_$postId'));
+    _cacheTimestamps.removeWhere(
+      (key, _) => key.startsWith('reactions_$postId'),
+    );
+    _reactionsCache.removeWhere(
+      (key, _) => key.startsWith('reactions_$postId'),
+    );
   }
 
   /// Invalidate comments cache for specific post
   void _invalidateCommentsCache(String postId) {
-    _cacheTimestamps.removeWhere((key, _) => key.startsWith('comments_$postId'));
+    _cacheTimestamps.removeWhere(
+      (key, _) => key.startsWith('comments_$postId'),
+    );
     _commentsCache.removeWhere((key, _) => key.startsWith('comments_$postId'));
   }
 

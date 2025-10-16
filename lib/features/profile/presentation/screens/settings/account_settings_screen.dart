@@ -8,7 +8,8 @@ class AccountSettingsScreen extends ConsumerStatefulWidget {
   const AccountSettingsScreen({super.key});
 
   @override
-  ConsumerState<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
+  ConsumerState<AccountSettingsScreen> createState() =>
+      _AccountSettingsScreenState();
 }
 
 class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
@@ -17,7 +18,8 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   bool _twoFactorEnabled = false;
   bool _isLoading = false;
   final String _currentUserId = 'user_123'; // TODO: Get from auth provider
-  final String _currentUserEmail = 'user@example.com'; // TODO: Get from auth provider
+  final String _currentUserEmail =
+      'user@example.com'; // TODO: Get from auth provider
 
   @override
   void initState() {
@@ -56,9 +58,9 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
       children: [
         Text(
           'Account Information',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -107,9 +109,9 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
       children: [
         Text(
           'Security',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -125,9 +127,11 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
               SwitchListTile(
                 secondary: const Icon(Icons.security),
                 title: const Text('Two-Factor Authentication'),
-                subtitle: Text(_twoFactorEnabled 
-                    ? 'Enhanced security enabled' 
-                    : 'Add an extra layer of security'),
+                subtitle: Text(
+                  _twoFactorEnabled
+                      ? 'Enhanced security enabled'
+                      : 'Add an extra layer of security',
+                ),
                 value: _twoFactorEnabled,
                 onChanged: _toggleTwoFactor,
               ),
@@ -152,31 +156,39 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
       children: [
         Text(
           'Data & Privacy (GDPR)',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
           'Manage your personal data in compliance with GDPR regulations',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
         const SizedBox(height: 16),
         Card(
           child: Column(
             children: [
               ListTile(
-                leading: const Icon(Icons.download_outlined, color: Colors.blue),
+                leading: const Icon(
+                  Icons.download_outlined,
+                  color: Colors.blue,
+                ),
                 title: const Text('Export Your Data'),
-                subtitle: const Text('Download a complete copy of your personal data'),
+                subtitle: const Text(
+                  'Download a complete copy of your personal data',
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: _navigateToDataExport,
               ),
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.schedule_outlined, color: Colors.orange),
+                leading: const Icon(
+                  Icons.schedule_outlined,
+                  color: Colors.orange,
+                ),
                 title: const Text('Data Retention Settings'),
                 subtitle: const Text('Control how long your data is kept'),
                 trailing: const Icon(Icons.chevron_right),
@@ -184,7 +196,10 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
               ),
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined, color: Colors.green),
+                leading: const Icon(
+                  Icons.privacy_tip_outlined,
+                  color: Colors.green,
+                ),
                 title: const Text('Privacy Settings'),
                 subtitle: const Text('Control who can see your information'),
                 trailing: const Icon(Icons.chevron_right),
@@ -192,7 +207,10 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
               ),
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.policy_outlined, color: Colors.purple),
+                leading: const Icon(
+                  Icons.policy_outlined,
+                  color: Colors.purple,
+                ),
                 title: const Text('Privacy Policy & Rights'),
                 subtitle: const Text('Learn about your data rights under GDPR'),
                 trailing: const Icon(Icons.open_in_new),
@@ -232,7 +250,9 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
               ListTile(
                 leading: const Icon(Icons.delete_forever, color: Colors.red),
                 title: const Text('Delete Account'),
-                subtitle: const Text('Permanently delete your account and all data'),
+                subtitle: const Text(
+                  'Permanently delete your account and all data',
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: _deleteAccount,
               ),
@@ -248,7 +268,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
     // TODO: Implement account info update
     await Future.delayed(const Duration(seconds: 2));
     setState(() => _isLoading = false);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Account information updated')),
@@ -259,7 +279,9 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   void _changePassword() {
     // TODO: Navigate to change password screen
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Change password functionality coming soon')),
+      const SnackBar(
+        content: Text('Change password functionality coming soon'),
+      ),
     );
   }
 
@@ -291,9 +313,8 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DataRetentionSettingsScreen(
-          userId: _currentUserId,
-        ),
+        builder: (context) =>
+            DataRetentionSettingsScreen(userId: _currentUserId),
       ),
     );
   }
@@ -304,7 +325,8 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Your GDPR Rights'),
         content: const SingleChildScrollView(
-          child: Text('''Under the General Data Protection Regulation (GDPR), you have the following rights:
+          child: Text(
+            '''Under the General Data Protection Regulation (GDPR), you have the following rights:
 
 • Right to Access - Request copies of your personal data
 • Right to Rectification - Request correction of inaccurate data  
@@ -316,7 +338,8 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
 
 To exercise these rights or for more information, contact our Data Protection Officer at privacy@dabbler.app
 
-Full Privacy Policy: https://dabbler.app/privacy-policy'''),
+Full Privacy Policy: https://dabbler.app/privacy-policy''',
+          ),
         ),
         actions: [
           TextButton(
@@ -340,7 +363,9 @@ Full Privacy Policy: https://dabbler.app/privacy-policy'''),
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Deactivate Account'),
-        content: const Text('Are you sure you want to deactivate your account? You can reactivate it anytime by signing in.'),
+        content: const Text(
+          'Are you sure you want to deactivate your account? You can reactivate it anytime by signing in.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -364,7 +389,9 @@ Full Privacy Policy: https://dabbler.app/privacy-policy'''),
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Account'),
-        content: const Text('This action cannot be undone. All your data will be permanently deleted.'),
+        content: const Text(
+          'This action cannot be undone. All your data will be permanently deleted.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

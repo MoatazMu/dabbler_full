@@ -25,12 +25,12 @@ class ProfileFeatureFlags {
       is_enabled: json['is_enabled'],
       rollout_percentage: json['rollout_percentage'],
       user_whitelist: json['user_whitelist'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

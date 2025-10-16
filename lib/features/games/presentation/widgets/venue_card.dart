@@ -33,9 +33,7 @@ class VenueCard extends StatelessWidget {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: Material(
         borderRadius: BorderRadius.circular(16),
@@ -43,10 +41,7 @@ class VenueCard extends StatelessWidget {
           onTap: onTap,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImageHeader(context),
-              _buildContentSection(),
-            ],
+            children: [_buildImageHeader(context), _buildContentSection()],
           ),
         ),
       ),
@@ -65,24 +60,22 @@ class VenueCard extends StatelessWidget {
               ? Image.network(
                   imageUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildImagePlaceholder(),
                 )
               : _buildImagePlaceholder(),
-          
+
           // Gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.7),
-                ],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
               ),
             ),
           ),
-          
+
           // Top badges
           Positioned(
             top: 12,
@@ -97,7 +90,7 @@ class VenueCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Bottom content overlay
           Positioned(
             bottom: 12,
@@ -143,11 +136,7 @@ class VenueCard extends StatelessWidget {
     return Container(
       color: Colors.grey[300],
       child: const Center(
-        child: Icon(
-          Icons.image,
-          size: 48,
-          color: Colors.grey,
-        ),
+        child: Icon(Icons.image, size: 48, color: Colors.grey),
       ),
     );
   }
@@ -169,11 +158,7 @@ class VenueCard extends StatelessWidget {
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.star,
-            size: 14,
-            color: Colors.white,
-          ),
+          Icon(Icons.star, size: 14, color: Colors.white),
           SizedBox(width: 4),
           Text(
             'FEATURED',
@@ -216,11 +201,7 @@ class VenueCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.star,
-            size: 14,
-            color: Colors.amber,
-          ),
+          const Icon(Icons.star, size: 14, color: Colors.amber),
           const SizedBox(width: 2),
           Text(
             rating.toStringAsFixed(1),
@@ -232,10 +213,7 @@ class VenueCard extends StatelessWidget {
           ),
           Text(
             ' ($reviewCount)',
-            style: const TextStyle(
-              fontSize: 10,
-              color: Colors.white70,
-            ),
+            style: const TextStyle(fontSize: 10, color: Colors.white70),
           ),
         ],
       ),
@@ -297,18 +275,12 @@ class VenueCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: sportData['color'].withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: sportData['color'].withOpacity(0.3),
-                ),
+                border: Border.all(color: sportData['color'].withOpacity(0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    sportData['icon'],
-                    size: 16,
-                    color: sportData['color'],
-                  ),
+                  Icon(sportData['icon'], size: 16, color: sportData['color']),
                   const SizedBox(width: 4),
                   Text(
                     sport,
@@ -407,114 +379,54 @@ class VenueCard extends StatelessWidget {
     switch (sport.toLowerCase()) {
       case 'soccer':
       case 'football':
-        return {
-          'icon': Icons.sports_soccer,
-          'color': Colors.green,
-        };
+        return {'icon': Icons.sports_soccer, 'color': Colors.green};
       case 'basketball':
-        return {
-          'icon': Icons.sports_basketball,
-          'color': Colors.orange,
-        };
+        return {'icon': Icons.sports_basketball, 'color': Colors.orange};
       case 'tennis':
-        return {
-          'icon': Icons.sports_tennis,
-          'color': Colors.blue,
-        };
+        return {'icon': Icons.sports_tennis, 'color': Colors.blue};
       case 'volleyball':
-        return {
-          'icon': Icons.sports_volleyball,
-          'color': Colors.purple,
-        };
+        return {'icon': Icons.sports_volleyball, 'color': Colors.purple};
       case 'baseball':
-        return {
-          'icon': Icons.sports_baseball,
-          'color': Colors.brown,
-        };
+        return {'icon': Icons.sports_baseball, 'color': Colors.brown};
       case 'badminton':
-        return {
-          'icon': Icons.sports_tennis,
-          'color': Colors.teal,
-        };
+        return {'icon': Icons.sports_tennis, 'color': Colors.teal};
       case 'swimming':
-        return {
-          'icon': Icons.pool,
-          'color': Colors.cyan,
-        };
+        return {'icon': Icons.pool, 'color': Colors.cyan};
       case 'gym':
       case 'fitness':
-        return {
-          'icon': Icons.fitness_center,
-          'color': Colors.red,
-        };
+        return {'icon': Icons.fitness_center, 'color': Colors.red};
       default:
-        return {
-          'icon': Icons.sports,
-          'color': Colors.grey,
-        };
+        return {'icon': Icons.sports, 'color': Colors.grey};
     }
   }
 
   Map<String, dynamic> _getAmenityData(String amenity) {
     switch (amenity.toLowerCase()) {
       case 'parking':
-        return {
-          'icon': Icons.local_parking,
-          'label': 'Parking Available',
-        };
+        return {'icon': Icons.local_parking, 'label': 'Parking Available'};
       case 'shower':
       case 'showers':
-        return {
-          'icon': Icons.shower,
-          'label': 'Shower Facilities',
-        };
+        return {'icon': Icons.shower, 'label': 'Shower Facilities'};
       case 'equipment':
-        return {
-          'icon': Icons.sports,
-          'label': 'Equipment Rental',
-        };
+        return {'icon': Icons.sports, 'label': 'Equipment Rental'};
       case 'lockers':
-        return {
-          'icon': Icons.lock,
-          'label': 'Lockers Available',
-        };
+        return {'icon': Icons.lock, 'label': 'Lockers Available'};
       case 'cafe':
       case 'restaurant':
-        return {
-          'icon': Icons.restaurant,
-          'label': 'Food & Drinks',
-        };
+        return {'icon': Icons.restaurant, 'label': 'Food & Drinks'};
       case 'wifi':
-        return {
-          'icon': Icons.wifi,
-          'label': 'Free WiFi',
-        };
+        return {'icon': Icons.wifi, 'label': 'Free WiFi'};
       case 'ac':
       case 'air_conditioning':
-        return {
-          'icon': Icons.ac_unit,
-          'label': 'Air Conditioning',
-        };
+        return {'icon': Icons.ac_unit, 'label': 'Air Conditioning'};
       case 'first_aid':
-        return {
-          'icon': Icons.medical_services,
-          'label': 'First Aid',
-        };
+        return {'icon': Icons.medical_services, 'label': 'First Aid'};
       case 'accessibility':
-        return {
-          'icon': Icons.accessible,
-          'label': 'Wheelchair Accessible',
-        };
+        return {'icon': Icons.accessible, 'label': 'Wheelchair Accessible'};
       case 'lighting':
-        return {
-          'icon': Icons.lightbulb,
-          'label': 'Good Lighting',
-        };
+        return {'icon': Icons.lightbulb, 'label': 'Good Lighting'};
       default:
-        return {
-          'icon': Icons.check_circle,
-          'label': amenity,
-        };
+        return {'icon': Icons.check_circle, 'label': amenity};
     }
   }
 }

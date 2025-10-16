@@ -61,14 +61,7 @@ class FilterSet {
   int get activeFilterCount => filters.where((f) => f.isActive).length;
 }
 
-enum FilterType {
-  timeRange,
-  category,
-  tier,
-  country,
-  friends,
-  custom,
-}
+enum FilterType { timeRange, category, tier, country, friends, custom }
 
 /// Filter tabs widget for leaderboards
 class LeaderboardFilterTabs extends StatefulWidget {
@@ -178,16 +171,12 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
       vsync: this,
     );
 
-    _badgeAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _badgeController,
-      curve: Curves.elasticOut,
-    ));
+    _badgeAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _badgeController, curve: Curves.elasticOut),
+    );
 
     _slideController.forward();
-    
+
     if (activeFilterCount > 0) {
       _badgeController.forward();
     }
@@ -204,7 +193,9 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
 
   List<LeaderboardFilter> get filteredFilters {
     if (_selectedCategory == 'All') return _currentFilters;
-    return _currentFilters.where((f) => f.category == _selectedCategory).toList();
+    return _currentFilters
+        .where((f) => f.category == _selectedCategory)
+        .toList();
   }
 
   void _handleFilterToggle(LeaderboardFilter filter) {
@@ -239,11 +230,10 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
       final existingIndex = _currentFilters.indexWhere(
         (f) => f.id == quickFilter.id,
       );
-      
+
       if (existingIndex != -1) {
-        _currentFilters[existingIndex] = _currentFilters[existingIndex].copyWith(
-          isActive: !_currentFilters[existingIndex].isActive,
-        );
+        _currentFilters[existingIndex] = _currentFilters[existingIndex]
+            .copyWith(isActive: !_currentFilters[existingIndex].isActive);
       } else {
         _currentFilters.add(quickFilter.copyWith(isActive: true));
       }
@@ -259,7 +249,9 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
     }
 
     setState(() {
-      _currentFilters = _currentFilters.map((f) => f.copyWith(isActive: false)).toList();
+      _currentFilters = _currentFilters
+          .map((f) => f.copyWith(isActive: false))
+          .toList();
     });
 
     widget.onFiltersChanged?.call(_currentFilters);
@@ -278,7 +270,7 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
 
     widget.onFilterSetSelected?.call(filterSet);
     widget.onFiltersChanged?.call(_currentFilters);
-    
+
     if (activeFilterCount > 0) {
       _badgeController.forward();
     }
@@ -286,7 +278,7 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
 
   void _showSaveFilterDialog() {
     final controller = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -345,9 +337,9 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
       children: [
         Text(
           'Filters',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(width: 8),
         if (activeFilterCount > 0)
@@ -357,7 +349,10 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
               return Transform.scale(
                 scale: _badgeAnimation.value,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.blue[600],
                     borderRadius: BorderRadius.circular(12),
@@ -380,9 +375,7 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
             onPressed: _handleResetFilters,
             icon: const Icon(Icons.clear_all, size: 16),
             label: const Text('Reset'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red[600],
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red[600]),
           ),
         if (activeFilterCount > 0 && widget.onFilterSetSaved != null)
           IconButton(
@@ -400,8 +393,8 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
       child: Column(
         children: _categories.map((category) {
           final isSelected = category == _selectedCategory;
-          final categoryFilters = category == 'All' 
-              ? _currentFilters 
+          final categoryFilters = category == 'All'
+              ? _currentFilters
               : _currentFilters.where((f) => f.category == category).toList();
           final activeCount = categoryFilters.where((f) => f.isActive).length;
 
@@ -416,7 +409,9 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
                       category,
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -493,9 +488,10 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
           spacing: 6,
           runSpacing: 4,
           children: _quickFilters.map((filter) {
-            final isActive = _currentFilters
-                .any((f) => f.id == filter.id && f.isActive);
-            
+            final isActive = _currentFilters.any(
+              (f) => f.id == filter.id && f.isActive,
+            );
+
             return FilterChip(
               avatar: filter.icon != null
                   ? Icon(
@@ -557,10 +553,7 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
                       ),
                       Text(
                         '${filterSet.activeFilterCount} filters',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -576,14 +569,14 @@ class _LeaderboardFilterTabsState extends State<LeaderboardFilterTabs>
 
   Widget _buildFilterTabs() {
     final filters = filteredFilters;
-    
+
     if (filters.isEmpty) {
       return Center(
         child: Text(
           'No filters available in this category',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
       );
     }

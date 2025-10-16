@@ -33,19 +33,23 @@ class TierComparisonData {
   bool get isUpgrade => comparedTier.index > currentTier.index;
   bool get isDowngrade => comparedTier.index < currentTier.index;
   bool get isSameTier => comparedTier == currentTier;
-  
+
   int get pointsToUpgrade => comparedMinPoints - currentPoints;
-  double get upgradeProgress => 
-      currentPoints >= comparedMinPoints ? 1.0 : currentPoints / comparedMinPoints;
+  double get upgradeProgress => currentPoints >= comparedMinPoints
+      ? 1.0
+      : currentPoints / comparedMinPoints;
 
-  List<ComparisonBenefit> get uniqueBenefits => 
-      benefits.where((b) => b.availability == BenefitAvailability.comparedOnly).toList();
+  List<ComparisonBenefit> get uniqueBenefits => benefits
+      .where((b) => b.availability == BenefitAvailability.comparedOnly)
+      .toList();
 
-  List<ComparisonBenefit> get sharedBenefits => 
-      benefits.where((b) => b.availability == BenefitAvailability.both).toList();
+  List<ComparisonBenefit> get sharedBenefits => benefits
+      .where((b) => b.availability == BenefitAvailability.both)
+      .toList();
 
-  List<ComparisonBenefit> get lostBenefits => 
-      benefits.where((b) => b.availability == BenefitAvailability.currentOnly).toList();
+  List<ComparisonBenefit> get lostBenefits => benefits
+      .where((b) => b.availability == BenefitAvailability.currentOnly)
+      .toList();
 }
 
 /// Individual benefit comparison data
@@ -75,18 +79,9 @@ class ComparisonBenefit {
   });
 }
 
-enum BenefitAvailability {
-  currentOnly,
-  comparedOnly,
-  both,
-}
+enum BenefitAvailability { currentOnly, comparedOnly, both }
 
-enum BenefitImportance {
-  low,
-  normal,
-  high,
-  critical,
-}
+enum BenefitImportance { low, normal, high, critical }
 
 enum ComparisonCategory {
   general,
@@ -170,21 +165,13 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
       vsync: this,
     );
 
-    _highlightAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _highlightController,
-      curve: Curves.easeInOut,
-    ));
+    _highlightAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _highlightController, curve: Curves.easeInOut),
+    );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.02,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     // Start animations
     _slideController.forward();
@@ -235,7 +222,11 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
     return tier.toString().split('.').last.toUpperCase();
   }
 
-  Color _getBenefitColor(BenefitAvailability availability, BadgeTier currentTier, BadgeTier comparedTier) {
+  Color _getBenefitColor(
+    BenefitAvailability availability,
+    BadgeTier currentTier,
+    BadgeTier comparedTier,
+  ) {
     switch (availability) {
       case BenefitAvailability.currentOnly:
         return Colors.red[400]!;
@@ -307,7 +298,8 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
   }
 
   List<ComparisonBenefit> _getFilteredBenefits() {
-    if (widget.comparisons.isEmpty || _currentIndex >= widget.comparisons.length) {
+    if (widget.comparisons.isEmpty ||
+        _currentIndex >= widget.comparisons.length) {
       return [];
     }
 
@@ -318,24 +310,20 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
   }
 
   List<ComparisonCategory> _getAvailableCategories() {
-    if (widget.comparisons.isEmpty || _currentIndex >= widget.comparisons.length) {
+    if (widget.comparisons.isEmpty ||
+        _currentIndex >= widget.comparisons.length) {
       return [ComparisonCategory.general];
     }
 
     final comparison = widget.comparisons[_currentIndex];
-    return comparison.benefits
-        .map((b) => b.category)
-        .toSet()
-        .toList()
-        ..sort((a, b) => a.index.compareTo(b.index));
+    return comparison.benefits.map((b) => b.category).toSet().toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.comparisons.isEmpty) {
-      return const Center(
-        child: Text('No tier comparisons available'),
-      );
+      return const Center(child: Text('No tier comparisons available'));
     }
 
     return Container(
@@ -348,7 +336,7 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: widget.enableSwipe ? _onPageChanged : null,
-              physics: widget.enableSwipe 
+              physics: widget.enableSwipe
                   ? const BouncingScrollPhysics()
                   : const NeverScrollableScrollPhysics(),
               itemCount: widget.comparisons.length,
@@ -383,7 +371,7 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: comparison.isUpgrade 
+                    color: comparison.isUpgrade
                         ? Colors.green[100]
                         : comparison.isDowngrade
                         ? Colors.red[100]
@@ -391,12 +379,12 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
-                    comparison.isUpgrade 
+                    comparison.isUpgrade
                         ? Icons.arrow_upward
                         : comparison.isDowngrade
                         ? Icons.arrow_downward
                         : Icons.compare_arrows,
-                    color: comparison.isUpgrade 
+                    color: comparison.isUpgrade
                         ? Colors.green[600]
                         : comparison.isDowngrade
                         ? Colors.red[600]
@@ -436,22 +424,16 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
           decoration: BoxDecoration(
             color: tierColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
-            border: isActive 
+            border: isActive
                 ? Border.all(color: tierColor, width: 2)
                 : Border.all(color: Colors.grey[300]!, width: 1),
           ),
-          child: Icon(
-            _getTierIcon(tier),
-            color: tierColor,
-            size: 32,
-          ),
+          child: Icon(_getTierIcon(tier), color: tierColor, size: 32),
         ),
         const SizedBox(height: 8),
         Text(
           title,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
         const SizedBox(height: 4),
         Text(
@@ -531,9 +513,7 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
       children: [
         _buildCategoryTabs(),
         const SizedBox(height: 16),
-        Expanded(
-          child: _buildBenefitComparison(comparison),
-        ),
+        Expanded(child: _buildBenefitComparison(comparison)),
         if (widget.showUpgradeButton && comparison.isUpgrade)
           _buildUpgradeButton(comparison),
       ],
@@ -586,11 +566,9 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
 
   Widget _buildBenefitComparison(TierComparisonData comparison) {
     final benefits = _getFilteredBenefits();
-    
+
     if (benefits.isEmpty) {
-      return const Center(
-        child: Text('No benefits in this category'),
-      );
+      return const Center(child: Text('No benefits in this category'));
     }
 
     return ListView.builder(
@@ -601,7 +579,10 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
     );
   }
 
-  Widget _buildBenefitItem(ComparisonBenefit benefit, TierComparisonData comparison) {
+  Widget _buildBenefitItem(
+    ComparisonBenefit benefit,
+    TierComparisonData comparison,
+  ) {
     final theme = Theme.of(context);
     final benefitColor = _getBenefitColor(
       benefit.availability,
@@ -618,11 +599,15 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: benefit.availability == BenefitAvailability.comparedOnly
-                ? benefitColor.withOpacity(0.05 + 0.05 * _highlightAnimation.value)
+                ? benefitColor.withOpacity(
+                    0.05 + 0.05 * _highlightAnimation.value,
+                  )
                 : Colors.grey[50],
             border: benefit.availability == BenefitAvailability.comparedOnly
                 ? Border.all(
-                    color: benefitColor.withOpacity(0.3 + 0.2 * _highlightAnimation.value),
+                    color: benefitColor.withOpacity(
+                      0.3 + 0.2 * _highlightAnimation.value,
+                    ),
                     width: 1,
                   )
                 : null,
@@ -632,17 +617,9 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
             leading: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  benefitIcon,
-                  color: benefitColor,
-                  size: 20,
-                ),
+                Icon(benefitIcon, color: benefitColor, size: 20),
                 const SizedBox(width: 8),
-                Icon(
-                  benefit.icon,
-                  color: benefitColor,
-                  size: 20,
-                ),
+                Icon(benefit.icon, color: benefitColor, size: 20),
               ],
             ),
             title: Row(
@@ -651,13 +628,19 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                   child: Text(
                     benefit.title,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: benefit.availability == BenefitAvailability.comparedOnly
+                      fontWeight:
+                          benefit.availability ==
+                              BenefitAvailability.comparedOnly
                           ? FontWeight.bold
                           : FontWeight.normal,
-                      color: benefit.availability == BenefitAvailability.currentOnly
+                      color:
+                          benefit.availability ==
+                              BenefitAvailability.currentOnly
                           ? Colors.grey[500]
                           : theme.colorScheme.onSurface,
-                      decoration: benefit.availability == BenefitAvailability.currentOnly
+                      decoration:
+                          benefit.availability ==
+                              BenefitAvailability.currentOnly
                           ? TextDecoration.lineThrough
                           : null,
                     ),
@@ -666,7 +649,10 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                 if (benefit.importance == BenefitImportance.high ||
                     benefit.importance == BenefitImportance.critical)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: benefit.importance == BenefitImportance.critical
                           ? Colors.red[600]
@@ -674,7 +660,9 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      benefit.importance == BenefitImportance.critical ? 'CRITICAL' : 'HIGH',
+                      benefit.importance == BenefitImportance.critical
+                          ? 'CRITICAL'
+                          : 'HIGH',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -691,13 +679,16 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                   Text(
                     benefit.description,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: benefit.availability == BenefitAvailability.currentOnly
+                      color:
+                          benefit.availability ==
+                              BenefitAvailability.currentOnly
                           ? Colors.grey[400]
                           : Colors.grey[600],
                     ),
                   ),
-                if (widget.showDifferences && 
-                    (benefit.currentValue != null || benefit.comparedValue != null))
+                if (widget.showDifferences &&
+                    (benefit.currentValue != null ||
+                        benefit.comparedValue != null))
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: _buildValueComparison(benefit),
@@ -722,7 +713,8 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
             benefit.currentValue!,
             style: theme.textTheme.bodySmall?.copyWith(
               color: Colors.grey[600],
-              decoration: benefit.availability == BenefitAvailability.currentOnly
+              decoration:
+                  benefit.availability == BenefitAvailability.currentOnly
                   ? TextDecoration.lineThrough
                   : null,
             ),
@@ -736,7 +728,9 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
             benefit.comparedValue!,
             style: theme.textTheme.bodySmall?.copyWith(
               color: benefit.isImproved ? Colors.green[600] : Colors.grey[600],
-              fontWeight: benefit.isImproved ? FontWeight.bold : FontWeight.normal,
+              fontWeight: benefit.isImproved
+                  ? FontWeight.bold
+                  : FontWeight.normal,
             ),
           ),
           if (benefit.isImproved)
@@ -781,11 +775,7 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
           ),
         );
       case BenefitAvailability.both:
-        return const Icon(
-          Icons.check_circle,
-          color: Colors.grey,
-          size: 16,
-        );
+        return const Icon(Icons.check_circle, color: Colors.grey, size: 16);
     }
   }
 
@@ -807,7 +797,7 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
                 color: Colors.white,
               ),
               label: Text(
-                canUpgrade 
+                canUpgrade
                     ? 'UPGRADE TO ${_getTierName(comparison.comparedTier)}'
                     : 'NEED ${comparison.pointsToUpgrade} POINTS',
                 style: const TextStyle(
@@ -817,7 +807,10 @@ class _TierComparisonWidgetState extends State<TierComparisonWidget>
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: canUpgrade ? comparedColor : Colors.grey,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),

@@ -233,7 +233,8 @@ class AnalyticsService {
 
   /// Track notification interactions
   Future<void> trackNotificationEvent({
-    required String notificationType, // 'game_reminder', 'game_cancelled', 'new_game'
+    required String
+    notificationType, // 'game_reminder', 'game_cancelled', 'new_game'
     required String action, // 'received', 'opened', 'dismissed'
     String? gameId,
   }) async {
@@ -263,7 +264,8 @@ class AnalyticsService {
 
   /// Track user retention and lifecycle events
   Future<void> trackUserLifecycleEvent({
-    required String event, // 'app_opened', 'first_game_created', 'retention_day_7'
+    required String
+    event, // 'app_opened', 'first_game_created', 'retention_day_7'
     Map<String, dynamic>? additionalData,
   }) async {
     await _trackEvent('user_lifecycle', {
@@ -302,25 +304,30 @@ class AnalyticsService {
     double? averageSpending,
   }) async {
     final properties = <String, dynamic>{};
-    
+
     if (userId != null) properties['user_id'] = userId;
     if (gamesCreated != null) properties['games_created'] = gamesCreated;
     if (gamesJoined != null) properties['games_joined'] = gamesJoined;
     if (favoriteSports != null) properties['favorite_sports'] = favoriteSports;
     if (skillLevel != null) properties['skill_level'] = skillLevel;
-    if (preferredLocation != null) properties['preferred_location'] = preferredLocation;
-    if (averageSpending != null) properties['average_spending'] = averageSpending;
-    
+    if (preferredLocation != null)
+      properties['preferred_location'] = preferredLocation;
+    if (averageSpending != null)
+      properties['average_spending'] = averageSpending;
+
     await _setUserProperties(properties);
   }
 
   /// Internal method to track events
-  Future<void> _trackEvent(String eventName, Map<String, dynamic> parameters) async {
+  Future<void> _trackEvent(
+    String eventName,
+    Map<String, dynamic> parameters,
+  ) async {
     if (kDebugMode) {
       print('Analytics Event: $eventName');
       print('Parameters: $parameters');
     }
-    
+
     // Implement your analytics provider tracking here
     // Examples:
     // - Firebase Analytics: FirebaseAnalytics.instance.logEvent(name: eventName, parameters: parameters);
@@ -329,7 +336,10 @@ class AnalyticsService {
   }
 
   /// Public wrapper to track arbitrary events
-  Future<void> trackEvent(String eventName, Map<String, dynamic> parameters) async {
+  Future<void> trackEvent(
+    String eventName,
+    Map<String, dynamic> parameters,
+  ) async {
     await _trackEvent(eventName, parameters);
   }
 
@@ -338,7 +348,7 @@ class AnalyticsService {
     if (kDebugMode) {
       print('Analytics User Properties: $properties');
     }
-    
+
     // Implement your analytics provider user properties here
     // Examples:
     // - Firebase Analytics: FirebaseAnalytics.instance.setUserProperty(name: key, value: value);
@@ -380,34 +390,34 @@ class AnalyticsEvents {
   static const gameCreationVenueSelected = 'game_creation_venue_selected';
   static const gameCreationCompleted = 'game_creation_completed';
   static const gameCreationAbandoned = 'game_creation_abandoned';
-  
+
   // Game joining
   static const gameViewed = 'game_viewed';
   static const gameJoined = 'game_joined';
   static const gameJoinFailed = 'game_join_failed';
   static const gameWaitlisted = 'game_waitlisted';
-  
+
   // Search and discovery
   static const gamesSearched = 'games_searched';
   static const searchResultClicked = 'search_result_clicked';
   static const filterApplied = 'filter_applied';
-  
+
   // Check-in process
   static const checkInStarted = 'checkin_started';
   static const checkInCompleted = 'checkin_completed';
   static const checkInFailed = 'checkin_failed';
-  
+
   // Venue selection
   static const venueViewed = 'venue_viewed';
   static const venueSelected = 'venue_selected';
   static const venueBookingRequested = 'venue_booking_requested';
-  
+
   // Engagement
   static const gameShared = 'game_shared';
   static const gameBookmarked = 'game_bookmarked';
   static const gameReported = 'game_reported';
   static const gameRated = 'game_rated';
-  
+
   // User lifecycle
   static const userSignedUp = 'user_signed_up';
   static const userOnboardingCompleted = 'user_onboarding_completed';

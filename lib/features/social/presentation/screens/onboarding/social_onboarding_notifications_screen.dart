@@ -7,10 +7,12 @@ class SocialOnboardingNotificationsScreen extends StatefulWidget {
   const SocialOnboardingNotificationsScreen({super.key});
 
   @override
-  State<SocialOnboardingNotificationsScreen> createState() => _SocialOnboardingNotificationsScreenState();
+  State<SocialOnboardingNotificationsScreen> createState() =>
+      _SocialOnboardingNotificationsScreenState();
 }
 
-class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNotificationsScreen> {
+class _SocialOnboardingNotificationsScreenState
+    extends State<SocialOnboardingNotificationsScreen> {
   bool _friendRequests = true;
   bool _newMessages = true;
   bool _postLikes = true;
@@ -49,14 +51,14 @@ class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNo
                 const SizedBox(width: 12),
                 Text(
                   '4 of 4',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
             const SizedBox(height: 32),
-            
+
             // Header
             Icon(
               LucideIcons.bell,
@@ -64,23 +66,23 @@ class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNo
               color: Theme.of(context).primaryColor,
             ),
             const SizedBox(height: 24),
-            
+
             Text(
               'Stay Updated',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
+
             Text(
               'Choose what notifications you\'d like to receive. You can always adjust these in settings.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
-            
+
             // Notification Settings
             Expanded(
               child: ListView(
@@ -138,7 +140,7 @@ class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNo
                     },
                   ),
                   const SizedBox(height: 24),
-                  
+
                   Text(
                     'Games',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -170,7 +172,7 @@ class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNo
                     },
                   ),
                   const SizedBox(height: 24),
-                  
+
                   Text(
                     'Updates',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -193,7 +195,7 @@ class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNo
                 ],
               ),
             ),
-            
+
             // Action Buttons
             Row(
               children: [
@@ -231,10 +233,7 @@ class _SocialOnboardingNotificationsScreenState extends State<SocialOnboardingNo
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: SwitchListTile(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: Text(subtitle),
         value: value,
         onChanged: onChanged,

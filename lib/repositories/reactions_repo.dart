@@ -1,26 +1,141 @@
-// GENERATED repository stubs for table: reactions
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/reactions.dart';
 
 class ReactionsRepo {
-  final SupabaseClient _db;
-  ReactionsRepo(this._db);
+  final SupabaseClient _client;
+  ReactionsRepo({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client;
 
-  Future<List<Reactions>> list({int limit = 50, int offset = 0}) async {
-    final res = await _db.from('reactions')
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', ascending: false);
-    final list = (res as List).cast<Map<String, dynamic>>();
-    return list.map(Reactions.fromJson).toList();
+  /// Check if the current user has liked a post.
+  Future<bool> hasLikedPost(String postId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    final resp = await _client
+        .from('reactions')
+        .select('id')
+        .eq('post_id', postId)
+        .eq('user_id', user.id)
+        .eq('reaction_type', 'like')
+        .limit(1);
+
+    // resp is a List; check if not empty
+    return resp.isNotEmpty;
   }
 
-  Future<Reactions?> getById(dynamic id) async {
-    final res = await _db.from('reactions')
-      .select('*').eq('id', id).maybeSingle();
-    if (res == null) return null;
-    return Reactions.fromJson(res);
+  /// Add a like for the current user. Returns true if inserted.
+  Future<bool> likePost(String postId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) {
+      throw StateError('Not authenticated');
+    }
+
+    final insertPayload = {
+      'post_id': postId,
+      'user_id': user.id,
+      'reaction_type': 'like',
+    };
+
+    final resp = await _client
+        .from('reactions')
+        .insert(insertPayload)
+        .select('id')
+        .maybeSingle();
+
+    if (resp == null) return false;
+    return true;
   }
 
-  // TODO: add create/update/delete with correct columns & RLS rules
+  /// Remove the current user’s like. Returns true if a row was deleted.
+  Future<bool> unlikePost(String postId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) {
+      throw StateError('Not authenticated');
+    }
+
+    await _client
+        .from('reactions')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', user.id)
+        .eq('reaction_type', 'like');
+    // Supabase returns the deleted rows unless you disable returning; treat non-error as success.
+    return true;
+  }
+
+  /// Toggle like: if already liked → unlike; else like. Returns the new liked state.
+  Future<bool> toggleLikePost(String postId) async {
+    final already = await hasLikedPost(postId);
+    if (already) {
+      await unlikePost(postId);
+      return false;
+    } else {
+      await likePost(postId);
+      return true;
+    }
+  }
+
+  /// ----- Comment Reactions (like) -----
+
+  /// Check if the current user has liked a comment.
+  Future<bool> hasLikedComment(String commentId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    final resp = await _client
+        .from('reactions')
+        .select('id')
+        .eq('comment_id', commentId)
+        .eq('user_id', user.id)
+        .eq('reaction_type', 'like')
+        .limit(1);
+
+    return resp.isNotEmpty;
+  }
+
+  /// Add a like for the current user on a comment. Returns true if inserted.
+  Future<bool> likeComment(String commentId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw StateError('Not authenticated');
+
+    final insertPayload = {
+      'comment_id': commentId,
+      'user_id': user.id,
+      'reaction_type': 'like',
+    };
+
+    final resp = await _client
+        .from('reactions')
+        .insert(insertPayload)
+        .select('id')
+        .maybeSingle();
+
+    return resp != null;
+  }
+
+  /// Remove the current user’s like from a comment.
+  Future<bool> unlikeComment(String commentId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw StateError('Not authenticated');
+
+    await _client
+        .from('reactions')
+        .delete()
+        .eq('comment_id', commentId)
+        .eq('user_id', user.id)
+        .eq('reaction_type', 'like');
+
+    return true;
+  }
+
+  /// Toggle like on a comment. Returns the new liked state.
+  Future<bool> toggleLikeComment(String commentId) async {
+    final already = await hasLikedComment(commentId);
+    if (already) {
+      await unlikeComment(commentId);
+      return false;
+    } else {
+      await likeComment(commentId);
+      return true;
+    }
+  }
 }

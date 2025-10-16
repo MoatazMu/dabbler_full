@@ -148,21 +148,17 @@ class _RankIndicatorState extends State<RankIndicator>
       vsync: this,
     );
 
-    _rankAnimation = IntTween(
-      begin: math.max(1, widget.data.currentRank + 50),
-      end: widget.data.currentRank,
-    ).animate(CurvedAnimation(
-      parent: _rankController,
-      curve: Curves.easeOutCubic,
-    ));
+    _rankAnimation =
+        IntTween(
+          begin: math.max(1, widget.data.currentRank + 50),
+          end: widget.data.currentRank,
+        ).animate(
+          CurvedAnimation(parent: _rankController, curve: Curves.easeOutCubic),
+        );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
 
     _movementAnimation = CurvedAnimation(
       parent: _movementController,
@@ -177,7 +173,7 @@ class _RankIndicatorState extends State<RankIndicator>
     if (widget.enableAnimations) {
       _rankController.forward();
       _glowController.repeat(reverse: true);
-      
+
       Future.delayed(const Duration(milliseconds: 500), () {
         _movementController.forward();
       });
@@ -270,8 +266,9 @@ class _RankIndicatorState extends State<RankIndicator>
     final rank = widget.data.currentRank;
     final percentile = widget.data.percentileText;
     final category = widget.data.category;
-    
-    final message = 'Check out my leaderboard ranking! 📊\n'
+
+    final message =
+        'Check out my leaderboard ranking! 📊\n'
         '🏆 Rank #$rank in $category\n'
         '📈 $percentile performer\n'
         'Can you beat my score?';
@@ -298,7 +295,9 @@ class _RankIndicatorState extends State<RankIndicator>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: performanceColor.withOpacity(0.3 * _glowAnimation.value),
+                    color: performanceColor.withOpacity(
+                      0.3 * _glowAnimation.value,
+                    ),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -317,10 +316,7 @@ class _RankIndicatorState extends State<RankIndicator>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
-                      colors: [
-                        performanceColor.withOpacity(0.1),
-                        Colors.white,
-                      ],
+                      colors: [performanceColor.withOpacity(0.1), Colors.white],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -441,11 +437,7 @@ class _RankIndicatorState extends State<RankIndicator>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  _getMovementIcon(),
-                  color: movementColor,
-                  size: 32,
-                ),
+                Icon(_getMovementIcon(), color: movementColor, size: 32),
                 const SizedBox(height: 8),
                 Text(
                   widget.data.movementText,
@@ -468,25 +460,33 @@ class _RankIndicatorState extends State<RankIndicator>
     );
   }
 
-  Widget _buildStatsRow(ThemeData theme, Color performanceColor, Color tierColor) {
+  Widget _buildStatsRow(
+    ThemeData theme,
+    Color performanceColor,
+    Color tierColor,
+  ) {
     return Row(
       children: [
         if (widget.showPercentile)
-          Expanded(child: _buildStatCard(
-            title: 'PERCENTILE',
-            value: widget.data.percentileText,
-            color: performanceColor,
-            theme: theme,
-          )),
+          Expanded(
+            child: _buildStatCard(
+              title: 'PERCENTILE',
+              value: widget.data.percentileText,
+              color: performanceColor,
+              theme: theme,
+            ),
+          ),
         if (widget.showPercentile && widget.showTimeInRank)
           const SizedBox(width: 12),
         if (widget.showTimeInRank)
-          Expanded(child: _buildStatCard(
-            title: 'TIME IN RANK',
-            value: _formatDuration(widget.data.timeInCurrentRank),
-            color: Colors.grey[600]!,
-            theme: theme,
-          )),
+          Expanded(
+            child: _buildStatCard(
+              title: 'TIME IN RANK',
+              value: _formatDuration(widget.data.timeInCurrentRank),
+              color: Colors.grey[600]!,
+              theme: theme,
+            ),
+          ),
       ],
     );
   }
@@ -625,11 +625,11 @@ class RankChartPainter extends CustomPainter {
     for (int i = 0; i < history.length; i++) {
       final progress = i / (history.length - 1);
       final x = size.width * progress;
-      
+
       // Invert Y because lower rank is better
       final normalizedRank = (maxRank - history[i].rank) / rankRange;
       final y = size.height * (1 - normalizedRank);
-      
+
       points.add(Offset(x, y));
     }
 
@@ -669,7 +669,7 @@ class RankChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(RankChartPainter oldDelegate) {
     return animationProgress != oldDelegate.animationProgress ||
-           history != oldDelegate.history ||
-           color != oldDelegate.color;
+        history != oldDelegate.history ||
+        color != oldDelegate.color;
   }
 }

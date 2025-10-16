@@ -19,7 +19,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   late PageController _pageController;
   int _currentStep = 0;
   bool _hasUnsavedChanges = false;
-  
+
   // Game creation data
   final Map<String, dynamic> _gameData = {
     'sport': null,
@@ -139,10 +139,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       foregroundColor: Colors.black,
       actions: [
         if (_currentStep > 0 && _currentStep < 4)
-          TextButton(
-            onPressed: _saveDraft,
-            child: const Text('Save Draft'),
-          ),
+          TextButton(onPressed: _saveDraft, child: const Text('Save Draft')),
         if (_hasUnsavedChanges)
           PopupMenuButton(
             itemBuilder: (context) => [
@@ -186,7 +183,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
         children: List.generate(_stepTitles.length - 1, (index) {
           final isActive = index <= _currentStep;
           final isCompleted = index < _currentStep;
-          
+
           return Expanded(
             child: Row(
               children: [
@@ -201,16 +198,22 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                           color: isCompleted
                               ? Colors.green
                               : isActive
-                                  ? Colors.blue
-                                  : Colors.grey[300],
+                              ? Colors.blue
+                              : Colors.grey[300],
                         ),
                         child: Center(
                           child: isCompleted
-                              ? const Icon(Icons.check, color: Colors.white, size: 18)
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 18,
+                                )
                               : Text(
                                   '${index + 1}',
                                   style: TextStyle(
-                                    color: isActive ? Colors.white : Colors.grey[600],
+                                    color: isActive
+                                        ? Colors.white
+                                        : Colors.grey[600],
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                   ),
@@ -223,7 +226,9 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           color: isActive ? Colors.blue : Colors.grey[600],
-                          fontWeight: isActive ? FontWeight.w500 : FontWeight.normal,
+                          fontWeight: isActive
+                              ? FontWeight.w500
+                              : FontWeight.normal,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -308,15 +313,15 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       case 0:
         return _gameData['sport'] != null;
       case 1:
-        return _gameData['date'] != null && 
-               _gameData['startTime'] != null && 
-               _gameData['endTime'] != null;
+        return _gameData['date'] != null &&
+            _gameData['startTime'] != null &&
+            _gameData['endTime'] != null;
       case 2:
         return true; // Venue is optional
       case 3:
         return _gameData['title']?.isNotEmpty == true &&
-               _gameData['minPlayers'] != null &&
-               _gameData['maxPlayers'] != null;
+            _gameData['minPlayers'] != null &&
+            _gameData['maxPlayers'] != null;
       default:
         return false;
     }
@@ -367,7 +372,11 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     });
   }
 
-  void _onDateTimeSelected(DateTime date, TimeOfDay startTime, TimeOfDay endTime) {
+  void _onDateTimeSelected(
+    DateTime date,
+    TimeOfDay startTime,
+    TimeOfDay endTime,
+  ) {
     setState(() {
       _gameData['date'] = date;
       _gameData['startTime'] = startTime;
@@ -433,23 +442,28 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   void _onViewGame() {
     // After creation, send user to My Games with the new game pre-inserted
     final newGame = <String, dynamic>{
-      'id': _gameData['bookingId'] ?? _gameData['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      'id':
+          _gameData['bookingId'] ??
+          _gameData['id'] ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       'title': _gameData['title'] ?? '${_gameData['sport'] ?? 'Game'}',
       'sport': _gameData['sport'] ?? 'Game',
       'date': _gameData['date'] ?? DateTime.now(),
       'time': _gameData['time'] ?? _formatTime(_gameData['startTime']),
       'venue': _gameData['venue'] ?? {'name': 'TBD', 'distance': ''},
       'players': {
-        'current': (_gameData['minPlayers'] is int) ? _gameData['minPlayers'] : 1,
+        'current': (_gameData['minPlayers'] is int)
+            ? _gameData['minPlayers']
+            : 1,
         'max': (_gameData['maxPlayers'] is int) ? _gameData['maxPlayers'] : 10,
       },
       'isOrganizer': true,
       'status': 'confirmed',
     };
 
-  if (!mounted) return;
-  // Replace flow with My Games and pass the newly created game
-  context.go('/games/my-games', extra: {'newGame': newGame});
+    if (!mounted) return;
+    // Replace flow with My Games and pass the newly created game
+    context.go('/games/my-games', extra: {'newGame': newGame});
   }
 
   void _onGoHome() {
@@ -508,7 +522,9 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Data'),
-        content: const Text('Are you sure you want to clear all entered data? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to clear all entered data? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -543,7 +559,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Clear All', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Clear All',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -555,7 +574,9 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Exit Game Creation'),
-        content: const Text('You have unsaved changes. Are you sure you want to exit?'),
+        content: const Text(
+          'You have unsaved changes. Are you sure you want to exit?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -570,7 +591,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
               Navigator.pop(context, true);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Exit Without Saving', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Exit Without Saving',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

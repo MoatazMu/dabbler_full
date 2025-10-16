@@ -160,7 +160,9 @@ class GameSessionModel extends GameSession {
       status: _parseSessionStatus(json['status']),
       description: json['description'] as String?,
       rules: json['rules'] as String?,
-      scheduledStartTime: DateTime.parse(json['scheduled_start_time'] as String),
+      scheduledStartTime: DateTime.parse(
+        json['scheduled_start_time'] as String,
+      ),
       scheduledEndTime: DateTime.parse(json['scheduled_end_time'] as String),
       actualStartTime: json['actual_start_time'] != null
           ? DateTime.parse(json['actual_start_time'] as String)
@@ -185,8 +187,10 @@ class GameSessionModel extends GameSession {
       timeouts: (json['timeouts'] as List?)?.cast<String>() ?? [],
       currentPeriod: json['current_period'] as int?,
       totalPeriods: json['total_periods'] as int?,
-      requiredEquipment: (json['required_equipment'] as List?)?.cast<String>() ?? [],
-      providedEquipment: (json['provided_equipment'] as List?)?.cast<String>() ?? [],
+      requiredEquipment:
+          (json['required_equipment'] as List?)?.cast<String>() ?? [],
+      providedEquipment:
+          (json['provided_equipment'] as List?)?.cast<String>() ?? [],
       equipmentNotes: json['equipment_notes'] as String?,
       setupNotes: json['setup_notes'] as String?,
       refereeId: json['referee_id'] as String?,
@@ -197,11 +201,18 @@ class GameSessionModel extends GameSession {
       videos: (json['videos'] as List?)?.cast<String>() ?? [],
       streamingUrl: json['streaming_url'] as String?,
       isLiveStreaming: json['is_live_streaming'] as bool? ?? false,
-      checkedInPlayerIds: (json['checked_in_player_ids'] as List?)?.cast<String>() ?? [],
-      noShowPlayerIds: (json['no_show_player_ids'] as List?)?.cast<String>() ?? [],
-      injuredPlayerIds: (json['injured_player_ids'] as List?)?.cast<String>() ?? [],
-      playerCheckInTimes: _parsePlayerCheckInTimes(json['player_check_in_times']),
-      playerCheckOutTimes: _parsePlayerCheckInTimes(json['player_check_out_times']),
+      checkedInPlayerIds:
+          (json['checked_in_player_ids'] as List?)?.cast<String>() ?? [],
+      noShowPlayerIds:
+          (json['no_show_player_ids'] as List?)?.cast<String>() ?? [],
+      injuredPlayerIds:
+          (json['injured_player_ids'] as List?)?.cast<String>() ?? [],
+      playerCheckInTimes: _parsePlayerCheckInTimes(
+        json['player_check_in_times'],
+      ),
+      playerCheckOutTimes: _parsePlayerCheckInTimes(
+        json['player_check_out_times'],
+      ),
       sessionRating: (json['session_rating'] as num?)?.toDouble(),
       sessionFeedback: json['session_feedback'] as String?,
       issues: (json['issues'] as List?)?.cast<String>() ?? [],
@@ -221,58 +232,64 @@ class GameSessionModel extends GameSession {
 
   static SessionType _parseSessionType(dynamic typeData) {
     if (typeData == null) return SessionType.regular;
-    
+
     if (typeData is String) {
       try {
         return SessionType.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == typeData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              typeData.toLowerCase(),
           orElse: () => SessionType.regular,
         );
       } catch (e) {
         return SessionType.regular;
       }
     }
-    
+
     return SessionType.regular;
   }
 
   static SessionStatus _parseSessionStatus(dynamic statusData) {
     if (statusData == null) return SessionStatus.scheduled;
-    
+
     if (statusData is String) {
       try {
         return SessionStatus.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == statusData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              statusData.toLowerCase(),
           orElse: () => SessionStatus.scheduled,
         );
       } catch (e) {
         return SessionStatus.scheduled;
       }
     }
-    
+
     return SessionStatus.scheduled;
   }
 
   static WeatherCondition? _parseWeatherCondition(dynamic weatherData) {
     if (weatherData == null) return null;
-    
+
     if (weatherData is String) {
       try {
         return WeatherCondition.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == weatherData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              weatherData.toLowerCase(),
           orElse: () => WeatherCondition.sunny,
         );
       } catch (e) {
         return null;
       }
     }
-    
+
     return null;
   }
 
   static List<DateTime> _parseDateTimeList(dynamic listData) {
     if (listData == null) return [];
-    
+
     if (listData is List) {
       return listData
           .map((item) {
@@ -286,13 +303,13 @@ class GameSessionModel extends GameSession {
           .cast<DateTime>()
           .toList();
     }
-    
+
     return [];
   }
 
   static List<Score> _parseScoresList(dynamic scoresData) {
     if (scoresData == null) return [];
-    
+
     if (scoresData is List) {
       return scoresData
           .map((item) {
@@ -306,13 +323,13 @@ class GameSessionModel extends GameSession {
           .cast<Score>()
           .toList();
     }
-    
+
     return [];
   }
 
   static List<GameEvent> _parseEventsList(dynamic eventsData) {
     if (eventsData == null) return [];
-    
+
     if (eventsData is List) {
       return eventsData
           .map((item) {
@@ -326,13 +343,13 @@ class GameSessionModel extends GameSession {
           .cast<GameEvent>()
           .toList();
     }
-    
+
     return [];
   }
 
   static Map<String, DateTime> _parsePlayerCheckInTimes(dynamic timesData) {
     if (timesData == null) return {};
-    
+
     if (timesData is Map) {
       final result = <String, DateTime>{};
       for (final entry in timesData.entries) {
@@ -344,7 +361,7 @@ class GameSessionModel extends GameSession {
       }
       return result;
     }
-    
+
     return {};
   }
 
@@ -370,12 +387,16 @@ class GameSessionModel extends GameSession {
       'humidity': humidity,
       'wind_speed': windSpeed,
       'surface_condition': surfaceCondition,
-      'scores': scores.map((score) => ScoreModel.fromScore(score).toJson()).toList(),
+      'scores': scores
+          .map((score) => ScoreModel.fromScore(score).toJson())
+          .toList(),
       'winner_id': winnerId,
       'winner_name': winnerName,
       'is_draw': isDraw,
       'game_result': gameResult,
-      'events': events.map((event) => GameEventModel.fromGameEvent(event).toJson()).toList(),
+      'events': events
+          .map((event) => GameEventModel.fromGameEvent(event).toJson())
+          .toList(),
       'timeouts': timeouts,
       'current_period': currentPeriod,
       'total_periods': totalPeriods,
@@ -394,8 +415,12 @@ class GameSessionModel extends GameSession {
       'checked_in_player_ids': checkedInPlayerIds,
       'no_show_player_ids': noShowPlayerIds,
       'injured_player_ids': injuredPlayerIds,
-      'player_check_in_times': playerCheckInTimes.map((key, value) => MapEntry(key, value.toIso8601String())),
-      'player_check_out_times': playerCheckOutTimes.map((key, value) => MapEntry(key, value.toIso8601String())),
+      'player_check_in_times': playerCheckInTimes.map(
+        (key, value) => MapEntry(key, value.toIso8601String()),
+      ),
+      'player_check_out_times': playerCheckOutTimes.map(
+        (key, value) => MapEntry(key, value.toIso8601String()),
+      ),
       'session_rating': sessionRating,
       'session_feedback': sessionFeedback,
       'issues': issues,
@@ -460,12 +485,16 @@ class GameSessionModel extends GameSession {
       'humidity': humidity,
       'wind_speed': windSpeed,
       'surface_condition': surfaceCondition,
-      'scores': scores.map((score) => ScoreModel.fromScore(score).toJson()).toList(),
+      'scores': scores
+          .map((score) => ScoreModel.fromScore(score).toJson())
+          .toList(),
       'winner_id': winnerId,
       'winner_name': winnerName,
       'is_draw': isDraw,
       'game_result': gameResult,
-      'events': events.map((event) => GameEventModel.fromGameEvent(event).toJson()).toList(),
+      'events': events
+          .map((event) => GameEventModel.fromGameEvent(event).toJson())
+          .toList(),
       'timeouts': timeouts,
       'current_period': currentPeriod,
       'total_periods': totalPeriods,
@@ -484,8 +513,12 @@ class GameSessionModel extends GameSession {
       'checked_in_player_ids': checkedInPlayerIds,
       'no_show_player_ids': noShowPlayerIds,
       'injured_player_ids': injuredPlayerIds,
-      'player_check_in_times': playerCheckInTimes.map((key, value) => MapEntry(key, value.toIso8601String())),
-      'player_check_out_times': playerCheckOutTimes.map((key, value) => MapEntry(key, value.toIso8601String())),
+      'player_check_in_times': playerCheckInTimes.map(
+        (key, value) => MapEntry(key, value.toIso8601String()),
+      ),
+      'player_check_out_times': playerCheckOutTimes.map(
+        (key, value) => MapEntry(key, value.toIso8601String()),
+      ),
       'session_rating': sessionRating,
       'session_feedback': sessionFeedback,
       'issues': issues,
@@ -543,7 +576,7 @@ class GameSessionModel extends GameSession {
       final scheduled = scheduledDurationMinutesCalculated;
       final scheduledHours = scheduled ~/ 60;
       final scheduledMins = scheduled % 60;
-      
+
       return 'Actual: ${hours}h ${minutes}m (Scheduled: ${scheduledHours}h ${scheduledMins}m)';
     } else {
       final scheduled = scheduledDurationMinutesCalculated;
@@ -558,7 +591,7 @@ class GameSessionModel extends GameSession {
     final checkedIn = checkedInPlayerIds.length;
     final noShow = noShowPlayerIds.length;
     final injured = injuredPlayerIds.length;
-    
+
     return 'Participation: $checkedIn checked in, $noShow no-show, $injured injured';
   }
 
@@ -578,7 +611,9 @@ class GameSessionModel extends GameSession {
     }
     if (highlights.isNotEmpty) {
       if (buffer.isNotEmpty) buffer.write(' • ');
-      buffer.write('${highlights.length} highlight${highlights.length == 1 ? '' : 's'}');
+      buffer.write(
+        '${highlights.length} highlight${highlights.length == 1 ? '' : 's'}',
+      );
     }
     return buffer.isEmpty ? 'No issues or highlights' : buffer.toString();
   }
@@ -737,7 +772,8 @@ class GameSessionModel extends GameSession {
       scheduledEndTime: scheduledEndTime ?? this.scheduledEndTime,
       actualStartTime: actualStartTime ?? this.actualStartTime,
       actualEndTime: actualEndTime ?? this.actualEndTime,
-      scheduledDurationMinutes: scheduledDurationMinutes ?? this.scheduledDurationMinutes,
+      scheduledDurationMinutes:
+          scheduledDurationMinutes ?? this.scheduledDurationMinutes,
       pausedTimes: pausedTimes ?? this.pausedTimes,
       resumedTimes: resumedTimes ?? this.resumedTimes,
       weatherCondition: weatherCondition ?? this.weatherCondition,

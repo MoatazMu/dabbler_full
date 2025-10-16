@@ -4,7 +4,12 @@ class OtpInputField extends StatelessWidget {
   final void Function(String) onChanged;
   final bool isLoading;
   final String? error;
-  const OtpInputField({super.key, required this.onChanged, this.isLoading = false, this.error});
+  const OtpInputField({
+    super.key,
+    required this.onChanged,
+    this.isLoading = false,
+    this.error,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +25,11 @@ class OtpInputField extends StatelessWidget {
           ),
           onChanged: onChanged,
         ),
-        if (isLoading) const Padding(
-          padding: EdgeInsets.only(top: 8.0),
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
+        if (isLoading)
+          const Padding(
+            padding: EdgeInsets.only(top: 8.0),
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
       ],
     );
   }

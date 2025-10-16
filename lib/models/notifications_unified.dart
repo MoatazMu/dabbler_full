@@ -29,9 +29,9 @@ class NotificationsUnified {
       kind: json['kind'],
       data: json['data'],
       is_read: json['is_read'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

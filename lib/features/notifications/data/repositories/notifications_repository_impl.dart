@@ -12,26 +12,40 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   NotificationsRepositoryImpl(this.dataSource);
 
   @override
-  Future<Either<Failure, List<Notification>>> getNotifications(String userId) async {
+  Future<Either<Failure, List<Notification>>> getNotifications(
+    String userId,
+  ) async {
     try {
       final models = await dataSource.getNotifications(userId);
-      return Right(models.map((m) => m.toEntity()).toList().cast<Notification>());
+      return Right(
+        models.map((m) => m.toEntity()).toList().cast<Notification>(),
+      );
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to get notifications: ${e.toString()}'));
+      return Left(
+        ServerFailure(message: 'Failed to get notifications: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, List<Notification>>> getUnreadNotifications(String userId) async {
+  Future<Either<Failure, List<Notification>>> getUnreadNotifications(
+    String userId,
+  ) async {
     try {
       final models = await dataSource.getUnreadNotifications(userId);
-      return Right(models.map((m) => m.toEntity()).toList().cast<Notification>());
+      return Right(
+        models.map((m) => m.toEntity()).toList().cast<Notification>(),
+      );
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to get unread notifications: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to get unread notifications: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -41,12 +55,19 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     NotificationType type,
   ) async {
     try {
-      final models = await dataSource.getNotificationsByType(userId, type.value);
+      final models = await dataSource.getNotificationsByType(
+        userId,
+        type.value,
+      );
       return Right(models.map((m) => m.toEntity()).toList());
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to get notifications by type: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to get notifications by type: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -58,7 +79,11 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to mark notification as read: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to mark notification as read: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -70,19 +95,27 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to mark all as read: ${e.toString()}'));
+      return Left(
+        ServerFailure(message: 'Failed to mark all as read: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, void>> deleteNotification(String notificationId) async {
+  Future<Either<Failure, void>> deleteNotification(
+    String notificationId,
+  ) async {
     try {
       await dataSource.deleteNotification(notificationId);
       return const Right(null);
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to delete notification: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to delete notification: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -94,12 +127,18 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to delete all notifications: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to delete all notifications: ${e.toString()}',
+        ),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Notification>> createNotification(Notification notification) async {
+  Future<Either<Failure, Notification>> createNotification(
+    Notification notification,
+  ) async {
     try {
       final model = NotificationModel.fromEntity(notification);
       final result = await dataSource.createNotification(model);
@@ -107,7 +146,11 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     } on NotificationException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to create notification: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to create notification: ${e.toString()}',
+        ),
+      );
     }
   }
 }

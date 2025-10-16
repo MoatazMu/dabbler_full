@@ -2,26 +2,12 @@ import 'package:flutter/material.dart';
 
 class A11y {
   // Semantic wrappers
-  static Widget button({
-    required String label,
-    required Widget child,
-  }) {
-    return Semantics(
-      button: true,
-      label: label,
-      child: child,
-    );
+  static Widget button({required String label, required Widget child}) {
+    return Semantics(button: true, label: label, child: child);
   }
 
-  static Widget image({
-    required String label,
-    required Widget child,
-  }) {
-    return Semantics(
-      image: true,
-      label: label,
-      child: child,
-    );
+  static Widget image({required String label, required Widget child}) {
+    return Semantics(image: true, label: label, child: child);
   }
 
   static Widget liveRegion({
@@ -33,10 +19,7 @@ class A11y {
       container: true,
       liveRegion: true,
       label: label,
-      child: ExcludeSemantics(
-        excluding: !assertive,
-        child: child,
-      ),
+      child: ExcludeSemantics(excluding: !assertive, child: child),
     );
   }
 
@@ -46,9 +29,6 @@ class A11y {
   }
 
   static FocusTraversalGroup keyboardTraversal({required Widget child}) {
-    return FocusTraversalGroup(
-      policy: OrderedTraversalPolicy(),
-      child: child,
-    );
+    return FocusTraversalGroup(policy: OrderedTraversalPolicy(), child: child);
   }
 }

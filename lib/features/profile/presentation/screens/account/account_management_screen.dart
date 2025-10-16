@@ -6,10 +6,12 @@ class AccountManagementScreen extends ConsumerStatefulWidget {
   const AccountManagementScreen({super.key});
 
   @override
-  ConsumerState<AccountManagementScreen> createState() => _AccountManagementScreenState();
+  ConsumerState<AccountManagementScreen> createState() =>
+      _AccountManagementScreenState();
 }
 
-class _AccountManagementScreenState extends ConsumerState<AccountManagementScreen>
+class _AccountManagementScreenState
+    extends ConsumerState<AccountManagementScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -23,11 +25,7 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
 
   // Two-factor authentication
   bool _twoFactorEnabled = false;
-  final List<String> _backupCodes = [
-    'ABCD-1234',
-    'EFGH-5678',
-    'IJKL-9012',
-  ];
+  final List<String> _backupCodes = ['ABCD-1234', 'EFGH-5678', 'IJKL-9012'];
 
   // Linked accounts
   final Map<String, bool> _linkedAccounts = {
@@ -62,7 +60,7 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -71,13 +69,13 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -99,7 +97,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
             physics: const BouncingScrollPhysics(),
             slivers: [
               _buildAppBar(context),
-              SliverToBoxAdapter(child: _buildAccountInformationSection(context)),
+              SliverToBoxAdapter(
+                child: _buildAccountInformationSection(context),
+              ),
               SliverToBoxAdapter(child: _buildSecuritySection(context)),
               SliverToBoxAdapter(child: _buildLinkedAccountsSection(context)),
               SliverToBoxAdapter(child: _buildDataSection(context)),
@@ -126,9 +126,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           'Account Management',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
@@ -222,16 +222,16 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    Text(value, style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
               if (isVerified)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -253,7 +253,10 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                 )
               else
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -301,7 +304,7 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
       [
         _buildSecurityToggle(
           'Two-Factor Authentication',
-          _twoFactorEnabled 
+          _twoFactorEnabled
               ? 'Extra security enabled with authenticator app'
               : 'Add an extra layer of security',
           Icons.security_outlined,
@@ -331,7 +334,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: value ? Theme.of(context).primaryColor.withOpacity(0.3) : Colors.grey[300]!,
+          color: value
+              ? Theme.of(context).primaryColor.withOpacity(0.3)
+              : Colors.grey[300]!,
         ),
         color: value ? Theme.of(context).primaryColor.withOpacity(0.05) : null,
       ),
@@ -341,7 +346,7 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: value 
+              color: value
                   ? Theme.of(context).primaryColor.withOpacity(0.1)
                   : Colors.grey[100],
               borderRadius: BorderRadius.circular(8),
@@ -367,9 +372,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -411,9 +416,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
           const SizedBox(height: 8),
           Text(
             'Save these codes in a secure place. You can use them to access your account if you lose your authenticator device.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.blue[800],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.blue[800]),
           ),
           const SizedBox(height: 12),
           ...(_backupCodes.take(2).map((code) {
@@ -449,18 +454,14 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                 onPressed: _viewAllBackupCodes,
                 icon: const Icon(Icons.visibility, size: 16),
                 label: const Text('View All'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.blue),
               ),
               const SizedBox(width: 8),
               TextButton.icon(
                 onPressed: _regenerateBackupCodes,
                 icon: const Icon(Icons.refresh, size: 16),
                 label: const Text('Regenerate'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.blue),
               ),
             ],
           ),
@@ -478,9 +479,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
           children: [
             Text(
               'Recent Security Activity',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             TextButton(
               onPressed: _viewAllActivity,
@@ -503,7 +504,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: _getActivityColor(activity.activity).withOpacity(0.1),
+                    color: _getActivityColor(
+                      activity.activity,
+                    ).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -557,18 +560,18 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
           final platform = entry.key;
           final isLinked = entry.value;
           final platformData = _getPlatformData(platform);
-          
+
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isLinked 
+                color: isLinked
                     ? (platformData['color'] as Color).withOpacity(0.3)
                     : Colors.grey[300]!,
               ),
-              color: isLinked 
+              color: isLinked
                   ? (platformData['color'] as Color).withOpacity(0.05)
                   : null,
             ),
@@ -602,7 +605,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                       Text(
                         isLinked ? 'Connected' : 'Not connected',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isLinked ? Colors.green[700] : Colors.grey[600],
+                          color: isLinked
+                              ? Colors.green[700]
+                              : Colors.grey[600],
                         ),
                       ),
                     ],
@@ -611,10 +616,15 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                 ElevatedButton(
                   onPressed: () => _toggleLinkedAccount(platform, !isLinked),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isLinked ? Colors.grey[100] : platformData['color'],
+                    backgroundColor: isLinked
+                        ? Colors.grey[100]
+                        : platformData['color'],
                     foregroundColor: isLinked ? Colors.grey[700] : Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                   ),
                   child: Text(isLinked ? 'Disconnect' : 'Connect'),
                 ),
@@ -694,9 +704,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -714,9 +724,7 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -729,7 +737,11 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
             children: [
               Row(
                 children: [
-                  const Icon(Icons.warning_outlined, color: Colors.red, size: 24),
+                  const Icon(
+                    Icons.warning_outlined,
+                    color: Colors.red,
+                    size: 24,
+                  ),
                   const SizedBox(width: 12),
                   Text(
                     'Danger Zone',
@@ -743,9 +755,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
               const SizedBox(height: 8),
               Text(
                 'These actions are irreversible. Please proceed with caution.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.red[800],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.red[800]),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -771,14 +783,17 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, String description, List<Widget> children) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    String description,
+    List<Widget> children,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -786,16 +801,16 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 16),
               ...children,
@@ -809,13 +824,25 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
   Map<String, dynamic> _getPlatformData(String platform) {
     switch (platform) {
       case 'google':
-        return {'name': 'Google', 'icon': Icons.g_mobiledata, 'color': Colors.red};
+        return {
+          'name': 'Google',
+          'icon': Icons.g_mobiledata,
+          'color': Colors.red,
+        };
       case 'apple':
         return {'name': 'Apple', 'icon': Icons.apple, 'color': Colors.black};
       case 'facebook':
-        return {'name': 'Facebook', 'icon': Icons.facebook, 'color': Colors.blue};
+        return {
+          'name': 'Facebook',
+          'icon': Icons.facebook,
+          'color': Colors.blue,
+        };
       case 'twitter':
-        return {'name': 'Twitter', 'icon': Icons.flutter_dash, 'color': Colors.lightBlue};
+        return {
+          'name': 'Twitter',
+          'icon': Icons.flutter_dash,
+          'color': Colors.lightBlue,
+        };
       default:
         return {'name': platform, 'icon': Icons.link, 'color': Colors.grey};
     }
@@ -838,7 +865,7 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
   String _formatActivityDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
     } else if (difference.inHours > 0) {
@@ -851,14 +878,18 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
   void _changeEmail() {
     // Implement email change logic
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Email change feature would be implemented here')),
+      const SnackBar(
+        content: Text('Email change feature would be implemented here'),
+      ),
     );
   }
 
   void _changePhone() {
     // Implement phone change logic
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Phone change feature would be implemented here')),
+      const SnackBar(
+        content: Text('Phone change feature would be implemented here'),
+      ),
     );
   }
 
@@ -882,7 +913,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
 
   void _changePassword() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Password change feature would be implemented here')),
+      const SnackBar(
+        content: Text('Password change feature would be implemented here'),
+      ),
     );
   }
 
@@ -890,10 +923,14 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
     setState(() {
       _twoFactorEnabled = value;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(value ? 'Two-factor authentication enabled' : 'Two-factor authentication disabled'),
+        content: Text(
+          value
+              ? 'Two-factor authentication enabled'
+              : 'Two-factor authentication disabled',
+        ),
         backgroundColor: value ? Colors.green : Colors.orange,
       ),
     );
@@ -932,7 +969,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Regenerate Backup Codes'),
-        content: const Text('This will invalidate your current backup codes and generate new ones. Make sure to save the new codes.'),
+        content: const Text(
+          'This will invalidate your current backup codes and generate new ones. Make sure to save the new codes.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -965,10 +1004,12 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
     setState(() {
       _linkedAccounts[platform] = link;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${_getPlatformData(platform)['name']} ${link ? 'connected' : 'disconnected'}'),
+        content: Text(
+          '${_getPlatformData(platform)['name']} ${link ? 'connected' : 'disconnected'}',
+        ),
         backgroundColor: link ? Colors.green : Colors.orange,
       ),
     );
@@ -977,7 +1018,9 @@ class _AccountManagementScreenState extends ConsumerState<AccountManagementScree
   void _exportData() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Data export started. You\'ll receive an email when ready.'),
+        content: Text(
+          'Data export started. You\'ll receive an email when ready.',
+        ),
         backgroundColor: Colors.blue,
       ),
     );

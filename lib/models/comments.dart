@@ -31,12 +31,12 @@ class Comments {
       content: json['content'],
       likes_count: json['likes_count'],
       is_deleted: json['is_deleted'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

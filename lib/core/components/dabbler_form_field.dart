@@ -35,7 +35,7 @@ class DabblerFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -74,14 +74,19 @@ class DabblerFormField extends StatelessWidget {
             enabledBorder: _getBorder(theme),
             focusedBorder: _getBorder(theme, isFocused: true),
             errorBorder: _getBorder(theme, hasError: true),
-            focusedErrorBorder: _getBorder(theme, hasError: true, isFocused: true),
+            focusedErrorBorder: _getBorder(
+              theme,
+              hasError: true,
+              isFocused: true,
+            ),
           ),
         ),
       ],
     );
   }
 
-  OutlineInputBorder _getBorder(ThemeData theme, {
+  OutlineInputBorder _getBorder(
+    ThemeData theme, {
     bool isFocused = false,
     bool hasError = false,
   }) {
@@ -91,8 +96,8 @@ class DabblerFormField extends StatelessWidget {
         color: hasError
             ? DabblerColors.error
             : isFocused
-                ? DabblerColors.primary
-                : theme.dividerColor,
+            ? DabblerColors.primary
+            : theme.dividerColor,
         width: isFocused ? 2 : 1,
       ),
     );

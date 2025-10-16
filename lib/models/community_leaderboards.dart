@@ -61,20 +61,24 @@ class CommunityLeaderboards {
       skill_level_max: json['skill_level_max'],
       age_min: json['age_min'],
       age_max: json['age_max'],
-    period_start: json['period_start'] != null
-      ? DateTime.parse(json['period_start'] as String)
-      : DateTime.now(),
-    period_end: json['period_end'] != null
-      ? DateTime.parse(json['period_end'] as String)
-      : DateTime.now(),
+      period_start: json['period_start'] != null
+          ? DateTime.parse(json['period_start'] as String)
+          : DateTime.now(),
+      period_end: json['period_end'] != null
+          ? DateTime.parse(json['period_end'] as String)
+          : DateTime.now(),
       min_activities: json['min_activities'],
       scoring_method: json['scoring_method'],
       is_active: json['is_active'],
-      last_calculated: (json['last_calculated'] == null ? null : DateTime.parse(json['last_calculated'] as String)),
-      next_calculation: (json['next_calculation'] == null ? null : DateTime.parse(json['next_calculation'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      last_calculated: (json['last_calculated'] == null
+          ? null
+          : DateTime.parse(json['last_calculated'] as String)),
+      next_calculation: (json['next_calculation'] == null
+          ? null
+          : DateTime.parse(json['next_calculation'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

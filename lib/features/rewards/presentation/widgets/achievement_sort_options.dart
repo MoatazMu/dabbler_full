@@ -39,11 +39,7 @@ class AchievementSortOptions extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.sort,
-                color: Theme.of(context).primaryColor,
-                size: 20,
-              ),
+              Icon(Icons.sort, color: Theme.of(context).primaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Sort By',
@@ -61,9 +57,9 @@ class AchievementSortOptions extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Points section
           _buildSectionHeader('Points'),
           _buildSortOption(
@@ -78,9 +74,9 @@ class AchievementSortOptions extends StatelessWidget {
             option: AchievementSortOption.pointsLowToHigh,
             icon: Icons.trending_down,
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Rarity section
           _buildSectionHeader('Rarity'),
           _buildSortOption(
@@ -95,10 +91,10 @@ class AchievementSortOptions extends StatelessWidget {
             option: AchievementSortOption.rarityCommonToRare,
             icon: Icons.groups,
           ),
-          
+
           if (showProgressOptions) ...[
             const SizedBox(height: 16),
-            
+
             // Progress section
             _buildSectionHeader('Progress'),
             _buildSortOption(
@@ -114,9 +110,9 @@ class AchievementSortOptions extends StatelessWidget {
               icon: Icons.play_arrow,
             ),
           ],
-          
+
           const SizedBox(height: 16),
-          
+
           // Name section
           _buildSectionHeader('Name'),
           _buildSortOption(
@@ -131,9 +127,9 @@ class AchievementSortOptions extends StatelessWidget {
             option: AchievementSortOption.nameZToA,
             icon: Icons.sort_by_alpha,
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Category section
           _buildSectionHeader('Category'),
           _buildSortOption(
@@ -142,10 +138,10 @@ class AchievementSortOptions extends StatelessWidget {
             option: AchievementSortOption.categoryGrouped,
             icon: Icons.category,
           ),
-          
+
           if (showDateOptions) ...[
             const SizedBox(height: 16),
-            
+
             // Date section
             _buildSectionHeader('Date Earned'),
             _buildSortOption(
@@ -189,7 +185,7 @@ class AchievementSortOptions extends StatelessWidget {
     return Builder(
       builder: (BuildContext context) {
         final isSelected = currentSort == option;
-        
+
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
           child: Material(
@@ -200,13 +196,13 @@ class AchievementSortOptions extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isSelected 
-                      ? Theme.of(context).primaryColor.withOpacity(0.1) 
+                  color: isSelected
+                      ? Theme.of(context).primaryColor.withOpacity(0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected 
-                        ? Theme.of(context).primaryColor 
+                    color: isSelected
+                        ? Theme.of(context).primaryColor
                         : Colors.grey.withOpacity(0.2),
                   ),
                 ),
@@ -215,8 +211,8 @@ class AchievementSortOptions extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isSelected 
-                            ? Theme.of(context).primaryColor 
+                        color: isSelected
+                            ? Theme.of(context).primaryColor
                             : Colors.grey.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -226,9 +222,9 @@ class AchievementSortOptions extends StatelessWidget {
                         color: isSelected ? Colors.white : Colors.grey[600],
                       ),
                     ),
-                    
+
                     const SizedBox(width: 16),
-                    
+
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,8 +234,8 @@ class AchievementSortOptions extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: isSelected 
-                                  ? Theme.of(context).primaryColor 
+                              color: isSelected
+                                  ? Theme.of(context).primaryColor
                                   : Colors.black87,
                             ),
                           ),
@@ -254,7 +250,7 @@ class AchievementSortOptions extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     if (isSelected)
                       Container(
                         padding: const EdgeInsets.all(4),
@@ -267,12 +263,11 @@ class AchievementSortOptions extends StatelessWidget {
                           size: 16,
                           color: Colors.white,
                         ),
-                      ).animate()
-                        .scale(
-                          begin: const Offset(0.5, 0.5),
-                          end: const Offset(1.0, 1.0),
-                          duration: 200.ms,
-                        ),
+                      ).animate().scale(
+                        begin: const Offset(0.5, 0.5),
+                        end: const Offset(1.0, 1.0),
+                        duration: 200.ms,
+                      ),
                   ],
                 ),
               ),
@@ -327,20 +322,11 @@ class AchievementSortOptions extends StatelessWidget {
           icon: Icons.sort_by_alpha,
         );
       case AchievementSortOption.categoryGrouped:
-        return SortOptionInfo(
-          title: 'Category',
-          icon: Icons.category,
-        );
+        return SortOptionInfo(title: 'Category', icon: Icons.category);
       case AchievementSortOption.dateEarnedNewest:
-        return SortOptionInfo(
-          title: 'Recently Earned',
-          icon: Icons.schedule,
-        );
+        return SortOptionInfo(title: 'Recently Earned', icon: Icons.schedule);
       case AchievementSortOption.dateEarnedOldest:
-        return SortOptionInfo(
-          title: 'Oldest Earned',
-          icon: Icons.history,
-        );
+        return SortOptionInfo(title: 'Oldest Earned', icon: Icons.history);
     }
   }
 }
@@ -349,10 +335,7 @@ class SortOptionInfo {
   final String title;
   final IconData icon;
 
-  const SortOptionInfo({
-    required this.title,
-    required this.icon,
-  });
+  const SortOptionInfo({required this.title, required this.icon});
 }
 
 // Quick sort button for inline use
@@ -371,7 +354,7 @@ class QuickSortButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentInfo = AchievementSortOptions.getSortInfo(currentSort);
-    
+
     return PopupMenuButton<AchievementSortOption>(
       onSelected: onSortChanged,
       child: Container(
@@ -384,11 +367,7 @@ class QuickSortButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              currentInfo.icon,
-              size: 16,
-              color: Colors.grey[700],
-            ),
+            Icon(currentInfo.icon, size: 16, color: Colors.grey[700]),
             const SizedBox(width: 6),
             Text(
               currentInfo.title,
@@ -399,11 +378,7 @@ class QuickSortButton extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 16,
-              color: Colors.grey[700],
-            ),
+            Icon(Icons.arrow_drop_down, size: 16, color: Colors.grey[700]),
           ],
         ),
       ),
@@ -416,19 +391,19 @@ class QuickSortButton extends StatelessWidget {
               Icon(
                 info.icon,
                 size: 16,
-                color: currentSort == option 
-                    ? Theme.of(context).primaryColor 
+                color: currentSort == option
+                    ? Theme.of(context).primaryColor
                     : Colors.grey[600],
               ),
               const SizedBox(width: 12),
               Text(
                 info.title,
                 style: TextStyle(
-                  fontWeight: currentSort == option 
-                      ? FontWeight.w600 
+                  fontWeight: currentSort == option
+                      ? FontWeight.w600
                       : FontWeight.normal,
-                  color: currentSort == option 
-                      ? Theme.of(context).primaryColor 
+                  color: currentSort == option
+                      ? Theme.of(context).primaryColor
                       : null,
                 ),
               ),

@@ -55,39 +55,41 @@ class MockUserService {
     String? gender,
   }) async {
     await _initializeProfile();
-    
+
     if (name != null) _userProfile!['name'] = name;
     if (age != null) _userProfile!['age'] = age;
     if (gender != null) _userProfile!['gender'] = gender;
     _userProfile!['updated_at'] = DateTime.now().toIso8601String();
-    
+
     await _saveProfile();
   }
 
   // Update user sports
   Future<void> updateUserSports(List<String> sports) async {
     await _initializeProfile();
-    
+
     _userProfile!['sports'] = sports;
     _userProfile!['updated_at'] = DateTime.now().toIso8601String();
-    
+
     await _saveProfile();
   }
 
   // Update user intent
   Future<void> updateUserIntent(String intent) async {
     await _initializeProfile();
-    
+
     _userProfile!['intent'] = intent;
     _userProfile!['updated_at'] = DateTime.now().toIso8601String();
-    
+
     await _saveProfile();
   }
 
   // Complete registration
-  Future<void> completeRegistration(Map<String, dynamic> registrationData) async {
+  Future<void> completeRegistration(
+    Map<String, dynamic> registrationData,
+  ) async {
     await _initializeProfile();
-    
+
     // Update profile with registration data
     if (registrationData['display_name'] != null) {
       _userProfile!['display_name'] = registrationData['display_name'];
@@ -107,9 +109,9 @@ class MockUserService {
     if (registrationData['email'] != null) {
       _userProfile!['email'] = registrationData['email'];
     }
-    
+
     _userProfile!['updated_at'] = DateTime.now().toIso8601String();
-    
+
     await _saveProfile();
   }
 
@@ -119,4 +121,4 @@ class MockUserService {
     await prefs.remove(_userProfileKey);
     _userProfile = null;
   }
-} 
+}

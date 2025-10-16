@@ -4,20 +4,28 @@ import 'badge_tier.dart';
 enum AchievementType {
   /// One-time achievements
   single,
+
   /// Achievements that accumulate over time
   cumulative,
+
   /// Streak-based achievements
   streak,
+
   /// Conditional achievements based on specific criteria
   conditional,
+
   /// Hidden achievements not shown until unlocked
   hidden,
+
   /// Standard repeatable achievements
   standard,
+
   /// Milestone achievements for major progress markers
   milestone,
+
   /// Social interaction achievements
   social,
+
   /// Challenge-based achievements
   challenge;
 
@@ -43,25 +51,31 @@ enum AchievementType {
 enum AchievementCategory {
   /// Gaming-related achievements
   gaming,
+
   /// Social interaction achievements
   social,
+
   /// Profile completion achievements
   profile,
+
   /// Venue/location based achievements
   venue,
+
   /// Engagement and participation achievements
   engagement,
+
   /// Special events and limited-time achievements
   special,
+
   /// Game participation achievements
   gameParticipation,
+
   /// Skill and performance achievements
   skillPerformance,
+
   /// Milestone achievements
   milestone,
 }
-
-
 
 /// Achievement entity representing a reward milestone
 class Achievement {
@@ -106,33 +120,34 @@ class Achievement {
   /// Checks if the achievement is currently available
   bool isAvailable() {
     if (!isActive) return false;
-    
+
     final now = DateTime.now();
-    
+
     // Check if achievement is within availability window
     if (availableFrom != null && now.isBefore(availableFrom!)) {
       return false;
     }
-    
+
     if (availableUntil != null && now.isAfter(availableUntil!)) {
       return false;
     }
-    
+
     return true;
   }
 
   /// Checks if all prerequisites are met
   bool meetsPrerequisites(List<String> completedAchievements) {
     if (prerequisites.isEmpty) return true;
-    
-    return prerequisites.every((prerequisite) => 
-        completedAchievements.contains(prerequisite));
+
+    return prerequisites.every(
+      (prerequisite) => completedAchievements.contains(prerequisite),
+    );
   }
 
   /// Gets formatted criteria description for display
   String getFormattedCriteria() {
     final buffer = StringBuffer();
-    
+
     switch (type) {
       case AchievementType.single:
         buffer.write('Complete: ');
@@ -166,19 +181,19 @@ class Achievement {
     if (criteria.containsKey('count')) {
       buffer.write('${criteria['count']} times');
     }
-    
+
     if (criteria.containsKey('duration')) {
       buffer.write(' over ${criteria['duration']} days');
     }
-    
+
     if (criteria.containsKey('sport')) {
       buffer.write(' in ${criteria['sport']}');
     }
-    
+
     if (criteria.containsKey('score_threshold')) {
       buffer.write(' with score ≥ ${criteria['score_threshold']}');
     }
-    
+
     if (criteria.containsKey('ranking')) {
       buffer.write(' ranking #${criteria['ranking']} or better');
     }
@@ -282,7 +297,7 @@ class Achievement {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is Achievement &&
         other.id == id &&
         other.code == code &&

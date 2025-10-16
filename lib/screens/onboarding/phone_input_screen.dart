@@ -24,18 +24,18 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
   @override
   void initState() {
     super.initState();
-  // ...existing code...
+    // ...existing code...
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-  // ...existing code...
+    // ...existing code...
   }
 
   @override
   void dispose() {
-  // ...existing code...
+    // ...existing code...
     _phoneController.dispose();
     super.dispose();
   }
@@ -61,48 +61,48 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    
-  // ...existing code...
-    
+
+    // ...existing code...
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _successMessage = null;
     });
-    
+
     final phone = '$_countryCode${_phoneController.text.trim()}';
-  // ...existing code...
-    
+    // ...existing code...
+
     try {
-  // ...existing code...
-      
+      // ...existing code...
+
       // Check if user exists first
-  // ...existing code...
+      // ...existing code...
       try {
         final authService = AuthService();
-  // ...existing code...
-        
+        // ...existing code...
+
         final userExists = await authService.checkUserExistsByPhone(phone);
-  // ...existing code...
-        
+        // ...existing code...
+
         if (userExists) {
           // ...existing code...
         } else {
           // ...existing code...
         }
-        
+
         // Send OTP regardless of user existence
-  // ...existing code...
+        // ...existing code...
         await authService.signInWithPhone(phone: phone);
-  // ...existing code...
-        
+        // ...existing code...
+
         if (mounted) {
           setState(() {
             _successMessage = 'OTP sent! Please check your phone.';
           });
         }
       } catch (dbError) {
-  // ...existing code...
+        // ...existing code...
         if (mounted) {
           setState(() {
             _errorMessage = 'Service error: ${dbError.toString()}';
@@ -111,7 +111,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
         return; // Don't navigate if there's an error
       }
     } catch (e) {
-  // ...existing code...
+      // ...existing code...
       if (mounted) {
         setState(() {
           _errorMessage = 'Failed to send OTP. Please try again.';
@@ -125,15 +125,15 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
         });
       }
     }
-    
+
     // Navigate to OTP verification screen only if everything succeeded
-  // ...existing code...
+    // ...existing code...
     if (mounted) {
       try {
         context.push(RoutePaths.otpVerification, extra: {'phone': phone});
-  // ...existing code...
+        // ...existing code...
       } catch (navError) {
-  // ...existing code...
+        // ...existing code...
         if (mounted) {
           setState(() {
             _errorMessage = 'Navigation failed: ${navError.toString()}';
@@ -145,8 +145,8 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-  // ...existing code...
-    
+    // ...existing code...
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
@@ -190,7 +190,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              
+
               // Simple phone input
               Form(
                 key: _formKey,
@@ -206,42 +206,50 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                   validator: _validatePhone,
                 ),
               ),
-              
+
               const SizedBox(height: 36),
-              
+
               // Continue button
               ElevatedButton(
-                onPressed: _isLoading ? null : () {
-                  // ...existing code...
-                  // ...existing code...
-                  
-                  _handleSubmit();
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        // ...existing code...
+                        // ...existing code...
+
+                        _handleSubmit();
+                      },
                 child: Text(_isLoading ? 'Sending...' : 'Continue'),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               OutlinedButton(
                 onPressed: () async {
                   // ...existing code...
                   // ...existing code...
-                  
+
                   // Sign in as guest first
                   try {
                     // ...existing code...
                     final guestSignIn = ref.read(guestSignInProvider);
                     await guestSignIn();
                     // ...existing code...
-                    
+
                     // Then navigate to home
                     if (mounted) {
-                      debugPrint('👤 [DEBUG] PhoneInputScreen: Navigating to home...');
+                      debugPrint(
+                        '👤 [DEBUG] PhoneInputScreen: Navigating to home...',
+                      );
                       context.go(RoutePaths.home);
-                      debugPrint('👤 [DEBUG] PhoneInputScreen: Navigation successful');
+                      debugPrint(
+                        '👤 [DEBUG] PhoneInputScreen: Navigation successful',
+                      );
                     }
                   } catch (e) {
-                    debugPrint('❌ [DEBUG] PhoneInputScreen: Guest sign in or navigation error: $e');
+                    debugPrint(
+                      '❌ [DEBUG] PhoneInputScreen: Guest sign in or navigation error: $e',
+                    );
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Guest sign in failed: $e')),
@@ -251,21 +259,31 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 },
                 child: const Text('Continue as Guest'),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               OutlinedButton(
                 onPressed: () {
-                  debugPrint('📧 [DEBUG] PhoneInputScreen: Email button pressed');
-                  debugPrint('📧 [DEBUG] PhoneInputScreen: Button state - mounted: $mounted');
-                  
+                  debugPrint(
+                    '📧 [DEBUG] PhoneInputScreen: Email button pressed',
+                  );
+                  debugPrint(
+                    '📧 [DEBUG] PhoneInputScreen: Button state - mounted: $mounted',
+                  );
+
                   // Navigate to email input
                   try {
-                    debugPrint('📧 [DEBUG] PhoneInputScreen: Navigating to email input...');
+                    debugPrint(
+                      '📧 [DEBUG] PhoneInputScreen: Navigating to email input...',
+                    );
                     context.go(RoutePaths.emailInput);
-                    debugPrint('📧 [DEBUG] PhoneInputScreen: Navigation successful');
+                    debugPrint(
+                      '📧 [DEBUG] PhoneInputScreen: Navigation successful',
+                    );
                   } catch (e) {
-                    debugPrint('❌ [DEBUG] PhoneInputScreen: Navigation error: $e');
+                    debugPrint(
+                      '❌ [DEBUG] PhoneInputScreen: Navigation error: $e',
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Navigation failed: $e')),
                     );
@@ -273,22 +291,28 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 },
                 child: const Text('Continue using Email'),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Debug info
               if (_errorMessage != null)
                 Container(
                   padding: const EdgeInsets.all(12),
                   color: Colors.red.withOpacity(0.1),
-                  child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-              
+
               if (_successMessage != null)
                 Container(
                   padding: const EdgeInsets.all(12),
                   color: Colors.green.withOpacity(0.1),
-                  child: Text(_successMessage!, style: const TextStyle(color: Colors.green)),
+                  child: Text(
+                    _successMessage!,
+                    style: const TextStyle(color: Colors.green),
+                  ),
                 ),
             ],
           ),

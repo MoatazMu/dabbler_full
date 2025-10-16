@@ -5,10 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 class PostDetailScreen extends StatelessWidget {
   final String postId;
 
-  const PostDetailScreen({
-    super.key,
-    required this.postId,
-  });
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
   Widget build(BuildContext context) {
@@ -54,29 +51,27 @@ class PostDetailScreen extends StatelessWidget {
                           children: [
                             Text(
                               'User Name',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '2 hours ago',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey),
                             ),
                           ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Post Content
                     Text(
                       'This is post content for post ID: $postId\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Post Image (placeholder)
                     Container(
                       width: double.infinity,
@@ -92,7 +87,7 @@ class PostDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Action Buttons
                     Row(
                       children: [
@@ -120,20 +115,20 @@ class PostDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Comments Section
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'Comments',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          
+
           // Comments List
           SliverList(
             delegate: SliverChildBuilderDelegate(
@@ -145,12 +140,14 @@ class PostDetailScreen extends StatelessWidget {
                     child: Icon(LucideIcons.user, size: 16),
                   ),
                   title: Text('Commenter ${index + 1}'),
-                  subtitle: Text('This is a comment on the post. Comment ${index + 1}'),
+                  subtitle: Text(
+                    'This is a comment on the post. Comment ${index + 1}',
+                  ),
                   trailing: Text(
                     '${index + 1}h',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                 ),
               ),
@@ -159,7 +156,7 @@ class PostDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      
+
       // Comment Input
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(
@@ -170,12 +167,7 @@ class PostDetailScreen extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
-          border: Border(
-            top: BorderSide(
-              color: Colors.grey[300]!,
-              width: 0.5,
-            ),
-          ),
+          border: Border(top: BorderSide(color: Colors.grey[300]!, width: 0.5)),
         ),
         child: Row(
           children: [

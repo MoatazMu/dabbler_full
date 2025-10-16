@@ -58,9 +58,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (user == null) return; // only after auth
     _didDemoFeed = true;
     // Fire and forget; logs to console for validation
-    feed_example
-        .demoFetchFeed()
-        .catchError((e, st) => debugPrint('demoFetchFeed error: $e'));
+    feed_example.demoFetchFeed().catchError(
+      (e, st) => debugPrint('demoFetchFeed error: $e'),
+    );
   }
 
   String _getGreeting() {
@@ -77,10 +77,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     // Get display name from users table - NO FALLBACK to 'Player'
-    final displayName = _userProfile?['display_name'] != null && (_userProfile!['display_name'] as String).isNotEmpty
+    final displayName =
+        _userProfile?['display_name'] != null &&
+            (_userProfile!['display_name'] as String).isNotEmpty
         ? (_userProfile!['display_name'] as String).split(' ').first
         : null;
-    
+
     return Scaffold(
       // Transparent so the global AppBackground gradient is visible
       backgroundColor: Colors.transparent,
@@ -100,7 +102,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       context.go(RoutePaths.rewards);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
@@ -116,11 +121,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Iconsax.cup_copy,
-                            size: 20,
-                            color: Colors.white,
-                          ),
+                          Icon(Iconsax.cup_copy, size: 20, color: Colors.white),
                           const SizedBox(width: 8),
                           const Text(
                             'Silver',
@@ -137,7 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ),
-                  
+
                   // Notification Icon
                   GestureDetector(
                     onTap: () {
@@ -163,7 +164,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Greeting and Avatar Row
               Row(
                 children: [
@@ -206,14 +207,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       imageUrlOrAsset: _userProfile?['avatar_url'],
                       radius: 28,
                       fallbackIcon: Icons.person,
-                      backgroundColor: context.colors.primary.withValues(alpha: 0.1),
+                      backgroundColor: context.colors.primary.withValues(
+                        alpha: 0.1,
+                      ),
                       fallbackColor: context.colors.primary,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 32),
-              
+
               // Thoughts Input
               ThoughtsInput(
                 onTap: () {
@@ -222,7 +225,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              
+
               // Category Buttons
               CategoryButtons(
                 onCommunityTap: () {
@@ -236,11 +239,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              
+
               // Upcoming Game Card (from Supabase)
               _buildUpcomingGameSection(),
               const SizedBox(height: 24),
-              
+
               // Action Cards
               ActionCards(
                 onCreateGameTap: () {
@@ -250,7 +253,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   context.go(RoutePaths.explore);
                 },
               ),
-              
+
               const Spacer(),
             ],
           ),
@@ -262,14 +265,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Builds the upcoming game section with real Supabase data
   Widget _buildUpcomingGameSection() {
     final nextGameAsync = ref.watch(nextUpcomingGameProvider);
-    
+
     return nextGameAsync.when(
       data: (game) {
         if (game == null) {
           // No upcoming games - show empty state
           return _buildEmptyGameState();
         }
-        
+
         // Calculate countdown
         final now = DateTime.now();
         final gameDateTime = DateTime(
@@ -280,22 +283,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _parseTime(game.startTime).minute,
         );
         final difference = gameDateTime.difference(now);
-        
+
         String countdownLabel;
         if (difference.inDays > 0) {
           countdownLabel = '${difference.inDays}d ${difference.inHours % 24}h';
         } else if (difference.inHours > 0) {
-          countdownLabel = '${difference.inHours}h ${difference.inMinutes % 60}m';
+          countdownLabel =
+              '${difference.inHours}h ${difference.inMinutes % 60}m';
         } else if (difference.inMinutes > 0) {
           countdownLabel = '${difference.inMinutes}m';
         } else {
           countdownLabel = 'Starting soon!';
         }
-        
+
         // Format date
         final dateFormat = DateFormat('EEE, MMM dd');
         final formattedDate = dateFormat.format(game.scheduledDate);
-        
+
         return GameCard(
           countdownLabel: countdownLabel,
           title: game.title,
@@ -327,10 +331,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -378,9 +379,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         color: const Color(0xFF301C4D).withOpacity(0.3),
       ),
       child: Center(
-        child: CircularProgressIndicator(
-          color: Colors.white.withOpacity(0.5),
-        ),
+        child: CircularProgressIndicator(color: Colors.white.withOpacity(0.5)),
       ),
     );
   }
@@ -391,10 +390,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.red.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.red.withOpacity(0.3), width: 1),
         color: const Color(0xFF301C4D).withOpacity(0.3),
       ),
       child: Column(
@@ -430,10 +426,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   TimeOfDay _parseTime(String timeString) {
     try {
       final parts = timeString.split(':');
-      return TimeOfDay(
-        hour: int.parse(parts[0]),
-        minute: int.parse(parts[1]),
-      );
+      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
     } catch (e) {
       return const TimeOfDay(hour: 0, minute: 0);
     }

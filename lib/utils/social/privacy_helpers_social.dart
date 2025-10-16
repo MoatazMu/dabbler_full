@@ -11,31 +11,35 @@ class PrivacyHelpersSocial {
     List<String> blockedUsers,
   ) {
     // Check if blocked
-    if (blockedUsers.contains(postAuthorId) || blockedUsers.contains(currentUserId)) {
+    if (blockedUsers.contains(postAuthorId) ||
+        blockedUsers.contains(currentUserId)) {
       return false;
     }
-    
+
     // Author can always see their own posts
     if (currentUserId == postAuthorId) {
       return true;
     }
-    
+
     // Check privacy level
     switch (privacySettings.level) {
       case PrivacyLevel.public:
         return true;
-        
+
       case PrivacyLevel.friends:
         return relationship.isFriend;
-        
+
       case PrivacyLevel.friendsOfFriends:
         return relationship.isFriend || relationship.mutualFriendsCount > 0;
-        
+
       case PrivacyLevel.private:
         return false;
-        
+
       case PrivacyLevel.custom:
-        return _checkCustomPrivacy(currentUserId, privacySettings.customSettings);
+        return _checkCustomPrivacy(
+          currentUserId,
+          privacySettings.customSettings,
+        );
     }
   }
 
@@ -53,8 +57,14 @@ class PrivacyHelpersSocial {
       final authorId = getAuthorId(item);
       final privacy = getPrivacySettings(item);
       final relationship = getRelationship(authorId);
-      
-      return canViewPost(currentUserId, authorId, privacy, relationship, blockedUsers);
+
+      return canViewPost(
+        currentUserId,
+        authorId,
+        privacy,
+        relationship,
+        blockedUsers,
+      );
     }).toList();
   }
 
@@ -70,18 +80,22 @@ class PrivacyHelpersSocial {
     return content.where((item) {
       final authorId = getAuthorId(item);
       final mentionedUsers = getMentionedUsers(item);
-      
+
       // Filter out content from blocked users
-      if (blockedByCurrentUser.contains(authorId) || blockedByUsers.contains(currentUserId)) {
+      if (blockedByCurrentUser.contains(authorId) ||
+          blockedByUsers.contains(currentUserId)) {
         return false;
       }
-      
+
       // Filter out content that mentions blocked users
-      if (mentionedUsers.any((userId) => 
-          blockedByCurrentUser.contains(userId) || blockedByUsers.contains(userId))) {
+      if (mentionedUsers.any(
+        (userId) =>
+            blockedByCurrentUser.contains(userId) ||
+            blockedByUsers.contains(userId),
+      )) {
         return false;
       }
-      
+
       return true;
     }).toList();
   }
@@ -99,37 +113,42 @@ class PrivacyHelpersSocial {
     if (blockedUsers.contains(senderId) || blockedUsers.contains(receiverId)) {
       return MessagePermissionResult.blocked('User is blocked');
     }
-    
+
     // Can't message yourself
     if (senderId == receiverId) {
       return MessagePermissionResult.denied('Cannot message yourself');
     }
-    
+
     // Check if muted (can still receive but notifications are silenced)
     final isMuted = mutedUsers.contains(senderId);
-    
+
     // Check messaging privacy settings
     switch (receiverSettings.whoCanMessage) {
       case MessagingPrivacy.everyone:
         return MessagePermissionResult.allowed(isMuted: isMuted);
-        
+
       case MessagingPrivacy.friends:
         if (!relationship.isFriend) {
-          return MessagePermissionResult.denied('Only friends can send messages');
+          return MessagePermissionResult.denied(
+            'Only friends can send messages',
+          );
         }
         return MessagePermissionResult.allowed(isMuted: isMuted);
-        
+
       case MessagingPrivacy.friendsOfFriends:
         if (!relationship.isFriend && relationship.mutualFriendsCount == 0) {
-          return MessagePermissionResult.denied('Only friends and friends of friends can send messages');
+          return MessagePermissionResult.denied(
+            'Only friends and friends of friends can send messages',
+          );
         }
         return MessagePermissionResult.allowed(isMuted: isMuted);
-        
+
       case MessagingPrivacy.nobody:
         return MessagePermissionResult.denied('User is not accepting messages');
-        
+
       case MessagingPrivacy.custom:
-        final isAllowed = receiverSettings.customAllowedUsers?.contains(senderId) ?? false;
+        final isAllowed =
+            receiverSettings.customAllowedUsers?.contains(senderId) ?? false;
         if (!isAllowed) {
           return MessagePermissionResult.denied('Not in allowed users list');
         }
@@ -147,54 +166,70 @@ class PrivacyHelpersSocial {
     UserAccountInfo requesterAccount,
   ) {
     // Check if blocked
-    if (blockedUsers.contains(requesterId) || blockedUsers.contains(targetUserId)) {
+    if (blockedUsers.contains(requesterId) ||
+        blockedUsers.contains(targetUserId)) {
       return FriendRequestPermissionResult.blocked('User is blocked');
     }
-    
+
     // Can't friend yourself
     if (requesterId == targetUserId) {
-      return FriendRequestPermissionResult.denied('Cannot send friend request to yourself');
+      return FriendRequestPermissionResult.denied(
+        'Cannot send friend request to yourself',
+      );
     }
-    
+
     // Check existing relationship
     if (currentRelationship.isFriend) {
       return FriendRequestPermissionResult.denied('Already friends');
     }
-    
+
     if (currentRelationship.hasPendingRequestFrom) {
-      return FriendRequestPermissionResult.denied('Friend request already received');
+      return FriendRequestPermissionResult.denied(
+        'Friend request already received',
+      );
     }
-    
+
     if (currentRelationship.hasPendingRequestTo) {
-      return FriendRequestPermissionResult.denied('Friend request already sent');
+      return FriendRequestPermissionResult.denied(
+        'Friend request already sent',
+      );
     }
-    
+
     // Check account age requirement
     if (targetSettings.requireMinimumAccountAge) {
       final accountAge = DateTime.now().difference(requesterAccount.createdAt);
       if (accountAge.inHours < SocialConstants.minAccountAgeForPosting) {
-        return FriendRequestPermissionResult.denied('Account too new to send friend requests');
+        return FriendRequestPermissionResult.denied(
+          'Account too new to send friend requests',
+        );
       }
     }
-    
+
     // Check friend request privacy settings
     switch (targetSettings.whoCanSendRequests) {
       case FriendRequestPrivacy.everyone:
         return FriendRequestPermissionResult.allowed();
-        
+
       case FriendRequestPrivacy.friendsOfFriends:
         if (currentRelationship.mutualFriendsCount == 0) {
-          return FriendRequestPermissionResult.denied('Only friends of friends can send requests');
+          return FriendRequestPermissionResult.denied(
+            'Only friends of friends can send requests',
+          );
         }
         return FriendRequestPermissionResult.allowed();
-        
+
       case FriendRequestPrivacy.nobody:
-        return FriendRequestPermissionResult.denied('User is not accepting friend requests');
-        
+        return FriendRequestPermissionResult.denied(
+          'User is not accepting friend requests',
+        );
+
       case FriendRequestPrivacy.custom:
-        final isAllowed = targetSettings.customAllowedUsers?.contains(requesterId) ?? false;
+        final isAllowed =
+            targetSettings.customAllowedUsers?.contains(requesterId) ?? false;
         if (!isAllowed) {
-          return FriendRequestPermissionResult.denied('Not in allowed users list');
+          return FriendRequestPermissionResult.denied(
+            'Not in allowed users list',
+          );
         }
         return FriendRequestPermissionResult.allowed();
     }
@@ -209,29 +244,30 @@ class PrivacyHelpersSocial {
     List<String> blockedUsers,
   ) {
     // Check if blocked
-    if (blockedUsers.contains(viewerId) || blockedUsers.contains(profileOwnerId)) {
+    if (blockedUsers.contains(viewerId) ||
+        blockedUsers.contains(profileOwnerId)) {
       return false;
     }
-    
+
     // Owner can always see their own profile
     if (viewerId == profileOwnerId) {
       return true;
     }
-    
+
     // Check profile privacy
     switch (profileSettings.visibility) {
       case ProfileVisibility.public:
         return true;
-        
+
       case ProfileVisibility.friends:
         return relationship.isFriend;
-        
+
       case ProfileVisibility.friendsOfFriends:
         return relationship.isFriend || relationship.mutualFriendsCount > 0;
-        
+
       case ProfileVisibility.private:
         return false;
-        
+
       case ProfileVisibility.custom:
         return profileSettings.customAllowedUsers?.contains(viewerId) ?? false;
     }
@@ -246,27 +282,28 @@ class PrivacyHelpersSocial {
     List<String> blockedUsers,
   ) {
     final visibleSections = <ProfileSection>{};
-    
+
     // Check if blocked
-    if (blockedUsers.contains(viewerId) || blockedUsers.contains(profileOwnerId)) {
+    if (blockedUsers.contains(viewerId) ||
+        blockedUsers.contains(profileOwnerId)) {
       return visibleSections;
     }
-    
+
     // Owner can see all sections
     if (viewerId == profileOwnerId) {
       return ProfileSection.values.toSet();
     }
-    
+
     for (final entry in sectionPrivacy.entries) {
       final section = entry.key;
       final privacy = entry.value;
-      
+
       final canView = _checkSectionPrivacy(viewerId, relationship, privacy);
       if (canView) {
         visibleSections.add(section);
       }
     }
-    
+
     return visibleSections;
   }
 
@@ -281,8 +318,14 @@ class PrivacyHelpersSocial {
     return results.where((result) {
       final relationship = getRelationship(result.userId);
       final privacySettings = getPrivacySettings(result.userId);
-      
-      return canViewProfile(searcherId, result.userId, relationship, privacySettings, blockedUsers);
+
+      return canViewProfile(
+        searcherId,
+        result.userId,
+        relationship,
+        privacySettings,
+        blockedUsers,
+      );
     }).toList();
   }
 
@@ -295,36 +338,36 @@ class PrivacyHelpersSocial {
     ContentModerationSettings settings,
   ) {
     final issues = <ModerationIssue>[];
-    
+
     // Check for inappropriate language
     if (settings.enableProfanityFilter && _containsProfanity(content)) {
       issues.add(ModerationIssue.profanity);
     }
-    
+
     // Check for spam patterns
     if (_isSpamContent(content, authorAccount)) {
       issues.add(ModerationIssue.spam);
     }
-    
+
     // Check for excessive caps
     if (_hasExcessiveCaps(content)) {
       issues.add(ModerationIssue.excessiveCaps);
     }
-    
+
     // Check for too many links
     if (_hasTooManyLinks(content)) {
       issues.add(ModerationIssue.tooManyLinks);
     }
-    
+
     // Check account restrictions
     if (authorAccount.isNewAccount && settings.restrictNewAccounts) {
       issues.add(ModerationIssue.newAccountRestriction);
     }
-    
+
     if (issues.isEmpty) {
       return ContentModerationResult.approved();
     }
-    
+
     final severity = _calculateModerationSeverity(issues);
     return ContentModerationResult.flagged(issues, severity);
   }
@@ -342,12 +385,15 @@ class PrivacyHelpersSocial {
   }
 
   // Private helper methods
-  static bool _checkCustomPrivacy(String userId, CustomPrivacySettings? settings) {
+  static bool _checkCustomPrivacy(
+    String userId,
+    CustomPrivacySettings? settings,
+  ) {
     if (settings == null) return false;
-    
+
     if (settings.allowedUsers.contains(userId)) return true;
     if (settings.blockedUsers.contains(userId)) return false;
-    
+
     // Check group memberships, mutual friends, etc.
     // This would be more complex in a real implementation
     return false;
@@ -377,28 +423,38 @@ class PrivacyHelpersSocial {
 
   static bool _isSpamContent(String content, UserAccountInfo account) {
     // Simple spam detection
-    final urlCount = RegExp(SocialConstants.urlPattern).allMatches(content).length;
+    final urlCount = RegExp(
+      SocialConstants.urlPattern,
+    ).allMatches(content).length;
     if (urlCount > 3) return true;
-    
+
     // Check if new account posting many links
     if (account.isNewAccount && urlCount > 0) return true;
-    
+
     return false;
   }
 
   static bool _hasExcessiveCaps(String content) {
     if (content.length < 10) return false;
-    final capsCount = content.split('').where((c) => c == c.toUpperCase() && c != c.toLowerCase()).length;
+    final capsCount = content
+        .split('')
+        .where((c) => c == c.toUpperCase() && c != c.toLowerCase())
+        .length;
     return (capsCount / content.length) > 0.7;
   }
 
   static bool _hasTooManyLinks(String content) {
-    final urlCount = RegExp(SocialConstants.urlPattern).allMatches(content).length;
+    final urlCount = RegExp(
+      SocialConstants.urlPattern,
+    ).allMatches(content).length;
     return urlCount > SocialConstants.maxLinksPerPost;
   }
 
-  static ModerationSeverity _calculateModerationSeverity(List<ModerationIssue> issues) {
-    if (issues.contains(ModerationIssue.profanity)) return ModerationSeverity.high;
+  static ModerationSeverity _calculateModerationSeverity(
+    List<ModerationIssue> issues,
+  ) {
+    if (issues.contains(ModerationIssue.profanity))
+      return ModerationSeverity.high;
     if (issues.contains(ModerationIssue.spam)) return ModerationSeverity.medium;
     return ModerationSeverity.low;
   }
@@ -422,10 +478,7 @@ class PostPrivacySettings {
   final PrivacyLevel level;
   final CustomPrivacySettings? customSettings;
 
-  const PostPrivacySettings({
-    required this.level,
-    this.customSettings,
-  });
+  const PostPrivacySettings({required this.level, this.customSettings});
 }
 
 class CustomPrivacySettings {
@@ -572,51 +625,29 @@ class ContentModerationResult {
     required this.severity,
   });
 
-  factory ContentModerationResult.approved() =>
-      const ContentModerationResult._(
-        isApproved: true,
-        issues: [],
-        severity: ModerationSeverity.none,
-      );
+  factory ContentModerationResult.approved() => const ContentModerationResult._(
+    isApproved: true,
+    issues: [],
+    severity: ModerationSeverity.none,
+  );
 
-  factory ContentModerationResult.flagged(List<ModerationIssue> issues, ModerationSeverity severity) =>
-      ContentModerationResult._(
-        isApproved: false,
-        issues: issues,
-        severity: severity,
-      );
+  factory ContentModerationResult.flagged(
+    List<ModerationIssue> issues,
+    ModerationSeverity severity,
+  ) => ContentModerationResult._(
+    isApproved: false,
+    issues: issues,
+    severity: severity,
+  );
 }
 
-enum PrivacyLevel {
-  public,
-  friends,
-  friendsOfFriends,
-  private,
-  custom,
-}
+enum PrivacyLevel { public, friends, friendsOfFriends, private, custom }
 
-enum MessagingPrivacy {
-  everyone,
-  friends,
-  friendsOfFriends,
-  nobody,
-  custom,
-}
+enum MessagingPrivacy { everyone, friends, friendsOfFriends, nobody, custom }
 
-enum FriendRequestPrivacy {
-  everyone,
-  friendsOfFriends,
-  nobody,
-  custom,
-}
+enum FriendRequestPrivacy { everyone, friendsOfFriends, nobody, custom }
 
-enum ProfileVisibility {
-  public,
-  friends,
-  friendsOfFriends,
-  private,
-  custom,
-}
+enum ProfileVisibility { public, friends, friendsOfFriends, private, custom }
 
 enum ProfileSection {
   basicInfo,
@@ -629,11 +660,7 @@ enum ProfileSection {
   workEducation,
 }
 
-enum ProfileSectionPrivacy {
-  public,
-  friends,
-  private,
-}
+enum ProfileSectionPrivacy { public, friends, private }
 
 enum ModerationIssue {
   profanity,
@@ -643,16 +670,6 @@ enum ModerationIssue {
   newAccountRestriction,
 }
 
-enum ModerationSeverity {
-  none,
-  low,
-  medium,
-  high,
-}
+enum ModerationSeverity { none, low, medium, high }
 
-enum ContentRating {
-  general,
-  teen,
-  mature,
-  adult,
-}
+enum ContentRating { general, teen, mature, adult }

@@ -1,6 +1,5 @@
 import '../../domain/entities/leaderboard.dart';
 
-
 /// Tier level for leaderboard entries
 enum TierLevel {
   competitor,
@@ -88,7 +87,10 @@ class LeaderboardModel {
   factory LeaderboardModel.fromJson(Map<String, dynamic> json) {
     return LeaderboardModel(
       entries: (json['entries'] as List<dynamic>? ?? [])
-          .map((entry) => LeaderboardEntryModel.fromJson(entry as Map<String, dynamic>))
+          .map(
+            (entry) =>
+                LeaderboardEntryModel.fromJson(entry as Map<String, dynamic>),
+          )
           .toList(),
       period: _parseLeaderboardPeriod(json['period']),
       totalEntries: json['total_entries'] as int? ?? 0,
@@ -128,7 +130,7 @@ class LeaderboardModel {
 
   static LeaderboardPeriod _parseLeaderboardPeriod(dynamic value) {
     if (value == null) return LeaderboardPeriod.allTime;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'daily':
@@ -146,7 +148,7 @@ class LeaderboardModel {
           return LeaderboardPeriod.allTime;
       }
     }
-    
+
     return LeaderboardPeriod.allTime;
   }
 
@@ -218,7 +220,10 @@ class LeaderboardModel {
 
   double _calculateAverageScore() {
     if (entries.isEmpty) return 0.0;
-    final totalPoints = entries.fold<double>(0, (sum, entry) => sum + entry.score);
+    final totalPoints = entries.fold<double>(
+      0,
+      (sum, entry) => sum + entry.score,
+    );
     return totalPoints / entries.length;
   }
 
@@ -304,9 +309,7 @@ class LeaderboardModel {
 
   /// Updates cache timestamp
   LeaderboardModel updateCache() {
-    return copyWith(
-      cacheTimestamp: DateTime.now(),
-    );
+    return copyWith(cacheTimestamp: DateTime.now());
   }
 
   /// Finds a user's entry in the leaderboard
@@ -332,13 +335,13 @@ class LeaderboardModel {
   /// Gets tier distribution
   Map<String, int> get tierDistribution {
     final distribution = <String, int>{};
-    
+
     for (final entry in entries) {
       // Use entry to determine tier (simplified for now)
       final tierName = entry.score > 500 ? 'high' : 'general';
       distribution[tierName] = (distribution[tierName] ?? 0) + 1;
     }
-    
+
     return distribution;
   }
 
@@ -351,7 +354,7 @@ class LeaderboardModel {
       'new_entries': 0,
       'returned': 0,
     };
-    
+
     for (final entry in entries) {
       // Calculate movement from rank comparison
       if (entry.previousRank > entry.rank) {
@@ -362,7 +365,7 @@ class LeaderboardModel {
         stats['same'] = (stats['same'] ?? 0) + 1;
       }
     }
-    
+
     return stats;
   }
 }
@@ -381,7 +384,7 @@ class LeaderboardEntryModel {
   final DateTime lastUpdated;
   final bool isCurrentUser;
   final Map<String, dynamic> badges;
-  
+
   /// Additional model-specific properties
   final DateTime? cacheTimestamp;
   final Map<String, dynamic> trackingData;
@@ -408,14 +411,19 @@ class LeaderboardEntryModel {
     return LeaderboardEntryModel(
       id: json['id'] as String? ?? json['user_id'] as String,
       userId: json['user_id'] as String,
-      displayName: json['display_name'] as String? ?? json['username'] as String? ?? 'Unknown',
+      displayName:
+          json['display_name'] as String? ??
+          json['username'] as String? ??
+          'Unknown',
       avatarUrl: json['avatar_url'] as String?,
       rank: json['rank'] as int? ?? json['current_rank'] as int? ?? 0,
       previousRank: json['previous_rank'] as int? ?? 0,
       score: _parseDouble(json['score'] ?? json['total_points'] ?? 0),
       previousScore: _parseDouble(json['previous_score'] ?? 0),
       stats: _parseMap(json['stats']),
-      lastUpdated: _parseDateTime(json['last_updated'] ?? json['updated_at']) ?? DateTime.now(),
+      lastUpdated:
+          _parseDateTime(json['last_updated'] ?? json['updated_at']) ??
+          DateTime.now(),
       isCurrentUser: json['is_current_user'] as bool? ?? false,
       badges: _parseMap(json['badges']),
       cacheTimestamp: _parseDateTime(json['cache_timestamp']),
@@ -542,6 +550,6 @@ class LeaderboardEntryModel {
   @override
   String toString() {
     return 'LeaderboardEntryModel(id: $id, rank: $rank, '
-           'user: $displayName, score: $score, isCurrentUser: $isCurrentUser)';
+        'user: $displayName, score: $score, isCurrentUser: $isCurrentUser)';
   }
 }

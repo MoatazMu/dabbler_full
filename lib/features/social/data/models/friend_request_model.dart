@@ -55,12 +55,12 @@ class FriendRequestModel extends FriendRequest {
         orElse: () => FriendRequestStatus.pending,
       ),
       createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at'] as String) 
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
           : null,
       message: json['message'] as String?,
-      respondedAt: json['responded_at'] != null 
-          ? DateTime.parse(json['responded_at'] as String) 
+      respondedAt: json['responded_at'] != null
+          ? DateTime.parse(json['responded_at'] as String)
           : null,
       responseMessage: json['response_message'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>? ?? {},
@@ -85,34 +85,34 @@ class FriendRequestModel extends FriendRequest {
 
   /// Check if request is pending
   bool get isPending => status == FriendRequestStatus.pending;
-  
+
   /// Check if request is accepted
   bool get isAccepted => status == FriendRequestStatus.accepted;
-  
+
   /// Check if request is declined
   bool get isDeclined => status == FriendRequestStatus.declined;
-  
+
   /// Check if request is cancelled
   bool get isCancelled => status == FriendRequestStatus.cancelled;
-  
+
   /// Check if request is blocked
   bool get isBlocked => status == FriendRequestStatus.blocked;
-  
+
   /// Check if request can be responded to
   bool get canRespond => isPending;
-  
+
   /// Check if request can be cancelled
   bool get canCancel => isPending;
-  
+
   /// Get request age in days
   int get ageInDays => DateTime.now().difference(createdAt).inDays;
-  
+
   /// Get request age in hours
   int get ageInHours => DateTime.now().difference(createdAt).inHours;
-  
+
   /// Check if request is recent (less than 24 hours)
   bool get isRecent => ageInHours < 24;
-  
+
   /// Check if request is old (more than 7 days)
   bool get isOld => ageInDays > 7;
 

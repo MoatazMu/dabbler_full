@@ -22,7 +22,7 @@ class _TierManagementTabState extends ConsumerState<TierManagementTab> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          
+
           // Tier Configuration
           Card(
             child: Padding(
@@ -41,7 +41,7 @@ class _TierManagementTabState extends ConsumerState<TierManagementTab> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Tier Analytics
           Card(
             child: Padding(
@@ -66,43 +66,80 @@ class _TierManagementTabState extends ConsumerState<TierManagementTab> {
 
   List<Widget> _buildTierConfigs() {
     final tiers = [
-      {'name': 'Bronze', 'min': 0, 'max': 999, 'multiplier': 1.0, 'color': Colors.brown},
-      {'name': 'Silver', 'min': 1000, 'max': 4999, 'multiplier': 1.2, 'color': Colors.grey},
-      {'name': 'Gold', 'min': 5000, 'max': 14999, 'multiplier': 1.5, 'color': Colors.amber},
-      {'name': 'Platinum', 'min': 15000, 'max': 49999, 'multiplier': 1.8, 'color': Colors.blue[200]!},
-      {'name': 'Diamond', 'min': 50000, 'max': -1, 'multiplier': 2.0, 'color': Colors.cyan},
+      {
+        'name': 'Bronze',
+        'min': 0,
+        'max': 999,
+        'multiplier': 1.0,
+        'color': Colors.brown,
+      },
+      {
+        'name': 'Silver',
+        'min': 1000,
+        'max': 4999,
+        'multiplier': 1.2,
+        'color': Colors.grey,
+      },
+      {
+        'name': 'Gold',
+        'min': 5000,
+        'max': 14999,
+        'multiplier': 1.5,
+        'color': Colors.amber,
+      },
+      {
+        'name': 'Platinum',
+        'min': 15000,
+        'max': 49999,
+        'multiplier': 1.8,
+        'color': Colors.blue[200]!,
+      },
+      {
+        'name': 'Diamond',
+        'min': 50000,
+        'max': -1,
+        'multiplier': 2.0,
+        'color': Colors.cyan,
+      },
     ];
 
-    return tiers.map((tier) => Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: tier['color'] as Color,
-          child: Text(
-            tier['name'].toString().substring(0, 1),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    return tiers
+        .map(
+          (tier) => Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: tier['color'] as Color,
+                child: Text(
+                  tier['name'].toString().substring(0, 1),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              title: Text(tier['name'].toString()),
+              subtitle: Text(
+                '${tier['min']} - ${tier['max'] == -1 ? '∞' : tier['max']} points',
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${tier['multiplier']}x',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () => _editTier(tier),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        title: Text(tier['name'].toString()),
-        subtitle: Text(
-          '${tier['min']} - ${tier['max'] == -1 ? '∞' : tier['max']} points',
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '${tier['multiplier']}x',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () => _editTier(tier),
-            ),
-          ],
-        ),
-      ),
-    )).toList();
+        )
+        .toList();
   }
 
   Widget _buildTierDistribution() {
@@ -159,7 +196,7 @@ class _SpecialRewardsTabState extends ConsumerState<SpecialRewardsTab> {
   final _descriptionController = TextEditingController();
   final _codeController = TextEditingController();
   final _pointsController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -172,7 +209,7 @@ class _SpecialRewardsTabState extends ConsumerState<SpecialRewardsTab> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          
+
           // Create Special Reward
           Card(
             child: Padding(
@@ -244,7 +281,7 @@ class _SpecialRewardsTabState extends ConsumerState<SpecialRewardsTab> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Active Special Rewards
           Card(
             child: Padding(
@@ -268,14 +305,25 @@ class _SpecialRewardsTabState extends ConsumerState<SpecialRewardsTab> {
                           child: Icon(Icons.card_giftcard, color: Colors.white),
                         ),
                         title: const Text('Welcome Bonus'),
-                        subtitle: const Text('WELCOME2024 • 500 points • Active'),
+                        subtitle: const Text(
+                          'WELCOME2024 • 500 points • Active',
+                        ),
                         trailing: PopupMenuButton<String>(
                           onSelected: (value) => _handleRewardAction(value),
                           itemBuilder: (context) => const [
                             PopupMenuItem(value: 'edit', child: Text('Edit')),
-                            PopupMenuItem(value: 'disable', child: Text('Disable')),
-                            PopupMenuItem(value: 'stats', child: Text('View Stats')),
-                            PopupMenuItem(value: 'delete', child: Text('Delete')),
+                            PopupMenuItem(
+                              value: 'disable',
+                              child: Text('Disable'),
+                            ),
+                            PopupMenuItem(
+                              value: 'stats',
+                              child: Text('View Stats'),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
                           ],
                         ),
                       ),
@@ -292,7 +340,8 @@ class _SpecialRewardsTabState extends ConsumerState<SpecialRewardsTab> {
 
   void _generateCode() {
     // Generate unique code
-    _codeController.text = 'REWARD${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
+    _codeController.text =
+        'REWARD${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
   }
 
   void _createReward() {
@@ -327,11 +376,11 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
   final _eventNameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _multiplierController = TextEditingController(text: '2.0');
-  
+
   DateTime? _startDate;
   DateTime? _endDate;
   String _eventType = 'points_multiplier';
-  
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -344,7 +393,7 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          
+
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -380,10 +429,22 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
                       border: OutlineInputBorder(),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'points_multiplier', child: Text('Points Multiplier')),
-                      DropdownMenuItem(value: 'special_achievement', child: Text('Special Achievement')),
-                      DropdownMenuItem(value: 'daily_bonus', child: Text('Enhanced Daily Bonus')),
-                      DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
+                      DropdownMenuItem(
+                        value: 'points_multiplier',
+                        child: Text('Points Multiplier'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'special_achievement',
+                        child: Text('Special Achievement'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'daily_bonus',
+                        child: Text('Enhanced Daily Bonus'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'tournament',
+                        child: Text('Tournament'),
+                      ),
                     ],
                     onChanged: (value) => setState(() => _eventType = value!),
                   ),
@@ -404,7 +465,10 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
                       Expanded(
                         child: ListTile(
                           title: const Text('Start Date'),
-                          subtitle: Text(_startDate?.toString().split(' ')[0] ?? 'Not selected'),
+                          subtitle: Text(
+                            _startDate?.toString().split(' ')[0] ??
+                                'Not selected',
+                          ),
                           trailing: const Icon(Icons.calendar_today),
                           onTap: _selectStartDate,
                         ),
@@ -412,7 +476,10 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
                       Expanded(
                         child: ListTile(
                           title: const Text('End Date'),
-                          subtitle: Text(_endDate?.toString().split(' ')[0] ?? 'Not selected'),
+                          subtitle: Text(
+                            _endDate?.toString().split(' ')[0] ??
+                                'Not selected',
+                          ),
                           trailing: const Icon(Icons.calendar_today),
                           onTap: _selectEndDate,
                         ),
@@ -450,7 +517,7 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Active Events
           Card(
             child: Padding(
@@ -474,12 +541,17 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
                           child: Icon(Icons.event, color: Colors.white),
                         ),
                         title: const Text('Double Points Weekend'),
-                        subtitle: const Text('2.0x multiplier • Ends in 2 days'),
+                        subtitle: const Text(
+                          '2.0x multiplier • Ends in 2 days',
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.green[100],
                                 borderRadius: BorderRadius.circular(12),
@@ -496,10 +568,22 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
                             PopupMenuButton<String>(
                               onSelected: (value) => _handleEventAction(value),
                               itemBuilder: (context) => const [
-                                PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                PopupMenuItem(value: 'end', child: Text('End Early')),
-                                PopupMenuItem(value: 'stats', child: Text('View Stats')),
-                                PopupMenuItem(value: 'extend', child: Text('Extend')),
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('Edit'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'end',
+                                  child: Text('End Early'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'stats',
+                                  child: Text('View Stats'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'extend',
+                                  child: Text('Extend'),
+                                ),
                               ],
                             ),
                           ],
@@ -541,7 +625,9 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
   }
 
   void _createEvent() {
-    if (_eventNameController.text.isEmpty || _startDate == null || _endDate == null) {
+    if (_eventNameController.text.isEmpty ||
+        _startDate == null ||
+        _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all required fields')),
       );
@@ -559,7 +645,11 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(_eventNameController.text.isEmpty ? 'Event Preview' : _eventNameController.text),
+        title: Text(
+          _eventNameController.text.isEmpty
+              ? 'Event Preview'
+              : _eventNameController.text,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,7 +660,11 @@ class _EventCreationTabState extends ConsumerState<EventCreationTab> {
             Text('Start: ${_startDate?.toString().split(' ')[0] ?? 'Not set'}'),
             Text('End: ${_endDate?.toString().split(' ')[0] ?? 'Not set'}'),
             const SizedBox(height: 8),
-            Text(_descriptionController.text.isEmpty ? 'No description' : _descriptionController.text),
+            Text(
+              _descriptionController.text.isEmpty
+                  ? 'No description'
+                  : _descriptionController.text,
+            ),
           ],
         ),
         actions: [
@@ -603,13 +697,14 @@ class UserProgressViewerTab extends ConsumerStatefulWidget {
   const UserProgressViewerTab({super.key});
 
   @override
-  ConsumerState<UserProgressViewerTab> createState() => _UserProgressViewerTabState();
+  ConsumerState<UserProgressViewerTab> createState() =>
+      _UserProgressViewerTabState();
 }
 
 class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
   final _searchController = TextEditingController();
   String? _selectedUserId;
-  
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -622,7 +717,7 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          
+
           // User Search
           Card(
             child: Padding(
@@ -664,7 +759,10 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                               children: [
                                 Text(
                                   'John Doe',
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 Text('john.doe@email.com'),
                                 Text('Member since: Jan 2024'),
@@ -676,7 +774,11 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                             children: [
                               Text(
                                 '2,450 pts',
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
                               ),
                               Text('Gold Tier'),
                             ],
@@ -689,18 +791,28 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
               ),
             ),
           ),
-          
+
           if (_selectedUserId != null) ...[
             const SizedBox(height: 24),
             // Progress Overview
             Row(
               children: [
                 Expanded(
-                  child: _buildProgressCard('Achievements Unlocked', '23/50', Icons.emoji_events, Colors.amber),
+                  child: _buildProgressCard(
+                    'Achievements Unlocked',
+                    '23/50',
+                    Icons.emoji_events,
+                    Colors.amber,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildProgressCard('Current Streak', '12 days', Icons.local_fire_department, Colors.red),
+                  child: _buildProgressCard(
+                    'Current Streak',
+                    '12 days',
+                    Icons.local_fire_department,
+                    Colors.red,
+                  ),
                 ),
               ],
             ),
@@ -708,16 +820,26 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
             Row(
               children: [
                 Expanded(
-                  child: _buildProgressCard('Badges Earned', '8', Icons.stars, Colors.purple),
+                  child: _buildProgressCard(
+                    'Badges Earned',
+                    '8',
+                    Icons.stars,
+                    Colors.purple,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildProgressCard('Leaderboard Rank', '#42', Icons.leaderboard, Colors.green),
+                  child: _buildProgressCard(
+                    'Leaderboard Rank',
+                    '#42',
+                    Icons.leaderboard,
+                    Colors.green,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            
+
             // Recent Activity
             Card(
               child: Padding(
@@ -727,7 +849,10 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                   children: [
                     const Text(
                       'Recent Activity',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     ListView.builder(
@@ -743,7 +868,10 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                         subtitle: const Text('Earned 100 points • 2 hours ago'),
                         trailing: const Text(
                           '+100',
-                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -752,7 +880,7 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Achievement Progress
             Card(
               child: Padding(
@@ -762,7 +890,10 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                   children: [
                     const Text(
                       'Achievement Progress',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     ListView.builder(
@@ -774,7 +905,10 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                         child: ListTile(
                           leading: const CircleAvatar(
                             backgroundColor: Colors.orange,
-                            child: Icon(Icons.hourglass_empty, color: Colors.white),
+                            child: Icon(
+                              Icons.hourglass_empty,
+                              color: Colors.white,
+                            ),
                           ),
                           title: const Text('Social Butterfly'),
                           subtitle: Column(
@@ -785,7 +919,9 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
                               LinearProgressIndicator(
                                 value: 0.7,
                                 backgroundColor: Colors.grey[300],
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.orange,
+                                ),
                               ),
                             ],
                           ),
@@ -803,7 +939,12 @@ class _UserProgressViewerTabState extends ConsumerState<UserProgressViewerTab> {
     );
   }
 
-  Widget _buildProgressCard(String title, String value, IconData icon, Color color) {
+  Widget _buildProgressCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),

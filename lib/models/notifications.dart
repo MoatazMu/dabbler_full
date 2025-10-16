@@ -45,9 +45,15 @@ class Notifications {
       image_url: json['image_url'],
       action_text: json['action_text'],
       action_route: json['action_route'],
-      read_at: (json['read_at'] == null ? null : DateTime.parse(json['read_at'] as String)),
-      created_at: (json['created_at'] == null ? null : DateTime.parse(json['created_at'] as String)),
-      updated_at: (json['updated_at'] == null ? null : DateTime.parse(json['updated_at'] as String)),
+      read_at: (json['read_at'] == null
+          ? null
+          : DateTime.parse(json['read_at'] as String)),
+      created_at: (json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String)),
+      updated_at: (json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String)),
     );
   }
 

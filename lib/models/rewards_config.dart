@@ -25,12 +25,12 @@ class RewardsConfig {
       config_value: json['config_value'],
       description: json['description'],
       is_active: json['is_active'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

@@ -4,33 +4,38 @@ import 'package:flutter/material.dart';
 class ProgressStepIndicator extends StatelessWidget {
   /// Current active step (0-based index)
   final int currentStep;
-  
+
   /// Total number of steps
   final int totalSteps;
-  
+
   /// Labels for each step
   final List<String> stepLabels;
-  
+
   /// Whether completed steps should show a checkmark
   final bool showCheckmarks;
-  
+
   /// Custom colors for different step states
   final ProgressStepColors? colors;
-  
+
   /// Size of the step indicators
   final double stepSize;
-  
+
   /// Width of the connecting lines
   final double lineWidth;
-  
+
   /// Function called when a step is tapped
   final Function(int stepIndex)? onStepTapped;
-  
+
   /// Whether tapping on completed steps is allowed
   final bool allowTapOnCompletedSteps;
-  
+
   /// Custom step content builder
-  final Widget Function(BuildContext context, int stepIndex, ProgressStepState state)? stepBuilder;
+  final Widget Function(
+    BuildContext context,
+    int stepIndex,
+    ProgressStepState state,
+  )?
+  stepBuilder;
 
   const ProgressStepIndicator({
     super.key,
@@ -50,7 +55,7 @@ class ProgressStepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveColors = colors ?? ProgressStepColors.fromTheme(theme);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -62,37 +67,39 @@ class ProgressStepIndicator extends StatelessWidget {
               children: _buildStepIndicators(context, effectiveColors),
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Step labels
-          Row(
-            children: _buildStepLabels(theme, effectiveColors),
-          ),
+          Row(children: _buildStepLabels(theme, effectiveColors)),
         ],
       ),
     );
   }
 
-  List<Widget> _buildStepIndicators(BuildContext context, ProgressStepColors colors) {
+  List<Widget> _buildStepIndicators(
+    BuildContext context,
+    ProgressStepColors colors,
+  ) {
     final indicators = <Widget>[];
-    
+
     for (int i = 0; i < totalSteps; i++) {
       final state = _getStepState(i);
-      
+
       // Add step indicator
       indicators.add(
         Expanded(
           child: Center(
             child: GestureDetector(
               onTap: _canTapStep(i) ? () => onStepTapped?.call(i) : null,
-              child: stepBuilder?.call(context, i, state) ?? 
-                     _buildDefaultStepIndicator(i, state, colors),
+              child:
+                  stepBuilder?.call(context, i, state) ??
+                  _buildDefaultStepIndicator(i, state, colors),
             ),
           ),
         ),
       );
-      
+
       // Add connecting line (except for last step)
       if (i < totalSteps - 1) {
         indicators.add(
@@ -107,15 +114,19 @@ class ProgressStepIndicator extends StatelessWidget {
         );
       }
     }
-    
+
     return indicators;
   }
 
-  Widget _buildDefaultStepIndicator(int stepIndex, ProgressStepState state, ProgressStepColors colors) {
+  Widget _buildDefaultStepIndicator(
+    int stepIndex,
+    ProgressStepState state,
+    ProgressStepColors colors,
+  ) {
     Widget content;
     Color backgroundColor;
     Color contentColor;
-    
+
     switch (state) {
       case ProgressStepState.completed:
         backgroundColor = colors.completedColor;
@@ -135,7 +146,7 @@ class ProgressStepIndicator extends StatelessWidget {
                 ),
               );
         break;
-        
+
       case ProgressStepState.current:
         backgroundColor = colors.currentColor;
         contentColor = colors.currentContentColor;
@@ -148,7 +159,7 @@ class ProgressStepIndicator extends StatelessWidget {
           ),
         );
         break;
-        
+
       case ProgressStepState.inactive:
         backgroundColor = colors.inactiveColor;
         contentColor = colors.inactiveContentColor;
@@ -162,7 +173,7 @@ class ProgressStepIndicator extends StatelessWidget {
         );
         break;
     }
-    
+
     return Container(
       width: stepSize,
       height: stepSize,
@@ -170,10 +181,7 @@ class ProgressStepIndicator extends StatelessWidget {
         color: backgroundColor,
         shape: BoxShape.circle,
         border: state == ProgressStepState.current
-            ? Border.all(
-                color: colors.currentBorderColor,
-                width: 2,
-              )
+            ? Border.all(color: colors.currentBorderColor, width: 2)
             : null,
       ),
       child: Center(child: content),
@@ -184,7 +192,7 @@ class ProgressStepIndicator extends StatelessWidget {
     return List.generate(totalSteps, (index) {
       final state = _getStepState(index);
       final label = index < stepLabels.length ? stepLabels[index] : '';
-      
+
       Color textColor;
       switch (state) {
         case ProgressStepState.completed:
@@ -197,7 +205,7 @@ class ProgressStepIndicator extends StatelessWidget {
           textColor = colors.inactiveContentColor;
           break;
       }
-      
+
       return Expanded(
         child: GestureDetector(
           onTap: _canTapStep(index) ? () => onStepTapped?.call(index) : null,
@@ -228,13 +236,13 @@ class ProgressStepIndicator extends StatelessWidget {
 
   bool _canTapStep(int stepIndex) {
     if (onStepTapped == null) return false;
-    
+
     if (stepIndex == currentStep) return true;
-    
+
     if (stepIndex < currentStep && allowTapOnCompletedSteps) {
       return true;
     }
-    
+
     return false;
   }
 }
@@ -270,7 +278,7 @@ class VerticalProgressStepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveColors = colors ?? ProgressStepColors.fromTheme(theme);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(totalSteps, (index) {
@@ -289,15 +297,16 @@ class VerticalProgressStepIndicator extends StatelessWidget {
     BuildContext context,
     int stepIndex,
     ThemeData theme,
-    ProgressStepColors colors,
-    {required bool isLast}
-  ) {
+    ProgressStepColors colors, {
+    required bool isLast,
+  }) {
     final state = _getStepState(stepIndex);
     final label = stepIndex < stepLabels.length ? stepLabels[stepIndex] : '';
-    final description = stepDescriptions != null && stepIndex < stepDescriptions!.length
+    final description =
+        stepDescriptions != null && stepIndex < stepDescriptions!.length
         ? stepDescriptions![stepIndex]
         : null;
-    
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +315,9 @@ class VerticalProgressStepIndicator extends StatelessWidget {
           Column(
             children: [
               GestureDetector(
-                onTap: _canTapStep(stepIndex) ? () => onStepTapped?.call(stepIndex) : null,
+                onTap: _canTapStep(stepIndex)
+                    ? () => onStepTapped?.call(stepIndex)
+                    : null,
                 child: _buildStepIndicator(stepIndex, state, colors),
               ),
               if (!isLast)
@@ -320,13 +331,15 @@ class VerticalProgressStepIndicator extends StatelessWidget {
                 ),
             ],
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Content column
           Expanded(
             child: GestureDetector(
-              onTap: _canTapStep(stepIndex) ? () => onStepTapped?.call(stepIndex) : null,
+              onTap: _canTapStep(stepIndex)
+                  ? () => onStepTapped?.call(stepIndex)
+                  : null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -358,11 +371,15 @@ class VerticalProgressStepIndicator extends StatelessWidget {
     );
   }
 
-  Widget _buildStepIndicator(int stepIndex, ProgressStepState state, ProgressStepColors colors) {
+  Widget _buildStepIndicator(
+    int stepIndex,
+    ProgressStepState state,
+    ProgressStepColors colors,
+  ) {
     Widget content;
     Color backgroundColor;
     Color contentColor;
-    
+
     switch (state) {
       case ProgressStepState.completed:
         backgroundColor = colors.completedColor;
@@ -382,7 +399,7 @@ class VerticalProgressStepIndicator extends StatelessWidget {
                 ),
               );
         break;
-        
+
       case ProgressStepState.current:
         backgroundColor = colors.currentColor;
         contentColor = colors.currentContentColor;
@@ -395,7 +412,7 @@ class VerticalProgressStepIndicator extends StatelessWidget {
           ),
         );
         break;
-        
+
       case ProgressStepState.inactive:
         backgroundColor = colors.inactiveColor;
         contentColor = colors.inactiveContentColor;
@@ -409,7 +426,7 @@ class VerticalProgressStepIndicator extends StatelessWidget {
         );
         break;
     }
-    
+
     return Container(
       width: stepSize,
       height: stepSize,
@@ -417,10 +434,7 @@ class VerticalProgressStepIndicator extends StatelessWidget {
         color: backgroundColor,
         shape: BoxShape.circle,
         border: state == ProgressStepState.current
-            ? Border.all(
-                color: colors.currentBorderColor,
-                width: 2,
-              )
+            ? Border.all(color: colors.currentBorderColor, width: 2)
             : null,
       ),
       child: Center(child: content),
@@ -439,13 +453,13 @@ class VerticalProgressStepIndicator extends StatelessWidget {
 
   bool _canTapStep(int stepIndex) {
     if (onStepTapped == null) return false;
-    
+
     if (stepIndex == currentStep) return true;
-    
+
     if (stepIndex < currentStep && allowTapOnCompletedSteps) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -462,11 +476,7 @@ class VerticalProgressStepIndicator extends StatelessWidget {
 }
 
 /// Step state enumeration
-enum ProgressStepState {
-  completed,
-  current,
-  inactive,
-}
+enum ProgressStepState { completed, current, inactive }
 
 /// Color configuration for step indicators
 class ProgressStepColors {

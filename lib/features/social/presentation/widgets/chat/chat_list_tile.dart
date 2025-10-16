@@ -69,22 +69,15 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.98,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(-0.1, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(-0.1, 0), end: Offset.zero).animate(
+          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+        );
 
     // Animate in
     _animationController.forward();
@@ -153,7 +146,9 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
             },
           ),
           _buildOptionTile(
-            icon: widget.isMuted ? Icons.notifications : Icons.notifications_off,
+            icon: widget.isMuted
+                ? Icons.notifications
+                : Icons.notifications_off,
             title: widget.isMuted ? 'Unmute' : 'Mute',
             onTap: () {
               Navigator.pop(context);
@@ -190,10 +185,7 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(color: color),
-      ),
+      title: Text(title, style: TextStyle(color: color)),
       onTap: onTap,
     );
   }
@@ -228,14 +220,16 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
     if (widget.conversation.isGroup) {
       return widget.conversation.name ?? 'Group Chat';
     }
-    
+
     // For direct messages, show other participant's name
-    final otherParticipant = widget.conversation.participants
-        .firstWhere((p) => p.id != 'current_user', orElse: () => ConversationParticipant(
-          id: '',
-          name: 'Unknown',
-          joinedAt: DateTime.now(),
-        ));
+    final otherParticipant = widget.conversation.participants.firstWhere(
+      (p) => p.id != 'current_user',
+      orElse: () => ConversationParticipant(
+        id: '',
+        name: 'Unknown',
+        joinedAt: DateTime.now(),
+      ),
+    );
     return otherParticipant.name;
   }
 
@@ -243,19 +237,21 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
     if (widget.conversation.isGroup) {
       return widget.conversation.avatarUrl ?? '';
     }
-    final otherParticipant = widget.conversation.participants
-        .firstWhere((p) => p.id != 'current_user', orElse: () => ConversationParticipant(
-          id: '',
-          name: 'Unknown',
-          joinedAt: DateTime.now(),
-        ));
+    final otherParticipant = widget.conversation.participants.firstWhere(
+      (p) => p.id != 'current_user',
+      orElse: () => ConversationParticipant(
+        id: '',
+        name: 'Unknown',
+        joinedAt: DateTime.now(),
+      ),
+    );
     return otherParticipant.avatar;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
@@ -279,17 +275,17 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
                   onTapCancel: _handleTapCancel,
                   onLongPress: _handleLongPress,
                   child: Container(
-                    padding: widget.padding ?? const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    padding:
+                        widget.padding ??
+                        const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                     child: Row(
                       children: [
                         _buildAvatar(),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildConversationInfo(),
-                        ),
+                        Expanded(child: _buildConversationInfo()),
                         _buildTrailing(),
                       ],
                     ),
@@ -306,10 +302,7 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
   Widget _buildAvatar() {
     return Stack(
       children: [
-        CustomAvatar(
-          imageUrl: _getDisplayAvatar(),
-          radius: 28,
-        ),
+        CustomAvatar(imageUrl: _getDisplayAvatar(), radius: 28),
         if (widget.showOnlineStatus && !widget.conversation.isGroup) ...[
           Positioned(
             bottom: 2,
@@ -342,11 +335,7 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
                   width: 1,
                 ),
               ),
-              child: const Icon(
-                Icons.push_pin,
-                size: 10,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.push_pin, size: 10, color: Colors.white),
             ),
           ),
       ],
@@ -363,8 +352,8 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
               child: Text(
                 _getDisplayName(),
                 style: AppTextStyles.titleMedium.copyWith(
-                  fontWeight: widget.unreadCount > 0 
-                      ? FontWeight.bold 
+                  fontWeight: widget.unreadCount > 0
+                      ? FontWeight.bold
                       : FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -386,10 +375,7 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
 
   Widget _buildLastMessagePreview() {
     if (widget.isTyping && widget.typingUsers != null) {
-      return TypingIndicator(
-        userNames: widget.typingUsers!,
-        isCompact: true,
-      );
+      return TypingIndicator(userNames: widget.typingUsers!, isCompact: true);
     }
 
     if (widget.lastMessage == null) {
@@ -404,15 +390,15 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
 
     final message = widget.lastMessage!;
     String previewText = _getMessagePreview(message);
-    
+
     return Text(
       previewText,
       style: AppTextStyles.bodyMedium.copyWith(
-        color: widget.unreadCount > 0 
-            ? AppColors.textPrimary 
+        color: widget.unreadCount > 0
+            ? AppColors.textPrimary
             : AppColors.textSecondary,
-        fontWeight: widget.unreadCount > 0 
-            ? FontWeight.w500 
+        fontWeight: widget.unreadCount > 0
+            ? FontWeight.w500
             : FontWeight.normal,
       ),
       maxLines: 1,
@@ -421,10 +407,10 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
   }
 
   String _getMessagePreview(ChatMessageModel message) {
-    final senderName = message.senderId == 'current_user' 
-        ? 'You' 
+    final senderName = message.senderId == 'current_user'
+        ? 'You'
         : (message.senderName.isNotEmpty ? message.senderName : 'Unknown');
-    
+
     String content;
     switch (message.messageType) {
       case MessageType.text:
@@ -437,7 +423,8 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
         content = '🎥 Video';
         break;
       case MessageType.file:
-        content = '📎 ${message.mediaAttachments.isNotEmpty ? message.mediaAttachments.first.name : 'File'}';
+        content =
+            '📎 ${message.mediaAttachments.isNotEmpty ? message.mediaAttachments.first.name : 'File'}';
         break;
       case MessageType.audio:
         content = '🎵 Voice message';
@@ -456,18 +443,14 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
     if (widget.conversation.isGroup) {
       return '$senderName: $content';
     }
-    
+
     return content;
   }
 
   Widget _buildTrailing() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        _buildTimestamp(),
-        const SizedBox(height: 4),
-        _buildBadges(),
-      ],
+      children: [_buildTimestamp(), const SizedBox(height: 4), _buildBadges()],
     );
   }
 
@@ -479,11 +462,11 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
     return Text(
       TimeFormatter.format(widget.lastMessage!.sentAt),
       style: AppTextStyles.bodySmall.copyWith(
-        color: widget.unreadCount > 0 
-            ? AppColors.primary 
+        color: widget.unreadCount > 0
+            ? AppColors.primary
             : AppColors.textSecondary,
-        fontWeight: widget.unreadCount > 0 
-            ? FontWeight.w600 
+        fontWeight: widget.unreadCount > 0
+            ? FontWeight.w600
             : FontWeight.normal,
         fontSize: 12,
       ),
@@ -496,20 +479,14 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
       children: [
         if (widget.unreadCount > 0) ...[
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 6,
-              vertical: 2,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: widget.isMuted 
-                  ? AppColors.textSecondary 
+              color: widget.isMuted
+                  ? AppColors.textSecondary
                   : AppColors.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            constraints: const BoxConstraints(
-              minWidth: 20,
-              minHeight: 20,
-            ),
+            constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
             child: Text(
               widget.unreadCount > 99 ? '99+' : widget.unreadCount.toString(),
               style: AppTextStyles.bodySmall.copyWith(
@@ -532,13 +509,13 @@ class _ChatListTileState extends ConsumerState<ChatListTile>
   }
 
   IconData _getMessageStatusIcon() {
-  // Status tracking not implemented; always return check icon
-  return Icons.check;
+    // Status tracking not implemented; always return check icon
+    return Icons.check;
   }
 
   Color _getMessageStatusColor() {
-  // Status tracking not implemented; always return textSecondary
-  return AppColors.textSecondary;
+    // Status tracking not implemented; always return textSecondary
+    return AppColors.textSecondary;
   }
 }
 

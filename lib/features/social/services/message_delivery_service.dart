@@ -7,10 +7,9 @@ import '../domain/entities/chat_message.dart';
 /// Service for managing message delivery with online/offline handling
 class MessageDeliveryService {
   final SocialRepository _repository;
-  
-  MessageDeliveryService({
-    required SocialRepository repository,
-  }) : _repository = repository;
+
+  MessageDeliveryService({required SocialRepository repository})
+    : _repository = repository;
 
   /// Send a message with delivery status tracking
   Future<Either<Failure, ChatMessage>> sendMessage({
@@ -27,10 +26,12 @@ class MessageDeliveryService {
         replyToId: replyToId,
         metadata: metadata,
       );
-      
+
       return result;
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to send message: ${e.toString()}'));
+      return Left(
+        ServerFailure(message: 'Failed to send message: ${e.toString()}'),
+      );
     }
   }
 
@@ -40,17 +41,28 @@ class MessageDeliveryService {
       // TODO: Implement delivery confirmation
       return const Right(true);
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to mark message as delivered: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to mark message as delivered: ${e.toString()}',
+        ),
+      );
     }
   }
 
   /// Mark message as read
-  Future<Either<Failure, bool>> markAsRead(String messageId, String userId) async {
+  Future<Either<Failure, bool>> markAsRead(
+    String messageId,
+    String userId,
+  ) async {
     try {
       // TODO: Implement read receipt
       return const Right(true);
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to mark message as read: ${e.toString()}'));
+      return Left(
+        ServerFailure(
+          message: 'Failed to mark message as read: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -60,7 +72,9 @@ class MessageDeliveryService {
       // TODO: Implement status checking
       return const Right(true);
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to get message status: ${e.toString()}'));
+      return Left(
+        ServerFailure(message: 'Failed to get message status: ${e.toString()}'),
+      );
     }
   }
 }

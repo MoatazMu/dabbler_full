@@ -5,37 +5,37 @@ import 'package:flutter/services.dart';
 class PriceInputField extends StatefulWidget {
   /// Current price value (null for free)
   final double? price;
-  
+
   /// Currency code (e.g., 'USD', 'EUR')
   final String currency;
-  
+
   /// Called when price changes
   final Function(double? price)? onChanged;
-  
+
   /// Whether the field is enabled
   final bool enabled;
-  
+
   /// Whether to show the free option
   final bool allowFree;
-  
+
   /// Label for the field
   final String label;
-  
+
   /// Hint text
   final String? hint;
-  
+
   /// Validation function
   final String? Function(double? price)? validator;
-  
+
   /// Minimum allowed price
   final double? minPrice;
-  
+
   /// Maximum allowed price
   final double? maxPrice;
-  
+
   /// Currency symbol to display
   final String? currencySymbol;
-  
+
   /// Number of decimal places
   final int decimalPlaces;
 
@@ -86,18 +86,19 @@ class _PriceInputFieldState extends State<PriceInputField> {
     super.didUpdateWidget(oldWidget);
     if (widget.price != oldWidget.price) {
       _isFree = widget.price == null;
-      _controller.text = widget.price?.toStringAsFixed(widget.decimalPlaces) ?? '';
+      _controller.text =
+          widget.price?.toStringAsFixed(widget.decimalPlaces) ?? '';
     }
   }
 
   void _onTextChanged() {
     if (_isFree) return;
-    
+
     final text = _controller.text;
     final price = double.tryParse(text);
-    
+
     _validate(price);
-    
+
     if (_validationError == null) {
       widget.onChanged?.call(price);
     }
@@ -105,7 +106,7 @@ class _PriceInputFieldState extends State<PriceInputField> {
 
   void _validate(double? price) {
     String? error;
-    
+
     if (!_isFree && price == null && _controller.text.isNotEmpty) {
       error = 'Please enter a valid price';
     } else if (price != null) {
@@ -117,7 +118,7 @@ class _PriceInputFieldState extends State<PriceInputField> {
         error = widget.validator!(price);
       }
     }
-    
+
     setState(() {
       _validationError = error;
     });
@@ -166,7 +167,7 @@ class _PriceInputFieldState extends State<PriceInputField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -180,13 +181,12 @@ class _PriceInputFieldState extends State<PriceInputField> {
               ),
             ),
             const Spacer(),
-            if (widget.allowFree)
-              _buildFreeToggle(theme),
+            if (widget.allowFree) _buildFreeToggle(theme),
           ],
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Price input field
         AnimatedOpacity(
           opacity: _isFree ? 0.5 : 1.0,
@@ -219,7 +219,7 @@ class _PriceInputFieldState extends State<PriceInputField> {
             ),
           ),
         ),
-        
+
         // Quick price options
         if (!_isFree) ...[
           const SizedBox(height: 12),
@@ -258,22 +258,28 @@ class _PriceInputFieldState extends State<PriceInputField> {
   Widget _buildQuickPriceOptions(ThemeData theme) {
     // Common price points
     final commonPrices = [5.0, 10.0, 15.0, 20.0, 25.0];
-    
+
     return Wrap(
       spacing: 8,
       children: commonPrices.map((price) {
-        final isValid = (widget.minPrice == null || price >= widget.minPrice!) &&
-                       (widget.maxPrice == null || price <= widget.maxPrice!);
-        
+        final isValid =
+            (widget.minPrice == null || price >= widget.minPrice!) &&
+            (widget.maxPrice == null || price <= widget.maxPrice!);
+
         if (!isValid) return const SizedBox.shrink();
-        
+
         return ActionChip(
           label: Text(_formatPrice(price)),
-          onPressed: widget.enabled ? () {
-            _controller.text = price.toStringAsFixed(widget.decimalPlaces);
-            widget.onChanged?.call(price);
-          } : null,
-          backgroundColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          onPressed: widget.enabled
+              ? () {
+                  _controller.text = price.toStringAsFixed(
+                    widget.decimalPlaces,
+                  );
+                  widget.onChanged?.call(price);
+                }
+              : null,
+          backgroundColor: theme.colorScheme.surfaceContainerHighest
+              .withOpacity(0.5),
           labelStyle: theme.textTheme.bodySmall,
         );
       }).toList(),
@@ -303,26 +309,21 @@ class PriceDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveStyle = textStyle ?? theme.textTheme.titleMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-    );
-    
+    final effectiveStyle =
+        textStyle ??
+        theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+
     if (price == null || price == 0) {
       return Text(
         freeText,
-        style: effectiveStyle?.copyWith(
-          color: theme.colorScheme.primary,
-        ),
+        style: effectiveStyle?.copyWith(color: theme.colorScheme.primary),
       );
     }
-    
+
     final symbol = currencySymbol ?? _getCurrencySymbol(currency);
     final formattedPrice = '$symbol${price!.toStringAsFixed(decimalPlaces)}';
-    
-    return Text(
-      formattedPrice,
-      style: effectiveStyle,
-    );
+
+    return Text(formattedPrice, style: effectiveStyle);
   }
 
   String _getCurrencySymbol(String currency) {
@@ -392,7 +393,7 @@ class _PriceRangeSelectorState extends State<PriceRangeSelector> {
     setState(() {
       _values = values;
     });
-    
+
     if (!_isFreeRange) {
       widget.onChanged?.call(values.start, values.end);
     }
@@ -402,7 +403,7 @@ class _PriceRangeSelectorState extends State<PriceRangeSelector> {
     setState(() {
       _isFreeRange = isFree;
     });
-    
+
     if (isFree) {
       widget.onChanged?.call(null, null);
     } else {
@@ -437,7 +438,7 @@ class _PriceRangeSelectorState extends State<PriceRangeSelector> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -469,9 +470,9 @@ class _PriceRangeSelectorState extends State<PriceRangeSelector> {
             ],
           ],
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         if (!_isFreeRange) ...[
           RangeSlider(
             values: _values,
@@ -480,9 +481,9 @@ class _PriceRangeSelectorState extends State<PriceRangeSelector> {
             onChanged: _onRangeChanged,
             divisions: ((widget.rangeMax - widget.rangeMin) / 5).round(),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -20,19 +20,42 @@ class SettingsDataSourceException implements Exception {
 /// Abstract interface for settings remote data operations
 abstract class SettingsRemoteDataSource {
   Future<UserSettingsModel> getUserSettings(String userId);
-  Future<UserSettingsModel> updateUserSettings(String userId, UserSettingsModel settings);
-  Future<UserSettingsModel> updateSettingCategory(String userId, String category, Map<String, dynamic> data);
+  Future<UserSettingsModel> updateUserSettings(
+    String userId,
+    UserSettingsModel settings,
+  );
+  Future<UserSettingsModel> updateSettingCategory(
+    String userId,
+    String category,
+    Map<String, dynamic> data,
+  );
   Future<PrivacySettingsModel> getPrivacySettings(String userId);
-  Future<PrivacySettingsModel> updatePrivacySettings(String userId, PrivacySettingsModel settings);
+  Future<PrivacySettingsModel> updatePrivacySettings(
+    String userId,
+    PrivacySettingsModel settings,
+  );
   Future<bool> updateSingleSetting(String userId, String key, dynamic value);
-  Future<Map<String, dynamic>> batchUpdateSettings(String userId, Map<String, dynamic> updates);
-  Future<UserSettingsModel> resetToDefaults(String userId, {List<String>? categories});
+  Future<Map<String, dynamic>> batchUpdateSettings(
+    String userId,
+    Map<String, dynamic> updates,
+  );
+  Future<UserSettingsModel> resetToDefaults(
+    String userId, {
+    List<String>? categories,
+  });
   Future<Map<String, dynamic>> getDefaultSettings({String? template});
   Future<bool> validateSettings(UserSettingsModel settings);
   Future<int> getSettingsVersion(String userId);
-  Future<UserSettingsModel> migrateSettings(String userId, int fromVersion, int toVersion);
+  Future<UserSettingsModel> migrateSettings(
+    String userId,
+    int fromVersion,
+    int toVersion,
+  );
   Future<Map<String, dynamic>> exportSettings(String userId);
-  Future<UserSettingsModel> importSettings(String userId, Map<String, dynamic> settings);
+  Future<UserSettingsModel> importSettings(
+    String userId,
+    Map<String, dynamic> settings,
+  );
 }
 
 /// Abstract interface for settings local data operations
@@ -40,7 +63,10 @@ abstract class SettingsLocalDataSource {
   Future<UserSettingsModel?> getLocalSettings(String userId);
   Future<void> saveLocalSettings(String userId, UserSettingsModel settings);
   Future<PrivacySettingsModel?> getLocalPrivacySettings(String userId);
-  Future<void> saveLocalPrivacySettings(String userId, PrivacySettingsModel settings);
+  Future<void> saveLocalPrivacySettings(
+    String userId,
+    PrivacySettingsModel settings,
+  );
   Future<bool> hasUnsyncedChanges(String userId);
   Future<void> markAsSynced(String userId);
   Future<void> clearLocalSettings(String userId);
@@ -87,7 +113,10 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<UserSettingsModel> updateUserSettings(String userId, UserSettingsModel settings) async {
+  Future<UserSettingsModel> updateUserSettings(
+    String userId,
+    UserSettingsModel settings,
+  ) async {
     try {
       final settingsData = settings.toJson();
       settingsData['updated_at'] = DateTime.now().toIso8601String();
@@ -119,32 +148,56 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<UserSettingsModel> updateSettingCategory(String userId, String category, Map<String, dynamic> data) async {
+  Future<UserSettingsModel> updateSettingCategory(
+    String userId,
+    String category,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final currentSettings = await getUserSettings(userId);
       final updatedData = <String, dynamic>{};
 
       switch (category) {
         case 'notifications':
-          updatedData['game_invite_notifications'] = data['game_invites'] ?? currentSettings.gameInviteNotifications;
-          updatedData['social_notifications'] = data['messages'] ?? currentSettings.socialNotifications;
-          updatedData['game_update_notifications'] = data['game_updates'] ?? currentSettings.gameUpdateNotifications;
-          updatedData['game_reminder_notifications'] = data['achievements'] ?? currentSettings.gameReminderNotifications;
-          updatedData['system_notifications'] = data['marketing'] ?? currentSettings.systemNotifications;
+          updatedData['game_invite_notifications'] =
+              data['game_invites'] ?? currentSettings.gameInviteNotifications;
+          updatedData['social_notifications'] =
+              data['messages'] ?? currentSettings.socialNotifications;
+          updatedData['game_update_notifications'] =
+              data['game_updates'] ?? currentSettings.gameUpdateNotifications;
+          updatedData['game_reminder_notifications'] =
+              data['achievements'] ?? currentSettings.gameReminderNotifications;
+          updatedData['system_notifications'] =
+              data['marketing'] ?? currentSettings.systemNotifications;
           break;
         case 'privacy':
           // Handle privacy settings separately since they're in a different table
           final currentPrivacySettings = await getPrivacySettings(userId);
           final privacyUpdates = PrivacySettingsModel(
-            profileVisibility: data['profile_visibility'] ?? currentPrivacySettings.profileVisibility,
-            showOnlineStatus: data['show_online_status'] ?? currentPrivacySettings.showOnlineStatus,
-            messagePreference: data['allow_direct_messages'] ?? currentPrivacySettings.messagePreference,
-            showGameHistory: data['show_game_history'] ?? currentPrivacySettings.showGameHistory,
-            showStats: data['show_statistics'] ?? currentPrivacySettings.showStats,
-            allowLocationTracking: data['allow_location_sharing'] ?? currentPrivacySettings.allowLocationTracking,
+            profileVisibility:
+                data['profile_visibility'] ??
+                currentPrivacySettings.profileVisibility,
+            showOnlineStatus:
+                data['show_online_status'] ??
+                currentPrivacySettings.showOnlineStatus,
+            messagePreference:
+                data['allow_direct_messages'] ??
+                currentPrivacySettings.messagePreference,
+            showGameHistory:
+                data['show_game_history'] ??
+                currentPrivacySettings.showGameHistory,
+            showStats:
+                data['show_statistics'] ?? currentPrivacySettings.showStats,
+            allowLocationTracking:
+                data['allow_location_sharing'] ??
+                currentPrivacySettings.allowLocationTracking,
             blockedUsers: currentPrivacySettings.blockedUsers,
-            allowDataAnalytics: data['data_processing_consent'] ?? currentPrivacySettings.allowDataAnalytics,
-            dataSharingLevel: data['marketing_consent'] ?? currentPrivacySettings.dataSharingLevel,
+            allowDataAnalytics:
+                data['data_processing_consent'] ??
+                currentPrivacySettings.allowDataAnalytics,
+            dataSharingLevel:
+                data['marketing_consent'] ??
+                currentPrivacySettings.dataSharingLevel,
             showRealName: currentPrivacySettings.showRealName,
             showAge: currentPrivacySettings.showAge,
             showLocation: currentPrivacySettings.showLocation,
@@ -153,21 +206,31 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
             showSportsProfiles: currentPrivacySettings.showSportsProfiles,
             showAchievements: currentPrivacySettings.showAchievements,
             gameInvitePreference: currentPrivacySettings.gameInvitePreference,
-            allowGameRecommendations: currentPrivacySettings.allowGameRecommendations,
+            allowGameRecommendations:
+                currentPrivacySettings.allowGameRecommendations,
           );
           await updatePrivacySettings(userId, privacyUpdates);
           break;
         case 'preferences':
-          updatedData['language'] = data['language'] ?? currentSettings.language;
-          updatedData['theme_mode'] = data['theme'] ?? currentSettings.themeMode.name;
+          updatedData['language'] =
+              data['language'] ?? currentSettings.language;
+          updatedData['theme_mode'] =
+              data['theme'] ?? currentSettings.themeMode.name;
           updatedData['region'] = data['timezone'] ?? currentSettings.region;
-          updatedData['distance_unit'] = data['distance_unit'] ?? currentSettings.distanceUnit.name;
-          updatedData['time_format'] = data['time_format'] ?? currentSettings.timeFormat.name;
+          updatedData['distance_unit'] =
+              data['distance_unit'] ?? currentSettings.distanceUnit.name;
+          updatedData['time_format'] =
+              data['time_format'] ?? currentSettings.timeFormat.name;
           break;
         case 'game':
-          updatedData['default_is_public'] = data['default_game_privacy'] ?? currentSettings.defaultIsPublic;
-          updatedData['default_allow_waitlist'] = data['enable_game_reminders'] ?? currentSettings.defaultAllowWaitlist;
-          updatedData['default_advance_notice_hours'] = data['default_advance_notice_hours'] ?? currentSettings.defaultAdvanceNoticeHours;
+          updatedData['default_is_public'] =
+              data['default_game_privacy'] ?? currentSettings.defaultIsPublic;
+          updatedData['default_allow_waitlist'] =
+              data['enable_game_reminders'] ??
+              currentSettings.defaultAllowWaitlist;
+          updatedData['default_advance_notice_hours'] =
+              data['default_advance_notice_hours'] ??
+              currentSettings.defaultAdvanceNoticeHours;
           break;
       }
 
@@ -224,7 +287,10 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<PrivacySettingsModel> updatePrivacySettings(String userId, PrivacySettingsModel settings) async {
+  Future<PrivacySettingsModel> updatePrivacySettings(
+    String userId,
+    PrivacySettingsModel settings,
+  ) async {
     try {
       final privacyData = settings.toJson();
       privacyData['updated_at'] = DateTime.now().toIso8601String();
@@ -253,7 +319,11 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<bool> updateSingleSetting(String userId, String key, dynamic value) async {
+  Future<bool> updateSingleSetting(
+    String userId,
+    String key,
+    dynamic value,
+  ) async {
     try {
       final updateData = {
         'user_id': userId,
@@ -277,7 +347,10 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> batchUpdateSettings(String userId, Map<String, dynamic> updates) async {
+  Future<Map<String, dynamic>> batchUpdateSettings(
+    String userId,
+    Map<String, dynamic> updates,
+  ) async {
     try {
       final updateData = {
         'user_id': userId,
@@ -303,23 +376,29 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<UserSettingsModel> resetToDefaults(String userId, {List<String>? categories}) async {
+  Future<UserSettingsModel> resetToDefaults(
+    String userId, {
+    List<String>? categories,
+  }) async {
     try {
       final defaultSettings = await getDefaultSettings();
-      
+
       if (categories != null && categories.isNotEmpty) {
         // Reset only specific categories
         final currentSettings = await getUserSettings(userId);
         final resetData = <String, dynamic>{};
-        
+
         for (final category in categories) {
           switch (category) {
             case 'notifications':
               resetData.addAll({
-                'game_invite_notifications': defaultSettings['game_invite_notifications'],
+                'game_invite_notifications':
+                    defaultSettings['game_invite_notifications'],
                 'social_notifications': defaultSettings['social_notifications'],
-                'game_update_notifications': defaultSettings['game_update_notifications'],
-                'game_reminder_notifications': defaultSettings['game_reminder_notifications'],
+                'game_update_notifications':
+                    defaultSettings['game_update_notifications'],
+                'game_reminder_notifications':
+                    defaultSettings['game_reminder_notifications'],
                 'system_notifications': defaultSettings['system_notifications'],
               });
               break;
@@ -335,27 +414,29 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
             case 'game':
               resetData.addAll({
                 'default_is_public': defaultSettings['default_is_public'],
-                'default_allow_waitlist': defaultSettings['default_allow_waitlist'],
-                'default_advance_notice_hours': defaultSettings['default_advance_notice_hours'],
+                'default_allow_waitlist':
+                    defaultSettings['default_allow_waitlist'],
+                'default_advance_notice_hours':
+                    defaultSettings['default_advance_notice_hours'],
               });
               break;
           }
         }
-        
+
         if (resetData.isNotEmpty) {
           resetData['user_id'] = userId;
           resetData['updated_at'] = DateTime.now().toIso8601String();
-          
+
           final response = await _client
               .from(_settingsTable)
               .upsert(resetData)
               .eq('user_id', userId)
               .select('*, privacy_settings(*)')
               .single();
-          
+
           return UserSettingsModel.fromJson(response);
         }
-        
+
         return currentSettings;
       } else {
         // Reset all settings
@@ -365,21 +446,21 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
         };
-        
+
         // Delete existing settings
         await _client.from(_settingsTable).delete().eq('user_id', userId);
         await _client.from(_privacyTable).delete().eq('user_id', userId);
-        
+
         // Insert default settings
         final response = await _client
             .from(_settingsTable)
             .insert(resetData)
             .select('*, privacy_settings(*)')
             .single();
-        
+
         // Create default privacy settings
         await _createDefaultPrivacySettings(userId);
-        
+
         await _resetSettingsVersion(userId);
         return UserSettingsModel.fromJson(response);
       }
@@ -447,7 +528,17 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   @override
   Future<bool> validateSettings(UserSettingsModel settings) async {
     try {
-      final validLanguages = ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'];
+      final validLanguages = [
+        'en',
+        'es',
+        'fr',
+        'de',
+        'it',
+        'pt',
+        'ja',
+        'ko',
+        'zh',
+      ];
       final validThemes = ['light', 'dark', 'system'];
       final validDistanceUnits = ['km', 'miles'];
       final validTimeFormats = ['12h', '24h'];
@@ -470,7 +561,8 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
 
       // defaultIsPublic is a boolean, so no need to validate against string array
       // Just ensure it's a valid boolean value
-      if (settings.defaultIsPublic != true && settings.defaultIsPublic != false) {
+      if (settings.defaultIsPublic != true &&
+          settings.defaultIsPublic != false) {
         return false;
       }
 
@@ -518,7 +610,11 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<UserSettingsModel> migrateSettings(String userId, int fromVersion, int toVersion) async {
+  Future<UserSettingsModel> migrateSettings(
+    String userId,
+    int fromVersion,
+    int toVersion,
+  ) async {
     try {
       // Implement version-specific migration logic
       for (int version = fromVersion + 1; version <= toVersion; version++) {
@@ -567,10 +663,14 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<UserSettingsModel> importSettings(String userId, Map<String, dynamic> settings) async {
+  Future<UserSettingsModel> importSettings(
+    String userId,
+    Map<String, dynamic> settings,
+  ) async {
     try {
       // Validate imported settings structure
-      if (!settings.containsKey('settings') || !settings.containsKey('privacy_settings')) {
+      if (!settings.containsKey('settings') ||
+          !settings.containsKey('privacy_settings')) {
         throw const SettingsDataSourceException(
           message: 'Invalid settings format',
           code: 'INVALID_FORMAT',
@@ -594,9 +694,7 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
       await _client.from(_privacyTable).delete().eq('user_id', userId);
 
       // Insert imported settings
-      await _client
-          .from(_settingsTable)
-          .insert(settingsData);
+      await _client.from(_settingsTable).insert(settingsData);
 
       await _client.from(_privacyTable).insert(privacyData);
 
@@ -641,7 +739,9 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
     return UserSettingsModel.fromJson(response);
   }
 
-  Future<PrivacySettingsModel> _createDefaultPrivacySettings(String userId) async {
+  Future<PrivacySettingsModel> _createDefaultPrivacySettings(
+    String userId,
+  ) async {
     final defaultPrivacy = {
       'user_id': userId,
       'profile_visibility': 'public',
@@ -676,9 +776,10 @@ class SupabaseSettingsDataSource implements SettingsRemoteDataSource {
   }
 
   Future<void> _incrementSettingsVersion(String userId) async {
-    await _client.rpc('increment_settings_version', params: {
-      'user_id_param': userId,
-    });
+    await _client.rpc(
+      'increment_settings_version',
+      params: {'user_id_param': userId},
+    );
   }
 
   Future<void> _resetSettingsVersion(String userId) async {
@@ -734,7 +835,10 @@ class LocalSettingsDataSource implements SettingsLocalDataSource {
   }
 
   @override
-  Future<void> saveLocalSettings(String userId, UserSettingsModel settings) async {
+  Future<void> saveLocalSettings(
+    String userId,
+    UserSettingsModel settings,
+  ) async {
     _settingsCache[userId] = settings;
   }
 
@@ -744,7 +848,10 @@ class LocalSettingsDataSource implements SettingsLocalDataSource {
   }
 
   @override
-  Future<void> saveLocalPrivacySettings(String userId, PrivacySettingsModel settings) async {
+  Future<void> saveLocalPrivacySettings(
+    String userId,
+    PrivacySettingsModel settings,
+  ) async {
     _privacyCache[userId] = settings;
   }
 
@@ -774,7 +881,11 @@ class LocalSettingsDataSource implements SettingsLocalDataSource {
   }
 
   @override
-  Future<void> saveUnsyncedChange(String userId, String key, dynamic value) async {
+  Future<void> saveUnsyncedChange(
+    String userId,
+    String key,
+    dynamic value,
+  ) async {
     _unsyncedFlags[userId] = true;
     _unsyncedChanges[userId] ??= {};
     _unsyncedChanges[userId]![key] = value;

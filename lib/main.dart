@@ -8,11 +8,13 @@ import 'package:flutter/foundation.dart';
 import 'app/app_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'widgets/app_background.dart';
+import 'example/feed_example.dart';
 
 // Feature flags for future functionality
 class AppFeatures {
   static const bool enableReferralProgram = false; // ✅ Toggle for future use
-  static const bool enableDeepLinks = enableReferralProgram; // Links to referral feature
+  static const bool enableDeepLinks =
+      enableReferralProgram; // Links to referral feature
 }
 
 Future<void> main() async {
@@ -36,41 +38,33 @@ Future<void> main() async {
       anonKey: anonKey,
       authOptions: FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
-        detectSessionInUri: AppFeatures.enableDeepLinks, // ✅ Disabled for now, ready for referrals
+        detectSessionInUri: AppFeatures
+            .enableDeepLinks, // ✅ Disabled for now, ready for referrals
         autoRefreshToken: true,
       ),
     );
+    // Log the Supabase authorization token (JWT) after initialization
+    final session = Supabase.instance.client.auth.currentSession;
+    debugPrint('USER_JWT: ${session?.accessToken}');
 
-    // Log the Supabase authorization token (JWT) after initialization and sign-in
-    final authService = Supabase.instance.client.auth;
-    final session = authService.currentSession;
-    final accessToken = session?.accessToken;
-    if (accessToken != null) {
-      // Use debugPrint for logging in development
-      debugPrint('Supabase Authorization Token: $accessToken');
-    } else {
-      debugPrint('No Supabase Authorization Token found. User may not be signed in.');
+    if (kDebugMode) {
+      try {
+        await demoFetchFeed();
+      } catch (e, stack) {
+        debugPrint('demoFetchFeed failed: $e');
+        debugPrint(stack.toString());
+      }
     }
 
-    runApp(
-      const ProviderScope(
-        child: MyApp(),
-      ),
-    );
+    runApp(const ProviderScope(child: MyApp()));
   } catch (e) {
     // Log minimal error information without excessive debug output
     // ignore: avoid_print
-  // ...existing code...
+    // ...existing code...
     // Still try to run the app even if there's an error
-    runApp(
-      const ProviderScope(
-        child: MyApp(),
-      ),
-    );
+    runApp(const ProviderScope(child: MyApp()));
   }
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -80,7 +74,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return AnimatedBuilder(
       animation: _themeService,
       builder: (context, child) {
@@ -94,10 +87,7 @@ class MyApp extends StatelessWidget {
           builder: (context, child) {
             // Mount a single global background behind all app content
             return Stack(
-              children: [
-                const AppBackground(),
-                if (child != null) child,
-              ],
+              children: [const AppBackground(), if (child != null) child],
             );
           },
         );

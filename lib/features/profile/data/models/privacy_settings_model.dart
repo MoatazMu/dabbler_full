@@ -56,17 +56,33 @@ class PrivacySettingsModel extends PrivacySettings {
       showPhone: _parseBoolWithDefault(json['show_phone'], false),
       showEmail: _parseBoolWithDefault(json['show_email'], false),
       showStats: _parseBoolWithDefault(json['show_stats'], true),
-      showSportsProfiles: _parseBoolWithDefault(json['show_sports_profiles'], true),
+      showSportsProfiles: _parseBoolWithDefault(
+        json['show_sports_profiles'],
+        true,
+      ),
       showGameHistory: _parseBoolWithDefault(json['show_game_history'], true),
       showAchievements: _parseBoolWithDefault(json['show_achievements'], true),
-      messagePreference: _parseCommunicationPreference(json['message_preference']),
-      gameInvitePreference: _parseCommunicationPreference(json['game_invite_preference']),
-      allowLocationTracking: _parseBoolWithDefault(json['allow_location_tracking'], true),
-      allowDataAnalytics: _parseBoolWithDefault(json['allow_data_analytics'], true),
+      messagePreference: _parseCommunicationPreference(
+        json['message_preference'],
+      ),
+      gameInvitePreference: _parseCommunicationPreference(
+        json['game_invite_preference'],
+      ),
+      allowLocationTracking: _parseBoolWithDefault(
+        json['allow_location_tracking'],
+        true,
+      ),
+      allowDataAnalytics: _parseBoolWithDefault(
+        json['allow_data_analytics'],
+        true,
+      ),
       dataSharingLevel: _parseDataSharingLevel(json['data_sharing_level']),
       blockedUsers: _parseStringList(json['blocked_users']),
       showOnlineStatus: _parseBoolWithDefault(json['show_online_status'], true),
-      allowGameRecommendations: _parseBoolWithDefault(json['allow_game_recommendations'], true),
+      allowGameRecommendations: _parseBoolWithDefault(
+        json['allow_game_recommendations'],
+        true,
+      ),
     );
   }
 
@@ -75,71 +91,71 @@ class PrivacySettingsModel extends PrivacySettings {
     // Handle backward compatibility with older database schema
     return PrivacySettingsModel(
       profileVisibility: _parseProfileVisibility(
-        json['visibility'] ?? json['profile_visibility']
+        json['visibility'] ?? json['profile_visibility'],
       ),
       showRealName: _parseBoolWithDefault(
-        json['real_name_visible'] ?? json['show_real_name'], 
-        true
+        json['real_name_visible'] ?? json['show_real_name'],
+        true,
       ),
       showAge: _parseBoolWithDefault(
-        json['age_visible'] ?? json['show_age'], 
-        false
+        json['age_visible'] ?? json['show_age'],
+        false,
       ),
       showLocation: _parseBoolWithDefault(
-        json['location_visible'] ?? json['show_location'], 
-        true
+        json['location_visible'] ?? json['show_location'],
+        true,
       ),
       showPhone: _parseBoolWithDefault(
-        json['phone_visible'] ?? json['show_phone'], 
-        false
+        json['phone_visible'] ?? json['show_phone'],
+        false,
       ),
       showEmail: _parseBoolWithDefault(
-        json['email_visible'] ?? json['show_email'], 
-        false
+        json['email_visible'] ?? json['show_email'],
+        false,
       ),
       showStats: _parseBoolWithDefault(
-        json['stats_visible'] ?? json['show_stats'], 
-        true
+        json['stats_visible'] ?? json['show_stats'],
+        true,
       ),
       showSportsProfiles: _parseBoolWithDefault(
-        json['sports_visible'] ?? json['show_sports_profiles'], 
-        true
+        json['sports_visible'] ?? json['show_sports_profiles'],
+        true,
       ),
       showGameHistory: _parseBoolWithDefault(
-        json['history_visible'] ?? json['show_game_history'], 
-        true
+        json['history_visible'] ?? json['show_game_history'],
+        true,
       ),
       showAchievements: _parseBoolWithDefault(
-        json['achievements_visible'] ?? json['show_achievements'], 
-        true
+        json['achievements_visible'] ?? json['show_achievements'],
+        true,
       ),
       messagePreference: _parseCommunicationPreference(
-        json['message_pref'] ?? json['message_preference']
+        json['message_pref'] ?? json['message_preference'],
       ),
       gameInvitePreference: _parseCommunicationPreference(
-        json['game_invite_pref'] ?? json['game_invite_preference']
+        json['game_invite_pref'] ?? json['game_invite_preference'],
       ),
       allowLocationTracking: _parseBoolWithDefault(
-        json['location_tracking'] ?? json['allow_location_tracking'], 
-        true
+        json['location_tracking'] ?? json['allow_location_tracking'],
+        true,
       ),
       allowDataAnalytics: _parseBoolWithDefault(
-        json['data_analytics'] ?? json['allow_data_analytics'], 
-        true
+        json['data_analytics'] ?? json['allow_data_analytics'],
+        true,
       ),
       dataSharingLevel: _parseDataSharingLevel(
-        json['data_sharing'] ?? json['data_sharing_level']
+        json['data_sharing'] ?? json['data_sharing_level'],
       ),
       blockedUsers: _parseStringList(
-        json['blocked_users'] ?? json['blocked_users']
+        json['blocked_users'] ?? json['blocked_users'],
       ),
       showOnlineStatus: _parseBoolWithDefault(
-        json['online_status'] ?? json['show_online_status'], 
-        true
+        json['online_status'] ?? json['show_online_status'],
+        true,
       ),
       allowGameRecommendations: _parseBoolWithDefault(
-        json['game_recommendations'] ?? json['allow_game_recommendations'], 
-        true
+        json['game_recommendations'] ?? json['allow_game_recommendations'],
+        true,
       ),
     );
   }
@@ -222,79 +238,105 @@ class PrivacySettingsModel extends PrivacySettings {
 
   static ProfileVisibility _parseProfileVisibility(dynamic value) {
     if (value == null) return ProfileVisibility.public;
-    
+
     if (value is int) {
       switch (value) {
-        case 0: return ProfileVisibility.public;
-        case 1: return ProfileVisibility.friends;
-        case 2: return ProfileVisibility.private;
-        default: return ProfileVisibility.public;
+        case 0:
+          return ProfileVisibility.public;
+        case 1:
+          return ProfileVisibility.friends;
+        case 2:
+          return ProfileVisibility.private;
+        default:
+          return ProfileVisibility.public;
       }
     }
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
-        case 'public': return ProfileVisibility.public;
-        case 'friends': return ProfileVisibility.friends;
-        case 'private': return ProfileVisibility.private;
-        default: return ProfileVisibility.public;
+        case 'public':
+          return ProfileVisibility.public;
+        case 'friends':
+          return ProfileVisibility.friends;
+        case 'private':
+          return ProfileVisibility.private;
+        default:
+          return ProfileVisibility.public;
       }
     }
-    
+
     return ProfileVisibility.public;
   }
 
   static CommunicationPreference _parseCommunicationPreference(dynamic value) {
     if (value == null) return CommunicationPreference.anyone;
-    
+
     if (value is int) {
       switch (value) {
-        case 0: return CommunicationPreference.anyone;
-        case 1: return CommunicationPreference.friendsOnly;
-        case 2: return CommunicationPreference.organizersOnly;
-        case 3: return CommunicationPreference.none;
-        default: return CommunicationPreference.anyone;
+        case 0:
+          return CommunicationPreference.anyone;
+        case 1:
+          return CommunicationPreference.friendsOnly;
+        case 2:
+          return CommunicationPreference.organizersOnly;
+        case 3:
+          return CommunicationPreference.none;
+        default:
+          return CommunicationPreference.anyone;
       }
     }
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
-        case 'anyone': return CommunicationPreference.anyone;
-        case 'friends_only': 
-        case 'friendsonly': 
-        case 'friends': return CommunicationPreference.friendsOnly;
+        case 'anyone':
+          return CommunicationPreference.anyone;
+        case 'friends_only':
+        case 'friendsonly':
+        case 'friends':
+          return CommunicationPreference.friendsOnly;
         case 'organizers_only':
         case 'organizersonly':
-        case 'organizers': return CommunicationPreference.organizersOnly;
-        case 'none': return CommunicationPreference.none;
-        default: return CommunicationPreference.anyone;
+        case 'organizers':
+          return CommunicationPreference.organizersOnly;
+        case 'none':
+          return CommunicationPreference.none;
+        default:
+          return CommunicationPreference.anyone;
       }
     }
-    
+
     return CommunicationPreference.anyone;
   }
 
   static DataSharingLevel _parseDataSharingLevel(dynamic value) {
     if (value == null) return DataSharingLevel.limited;
-    
+
     if (value is int) {
       switch (value) {
-        case 0: return DataSharingLevel.minimal;
-        case 1: return DataSharingLevel.limited;
-        case 2: return DataSharingLevel.full;
-        default: return DataSharingLevel.limited;
+        case 0:
+          return DataSharingLevel.minimal;
+        case 1:
+          return DataSharingLevel.limited;
+        case 2:
+          return DataSharingLevel.full;
+        default:
+          return DataSharingLevel.limited;
       }
     }
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
-        case 'minimal': return DataSharingLevel.minimal;
-        case 'limited': return DataSharingLevel.limited;
-        case 'full': return DataSharingLevel.full;
-        default: return DataSharingLevel.limited;
+        case 'minimal':
+          return DataSharingLevel.minimal;
+        case 'limited':
+          return DataSharingLevel.limited;
+        case 'full':
+          return DataSharingLevel.full;
+        default:
+          return DataSharingLevel.limited;
       }
     }
-    
+
     return DataSharingLevel.limited;
   }
 
@@ -312,20 +354,20 @@ class PrivacySettingsModel extends PrivacySettings {
 
   static List<String> _parseStringList(dynamic value) {
     if (value == null) return [];
-    
+
     if (value is List) {
       return value.map((e) => e.toString()).toList();
     }
-    
+
     if (value is String) {
       if (value.isEmpty) return [];
-      
+
       // Handle JSON array strings
       if (value.startsWith('[') && value.endsWith(']')) {
         try {
           final cleaned = value.substring(1, value.length - 1);
           if (cleaned.isEmpty) return [];
-          
+
           return cleaned
               .split(',')
               .map((e) => e.trim().replaceAll('"', '').replaceAll("'", ''))
@@ -335,14 +377,15 @@ class PrivacySettingsModel extends PrivacySettings {
           return [];
         }
       }
-      
+
       // Handle comma-separated values
-      return value.split(',')
+      return value
+          .split(',')
           .map((e) => e.trim())
           .where((e) => e.isNotEmpty)
           .toList();
     }
-    
+
     return [];
   }
 
@@ -381,12 +424,14 @@ class PrivacySettingsModel extends PrivacySettings {
       showAchievements: showAchievements ?? this.showAchievements,
       messagePreference: messagePreference ?? this.messagePreference,
       gameInvitePreference: gameInvitePreference ?? this.gameInvitePreference,
-      allowLocationTracking: allowLocationTracking ?? this.allowLocationTracking,
+      allowLocationTracking:
+          allowLocationTracking ?? this.allowLocationTracking,
       allowDataAnalytics: allowDataAnalytics ?? this.allowDataAnalytics,
       dataSharingLevel: dataSharingLevel ?? this.dataSharingLevel,
       blockedUsers: blockedUsers ?? this.blockedUsers,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
-      allowGameRecommendations: allowGameRecommendations ?? this.allowGameRecommendations,
+      allowGameRecommendations:
+          allowGameRecommendations ?? this.allowGameRecommendations,
     );
   }
 

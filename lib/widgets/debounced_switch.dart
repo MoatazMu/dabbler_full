@@ -6,7 +6,12 @@ class DebouncedSwitch extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final Duration delay;
 
-  const DebouncedSwitch({super.key, required this.value, required this.onChanged, this.delay = const Duration(milliseconds: 400)});
+  const DebouncedSwitch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.delay = const Duration(milliseconds: 400),
+  });
 
   @override
   State<DebouncedSwitch> createState() => _DebouncedSwitchState();
@@ -48,5 +53,3 @@ class _DebouncedSwitchState extends State<DebouncedSwitch> {
     );
   }
 }
-
-

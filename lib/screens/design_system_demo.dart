@@ -15,20 +15,14 @@ class DesignSystemDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Design System Demo',
-          style: DabblerTypography.headline6(),
-        ),
+        title: Text('Design System Demo', style: DabblerTypography.headline6()),
       ),
       body: SingleChildScrollView(
         padding: DabblerSpacing.all16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Buttons',
-              style: DabblerTypography.headline5(),
-            ),
+            Text('Buttons', style: DabblerTypography.headline5()),
             SizedBox(height: DabblerSpacing.spacing16),
             Wrap(
               spacing: DabblerSpacing.spacing8,
@@ -54,17 +48,11 @@ class DesignSystemDemo extends StatelessWidget {
                   onPressed: () {},
                   isLoading: true,
                 ),
-                DabblerButton(
-                  text: 'Disabled',
-                  onPressed: null,
-                ),
+                DabblerButton(text: 'Disabled', onPressed: null),
               ],
             ),
             SizedBox(height: DabblerSpacing.spacing32),
-            Text(
-              'Cards',
-              style: DabblerTypography.headline5(),
-            ),
+            Text('Cards', style: DabblerTypography.headline5()),
             SizedBox(height: DabblerSpacing.spacing16),
             DabblerContentCard(
               title: 'Content Card',
@@ -80,17 +68,11 @@ class DesignSystemDemo extends StatelessWidget {
                   variant: ButtonVariant.text,
                 ),
                 SizedBox(width: DabblerSpacing.spacing8),
-                DabblerButton(
-                  text: 'Submit',
-                  onPressed: () {},
-                ),
+                DabblerButton(text: 'Submit', onPressed: () {}),
               ],
             ),
             SizedBox(height: DabblerSpacing.spacing32),
-            Text(
-              'Form Fields',
-              style: DabblerTypography.headline5(),
-            ),
+            Text('Form Fields', style: DabblerTypography.headline5()),
             SizedBox(height: DabblerSpacing.spacing16),
             DabblerCard(
               child: Column(
@@ -118,10 +100,7 @@ class DesignSystemDemo extends StatelessWidget {
               ),
             ),
             SizedBox(height: DabblerSpacing.spacing32),
-            Text(
-              'Loading Screens',
-              style: DabblerTypography.headline5(),
-            ),
+            Text('Loading Screens', style: DabblerTypography.headline5()),
             SizedBox(height: DabblerSpacing.spacing16),
             _buildLoadingScreensSection(context),
           ],
@@ -136,12 +115,12 @@ class DesignSystemDemo extends StatelessWidget {
       children: [
         Text(
           'Loading Screens',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
-        
+
         // Elegant Loading Screen
         Card(
           child: Padding(
@@ -171,9 +150,9 @@ class DesignSystemDemo extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Features:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -188,9 +167,9 @@ class DesignSystemDemo extends StatelessWidget {
             ),
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Simple Loading Screen
         Card(
           child: Padding(
@@ -215,9 +194,9 @@ class DesignSystemDemo extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Features:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -231,9 +210,9 @@ class DesignSystemDemo extends StatelessWidget {
             ),
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Enhanced Loading Spinner
         Card(
           child: Padding(
@@ -260,9 +239,9 @@ class DesignSystemDemo extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Features:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -276,9 +255,9 @@ class DesignSystemDemo extends StatelessWidget {
             ),
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Minimal Loading Indicator
         Card(
           child: Padding(
@@ -308,9 +287,9 @@ class DesignSystemDemo extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'Features:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
                 Text(

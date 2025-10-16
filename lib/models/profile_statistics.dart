@@ -68,14 +68,18 @@ class ProfileStatistics {
       reliability_rating: json['reliability_rating'],
       achievements_unlocked: json['achievements_unlocked'],
       badges_earned: json['badges_earned'],
-      last_game_date: (json['last_game_date'] == null ? null : DateTime.parse(json['last_game_date'] as String)),
-      last_active: (json['last_active'] == null ? null : DateTime.parse(json['last_active'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      last_game_date: (json['last_game_date'] == null
+          ? null
+          : DateTime.parse(json['last_game_date'] as String)),
+      last_active: (json['last_active'] == null
+          ? null
+          : DateTime.parse(json['last_active'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

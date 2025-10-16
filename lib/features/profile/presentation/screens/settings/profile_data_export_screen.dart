@@ -8,20 +8,22 @@ class ProfileDataExportScreen extends ConsumerStatefulWidget {
   const ProfileDataExportScreen({super.key});
 
   @override
-  ConsumerState<ProfileDataExportScreen> createState() => _ProfileDataExportScreenState();
+  ConsumerState<ProfileDataExportScreen> createState() =>
+      _ProfileDataExportScreenState();
 }
 
-class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScreen>
+class _ProfileDataExportScreenState
+    extends ConsumerState<ProfileDataExportScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   bool _isGenerating = false;
   bool _isDownloading = false;
   DateTime? _lastExportDate;
   String? _exportStatus;
-  
+
   final Map<String, bool> _selectedDataTypes = {
     'profile': true,
     'games': true,
@@ -46,22 +48,21 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
-    ));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _animationController.forward();
   }
@@ -163,9 +164,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
           children: [
             Text(
               'Select Data to Export',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -175,8 +176,8 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
               ),
             ),
             const SizedBox(height: 16),
-            ..._selectedDataTypes.entries.map((entry) => 
-              _buildDataTypeItem(entry.key, entry.value)
+            ..._selectedDataTypes.entries.map(
+              (entry) => _buildDataTypeItem(entry.key, entry.value),
             ),
             const SizedBox(height: 16),
             Row(
@@ -202,7 +203,7 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
 
   Widget _buildDataTypeItem(String dataType, bool isSelected) {
     final info = _getDataTypeInfo(dataType);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: CheckboxListTile(
@@ -214,9 +215,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
         },
         title: Text(
           info['title'],
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           info['description'],
@@ -226,9 +227,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
         ),
         secondary: Icon(
           info['icon'],
-          color: isSelected 
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         contentPadding: EdgeInsets.zero,
       ),
@@ -246,7 +247,8 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
       case 'games':
         return {
           'title': 'Game History',
-          'description': 'All games you\'ve created, joined, or participated in',
+          'description':
+              'All games you\'ve created, joined, or participated in',
           'icon': Icons.sports_esports_outlined,
         };
       case 'achievements':
@@ -309,9 +311,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
           children: [
             Text(
               'Export Options',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildExportFormatOption(
@@ -349,9 +351,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected 
-          ? Theme.of(context).colorScheme.primary
-          : Theme.of(context).colorScheme.onSurfaceVariant,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       title: Text(
         title,
@@ -360,12 +362,12 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
         ),
       ),
       subtitle: Text(description),
-      trailing: isSelected 
-        ? Icon(
-            Icons.check_circle,
-            color: Theme.of(context).colorScheme.primary,
-          )
-        : const Icon(Icons.radio_button_unchecked),
+      trailing: isSelected
+          ? Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+            )
+          : const Icon(Icons.radio_button_unchecked),
       contentPadding: EdgeInsets.zero,
     );
   }
@@ -379,9 +381,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
           children: [
             Text(
               'Export History',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             if (_lastExportDate != null) ...[
@@ -424,7 +426,9 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
 
   Widget _buildPrivacyNoticeCard() {
     return Card(
-      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+      color: Theme.of(
+        context,
+      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -465,8 +469,10 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
   }
 
   Widget _buildBottomActions() {
-    final selectedCount = _selectedDataTypes.values.where((selected) => selected).length;
-    
+    final selectedCount = _selectedDataTypes.values
+        .where((selected) => selected)
+        .length;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -494,20 +500,20 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: (_isGenerating || _isDownloading || selectedCount == 0) 
-                ? null 
-                : _generateExport,
+              onPressed: (_isGenerating || _isDownloading || selectedCount == 0)
+                  ? null
+                  : _generateExport,
               icon: _isGenerating
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.file_download),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.file_download),
               label: Text(
-                _isGenerating 
-                  ? 'Generating...' 
-                  : 'Generate Export ($selectedCount items)',
+                _isGenerating
+                    ? 'Generating...'
+                    : 'Generate Export ($selectedCount items)',
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
@@ -544,26 +550,26 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
       setState(() {
         _exportStatus = 'Processing profile information...';
       });
-      
+
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
         _exportStatus = 'Compiling game history...';
       });
-      
+
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
         _exportStatus = 'Generating export file...';
       });
-      
+
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
         _exportStatus = 'Finalizing...';
       });
-      
+
       await Future.delayed(const Duration(seconds: 1));
 
       // TODO: Implement actual data export generation
-      
+
       setState(() {
         _isGenerating = false;
         _exportStatus = null;
@@ -623,13 +629,13 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
     try {
       // TODO: Implement actual download functionality
       await Future.delayed(const Duration(seconds: 2));
-      
+
       // Simulate sharing the file
       await Share.share(
         'Your Dabbler data export is ready! This would normally be a download link.',
         subject: 'Dabbler Data Export',
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -659,7 +665,7 @@ class _ProfileDataExportScreenState extends ConsumerState<ProfileDataExportScree
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'Today';
     } else if (difference.inDays == 1) {

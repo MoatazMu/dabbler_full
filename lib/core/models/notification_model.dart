@@ -10,12 +10,7 @@ enum NotificationType {
   systemAlert,
 }
 
-enum NotificationPriority {
-  low,
-  normal,
-  high,
-  urgent,
-}
+enum NotificationPriority { low, normal, high, urgent }
 
 class NotificationModel {
   final String id;
@@ -131,7 +126,11 @@ class NotificationModel {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final notificationDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
+    final notificationDate = DateTime(
+      createdAt.year,
+      createdAt.month,
+      createdAt.day,
+    );
     final daysDifference = now.difference(createdAt).inDays;
 
     if (notificationDate == today) {
@@ -149,8 +148,13 @@ class NotificationModel {
 
   String _getDayName(int weekday) {
     const days = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 
-      'Friday', 'Saturday', 'Sunday'
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
     ];
     return days[weekday - 1];
   }

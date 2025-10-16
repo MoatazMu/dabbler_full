@@ -27,22 +27,58 @@ class Friendships {
   });
 
   factory Friendships.fromJson(Map<String, dynamic> json) {
+    // Local helpers for null-safe parsing
+    String? _s(dynamic v) => v == null ? null : v as String;
+    DateTime? _dt(dynamic v) => v == null ? null : DateTime.parse(v as String);
+
+    // Validate required fields
+    final id = _s(json['id']);
+    if (id == null || id.isEmpty) {
+      throw Exception('Friendships.fromJson: missing or empty id. Row: $json');
+    }
+
+    final userId = _s(json['user_id']);
+    if (userId == null || userId.isEmpty) {
+      throw Exception('Friendships.fromJson: missing user_id. Row: $json');
+    }
+
+    final friendId = _s(json['friend_id']);
+    if (friendId == null || friendId.isEmpty) {
+      throw Exception('Friendships.fromJson: missing friend_id. Row: $json');
+    }
+
+    final status = _s(json['status']);
+    if (status == null || status.isEmpty) {
+      throw Exception('Friendships.fromJson: missing status. Row: $json');
+    }
+
+    final initiatedBy = _s(json['initiated_by']);
+    if (initiatedBy == null || initiatedBy.isEmpty) {
+      throw Exception('Friendships.fromJson: missing initiated_by. Row: $json');
+    }
+
+    final createdAtStr = _s(json['created_at']);
+    if (createdAtStr == null) {
+      throw Exception('Friendships.fromJson: missing created_at. Row: $json');
+    }
+
+    final updatedAtStr = _s(json['updated_at']);
+    if (updatedAtStr == null) {
+      throw Exception('Friendships.fromJson: missing updated_at. Row: $json');
+    }
+
     return Friendships(
-      id: json['id'],
-      user_id: json['user_id'],
-      friend_id: json['friend_id'],
-      status: json['status'],
-      initiated_by: json['initiated_by'],
-      became_friends_at: (json['became_friends_at'] == null ? null : DateTime.parse(json['became_friends_at'] as String)),
-      blocked_at: (json['blocked_at'] == null ? null : DateTime.parse(json['blocked_at'] as String)),
-      blocked_by: json['blocked_by'],
-      message: json['message'],
-      created_at: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      updated_at: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : DateTime.now(),
+      id: id,
+      user_id: userId,
+      friend_id: friendId,
+      status: status,
+      initiated_by: initiatedBy,
+      became_friends_at: _dt(json['became_friends_at']),
+      blocked_at: _dt(json['blocked_at']),
+      blocked_by: _s(json['blocked_by']),
+      message: _s(json['message']),
+      created_at: DateTime.parse(createdAtStr),
+      updated_at: DateTime.parse(updatedAtStr),
     );
   }
 

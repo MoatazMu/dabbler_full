@@ -9,8 +9,8 @@ class GamesService {
   final GameNotificationsService _notificationsService;
   final CheckinService _checkinService;
   final WeatherIntegrationService _weatherService;
-  
-  final StreamController<GameLifecycleEvent> _lifecycleController = 
+
+  final StreamController<GameLifecycleEvent> _lifecycleController =
       StreamController<GameLifecycleEvent>.broadcast();
 
   GamesService({
@@ -49,7 +49,7 @@ class GamesService {
           dateTime: request.dateTime,
           duration: request.duration,
         );
-        
+
         if (!availabilityResult.isAvailable) {
           return CreateGameResult.failure(
             error: 'Venue not available at requested time',
@@ -69,7 +69,7 @@ class GamesService {
               maxPlayers: request.maxPlayers,
             ),
           );
-          
+
           if (!bookingResult.isSuccess) {
             return CreateGameResult.failure(
               error: 'Failed to book venue: ${bookingResult.error}',
@@ -119,22 +119,18 @@ class GamesService {
       await _weatherService.scheduleWeatherMonitoring(createdGame);
 
       // Emit lifecycle event
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: createdGame.id,
-        type: GameLifecycleEventType.created,
-        timestamp: DateTime.now(),
-      ));
-
-      return CreateGameResult.success(
-        game: createdGame,
-        bookingId: bookingId,
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: createdGame.id,
+          type: GameLifecycleEventType.created,
+          timestamp: DateTime.now(),
+        ),
       );
 
+      return CreateGameResult.success(game: createdGame, bookingId: bookingId);
     } catch (e, stackTrace) {
       debugPrint('Error creating game: $e\n$stackTrace');
-      return CreateGameResult.failure(
-        error: 'Failed to create game: $e',
-      );
+      return CreateGameResult.failure(error: 'Failed to create game: $e');
     }
   }
 
@@ -158,27 +154,31 @@ class GamesService {
     // Send 24-hour reminders
     for (final game in games24h) {
       await _notificationsService.send24HourReminder(game);
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: game.id,
-        type: GameLifecycleEventType.reminder24h,
-        timestamp: now,
-      ));
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: game.id,
+          type: GameLifecycleEventType.reminder24h,
+          timestamp: now,
+        ),
+      );
     }
 
     // Send 1-hour reminders
     for (final game in games1h) {
       await _notificationsService.send1HourReminder(game);
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: game.id,
-        type: GameLifecycleEventType.reminder1h,
-        timestamp: now,
-      ));
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: game.id,
+          type: GameLifecycleEventType.reminder1h,
+          timestamp: now,
+        ),
+      );
     }
   }
 
   Future<void> manageCheckinWindows() async {
     final now = DateTime.now();
-    
+
     // Open check-in windows (30 minutes before game)
     final gamesStartingSoon = await _gamesRepository.getGamesByDateRange(
       start: now.add(const Duration(minutes: 25)),
@@ -190,14 +190,16 @@ class GamesService {
         await _gamesRepository.updateGame(
           game.copyWith(checkinWindowOpen: true),
         );
-        
+
         await _notificationsService.sendCheckinWindowAlert(game);
-        
-        _lifecycleController.add(GameLifecycleEvent(
-          gameId: game.id,
-          type: GameLifecycleEventType.checkinOpened,
-          timestamp: now,
-        ));
+
+        _lifecycleController.add(
+          GameLifecycleEvent(
+            gameId: game.id,
+            type: GameLifecycleEventType.checkinOpened,
+            timestamp: now,
+          ),
+        );
       }
     }
 
@@ -216,11 +218,13 @@ class GamesService {
           ),
         );
 
-        _lifecycleController.add(GameLifecycleEvent(
-          gameId: game.id,
-          type: GameLifecycleEventType.gameStarted,
-          timestamp: now,
-        ));
+        _lifecycleController.add(
+          GameLifecycleEvent(
+            gameId: game.id,
+            type: GameLifecycleEventType.gameStarted,
+            timestamp: now,
+          ),
+        );
       }
     }
   }
@@ -235,30 +239,36 @@ class GamesService {
       end: recentlyCompleted.add(const Duration(minutes: 5)),
     );
 
-    for (final game in completedGames.where((g) => g.status == GameStatus.completed)) {
+    for (final game in completedGames.where(
+      (g) => g.status == GameStatus.completed,
+    )) {
       await _notificationsService.sendRatingReminder(game);
-      
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: game.id,
-        type: GameLifecycleEventType.ratingReminder,
-        timestamp: now,
-      ));
+
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: game.id,
+          type: GameLifecycleEventType.ratingReminder,
+          timestamp: now,
+        ),
+      );
     }
   }
 
   Future<void> archiveOldGames() async {
     final archiveDate = DateTime.now().subtract(const Duration(days: 90));
-    
+
     final oldGames = await _gamesRepository.getGamesOlderThan(archiveDate);
-    
+
     for (final game in oldGames) {
       await _gamesRepository.archiveGame(game.id);
-      
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: game.id,
-        type: GameLifecycleEventType.archived,
-        timestamp: DateTime.now(),
-      ));
+
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: game.id,
+          type: GameLifecycleEventType.archived,
+          timestamp: DateTime.now(),
+        ),
+      );
     }
   }
 
@@ -289,14 +299,14 @@ class GamesService {
         );
 
         await _notificationsService.sendWaitlistConfirmation(game, playerId);
-        
+
         return JoinGameResult.waitlisted();
       }
 
       // Add player to game
       final updatedPlayers = [...game.players, playerId];
       final updatedGame = game.copyWith(players: updatedPlayers);
-      
+
       await _gamesRepository.updateGame(updatedGame);
 
       // Send notifications
@@ -311,15 +321,16 @@ class GamesService {
         await _notificationsService.sendGameFullNotification(updatedGame);
       }
 
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: gameId,
-        type: GameLifecycleEventType.playerJoined,
-        timestamp: DateTime.now(),
-        playerId: playerId,
-      ));
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: gameId,
+          type: GameLifecycleEventType.playerJoined,
+          timestamp: DateTime.now(),
+          playerId: playerId,
+        ),
+      );
 
       return JoinGameResult.success();
-
     } catch (e) {
       return JoinGameResult.failure('Failed to join game: $e');
     }
@@ -333,7 +344,8 @@ class GamesService {
       }
 
       // Check if player is in game
-      if (!game.players.contains(playerId) && !game.waitlist.contains(playerId)) {
+      if (!game.players.contains(playerId) &&
+          !game.waitlist.contains(playerId)) {
         return LeaveGameResult.failure('You are not in this game');
       }
 
@@ -347,13 +359,19 @@ class GamesService {
         );
 
         if (!cancellationResult.allowed) {
-          return LeaveGameResult.failure(cancellationResult.reason ?? 'Cancellation not allowed');
+          return LeaveGameResult.failure(
+            cancellationResult.reason ?? 'Cancellation not allowed',
+          );
         }
       }
 
       // Remove player
-      final updatedPlayers = game.players.where((id) => id != playerId).toList();
-      final updatedWaitlist = game.waitlist.where((id) => id != playerId).toList();
+      final updatedPlayers = game.players
+          .where((id) => id != playerId)
+          .toList();
+      final updatedWaitlist = game.waitlist
+          .where((id) => id != playerId)
+          .toList();
 
       // Move waitlisted player to main list if there's space
       String? promotedPlayerId;
@@ -366,31 +384,35 @@ class GamesService {
       final updatedGame = game.copyWith(
         players: updatedPlayers,
         waitlist: updatedWaitlist,
-        status: updatedPlayers.isEmpty 
-            ? GameStatus.cancelled 
-            : updatedPlayers.length < game.maxPlayers 
-                ? GameStatus.open 
-                : GameStatus.full,
+        status: updatedPlayers.isEmpty
+            ? GameStatus.cancelled
+            : updatedPlayers.length < game.maxPlayers
+            ? GameStatus.open
+            : GameStatus.full,
       );
 
       await _gamesRepository.updateGame(updatedGame);
 
       // Send notifications
       if (promotedPlayerId != null) {
-        await _notificationsService.sendWaitlistPromotion(updatedGame, promotedPlayerId);
+        await _notificationsService.sendWaitlistPromotion(
+          updatedGame,
+          promotedPlayerId,
+        );
       }
 
       await _notificationsService.notifyOrganizerOfLeave(updatedGame, playerId);
 
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: gameId,
-        type: GameLifecycleEventType.playerLeft,
-        timestamp: DateTime.now(),
-        playerId: playerId,
-      ));
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: gameId,
+          type: GameLifecycleEventType.playerLeft,
+          timestamp: DateTime.now(),
+          playerId: playerId,
+        ),
+      );
 
       return LeaveGameResult.success();
-
     } catch (e) {
       return LeaveGameResult.failure('Failed to leave game: $e');
     }
@@ -404,7 +426,9 @@ class GamesService {
       }
 
       if (game.organizerId != organizerId) {
-        return CancelGameResult.failure('Only the organizer can cancel the game');
+        return CancelGameResult.failure(
+          'Only the organizer can cancel the game',
+        );
       }
 
       // Handle refunds if there are payments
@@ -426,23 +450,28 @@ class GamesService {
       await _gamesRepository.updateGame(cancelledGame);
 
       // Notify all players
-      await _notificationsService.sendGameCancellationNotification(cancelledGame);
+      await _notificationsService.sendGameCancellationNotification(
+        cancelledGame,
+      );
 
-      _lifecycleController.add(GameLifecycleEvent(
-        gameId: gameId,
-        type: GameLifecycleEventType.cancelled,
-        timestamp: DateTime.now(),
-      ));
+      _lifecycleController.add(
+        GameLifecycleEvent(
+          gameId: gameId,
+          type: GameLifecycleEventType.cancelled,
+          timestamp: DateTime.now(),
+        ),
+      );
 
       return CancelGameResult.success();
-
     } catch (e) {
       return CancelGameResult.failure('Failed to cancel game: $e');
     }
   }
 
   // PRIVATE HELPER METHODS
-  Future<GameValidationResult> _validateGameCreation(CreateGameRequest request) async {
+  Future<GameValidationResult> _validateGameCreation(
+    CreateGameRequest request,
+  ) async {
     final errors = <String>[];
 
     // Basic validation
@@ -478,10 +507,7 @@ class GamesService {
       }
     }
 
-    return GameValidationResult(
-      isValid: errors.isEmpty,
-      errors: errors,
-    );
+    return GameValidationResult(isValid: errors.isEmpty, errors: errors);
   }
 
   Future<void> _sendGameInvitations(Game game, List<String> playerIds) async {
@@ -555,10 +581,7 @@ class CreateGameResult {
     this.suggestedTimes,
   });
 
-  factory CreateGameResult.success({
-    required Game game,
-    String? bookingId,
-  }) {
+  factory CreateGameResult.success({required Game game, String? bookingId}) {
     return CreateGameResult._(
       isSuccess: true,
       game: game,
@@ -584,10 +607,7 @@ class GameValidationResult {
   final bool isValid;
   final List<String> errors;
 
-  GameValidationResult({
-    required this.isValid,
-    required this.errors,
-  });
+  GameValidationResult({required this.isValid, required this.errors});
 }
 
 class JoinGameResult {
@@ -618,10 +638,7 @@ class LeaveGameResult {
   final bool isSuccess;
   final String? error;
 
-  LeaveGameResult._({
-    required this.isSuccess,
-    this.error,
-  });
+  LeaveGameResult._({required this.isSuccess, this.error});
 
   factory LeaveGameResult.success() {
     return LeaveGameResult._(isSuccess: true);
@@ -636,10 +653,7 @@ class CancelGameResult {
   final bool isSuccess;
   final String? error;
 
-  CancelGameResult._({
-    required this.isSuccess,
-    this.error,
-  });
+  CancelGameResult._({required this.isSuccess, this.error});
 
   factory CancelGameResult.success() {
     return CancelGameResult._(isSuccess: true);
@@ -681,7 +695,10 @@ enum GameLifecycleEventType {
 abstract class GamesRepository {
   Future<Game> createGame(Game game);
   Future<Game?> getGameById(String id);
-  Future<List<Game>> getGamesByDateRange({required DateTime start, required DateTime end});
+  Future<List<Game>> getGamesByDateRange({
+    required DateTime start,
+    required DateTime end,
+  });
   Future<List<Game>> getGamesOlderThan(DateTime date);
   Future<void> updateGame(Game game);
   Future<void> archiveGame(String gameId);
@@ -693,7 +710,7 @@ abstract class VenuesService {
     required DateTime dateTime,
     required Duration duration,
   });
-  
+
   Future<Venue?> getVenueById(String venueId);
 }
 
@@ -750,11 +767,7 @@ class CreateBookingResult {
   final String? bookingId;
   final String? error;
 
-  CreateBookingResult._({
-    required this.isSuccess,
-    this.bookingId,
-    this.error,
-  });
+  CreateBookingResult._({required this.isSuccess, this.bookingId, this.error});
 
   factory CreateBookingResult.success({required String bookingId}) {
     return CreateBookingResult._(isSuccess: true, bookingId: bookingId);
@@ -769,10 +782,7 @@ class CancellationResult {
   final bool allowed;
   final String? reason;
 
-  CancellationResult._({
-    required this.allowed,
-    this.reason,
-  });
+  CancellationResult._({required this.allowed, this.reason});
 
   factory CancellationResult.allowed() {
     return CancellationResult._(allowed: true);
@@ -788,11 +798,7 @@ class Venue {
   final String name;
   final List<String> supportedSports;
 
-  Venue({
-    required this.id,
-    required this.name,
-    required this.supportedSports,
-  });
+  Venue({required this.id, required this.name, required this.supportedSports});
 }
 
 // Placeholder for Game model

@@ -35,7 +35,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
   late AnimationController _pulseAnimationController;
   late Animation<double> _scanAnimation;
   late Animation<double> _pulseAnimation;
-  
+
   final TextEditingController _manualCodeController = TextEditingController();
   ScannerState _state = ScannerState.scanning;
   bool _isTorchOn = false;
@@ -46,35 +46,33 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
   @override
   void initState() {
     super.initState();
-    
+
     // Scan line animation
     _scanAnimationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    _scanAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scanAnimationController,
-      curve: Curves.easeInOut,
-    ));
-    
+    _scanAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _scanAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     // Pulse animation for success/error feedback
     _pulseAnimationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(
+        parent: _pulseAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     _scanAnimationController.repeat();
-    
+
     if (widget.initialCode != null) {
       _manualCodeController.text = widget.initialCode!;
     }
@@ -91,9 +89,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: _showManualEntry
-          ? _buildManualEntryView()
-          : _buildScannerView(),
+      child: _showManualEntry ? _buildManualEntryView() : _buildScannerView(),
     );
   }
 
@@ -105,19 +101,19 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
             children: [
               // Camera preview placeholder
               _buildCameraPreview(),
-              
+
               // Scan overlay
               _buildScanOverlay(),
-              
+
               // Control buttons
               _buildControlButtons(),
-              
+
               // Status messages
               _buildStatusMessage(),
             ],
           ),
         ),
-        
+
         // Bottom controls
         _buildBottomControls(),
       ],
@@ -135,10 +131,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       child: const Center(
         child: Text(
           'Camera Preview\n(QR Scanner would be integrated here)',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: 16),
           textAlign: TextAlign.center,
         ),
       ),
@@ -154,7 +147,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
           children: [
             // Corner brackets
             ..._buildCornerBrackets(),
-            
+
             // Scanning line animation
             if (_state == ScannerState.scanning)
               AnimatedBuilder(
@@ -180,7 +173,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
                   );
                 },
               ),
-            
+
             // Success/Error feedback
             if (_state == ScannerState.success || _state == ScannerState.error)
               AnimatedBuilder(
@@ -193,19 +186,19 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
                       height: 250,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: _state == ScannerState.success 
-                              ? Colors.green 
+                          color: _state == ScannerState.success
+                              ? Colors.green
                               : Colors.red,
                           width: 3,
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                                              child: Icon(
-                        _state == ScannerState.success 
-                            ? Icons.check_circle 
+                      child: Icon(
+                        _state == ScannerState.success
+                            ? Icons.check_circle
                             : Icons.error,
-                        color: _state == ScannerState.success 
-                            ? Colors.green 
+                        color: _state == ScannerState.success
+                            ? Colors.green
                             : Colors.red,
                         size: 60,
                       ),
@@ -222,7 +215,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
   List<Widget> _buildCornerBrackets() {
     const bracketSize = 30.0;
     const bracketThickness = 4.0;
-    
+
     return [
       // Top-left
       Positioned(
@@ -277,19 +270,23 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       height: size,
       decoration: BoxDecoration(
         border: Border(
-          left: alignments.contains(Alignment.topLeft) || 
-                 alignments.contains(Alignment.bottomLeft)
+          left:
+              alignments.contains(Alignment.topLeft) ||
+                  alignments.contains(Alignment.bottomLeft)
               ? BorderSide(color: Colors.white, width: thickness)
               : BorderSide.none,
-          right: alignments.contains(Alignment.topRight) || 
+          right:
+              alignments.contains(Alignment.topRight) ||
                   alignments.contains(Alignment.bottomRight)
               ? BorderSide(color: Colors.white, width: thickness)
               : BorderSide.none,
-          top: alignments.contains(Alignment.topLeft) || 
-               alignments.contains(Alignment.topRight)
+          top:
+              alignments.contains(Alignment.topLeft) ||
+                  alignments.contains(Alignment.topRight)
               ? BorderSide(color: Colors.white, width: thickness)
               : BorderSide.none,
-          bottom: alignments.contains(Alignment.bottomLeft) || 
+          bottom:
+              alignments.contains(Alignment.bottomLeft) ||
                   alignments.contains(Alignment.bottomRight)
               ? BorderSide(color: Colors.white, width: thickness)
               : BorderSide.none,
@@ -310,9 +307,9 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
               onPressed: _toggleTorch,
               isActive: _isTorchOn,
             ),
-          
+
           const SizedBox(height: 12),
-          
+
           if (widget.showGalleryButton)
             _buildControlButton(
               icon: Icons.photo_library,
@@ -334,16 +331,10 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       decoration: BoxDecoration(
         color: isActive ? Colors.white : Colors.black.withOpacity(0.6),
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white, width: 1),
       ),
       child: IconButton(
-        icon: Icon(
-          icon,
-          color: isActive ? Colors.black : Colors.white,
-        ),
+        icon: Icon(icon, color: isActive ? Colors.black : Colors.white),
         onPressed: onPressed,
       ),
     );
@@ -410,14 +401,11 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
           // Instructions
           Text(
             'Point your camera at the QR code to check in',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          
+
           // Manual entry button
           if (widget.showManualEntry)
             TextButton.icon(
@@ -454,19 +442,16 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
               const Expanded(
                 child: Text(
                   'Enter Check-in Code',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(width: 48), // Balance the back button
             ],
           ),
-          
+
           const SizedBox(height: 40),
-          
+
           // Manual code input
           TextField(
             controller: _manualCodeController,
@@ -486,9 +471,9 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
               }
             },
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Submit button
           ElevatedButton.icon(
             onPressed: _submitManualCode,
@@ -498,16 +483,13 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Help text
           Text(
             'Ask the game organizer for the 6-digit check-in code if you can\'t scan the QR code.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -527,17 +509,17 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       _state = ScannerState.success;
       _lastScannedCode = code;
     });
-    
+
     _pulseAnimationController.forward().then((_) {
       _pulseAnimationController.reverse();
     });
-    
+
     // Haptic feedback
     HapticFeedback.lightImpact();
-    
+
     // Notify parent
     widget.onScanned(code);
-    
+
     // Reset state after delay
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -553,14 +535,14 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       _state = ScannerState.error;
       _errorMessage = error;
     });
-    
+
     _pulseAnimationController.forward().then((_) {
       _pulseAnimationController.reverse();
     });
-    
+
     // Haptic feedback
     HapticFeedback.heavyImpact();
-    
+
     // Reset state after delay
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -573,7 +555,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
 
   void _submitManualCode() {
     final code = _manualCodeController.text.trim().toUpperCase();
-    
+
     if (code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -583,7 +565,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
       );
       return;
     }
-    
+
     if (code.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -596,7 +578,7 @@ class _CheckinQRScannerState extends State<CheckinQRScanner>
 
     // Hide keyboard
     FocusScope.of(context).unfocus();
-    
+
     // Notify parent
     widget.onManualCodeEntered?.call(code);
   }

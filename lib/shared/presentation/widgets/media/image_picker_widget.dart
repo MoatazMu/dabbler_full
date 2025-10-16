@@ -1,13 +1,11 @@
 /// Advanced image picker widget with crop, preview, and quality selection
 library;
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 
 /// Image source options
-enum ImageSource {
-  camera,
-  gallery,
-}
+enum ImageSource { camera, gallery }
 
 /// Image quality presets
 enum ImageQuality {
@@ -15,7 +13,7 @@ enum ImageQuality {
   medium(50, 'Medium (50%)'),
   high(70, 'High (70%)'),
   maximum(95, 'Maximum (95%)');
-  
+
   const ImageQuality(this.value, this.label);
   final int value;
   final String label;
@@ -24,10 +22,10 @@ enum ImageQuality {
 /// Aspect ratio presets for cropping
 enum AspectRatioPreset {
   square(1.0, '1:1'),
-  portrait(3.0/4.0, '3:4'),
-  landscape(4.0/3.0, '4:3'),
-  wide(16.0/9.0, '16:9');
-  
+  portrait(3.0 / 4.0, '3:4'),
+  landscape(4.0 / 3.0, '4:3'),
+  wide(16.0 / 9.0, '16:9');
+
   const AspectRatioPreset(this.ratio, this.label);
   final double ratio;
   final String label;
@@ -39,14 +37,14 @@ class ImagePickerResult {
   final String? error;
   final bool wasCancelled;
   final Map<String, dynamic>? metadata;
-  
+
   const ImagePickerResult({
     this.imageFile,
     this.error,
     this.wasCancelled = false,
     this.metadata,
   });
-  
+
   bool get hasImage => imageFile != null;
   bool get hasError => error != null;
 }
@@ -68,7 +66,7 @@ class ImagePickerWidget extends StatefulWidget {
   final bool allowRemove;
   final File? currentImage;
   final Widget? customPreview;
-  
+
   const ImagePickerWidget({
     super.key,
     this.onImageSelected,
@@ -87,7 +85,7 @@ class ImagePickerWidget extends StatefulWidget {
     this.currentImage,
     this.customPreview,
   });
-  
+
   /// Show image picker as modal bottom sheet
   static Future<ImagePickerResult?> show(
     BuildContext context, {
@@ -121,7 +119,7 @@ class ImagePickerWidget extends StatefulWidget {
       ),
     );
   }
-  
+
   @override
   State<ImagePickerWidget> createState() => _ImagePickerWidgetState();
 }
@@ -139,55 +137,49 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
   late AnimationController _fadeController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
     _selectedImage = widget.currentImage;
     _selectedQuality = widget.defaultQuality;
     _selectedAspectRatio = widget.aspectRatio;
-    
+
     _setupAnimations();
   }
-  
+
   void _setupAnimations() {
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
-    
+
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
+
     _slideController.forward();
     _fadeController.forward();
   }
-  
+
   @override
   void dispose() {
     _slideController.dispose();
     _fadeController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -195,39 +187,39 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       child: SlideTransition(
         position: _slideAnimation,
         child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(),
-            if (_selectedImage != null && widget.showPreview) ...[
-              const Divider(height: 1),
-              _buildPreviewSection(),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.9,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(),
+              if (_selectedImage != null && widget.showPreview) ...[
+                const Divider(height: 1),
+                _buildPreviewSection(),
+              ],
+              if (_selectedImage == null) ...[
+                const Divider(height: 1),
+                _buildSourceSelection(),
+              ],
+              if (_selectedImage != null) ...[
+                const Divider(height: 1),
+                _buildOptionsSection(),
+              ],
+              if (_isProcessing) _buildProcessingIndicator(),
+              if (_errorMessage != null) _buildErrorSection(),
+              _buildActionButtons(),
             ],
-            if (_selectedImage == null) ...[
-              const Divider(height: 1),
-              _buildSourceSelection(),
-            ],
-            if (_selectedImage != null) ...[
-              const Divider(height: 1),
-              _buildOptionsSection(),
-            ],
-            if (_isProcessing) _buildProcessingIndicator(),
-            if (_errorMessage != null) _buildErrorSection(),
-            _buildActionButtons(),
-          ],
-        ),
+          ),
         ),
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -243,29 +235,29 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Title
           Text(
             widget.title ?? 'Select Image',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
-          
+
           if (widget.subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               widget.subtitle!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ],
       ),
     );
   }
-  
+
   Widget _buildPreviewSection() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -274,23 +266,21 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         children: [
           Text(
             'Preview',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 12),
-          
-          Center(
-            child: widget.customPreview ?? _buildDefaultPreview(),
-          ),
-          
+
+          Center(child: widget.customPreview ?? _buildDefaultPreview()),
+
           const SizedBox(height: 12),
           _buildImageInfo(),
         ],
       ),
     );
   }
-  
+
   Widget _buildDefaultPreview() {
     return Container(
       constraints: const BoxConstraints(maxHeight: 200),
@@ -307,19 +297,19 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ),
     );
   }
-  
+
   Widget _buildImageInfo() {
     final image = _processedImage ?? _selectedImage!;
-    
+
     return FutureBuilder<Map<String, dynamic>>(
       future: _getImageInfo(image),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const SizedBox(height: 20);
         }
-        
+
         final info = snapshot.data!;
-        
+
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -357,30 +347,21 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       },
     );
   }
-  
+
   Widget _buildInfoItem(String label, String value, IconData icon) {
     return Column(
       children: [
         Icon(icon, size: 20, color: Colors.grey[600]),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
-  
+
   Widget _buildSourceSelection() {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -389,12 +370,12 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         children: [
           Text(
             'Select Source',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),
-          
+
           Row(
             children: [
               Expanded(
@@ -418,7 +399,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ),
     );
   }
-  
+
   Widget _buildSourceButton({
     required IconData icon,
     required String label,
@@ -448,18 +429,13 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildOptionsSection() {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -468,38 +444,38 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         children: [
           Text(
             'Options',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),
-          
+
           if (widget.showQualitySelector) _buildQualitySelector(),
           if (widget.showQualitySelector) const SizedBox(height: 16),
-          
+
           if (widget.enableCropping && !widget.lockAspectRatio)
             _buildAspectRatioSelector(),
           if (widget.enableCropping && !widget.lockAspectRatio)
             const SizedBox(height: 16),
-          
+
           _buildActionRow(),
         ],
       ),
     );
   }
-  
+
   Widget _buildQualitySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Quality'),
         const SizedBox(height: 8),
-        
+
         Wrap(
           spacing: 8,
           children: ImageQuality.values.map((quality) {
             final isSelected = _selectedQuality == quality;
-            
+
             return FilterChip(
               label: Text(quality.label),
               selected: isSelected,
@@ -514,14 +490,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ],
     );
   }
-  
+
   Widget _buildAspectRatioSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Aspect Ratio'),
         const SizedBox(height: 8),
-        
+
         Wrap(
           spacing: 8,
           children: [
@@ -536,7 +512,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
             ),
             ...AspectRatioPreset.values.map((ratio) {
               final isSelected = _selectedAspectRatio == ratio;
-              
+
               return FilterChip(
                 label: Text(ratio.label),
                 selected: isSelected,
@@ -552,7 +528,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ],
     );
   }
-  
+
   Widget _buildActionRow() {
     return Row(
       children: [
@@ -564,9 +540,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
               label: const Text('Crop'),
             ),
           ),
-        
+
         if (widget.enableCropping) const SizedBox(width: 12),
-        
+
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () => _pickImage(ImageSource.gallery, replace: true),
@@ -574,7 +550,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
             label: const Text('Replace'),
           ),
         ),
-        
+
         if (widget.allowRemove) const SizedBox(width: 12),
         if (widget.allowRemove)
           Expanded(
@@ -582,15 +558,13 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
               onPressed: _removeImage,
               icon: const Icon(Icons.delete_outline),
               label: const Text('Remove'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
+              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
             ),
           ),
       ],
     );
   }
-  
+
   Widget _buildProcessingIndicator() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -610,7 +584,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
               ),
             ],
           ),
-          
+
           if (_processingProgress > 0) ...[
             const SizedBox(height: 12),
             LinearProgressIndicator(value: _processingProgress),
@@ -624,7 +598,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ),
     );
   }
-  
+
   Widget _buildErrorSection() {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -652,7 +626,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ),
     );
   }
-  
+
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -667,7 +641,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: _selectedImage != null && !_isProcessing ? _confirm : null,
+              onPressed: _selectedImage != null && !_isProcessing
+                  ? _confirm
+                  : null,
               child: const Text('Confirm'),
             ),
           ),
@@ -675,7 +651,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       ),
     );
   }
-  
+
   Future<void> _pickImage(ImageSource source, {bool replace = false}) async {
     try {
       setState(() {
@@ -683,10 +659,10 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         _isProcessing = true;
         _processingProgress = 0.1;
       });
-      
+
       // Simulate image picker - replace with actual implementation
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // This would use image_picker package in real implementation
       /*
       final ImagePicker picker = ImagePicker();
@@ -709,19 +685,18 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         await _processImage();
       }
       */
-      
+
       // Simulate success for demo
       setState(() {
         _processingProgress = 1.0;
       });
-      
+
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       setState(() {
         _isProcessing = false;
         _processingProgress = 0.0;
       });
-      
     } catch (e) {
       setState(() {
         _isProcessing = false;
@@ -730,16 +705,16 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       });
     }
   }
-  
+
   Future<void> _cropImage() async {
     if (_selectedImage == null) return;
-    
+
     try {
       setState(() {
         _isProcessing = true;
         _processingProgress = 0.2;
       });
-      
+
       // This would use image_cropper package in real implementation
       /*
       final croppedFile = await ImageCropper().cropImage(
@@ -771,15 +746,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         });
       }
       */
-      
+
       // Simulate cropping
       await Future.delayed(const Duration(milliseconds: 1000));
-      
+
       setState(() {
         _isProcessing = false;
         _processingProgress = 0.0;
       });
-      
     } catch (e) {
       setState(() {
         _isProcessing = false;
@@ -788,7 +762,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       });
     }
   }
-  
+
   void _removeImage() {
     setState(() {
       _selectedImage = null;
@@ -796,15 +770,15 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       _errorMessage = null;
     });
   }
-  
+
   void _cancel() {
     final result = const ImagePickerResult(wasCancelled: true);
     widget.onResult?.call(result);
   }
-  
+
   void _confirm() {
     final finalImage = _processedImage ?? _selectedImage;
-    
+
     if (finalImage != null) {
       final result = ImagePickerResult(
         imageFile: finalImage,
@@ -814,17 +788,17 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
           'wasProcessed': _processedImage != null,
         },
       );
-      
+
       widget.onImageSelected?.call();
       widget.onResult?.call(result);
     }
   }
-  
+
   Future<Map<String, dynamic>> _getImageInfo(File imageFile) async {
     try {
       final stat = await imageFile.stat();
       final size = stat.size;
-      
+
       // This would use image package to get dimensions
       /*
       final bytes = await imageFile.readAsBytes();
@@ -836,7 +810,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         'format': path.extension(imageFile.path).toUpperCase(),
       };
       */
-      
+
       // Placeholder info
       return {
         'fileSize': _formatFileSize(size),
@@ -851,7 +825,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
       };
     }
   }
-  
+
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '${bytes}B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)}KB';

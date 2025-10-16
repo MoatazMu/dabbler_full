@@ -5,77 +5,82 @@ class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
   factory AnalyticsService() => _instance;
   AnalyticsService._internal();
-  
+
   /// Initialize the analytics service
   Future<void> initialize() async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Initialized');
     }
   }
-  
+
   /// Track an event with properties
-  Future<void> trackEvent(String eventName, [Map<String, dynamic>? properties]) async {
+  Future<void> trackEvent(
+    String eventName, [
+    Map<String, dynamic>? properties,
+  ]) async {
     if (kDebugMode) {
-      debugPrint('AnalyticsService: Event: $eventName, Properties: $properties');
+      debugPrint(
+        'AnalyticsService: Event: $eventName, Properties: $properties',
+      );
     }
   }
-  
+
   /// Track user properties
   Future<void> setUserProperties(Map<String, dynamic> properties) async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: User Properties: $properties');
     }
   }
-  
+
   /// Track screen view
   Future<void> trackScreen(String screenName) async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Screen: $screenName');
     }
   }
-  
+
   /// Track timing event
   Future<void> trackTiming(String category, String variable, int value) async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Timing: $category/$variable = ${value}ms');
     }
   }
-  
+
   /// Track error
   Future<void> trackError(String error, {String? stackTrace}) async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Error: $error, Stack: $stackTrace');
     }
   }
-  
+
   /// Flush analytics data
   Future<void> flush() async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Flushed');
     }
   }
-  
+
   /// Reset analytics data
   Future<void> reset() async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Reset');
     }
   }
-  
+
   /// Set user ID
   Future<void> setUserId(String userId) async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: User ID: $userId');
     }
   }
-  
+
   /// Enable/disable analytics
   Future<void> setEnabled(bool enabled) async {
     if (kDebugMode) {
       debugPrint('AnalyticsService: Enabled: $enabled');
     }
   }
-  
+
   /// Get achievement analytics data
   Future<AchievementAnalyticsData> getAchievementAnalytics() async {
     // Mock data for now
@@ -88,7 +93,7 @@ class AnalyticsService {
       difficultyDistribution: {'easy': 30, 'medium': 25, 'hard': 20},
     );
   }
-  
+
   /// Get engagement analytics data
   Future<EngagementAnalyticsData> getEngagementAnalytics() async {
     // Mock data for now
@@ -101,7 +106,7 @@ class AnalyticsService {
       churnRate: 0.12,
     );
   }
-  
+
   /// Get points analytics data
   Future<PointsAnalyticsData> getPointsAnalytics() async {
     // Mock data for now
@@ -124,7 +129,7 @@ class AchievementAnalyticsData {
   final Duration averageTimeToComplete;
   final Map<String, int> categoryBreakdown;
   final Map<String, int> difficultyDistribution;
-  
+
   AchievementAnalyticsData({
     required this.totalAchievements,
     required this.completedAchievements,
@@ -142,7 +147,7 @@ class EngagementAnalyticsData {
   final Duration averageSessionDuration;
   final double retentionRate;
   final double churnRate;
-  
+
   EngagementAnalyticsData({
     required this.dailyActiveUsers,
     required this.weeklyActiveUsers,

@@ -61,15 +61,19 @@ class Achievements {
       is_hidden: json['is_hidden'],
       is_repeatable: json['is_repeatable'],
       max_repeats: json['max_repeats'],
-      available_from: (json['available_from'] == null ? null : DateTime.parse(json['available_from'] as String)),
-      available_until: (json['available_until'] == null ? null : DateTime.parse(json['available_until'] as String)),
+      available_from: (json['available_from'] == null
+          ? null
+          : DateTime.parse(json['available_from'] as String)),
+      available_until: (json['available_until'] == null
+          ? null
+          : DateTime.parse(json['available_until'] as String)),
       display_order: json['display_order'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

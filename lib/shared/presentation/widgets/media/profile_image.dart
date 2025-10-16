@@ -1,5 +1,6 @@
 /// Enhanced profile image widget with comprehensive features
 library;
+
 import 'package:flutter/material.dart';
 
 /// Profile image widget with full-screen view, status indicators, and customization
@@ -20,7 +21,7 @@ class ProfileImage extends StatefulWidget {
   final bool showShimmer;
   final Color? backgroundColor;
   final bool enableHeroAnimation;
-  
+
   const ProfileImage({
     super.key,
     this.imageUrl,
@@ -40,49 +41,45 @@ class ProfileImage extends StatefulWidget {
     this.backgroundColor,
     this.enableHeroAnimation = true,
   });
-  
+
   @override
   State<ProfileImage> createState() => _ProfileImageState();
 }
 
-class _ProfileImageState extends State<ProfileImage> 
+class _ProfileImageState extends State<ProfileImage>
     with SingleTickerProviderStateMixin {
   bool _imageError = false;
   bool _isLoading = false;
   late AnimationController _shimmerController;
   late Animation<double> _shimmerAnimation;
-  
+
   @override
   void initState() {
     super.initState();
     _setupShimmerAnimation();
   }
-  
+
   void _setupShimmerAnimation() {
     _shimmerController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
-    _shimmerAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _shimmerController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _shimmerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
+
     if (widget.showShimmer) {
       _shimmerController.repeat(reverse: true);
     }
   }
-  
+
   @override
   void dispose() {
     _shimmerController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -96,10 +93,11 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   Widget _buildMainImage() {
-    final heroTag = widget.heroTag ?? 'profile_image_${widget.imageUrl ?? 'default'}';
-    
+    final heroTag =
+        widget.heroTag ?? 'profile_image_${widget.imageUrl ?? 'default'}';
+
     Widget imageWidget = GestureDetector(
       onTap: widget.onTap ?? (widget.enableFullScreen ? _openFullScreen : null),
       child: Container(
@@ -109,13 +107,15 @@ class _ProfileImageState extends State<ProfileImage>
           shape: BoxShape.circle,
           color: widget.backgroundColor ?? Colors.grey[200],
           border: widget.border,
-          boxShadow: widget.shadows ?? [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow:
+              widget.shadows ??
+              [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(widget.size / 2),
@@ -123,22 +123,19 @@ class _ProfileImageState extends State<ProfileImage>
         ),
       ),
     );
-    
+
     if (widget.enableHeroAnimation) {
-      return Hero(
-        tag: heroTag,
-        child: imageWidget,
-      );
+      return Hero(tag: heroTag, child: imageWidget);
     }
-    
+
     return imageWidget;
   }
-  
+
   Widget _buildImageContent() {
     if (widget.imageUrl == null || widget.imageUrl!.isEmpty || _imageError) {
       return _buildPlaceholder();
     }
-    
+
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -154,7 +151,7 @@ class _ProfileImageState extends State<ProfileImage>
               });
               return child;
             }
-            
+
             if (!_isLoading) {
               setState(() {
                 _isLoading = true;
@@ -163,7 +160,7 @@ class _ProfileImageState extends State<ProfileImage>
                 _shimmerController.repeat(reverse: true);
               }
             }
-            
+
             return _buildLoadingIndicator(loadingProgress);
           },
           errorBuilder: (context, error, stackTrace) {
@@ -178,12 +175,12 @@ class _ProfileImageState extends State<ProfileImage>
       ],
     );
   }
-  
+
   Widget _buildPlaceholder() {
     if (widget.fallbackName != null && widget.fallbackName!.isNotEmpty) {
       return _buildInitialsAvatar();
     }
-    
+
     return Container(
       color: Colors.grey[300],
       child: Icon(
@@ -193,11 +190,11 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   Widget _buildInitialsAvatar() {
     final initials = _getInitials(widget.fallbackName!);
     final backgroundColor = _generateColorFromName(widget.fallbackName!);
-    
+
     return Container(
       color: backgroundColor,
       child: Center(
@@ -212,7 +209,7 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   Widget _buildShimmerEffect() {
     return AnimatedBuilder(
       animation: _shimmerAnimation,
@@ -220,11 +217,7 @@ class _ProfileImageState extends State<ProfileImage>
         return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Colors.grey[300]!,
-                Colors.grey[100]!,
-                Colors.grey[300]!,
-              ],
+              colors: [Colors.grey[300]!, Colors.grey[100]!, Colors.grey[300]!],
               stops: [
                 _shimmerAnimation.value - 0.3,
                 _shimmerAnimation.value,
@@ -238,12 +231,13 @@ class _ProfileImageState extends State<ProfileImage>
       },
     );
   }
-  
+
   Widget _buildLoadingIndicator(ImageChunkEvent loadingProgress) {
     final progress = loadingProgress.expectedTotalBytes != null
-        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+        ? loadingProgress.cumulativeBytesLoaded /
+              loadingProgress.expectedTotalBytes!
         : null;
-    
+
     return Container(
       color: Colors.grey[200],
       child: Center(
@@ -257,7 +251,7 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   Widget _buildErrorWidget() {
     return Container(
       color: Colors.grey[300],
@@ -295,7 +289,7 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   Widget _buildOnlineStatusIndicator() {
     return Positioned(
       right: widget.size * 0.05,
@@ -306,22 +300,15 @@ class _ProfileImageState extends State<ProfileImage>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: widget.isOnline ? Colors.green : Colors.grey,
-          border: Border.all(
-            color: Colors.white,
-            width: widget.size * 0.02,
-          ),
+          border: Border.all(color: Colors.white, width: widget.size * 0.02),
         ),
         child: widget.isOnline
-            ? Icon(
-                Icons.circle,
-                size: widget.size * 0.15,
-                color: Colors.green,
-              )
+            ? Icon(Icons.circle, size: widget.size * 0.15, color: Colors.green)
             : null,
       ),
     );
   }
-  
+
   Widget _buildBadgeOverlay() {
     return Positioned(
       right: 0,
@@ -342,17 +329,17 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   void _retryImageLoad() {
     setState(() {
       _imageError = false;
       _isLoading = true;
     });
   }
-  
+
   void _openFullScreen() {
     if (widget.imageUrl == null || widget.imageUrl!.isEmpty) return;
-    
+
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
@@ -369,7 +356,7 @@ class _ProfileImageState extends State<ProfileImage>
       ),
     );
   }
-  
+
   String _getInitials(String name) {
     final words = name.trim().split(' ');
     if (words.length == 1) {
@@ -379,7 +366,7 @@ class _ProfileImageState extends State<ProfileImage>
     }
     return '';
   }
-  
+
   Color _generateColorFromName(String name) {
     final colors = [
       const Color(0xFF2196F3), // Blue
@@ -391,7 +378,7 @@ class _ProfileImageState extends State<ProfileImage>
       const Color(0xFF795548), // Brown
       const Color(0xFF607D8B), // Blue Grey
     ];
-    
+
     int hash = name.hashCode;
     return colors[hash.abs() % colors.length];
   }
@@ -401,12 +388,9 @@ class _ProfileImageState extends State<ProfileImage>
 class _FullScreenImageViewer extends StatelessWidget {
   final String imageUrl;
   final String heroTag;
-  
-  const _FullScreenImageViewer({
-    required this.imageUrl,
-    required this.heroTag,
-  });
-  
+
+  const _FullScreenImageViewer({required this.imageUrl, required this.heroTag});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -431,7 +415,7 @@ class _FullScreenImageViewer extends StatelessWidget {
                     fit: BoxFit.contain,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
-                      
+
                       return Container(
                         width: 200,
                         height: 200,
@@ -440,7 +424,7 @@ class _FullScreenImageViewer extends StatelessWidget {
                           child: CircularProgressIndicator(
                             value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
+                                      loadingProgress.expectedTotalBytes!
                                 : null,
                             color: Colors.white,
                           ),
@@ -508,7 +492,7 @@ extension ProfileImagePresets on ProfileImage {
       ],
     );
   }
-  
+
   /// Medium profile image (60px)
   static ProfileImage medium({
     String? imageUrl,
@@ -531,7 +515,7 @@ extension ProfileImagePresets on ProfileImage {
       onTap: onTap,
     );
   }
-  
+
   /// Large profile image (100px)
   static ProfileImage large({
     String? imageUrl,
@@ -553,13 +537,10 @@ extension ProfileImagePresets on ProfileImage {
       showBadge: badge != null,
       badge: badge,
       onTap: onTap,
-      border: border ?? Border.all(
-        color: Colors.white,
-        width: 3,
-      ),
+      border: border ?? Border.all(color: Colors.white, width: 3),
     );
   }
-  
+
   /// Extra large profile image (150px)
   static ProfileImage xlarge({
     String? imageUrl,
@@ -580,10 +561,7 @@ extension ProfileImagePresets on ProfileImage {
       showBadge: badge != null,
       badge: badge,
       onTap: onTap,
-      border: Border.all(
-        color: Colors.white,
-        width: 4,
-      ),
+      border: Border.all(color: Colors.white, width: 4),
       shadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.15),

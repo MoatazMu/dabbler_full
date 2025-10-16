@@ -30,13 +30,15 @@ class Conversations {
       avatar_url: json['avatar_url'],
       created_by: json['created_by'],
       last_message_id: json['last_message_id'],
-      last_message_at: (json['last_message_at'] == null ? null : DateTime.parse(json['last_message_at'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      last_message_at: (json['last_message_at'] == null
+          ? null
+          : DateTime.parse(json['last_message_at'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

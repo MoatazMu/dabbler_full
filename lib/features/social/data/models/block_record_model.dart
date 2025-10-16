@@ -29,8 +29,8 @@ class BlockRecordModel {
       reason: json['reason'] as String?,
       blockType: json['block_type'] as String? ?? 'full',
       createdAt: DateTime.parse(json['created_at'] as String),
-      expiresAt: json['expires_at'] != null 
-          ? DateTime.parse(json['expires_at'] as String) 
+      expiresAt: json['expires_at'] != null
+          ? DateTime.parse(json['expires_at'] as String)
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );

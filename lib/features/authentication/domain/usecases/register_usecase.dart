@@ -4,7 +4,8 @@ import '../entities/auth_session.dart';
 import '../repositories/auth_repository.dart';
 import 'usecase.dart';
 
-class RegisterUseCase extends UseCase<Either<Failure, AuthSession>, RegisterParams> {
+class RegisterUseCase
+    extends UseCase<Either<Failure, AuthSession>, RegisterParams> {
   final AuthRepository repository;
   RegisterUseCase(this.repository);
 

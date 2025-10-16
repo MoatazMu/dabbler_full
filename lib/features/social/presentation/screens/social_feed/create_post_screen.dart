@@ -14,11 +14,7 @@ class CreatePostScreen extends ConsumerStatefulWidget {
   final String? draftId;
   final String? initialContent;
 
-  const CreatePostScreen({
-    super.key,
-    this.draftId,
-    this.initialContent,
-  });
+  const CreatePostScreen({super.key, this.draftId, this.initialContent});
 
   @override
   ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -29,7 +25,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   final TextEditingController _textController = TextEditingController();
   final FocusNode _textFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
-  
+
   bool _hasUnsavedChanges = false;
   bool _isPreviewMode = false;
 
@@ -37,10 +33,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     _textController.addListener(_onTextChanged);
     _textFocus.addListener(_onFocusChanged);
-    
+
     // Initialize with draft or initial content
     if (widget.draftId != null) {
       _loadDraft();
@@ -56,12 +52,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
     _textController.dispose();
     _textFocus.dispose();
     _scrollController.dispose();
-    
+
     // Save draft on dispose
     if (_hasUnsavedChanges) {
       _saveDraft();
     }
-    
+
     super.dispose();
   }
 
@@ -76,16 +72,16 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
     setState(() {
       _hasUnsavedChanges = true;
     });
-    
+
     // Check for mentions and trigger suggestions
     final text = _textController.text;
     final selection = _textController.selection;
-    
+
     if (selection.baseOffset > 0) {
       final beforeCursor = text.substring(0, selection.baseOffset);
       final words = beforeCursor.split(' ');
       final lastWord = words.isNotEmpty ? words.last : '';
-      
+
       if (lastWord.startsWith('@') && lastWord.length > 1) {
         final query = lastWord.substring(1);
         ref.read(postsControllerProvider.notifier).searchMentions(query);
@@ -100,7 +96,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 
   void _loadDraft() {
-    final draft = ref.read(postsControllerProvider.notifier).getDraft(widget.draftId!);
+    final draft = ref
+        .read(postsControllerProvider.notifier)
+        .getDraft(widget.draftId!);
     if (draft != null) {
       _textController.text = draft.content;
       // Load other draft properties...
@@ -109,10 +107,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
 
   void _saveDraft() {
     if (_textController.text.trim().isNotEmpty) {
-      ref.read(postsControllerProvider.notifier).saveDraftWithContent(
-        draftId: widget.draftId ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        content: _textController.text,
-      );
+      ref
+          .read(postsControllerProvider.notifier)
+          .saveDraftWithContent(
+            draftId:
+                widget.draftId ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
+            content: _textController.text,
+          );
     }
   }
 
@@ -131,17 +133,17 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: _buildAppBar(context, theme, postsState),
-        body: _isPreviewMode 
-          ? _buildPreviewMode(context, theme, postsState)
-          : _buildCreateMode(context, theme, postsState),
+        body: _isPreviewMode
+            ? _buildPreviewMode(context, theme, postsState)
+            : _buildCreateMode(context, theme, postsState),
         bottomNavigationBar: _buildBottomBar(context, theme, postsState),
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(
-    BuildContext context, 
-    ThemeData theme, 
+    BuildContext context,
+    ThemeData theme,
     PostsState postsState,
   ) {
     return AppBar(
@@ -170,10 +172,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
           )
         else
           TextButton(
-            onPressed: _canPreview() ? () => setState(() => _isPreviewMode = true) : null,
+            onPressed: _canPreview()
+                ? () => setState(() => _isPreviewMode = true)
+                : null,
             child: const Text('Preview'),
           ),
-        
+
         if (postsState.isDraftAutoSaving)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
@@ -188,8 +192,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 
   Widget _buildCreateMode(
-    BuildContext context, 
-    ThemeData theme, 
+    BuildContext context,
+    ThemeData theme,
     PostsState postsState,
   ) {
     return Column(
@@ -204,7 +208,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                 // Text input
                 _buildTextInput(theme),
                 const SizedBox(height: 16),
-                
+
                 // Media section
                 MediaPickerWidget(
                   selectedMedia: postsState.selectedMedia,
@@ -212,50 +216,58 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                     ref.read(postsControllerProvider.notifier).addMedia(media);
                   },
                   onMediaRemoved: (index) {
-                    ref.read(postsControllerProvider.notifier).removeMedia(index);
+                    ref
+                        .read(postsControllerProvider.notifier)
+                        .removeMedia(index);
                   },
                   uploadProgress: postsState.uploadProgress,
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Sport/Game tag
                 SportTagSelector(
                   selectedSports: postsState.selectedSports,
                   onSportsChanged: (sports) {
-                    ref.read(postsControllerProvider.notifier).updateSports(sports);
+                    ref
+                        .read(postsControllerProvider.notifier)
+                        .updateSports(sports);
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Location
                 LocationSelector(
                   selectedLocation: postsState.selectedLocation,
                   onLocationChanged: (location) {
-                    ref.read(postsControllerProvider.notifier).updateLocation(location);
+                    ref
+                        .read(postsControllerProvider.notifier)
+                        .updateLocation(location);
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Visibility settings
                 VisibilitySelector(
                   visibility: postsState.visibility,
                   onVisibilityChanged: (visibility) {
-                    ref.read(postsControllerProvider.notifier).updateVisibility(visibility);
+                    ref
+                        .read(postsControllerProvider.notifier)
+                        .updateVisibility(visibility);
                   },
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Schedule post option
                 _buildScheduleSection(theme, postsState),
               ],
             ),
           ),
         ),
-        
+
         // Mention suggestions overlay
         if (postsState.mentionSuggestions.isNotEmpty && _textFocus.hasFocus)
           MentionSuggestions(
@@ -269,8 +281,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 
   Widget _buildPreviewMode(
-    BuildContext context, 
-    ThemeData theme, 
+    BuildContext context,
+    ThemeData theme,
     PostsState postsState,
   ) {
     return PostPreviewWidget(
@@ -334,13 +346,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                     if (value) {
                       _showSchedulePicker();
                     } else {
-                      ref.read(postsControllerProvider.notifier).clearSchedule();
+                      ref
+                          .read(postsControllerProvider.notifier)
+                          .clearSchedule();
                     }
                   },
                 ),
               ],
             ),
-            
+
             if (postsState.scheduledTime != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -368,8 +382,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 
   Widget _buildBottomBar(
-    BuildContext context, 
-    ThemeData theme, 
+    BuildContext context,
+    ThemeData theme,
     PostsState postsState,
   ) {
     return Container(
@@ -377,18 +391,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.2),
-          ),
+          top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
         ),
       ),
       child: Row(
         children: [
           // Draft indicator
           // Drafts indicator removed: drafts not available in PostsState
-          
           const Spacer(),
-          
+
           // Post button
           CustomButton(
             text: 'Post',
@@ -406,22 +417,22 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
 
   bool _canPost() {
     final postsState = ref.read(postsControllerProvider);
-    return _textController.text.trim().isNotEmpty && 
-           !postsState.isPosting &&
-           !postsState.isUploadingMedia;
+    return _textController.text.trim().isNotEmpty &&
+        !postsState.isPosting &&
+        !postsState.isUploadingMedia;
   }
 
   void _handlePost() async {
-    final success = await ref.read(postsControllerProvider.notifier).createPostSimple(
-      content: _textController.text,
-    );
-    
+    final success = await ref
+        .read(postsControllerProvider.notifier)
+        .createPostSimple(content: _textController.text);
+
     if (success && mounted) {
       // Clear draft if exists
       if (widget.draftId != null) {
         ref.read(postsControllerProvider.notifier).deleteDraft(widget.draftId!);
       }
-      
+
       Navigator.pop(context, true); // Return true to indicate post was created
     }
   }
@@ -429,23 +440,23 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   void _insertMention(dynamic user) {
     final text = _textController.text;
     final selection = _textController.selection;
-    
+
     if (selection.baseOffset > 0) {
       final beforeCursor = text.substring(0, selection.baseOffset);
       final afterCursor = text.substring(selection.baseOffset);
-      
+
       // Find the @ symbol position
       final atIndex = beforeCursor.lastIndexOf('@');
       if (atIndex != -1) {
         final beforeAt = text.substring(0, atIndex);
         final mention = '@${user.username} ';
         final newText = beforeAt + mention + afterCursor;
-        
+
         _textController.text = newText;
         _textController.selection = TextSelection.collapsed(
           offset: beforeAt.length + mention.length,
         );
-        
+
         ref.read(postsControllerProvider.notifier).clearMentionSuggestions();
       }
     }
@@ -459,13 +470,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
       firstDate: now,
       lastDate: now.add(const Duration(days: 30)),
     );
-    
+
     if (selectedDate != null && mounted) {
       final selectedTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(selectedDate.add(const Duration(hours: 1))),
+        initialTime: TimeOfDay.fromDateTime(
+          selectedDate.add(const Duration(hours: 1)),
+        ),
       );
-      
+
       if (selectedTime != null && mounted) {
         final scheduledDateTime = DateTime(
           selectedDate.year,
@@ -474,9 +487,11 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
           selectedTime.hour,
           selectedTime.minute,
         );
-        
+
         if (scheduledDateTime.isAfter(DateTime.now())) {
-          ref.read(postsControllerProvider.notifier).schedulePostSimple(scheduledDateTime);
+          ref
+              .read(postsControllerProvider.notifier)
+              .schedulePostSimple(scheduledDateTime);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -493,7 +508,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Discard changes?'),
-        content: const Text('You have unsaved changes. Do you want to save as draft or discard?'),
+        content: const Text(
+          'You have unsaved changes. Do you want to save as draft or discard?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -520,7 +537,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   String _formatScheduledTime(DateTime time) {
     final now = DateTime.now();
     final difference = time.difference(now);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}d ${difference.inHours % 24}h';
     } else if (difference.inHours > 0) {
@@ -535,16 +552,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
 class DraftsList extends ConsumerWidget {
   final Function(String) onDraftSelected;
 
-  const DraftsList({
-    super.key,
-    required this.onDraftSelected,
-  });
+  const DraftsList({super.key, required this.onDraftSelected});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final drafts = ref.watch(postsControllerProvider).drafts;
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       padding: const EdgeInsets.all(16),
@@ -566,28 +580,24 @@ class DraftsList extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           if (drafts.isEmpty)
-            const Expanded(
-              child: Center(
-                child: Text('No drafts saved'),
-              ),
-            )
+            const Expanded(child: Center(child: Text('No drafts saved')))
           else
             Expanded(
               child: ListView.builder(
                 itemCount: drafts.length,
                 itemBuilder: (context, index) {
                   final draft = drafts[index];
-                  
+
                   return Card(
                     child: ListTile(
                       title: Text(
                         draft.content.length > 50
-                          ? '${draft.content.substring(0, 50)}...'
-                          : draft.content,
+                            ? '${draft.content.substring(0, 50)}...'
+                            : draft.content,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -609,8 +619,9 @@ class DraftsList extends ConsumerWidget {
                           if (value == 'edit') {
                             onDraftSelected(draft.id);
                           } else if (value == 'delete') {
-                            ref.read(postsControllerProvider.notifier)
-                              .deleteDraft(draft.id);
+                            ref
+                                .read(postsControllerProvider.notifier)
+                                .deleteDraft(draft.id);
                           }
                         },
                       ),
@@ -628,7 +639,7 @@ class DraftsList extends ConsumerWidget {
   String _formatDraftTime(DateTime time) {
     final now = DateTime.now();
     final difference = now.difference(time);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}d ago';
     } else if (difference.inHours > 0) {

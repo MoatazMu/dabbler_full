@@ -105,7 +105,7 @@ class AchievementModel extends Achievement {
 
   static AchievementType _parseAchievementType(dynamic value) {
     if (value == null) return AchievementType.single;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'single':
@@ -122,13 +122,13 @@ class AchievementModel extends Achievement {
           return AchievementType.single;
       }
     }
-    
+
     return AchievementType.single;
   }
 
   static AchievementCategory _parseAchievementCategory(dynamic value) {
     if (value == null) return AchievementCategory.milestone;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'game_participation':
@@ -147,13 +147,13 @@ class AchievementModel extends Achievement {
           return AchievementCategory.milestone;
       }
     }
-    
+
     return AchievementCategory.milestone;
   }
 
   static BadgeTier _parseBadgeTier(dynamic value) {
     if (value == null) return BadgeTier.bronze;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'bronze':
@@ -170,65 +170,64 @@ class AchievementModel extends Achievement {
           return BadgeTier.bronze;
       }
     }
-    
+
     return BadgeTier.bronze;
   }
 
   static Map<String, dynamic> _parseCriteria(dynamic value) {
     if (value == null) return {};
-    
+
     if (value is Map<String, dynamic>) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     if (value is String) {
       try {
         // Try to parse JSON string
-        final Map<String, dynamic> parsed = 
-            Map<String, dynamic>.from(
-                Map.from(value as dynamic)
-            );
+        final Map<String, dynamic> parsed = Map<String, dynamic>.from(
+          Map.from(value as dynamic),
+        );
         return parsed;
       } catch (e) {
         // If parsing fails, return empty map
         return {};
       }
     }
-    
+
     return {};
   }
 
   static int _parsePoints(dynamic value) {
     if (value == null) return 0;
-    
+
     if (value is int) return value;
     if (value is double) return value.round();
     if (value is String) {
       return int.tryParse(value) ?? 0;
     }
-    
+
     return 0;
   }
 
   static List<String> _parsePrerequisites(dynamic value) {
     if (value == null) return [];
-    
+
     if (value is List) {
       return value.cast<String>();
     }
-    
+
     if (value is String) {
       // Handle comma-separated string
       if (value.isEmpty) return [];
       return value.split(',').map((s) => s.trim()).toList();
     }
-    
+
     return [];
   }
 
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
-    
+
     if (value is String) {
       try {
         return DateTime.parse(value);
@@ -236,9 +235,9 @@ class AchievementModel extends Achievement {
         return null;
       }
     }
-    
+
     if (value is DateTime) return value;
-    
+
     return null;
   }
 
@@ -258,10 +257,10 @@ class AchievementModel extends Achievement {
   /// Converts to format suitable for Supabase insertion
   Map<String, dynamic> toSupabase() {
     final json = toJson();
-    
+
     // Remove null values and convert to database format
     json.removeWhere((key, value) => value == null);
-    
+
     return {
       ...json,
       // Ensure proper field naming for database
@@ -302,39 +301,38 @@ class AchievementModel extends Achievement {
   bool validateCriteria() {
     switch (type) {
       case AchievementType.single:
-        return criteria.containsKey('count') || 
-               criteria.containsKey('condition');
-      
+        return criteria.containsKey('count') ||
+            criteria.containsKey('condition');
+
       case AchievementType.cumulative:
-        return criteria.containsKey('count') || 
-               criteria.containsKey('total');
-      
+        return criteria.containsKey('count') || criteria.containsKey('total');
+
       case AchievementType.streak:
-        return criteria.containsKey('streak_length') || 
-               criteria.containsKey('duration');
-      
+        return criteria.containsKey('streak_length') ||
+            criteria.containsKey('duration');
+
       case AchievementType.conditional:
-        return criteria.containsKey('conditions') || 
-               criteria.containsKey('requirements');
-      
+        return criteria.containsKey('conditions') ||
+            criteria.containsKey('requirements');
+
       case AchievementType.hidden:
         return criteria.isNotEmpty;
-      
+
       case AchievementType.standard:
-        return criteria.containsKey('count') || 
-               criteria.containsKey('condition');
-      
+        return criteria.containsKey('count') ||
+            criteria.containsKey('condition');
+
       case AchievementType.milestone:
-        return criteria.containsKey('milestone') || 
-               criteria.containsKey('target');
-      
+        return criteria.containsKey('milestone') ||
+            criteria.containsKey('target');
+
       case AchievementType.social:
-        return criteria.containsKey('social_action') || 
-               criteria.containsKey('interaction');
-      
+        return criteria.containsKey('social_action') ||
+            criteria.containsKey('interaction');
+
       case AchievementType.challenge:
-        return criteria.containsKey('challenge_id') || 
-               criteria.containsKey('objective');
+        return criteria.containsKey('challenge_id') ||
+            criteria.containsKey('objective');
     }
   }
 
@@ -343,28 +341,28 @@ class AchievementModel extends Achievement {
     switch (type) {
       case AchievementType.single:
         return {'count': 1};
-      
+
       case AchievementType.cumulative:
         return {'total': 10};
-      
+
       case AchievementType.streak:
         return {'streak_length': 5};
-      
+
       case AchievementType.conditional:
         return {'conditions': []};
-      
+
       case AchievementType.hidden:
         return {'secret': true};
-      
+
       case AchievementType.standard:
         return {'count': 1};
-      
+
       case AchievementType.milestone:
         return {'milestone': 100};
-      
+
       case AchievementType.social:
         return {'social_action': 'invite'};
-      
+
       case AchievementType.challenge:
         return {'challenge_id': 'default'};
     }

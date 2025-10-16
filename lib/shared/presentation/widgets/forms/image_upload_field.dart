@@ -1,17 +1,12 @@
 /// Image upload field with drag-and-drop support and advanced features
 library;
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Upload status for individual images
-enum UploadStatus {
-  pending,
-  uploading,
-  completed,
-  failed,
-  cancelled,
-}
+enum UploadStatus { pending, uploading, completed, failed, cancelled }
 
 /// Image data with upload information
 class ImageUploadData {
@@ -26,7 +21,7 @@ class ImageUploadData {
   final double progress;
   final String? error;
   final Map<String, dynamic>? metadata;
-  
+
   const ImageUploadData({
     required this.id,
     this.file,
@@ -40,7 +35,7 @@ class ImageUploadData {
     this.error,
     this.metadata,
   });
-  
+
   ImageUploadData copyWith({
     String? id,
     File? file,
@@ -68,16 +63,16 @@ class ImageUploadData {
       metadata: metadata ?? this.metadata,
     );
   }
-  
+
   String get formattedSize {
     if (fileSize == null) return 'Unknown size';
-    
+
     final size = fileSize!;
     if (size < 1024) return '${size}B';
     if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(1)}KB';
     return '${(size / (1024 * 1024)).toStringAsFixed(1)}MB';
   }
-  
+
   bool get isImage => mimeType?.startsWith('image/') ?? false;
   bool get isUploading => status == UploadStatus.uploading;
   bool get hasError => status == UploadStatus.failed;
@@ -91,7 +86,7 @@ class CompressionConfig {
   final int quality; // 0-100
   final bool maintainAspectRatio;
   final String outputFormat; // 'jpeg', 'png', 'webp'
-  
+
   const CompressionConfig({
     this.maxWidth = 1920,
     this.maxHeight = 1080,
@@ -99,21 +94,21 @@ class CompressionConfig {
     this.maintainAspectRatio = true,
     this.outputFormat = 'jpeg',
   });
-  
+
   static const CompressionConfig thumbnail = CompressionConfig(
     maxWidth: 300,
     maxHeight: 300,
     quality: 70,
     outputFormat: 'jpeg',
   );
-  
+
   static const CompressionConfig medium = CompressionConfig(
     maxWidth: 800,
     maxHeight: 600,
     quality: 80,
     outputFormat: 'jpeg',
   );
-  
+
   static const CompressionConfig high = CompressionConfig(
     maxWidth: 1920,
     maxHeight: 1080,
@@ -130,7 +125,7 @@ class UploadValidation {
   final int minImageCount;
   final Size? minImageSize;
   final Size? maxImageSize;
-  
+
   const UploadValidation({
     this.allowedFormats = const ['jpeg', 'jpg', 'png', 'gif', 'webp'],
     this.maxFileSize = 10 * 1024 * 1024, // 10MB
@@ -139,20 +134,20 @@ class UploadValidation {
     this.minImageSize,
     this.maxImageSize,
   });
-  
+
   String? validateFile(String fileName, int fileSize, String? mimeType) {
     // Check file size
     if (fileSize > maxFileSize) {
       final maxSizeMB = maxFileSize / (1024 * 1024);
       return 'File size must be less than ${maxSizeMB.toStringAsFixed(1)}MB';
     }
-    
+
     // Check format
     final extension = fileName.toLowerCase().split('.').last;
     if (!allowedFormats.contains(extension)) {
       return 'Format not supported. Allowed: ${allowedFormats.join(', ')}';
     }
-    
+
     return null;
   }
 }
@@ -189,7 +184,7 @@ class ImageUploadField extends StatefulWidget {
   final String uploadButtonText;
   final String dragDropText;
   final IconData? uploadIcon;
-  
+
   const ImageUploadField({
     super.key,
     required this.images,
@@ -223,7 +218,7 @@ class ImageUploadField extends StatefulWidget {
     this.dragDropText = 'Drag & drop images here or tap to select',
     this.uploadIcon = Icons.add_photo_alternate,
   });
-  
+
   @override
   State<ImageUploadField> createState() => _ImageUploadFieldState();
 }
@@ -234,62 +229,54 @@ class _ImageUploadFieldState extends State<ImageUploadField>
   late AnimationController _dragController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _dragAnimation;
-  
+
   bool _isDragOver = false;
   String? _validationError;
   List<ImageUploadData> _images = [];
-  
+
   @override
   void initState() {
     super.initState();
     _images = List.from(widget.images);
     _setupAnimations();
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _dragController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _dragAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _dragController,
-      curve: Curves.easeInOut,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _dragAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _dragController, curve: Curves.easeInOut),
+    );
   }
-  
+
   @override
   void didUpdateWidget(ImageUploadField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.images != oldWidget.images) {
       _images = List.from(widget.images);
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     _dragController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -300,36 +287,37 @@ class _ImageUploadFieldState extends State<ImageUploadField>
           if (widget.label != null) ...[
             Text(
               widget.label!,
-              style: widget.labelStyle ?? 
-                  Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+              style:
+                  widget.labelStyle ??
+                  Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
           ],
-          
+
           _buildUploadArea(),
-          
+
           if (_images.isNotEmpty) ...[
             const SizedBox(height: 16),
             _buildImageGrid(),
           ],
-          
+
           if (_validationError != null) ...[
             const SizedBox(height: 8),
             _buildErrorMessage(),
           ],
-          
+
           if (widget.helperText != null) ...[
             const SizedBox(height: 8),
             Text(
               widget.helperText!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
-          
+
           if (widget.errorText != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -343,10 +331,10 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       ),
     );
   }
-  
+
   Widget _buildUploadArea() {
     final canAddMore = _images.length < widget.validation.maxImageCount;
-    
+
     return AnimatedBuilder(
       animation: Listenable.merge([_scaleAnimation, _dragAnimation]),
       builder: (context, child) {
@@ -355,8 +343,10 @@ class _ImageUploadFieldState extends State<ImageUploadField>
           child: GestureDetector(
             onTap: widget.enabled && canAddMore ? _pickImages : null,
             child: DragTarget<List<File>>(
-              onWillAcceptWithDetails: (details) => widget.enabled && widget.enableDragDrop && canAddMore,
-              onAcceptWithDetails: (details) => _handleDroppedFiles(details.data),
+              onWillAcceptWithDetails: (details) =>
+                  widget.enabled && widget.enableDragDrop && canAddMore,
+              onAcceptWithDetails: (details) =>
+                  _handleDroppedFiles(details.data),
               onMove: (_) => _handleDragEnter(),
               onLeave: (_) => _handleDragExit(),
               builder: (context, candidateData, rejectedData) {
@@ -364,14 +354,14 @@ class _ImageUploadFieldState extends State<ImageUploadField>
                   height: 120,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: _isDragOver 
+                      color: _isDragOver
                           ? Theme.of(context).primaryColor
                           : Colors.grey[300]!,
                       width: _isDragOver ? 2 : 1,
                       style: BorderStyle.solid,
                     ),
                     borderRadius: BorderRadius.circular(12),
-                    color: _isDragOver 
+                    color: _isDragOver
                         ? Theme.of(context).primaryColor.withOpacity(0.05)
                         : Colors.grey[50],
                   ),
@@ -384,30 +374,26 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       },
     );
   }
-  
+
   Widget _buildUploadContent(bool canAddMore) {
     if (!canAddMore) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.check_circle,
-              size: 32,
-              color: Colors.green,
-            ),
+            Icon(Icons.check_circle, size: 32, color: Colors.green),
             const SizedBox(height: 8),
             Text(
               'Maximum ${widget.validation.maxImageCount} images reached',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.green[700],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.green[700]),
             ),
           ],
         ),
       );
     }
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -415,41 +401,41 @@ class _ImageUploadFieldState extends State<ImageUploadField>
           Icon(
             widget.uploadIcon,
             size: 32,
-            color: _isDragOver 
+            color: _isDragOver
                 ? Theme.of(context).primaryColor
                 : Colors.grey[600],
           ),
           const SizedBox(height: 8),
-          
+
           Text(
-            _isDragOver 
+            _isDragOver
                 ? 'Drop images here'
-                : (widget.enableDragDrop 
-                    ? widget.dragDropText
-                    : widget.uploadButtonText),
+                : (widget.enableDragDrop
+                      ? widget.dragDropText
+                      : widget.uploadButtonText),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: _isDragOver 
+              color: _isDragOver
                   ? Theme.of(context).primaryColor
                   : Colors.grey[700],
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           if (_images.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
               '${_images.length}/${widget.validation.maxImageCount} images',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ],
       ),
     );
   }
-  
+
   Widget _buildImageGrid() {
     if (widget.reorderable) {
       return _buildReorderableGrid();
@@ -457,7 +443,7 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       return _buildStaticGrid();
     }
   }
-  
+
   Widget _buildStaticGrid() {
     return GridView.builder(
       shrinkWrap: true,
@@ -472,7 +458,7 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       itemBuilder: (context, index) => _buildImageItem(_images[index], index),
     );
   }
-  
+
   Widget _buildReorderableGrid() {
     return ReorderableListView.builder(
       shrinkWrap: true,
@@ -480,11 +466,15 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       itemCount: _images.length,
       onReorder: _reorderImages,
       itemBuilder: (context, index) {
-        return _buildImageItem(_images[index], index, key: ValueKey(_images[index].id));
+        return _buildImageItem(
+          _images[index],
+          index,
+          key: ValueKey(_images[index].id),
+        );
       },
     );
   }
-  
+
   Widget _buildImageItem(ImageUploadData imageData, int index, {Key? key}) {
     return Container(
       key: key,
@@ -499,19 +489,15 @@ class _ImageUploadFieldState extends State<ImageUploadField>
             borderRadius: BorderRadius.circular(7),
             child: _buildImagePreview(imageData),
           ),
-          
+
           // Status overlay
           if (imageData.isUploading || imageData.hasError)
             _buildStatusOverlay(imageData),
-          
+
           // Remove button
           if (widget.enabled)
-            Positioned(
-              top: 4,
-              right: 4,
-              child: _buildRemoveButton(imageData),
-            ),
-          
+            Positioned(top: 4, right: 4, child: _buildRemoveButton(imageData)),
+
           // Reorder handle
           if (widget.reorderable && widget.enabled)
             Positioned(
@@ -534,10 +520,10 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       ),
     );
   }
-  
+
   Widget _buildImagePreview(ImageUploadData imageData) {
     Widget imageWidget;
-    
+
     if (imageData.file != null) {
       imageWidget = Image.file(
         imageData.file!,
@@ -563,26 +549,19 @@ class _ImageUploadFieldState extends State<ImageUploadField>
     } else {
       imageWidget = _buildErrorPreview();
     }
-    
-    return GestureDetector(
-      onTap: widget.onImageTap,
-      child: imageWidget,
-    );
+
+    return GestureDetector(onTap: widget.onImageTap, child: imageWidget);
   }
-  
+
   Widget _buildErrorPreview() {
     return Container(
       color: Colors.grey[200],
       child: const Center(
-        child: Icon(
-          Icons.broken_image,
-          size: 32,
-          color: Colors.grey,
-        ),
+        child: Icon(Icons.broken_image, size: 32, color: Colors.grey),
       ),
     );
   }
-  
+
   Widget _buildStatusOverlay(ImageUploadData imageData) {
     return Positioned.fill(
       child: Container(
@@ -611,33 +590,26 @@ class _ImageUploadFieldState extends State<ImageUploadField>
                   ),
                 ),
               ] else if (imageData.hasError) ...[
-                const Icon(
-                  Icons.error,
-                  color: Colors.red,
-                  size: 24,
-                ),
+                const Icon(Icons.error, color: Colors.red, size: 24),
                 const SizedBox(height: 4),
                 Text(
                   imageData.error ?? 'Upload failed',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
                   textAlign: TextAlign.center,
                 ),
-                
+
                 if (widget.showRetryButton) ...[
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => _retryUpload(imageData),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(60, 24),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                     ),
-                    child: const Text(
-                      'Retry',
-                      style: TextStyle(fontSize: 10),
-                    ),
+                    child: const Text('Retry', style: TextStyle(fontSize: 10)),
                   ),
                 ],
               ],
@@ -647,7 +619,7 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       ),
     );
   }
-  
+
   Widget _buildRemoveButton(ImageUploadData imageData) {
     return GestureDetector(
       onTap: () => _removeImage(imageData),
@@ -657,15 +629,11 @@ class _ImageUploadFieldState extends State<ImageUploadField>
           color: Colors.red,
           shape: BoxShape.circle,
         ),
-        child: const Icon(
-          Icons.close,
-          size: 16,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.close, size: 16, color: Colors.white),
       ),
     );
   }
-  
+
   Widget _buildErrorMessage() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -676,50 +644,43 @@ class _ImageUploadFieldState extends State<ImageUploadField>
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.warning_outlined,
-            size: 16,
-            color: Colors.red[600],
-          ),
+          Icon(Icons.warning_outlined, size: 16, color: Colors.red[600]),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               _validationError!,
-              style: TextStyle(
-                color: Colors.red[700],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.red[700], fontSize: 12),
             ),
           ),
         ],
       ),
     );
   }
-  
+
   void _handleDragEnter() {
     setState(() {
       _isDragOver = true;
     });
     _dragController.forward();
   }
-  
+
   void _handleDragExit() {
     setState(() {
       _isDragOver = false;
     });
     _dragController.reverse();
   }
-  
+
   void _handleDroppedFiles(List<File> files) {
     _handleDragExit();
     _processFiles(files);
   }
-  
+
   Future<void> _pickImages() async {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     try {
       // This would use file_picker or image_picker package in real implementation
       // For now, simulate file selection
@@ -739,47 +700,46 @@ class _ImageUploadFieldState extends State<ImageUploadField>
         _processFiles(files);
       }
       */
-      
+
       // Simulate file selection for demo
       _animationController.forward().then((_) {
         _animationController.reverse();
       });
-      
     } catch (e) {
       setState(() {
         _validationError = 'Failed to select images: ${e.toString()}';
       });
     }
   }
-  
+
   void _processFiles(List<File> files) {
     final remainingSlots = widget.validation.maxImageCount - _images.length;
     final filesToProcess = files.take(remainingSlots).toList();
-    
+
     for (final file in filesToProcess) {
       _validateAndAddImage(file);
     }
   }
-  
+
   Future<void> _validateAndAddImage(File file) async {
     try {
       final fileName = file.path.split('/').last;
       final fileSize = await file.length();
-      
+
       // Validate file
       final validationError = widget.validation.validateFile(
         fileName,
         fileSize,
         null, // Would get MIME type in real implementation
       );
-      
+
       if (validationError != null) {
         setState(() {
           _validationError = validationError;
         });
         return;
       }
-      
+
       // Create image data
       final imageData = ImageUploadData(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -788,51 +748,54 @@ class _ImageUploadFieldState extends State<ImageUploadField>
         fileSize: fileSize,
         status: UploadStatus.pending,
       );
-      
+
       setState(() {
         _images.add(imageData);
         _validationError = null;
       });
-      
+
       // Start upload if callback provided
       if (widget.onUpload != null) {
         _startUpload(imageData);
       }
-      
+
       widget.onImagesChanged?.call(_images);
-      
     } catch (e) {
       setState(() {
         _validationError = 'Failed to process image: ${e.toString()}';
       });
     }
   }
-  
+
   Future<void> _startUpload(ImageUploadData imageData) async {
     final index = _images.indexWhere((img) => img.id == imageData.id);
     if (index == -1) return;
-    
+
     // Update status to uploading
     setState(() {
       _images[index] = imageData.copyWith(status: UploadStatus.uploading);
     });
-    
+
     try {
       // Simulate upload progress
       for (double progress = 0.0; progress <= 1.0; progress += 0.1) {
         await Future.delayed(const Duration(milliseconds: 100));
-        
-        final currentIndex = _images.indexWhere((img) => img.id == imageData.id);
+
+        final currentIndex = _images.indexWhere(
+          (img) => img.id == imageData.id,
+        );
         if (currentIndex == -1) break; // Image was removed
-        
+
         setState(() {
-          _images[currentIndex] = _images[currentIndex].copyWith(progress: progress);
+          _images[currentIndex] = _images[currentIndex].copyWith(
+            progress: progress,
+          );
         });
       }
-      
+
       // Call upload callback
       final url = await widget.onUpload!(imageData);
-      
+
       final currentIndex = _images.indexWhere((img) => img.id == imageData.id);
       if (currentIndex != -1) {
         setState(() {
@@ -843,7 +806,6 @@ class _ImageUploadFieldState extends State<ImageUploadField>
           );
         });
       }
-      
     } catch (e) {
       final currentIndex = _images.indexWhere((img) => img.id == imageData.id);
       if (currentIndex != -1) {
@@ -855,42 +817,44 @@ class _ImageUploadFieldState extends State<ImageUploadField>
         });
       }
     }
-    
+
     widget.onImagesChanged?.call(_images);
   }
-  
+
   void _removeImage(ImageUploadData imageData) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     setState(() {
       _images.removeWhere((img) => img.id == imageData.id);
       _validationError = null;
     });
-    
+
     widget.onImageRemove?.call(imageData);
     widget.onImagesChanged?.call(_images);
   }
-  
+
   void _retryUpload(ImageUploadData imageData) {
     if (widget.onUpload != null) {
-      _startUpload(imageData.copyWith(
-        status: UploadStatus.pending,
-        progress: 0.0,
-        error: null,
-      ));
+      _startUpload(
+        imageData.copyWith(
+          status: UploadStatus.pending,
+          progress: 0.0,
+          error: null,
+        ),
+      );
     }
   }
-  
+
   void _reorderImages(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex--;
-    
+
     setState(() {
       final item = _images.removeAt(oldIndex);
       _images.insert(newIndex, item);
     });
-    
+
     widget.onImagesReordered?.call(_images);
     widget.onImagesChanged?.call(_images);
   }
@@ -915,7 +879,7 @@ extension ImageUploadFieldExtensions on ImageUploadField {
       gridCrossAxisCount: 1,
     );
   }
-  
+
   /// Create a multiple image upload with gallery layout
   static ImageUploadField gallery({
     required List<ImageUploadData> images,
@@ -936,7 +900,7 @@ extension ImageUploadFieldExtensions on ImageUploadField {
       compressionConfig: CompressionConfig.medium,
     );
   }
-  
+
   /// Create an avatar upload field
   static ImageUploadField avatar({
     required List<ImageUploadData> images,
@@ -990,7 +954,7 @@ class ImageUploadPresets {
       uploadIcon: Icons.account_circle,
     );
   }
-  
+
   /// Sports activity photos
   static ImageUploadField activityPhotos({
     required List<ImageUploadData> images,
@@ -1014,7 +978,7 @@ class ImageUploadPresets {
       uploadIcon: Icons.photo_library,
     );
   }
-  
+
   /// Facility/venue images
   static ImageUploadField facilityImages({
     required List<ImageUploadData> images,

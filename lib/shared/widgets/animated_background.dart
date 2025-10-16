@@ -69,47 +69,43 @@ class AnimatedBackgroundPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill;
+    final paint = Paint()..style = PaintingStyle.fill;
 
     for (int i = 0; i < particleCount; i++) {
       final progress = (animationValue + i / particleCount) % 1.0;
       final opacity = (1.0 - progress) * 0.3;
-      
+
       paint.color = primaryColor.withOpacity(opacity);
 
       // Calculate position with sine wave movement
-      final x = (size.width * (i / particleCount) + 
-                math.sin(progress * 2 * math.pi + i) * 30) % size.width;
+      final x =
+          (size.width * (i / particleCount) +
+              math.sin(progress * 2 * math.pi + i) * 30) %
+          size.width;
       final y = size.height * (1 - progress);
-      
+
       // Vary particle size based on position
       final radius = 1 + math.sin(progress * math.pi) * 2;
 
-      canvas.drawCircle(
-        Offset(x, y),
-        radius,
-        paint,
-      );
+      canvas.drawCircle(Offset(x, y), radius, paint);
     }
 
     // Draw some larger, slower moving particles for depth
     for (int i = 0; i < (particleCount ~/ 3); i++) {
       final progress = (animationValue * 0.5 + i / particleCount) % 1.0;
       final opacity = (1.0 - progress) * 0.1;
-      
+
       paint.color = primaryColor.withOpacity(opacity);
 
-      final x = (size.width * 0.2 + size.width * 0.6 * (i / (particleCount ~/ 3)) + 
-                math.cos(progress * math.pi + i * 2) * 50) % size.width;
+      final x =
+          (size.width * 0.2 +
+              size.width * 0.6 * (i / (particleCount ~/ 3)) +
+              math.cos(progress * math.pi + i * 2) * 50) %
+          size.width;
       final y = size.height * (1 - progress);
       final radius = 3 + math.sin(progress * math.pi) * 3;
 
-      canvas.drawCircle(
-        Offset(x, y),
-        radius,
-        paint,
-      );
+      canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }
 

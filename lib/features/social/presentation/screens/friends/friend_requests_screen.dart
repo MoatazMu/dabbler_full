@@ -11,7 +11,8 @@ class FriendRequestsScreen extends ConsumerStatefulWidget {
   const FriendRequestsScreen({super.key});
 
   @override
-  ConsumerState<FriendRequestsScreen> createState() => _FriendRequestsScreenState();
+  ConsumerState<FriendRequestsScreen> createState() =>
+      _FriendRequestsScreenState();
 }
 
 class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
@@ -24,7 +25,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     // Load friend requests
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(friendRequestsControllerProvider.notifier).loadFriendRequests();
@@ -55,7 +56,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
               onDeclineAll: () => _handleBulkAction('decline'),
               onCancel: _exitSelectionMode,
             ),
-          
+
           // Tab bar
           TabBar(
             controller: _tabController,
@@ -71,7 +72,10 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
                         final count = ref.watch(incomingRequestsCountProvider);
                         if (count > 0) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.primary,
                               borderRadius: BorderRadius.circular(10),
@@ -103,7 +107,10 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
                         final count = ref.watch(outgoingRequestsCountProvider);
                         if (count > 0) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.secondary,
                               borderRadius: BorderRadius.circular(10),
@@ -126,7 +133,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
               ),
             ],
           ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
@@ -158,15 +165,15 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
         title: Text('${_selectedRequests.length} selected'),
         actions: [
           TextButton(
-            onPressed: _selectedRequests.isNotEmpty 
-              ? () => _handleBulkAction('accept')
-              : null,
+            onPressed: _selectedRequests.isNotEmpty
+                ? () => _handleBulkAction('accept')
+                : null,
             child: const Text('Accept All'),
           ),
           TextButton(
-            onPressed: _selectedRequests.isNotEmpty 
-              ? () => _handleBulkAction('decline')
-              : null,
+            onPressed: _selectedRequests.isNotEmpty
+                ? () => _handleBulkAction('decline')
+                : null,
             child: const Text('Decline All'),
           ),
         ],
@@ -241,7 +248,9 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.read(friendRequestsControllerProvider.notifier).loadFriendRequests(),
+              onPressed: () => ref
+                  .read(friendRequestsControllerProvider.notifier)
+                  .loadFriendRequests(),
               child: const Text('Retry'),
             ),
           ],
@@ -263,29 +272,33 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: () => ref.read(friendRequestsControllerProvider.notifier).loadFriendRequests(),
+      onRefresh: () => ref
+          .read(friendRequestsControllerProvider.notifier)
+          .loadFriendRequests(),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: requestsState.incomingRequests.length,
         itemBuilder: (context, index) {
           final request = requestsState.incomingRequests[index];
-          
+
           return _buildIncomingRequestCard(context, theme, request);
         },
       ),
     );
   }
 
-  Widget _buildIncomingRequestCard(BuildContext context, ThemeData theme, dynamic request) {
+  Widget _buildIncomingRequestCard(
+    BuildContext context,
+    ThemeData theme,
+    dynamic request,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
-        ),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
             color: theme.colorScheme.shadow.withOpacity(0.1),
@@ -393,7 +406,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
       itemCount: requestsState.outgoingRequests.length,
       itemBuilder: (context, index) {
         final request = requestsState.outgoingRequests[index];
-        
+
         return SentRequestCard(
           request: request,
           onCancel: () => _cancelRequest(request.id),
@@ -415,11 +428,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            Icon(icon, size: 64, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               title,
@@ -435,10 +444,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
               ),
               textAlign: TextAlign.center,
             ),
-            if (action != null) ...[
-              const SizedBox(height: 24),
-              action,
-            ],
+            if (action != null) ...[const SizedBox(height: 24), action],
           ],
         ),
       ),
@@ -466,7 +472,7 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
       builder: (context) => AlertDialog(
         title: Text('${action == 'accept' ? 'Accept' : 'Decline'} Requests'),
         content: Text(
-          'Are you sure you want to $action ${_selectedRequests.length} friend requests?'
+          'Are you sure you want to $action ${_selectedRequests.length} friend requests?',
         ),
         actions: [
           TextButton(
@@ -483,22 +489,28 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
 
     if (confirm == true) {
       if (action == 'accept') {
-        await ref.read(friendRequestsControllerProvider.notifier)
-          .acceptMultipleRequests(_selectedRequests.toList());
+        await ref
+            .read(friendRequestsControllerProvider.notifier)
+            .acceptMultipleRequests(_selectedRequests.toList());
       } else {
-        await ref.read(friendRequestsControllerProvider.notifier)
-          .declineMultipleRequests(_selectedRequests.toList());
+        await ref
+            .read(friendRequestsControllerProvider.notifier)
+            .declineMultipleRequests(_selectedRequests.toList());
       }
       _exitSelectionMode();
     }
   }
 
   void _acceptRequest(String requestId) {
-    ref.read(friendRequestsControllerProvider.notifier).acceptFriendRequest(requestId);
+    ref
+        .read(friendRequestsControllerProvider.notifier)
+        .acceptFriendRequest(requestId);
   }
 
   void _declineRequest(String requestId) {
-    ref.read(friendRequestsControllerProvider.notifier).declineFriendRequest(requestId);
+    ref
+        .read(friendRequestsControllerProvider.notifier)
+        .declineFriendRequest(requestId);
   }
 
   void _cancelRequest(String requestId) async {
@@ -506,7 +518,9 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Request'),
-        content: const Text('Are you sure you want to cancel this friend request?'),
+        content: const Text(
+          'Are you sure you want to cancel this friend request?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -521,14 +535,18 @@ class _FriendRequestsScreenState extends ConsumerState<FriendRequestsScreen>
     );
 
     if (confirm == true) {
-      ref.read(friendRequestsControllerProvider.notifier).cancelFriendRequest(requestId);
+      ref
+          .read(friendRequestsControllerProvider.notifier)
+          .cancelFriendRequest(requestId);
     }
   }
 
   void _handleMenuAction(String action) {
     switch (action) {
       case 'mark_all_read':
-        ref.read(friendRequestsControllerProvider.notifier).markNotificationsAsRead();
+        ref
+            .read(friendRequestsControllerProvider.notifier)
+            .markNotificationsAsRead();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All requests marked as read')),
         );

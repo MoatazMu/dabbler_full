@@ -50,101 +50,97 @@ class _AchievementSearchBarState extends State<AchievementSearchBar> {
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: _isExpanded 
-                      ? Theme.of(context).primaryColor 
-                      : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: TextField(
-                controller: _controller,
-                onTap: () => setState(() => _isExpanded = true),
-                onSubmitted: (_) => setState(() => _isExpanded = false),
-                decoration: InputDecoration(
-                  hintText: 'Search achievements...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 16,
+            child:
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: _isExpanded
+                          ? Theme.of(context).primaryColor
+                          : Colors.transparent,
+                      width: 2,
+                    ),
                   ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: _isExpanded 
-                        ? Theme.of(context).primaryColor 
-                        : Colors.grey[500],
+                  child: TextField(
+                    controller: _controller,
+                    onTap: () => setState(() => _isExpanded = true),
+                    onSubmitted: (_) => setState(() => _isExpanded = false),
+                    decoration: InputDecoration(
+                      hintText: 'Search achievements...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: _isExpanded
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey[500],
+                      ),
+                      suffixIcon: widget.searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              color: Colors.grey[500],
+                              onPressed: () {
+                                _controller.clear();
+                                setState(() => _isExpanded = false);
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  suffixIcon: widget.searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          color: Colors.grey[500],
-                          onPressed: () {
-                            _controller.clear();
-                            setState(() => _isExpanded = false);
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                ).animate().slideX(
+                  begin: -0.2,
+                  end: 0,
+                  duration: 300.ms,
+                  curve: Curves.easeOutCubic,
                 ),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ).animate()
-              .slideX(
-                begin: -0.2,
-                end: 0,
-                duration: 300.ms,
-                curve: Curves.easeOutCubic,
-              ),
           ),
-          
+
           if (widget.onFilterTap != null) ...[
             const SizedBox(width: 12),
             _ActionButton(
-              icon: Icons.filter_list,
-              onTap: widget.onFilterTap!,
-              isActive: widget.hasActiveFilters,
-              tooltip: 'Filter',
-            ).animate()
-              .fadeIn(
-                duration: 200.ms,
-                delay: 100.ms,
-              )
-              .scale(
-                begin: const Offset(0.8, 0.8),
-                end: const Offset(1.0, 1.0),
-                duration: 200.ms,
-                delay: 100.ms,
-              ),
+                  icon: Icons.filter_list,
+                  onTap: widget.onFilterTap!,
+                  isActive: widget.hasActiveFilters,
+                  tooltip: 'Filter',
+                )
+                .animate()
+                .fadeIn(duration: 200.ms, delay: 100.ms)
+                .scale(
+                  begin: const Offset(0.8, 0.8),
+                  end: const Offset(1.0, 1.0),
+                  duration: 200.ms,
+                  delay: 100.ms,
+                ),
           ],
-          
+
           if (widget.onSortTap != null) ...[
             const SizedBox(width: 8),
             _ActionButton(
-              icon: Icons.sort,
-              onTap: widget.onSortTap!,
-              tooltip: 'Sort',
-            ).animate()
-              .fadeIn(
-                duration: 200.ms,
-                delay: 150.ms,
-              )
-              .scale(
-                begin: const Offset(0.8, 0.8),
-                end: const Offset(1.0, 1.0),
-                duration: 200.ms,
-                delay: 150.ms,
-              ),
+                  icon: Icons.sort,
+                  onTap: widget.onSortTap!,
+                  tooltip: 'Sort',
+                )
+                .animate()
+                .fadeIn(duration: 200.ms, delay: 150.ms)
+                .scale(
+                  begin: const Offset(0.8, 0.8),
+                  end: const Offset(1.0, 1.0),
+                  duration: 200.ms,
+                  delay: 150.ms,
+                ),
           ],
         ],
       ),
@@ -171,13 +167,9 @@ class _ActionButton extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: isActive 
-            ? Theme.of(context).primaryColor 
-            : Colors.grey[100],
+        color: isActive ? Theme.of(context).primaryColor : Colors.grey[100],
         borderRadius: BorderRadius.circular(24),
-        border: isActive 
-            ? null 
-            : Border.all(color: Colors.grey[300]!),
+        border: isActive ? null : Border.all(color: Colors.grey[300]!),
       ),
       child: IconButton(
         icon: Icon(
@@ -191,10 +183,7 @@ class _ActionButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      button = Tooltip(
-        message: tooltip!,
-        child: button,
-      );
+      button = Tooltip(message: tooltip!, child: button);
     }
 
     return button;
@@ -219,11 +208,11 @@ class ExpandableAchievementSearchBar extends StatefulWidget {
   });
 
   @override
-  State<ExpandableAchievementSearchBar> createState() => 
+  State<ExpandableAchievementSearchBar> createState() =>
       _ExpandableAchievementSearchBarState();
 }
 
-class _ExpandableAchievementSearchBarState 
+class _ExpandableAchievementSearchBarState
     extends State<ExpandableAchievementSearchBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
@@ -244,7 +233,7 @@ class _ExpandableAchievementSearchBarState
     );
     _controller = TextEditingController(text: widget.searchQuery);
     _controller.addListener(_onTextChanged);
-    
+
     // Auto-expand if there's existing search text
     if (widget.searchQuery.isNotEmpty) {
       _isExpanded = true;
@@ -293,8 +282,8 @@ class _ExpandableAchievementSearchBarState
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: _isExpanded 
-                          ? Theme.of(context).primaryColor 
+                      color: _isExpanded
+                          ? Theme.of(context).primaryColor
                           : Colors.transparent,
                       width: 2,
                     ),
@@ -340,9 +329,9 @@ class _ExpandableAchievementSearchBarState
               );
             },
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Filter button
           if (widget.onFilterTap != null)
             _ActionButton(
@@ -351,7 +340,7 @@ class _ExpandableAchievementSearchBarState
               isActive: widget.hasActiveFilters,
               tooltip: 'Filter',
             ),
-          
+
           // Sort button
           if (widget.onSortTap != null) ...[
             const SizedBox(width: 8),
@@ -392,25 +381,15 @@ class CompactSearchField extends StatelessWidget {
         onChanged: onSearchChanged,
         decoration: InputDecoration(
           hintText: hintText ?? 'Search...',
-          hintStyle: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 14,
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.grey[500],
-            size: 18,
-          ),
+          hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[500], size: 18),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 8,
           ),
         ),
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
     );
   }

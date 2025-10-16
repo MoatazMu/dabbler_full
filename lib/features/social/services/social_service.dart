@@ -74,10 +74,7 @@ class SocialService {
   }
 
   /// Get posts for the social feed
-  Future<List<PostModel>> getFeedPosts({
-    int limit = 20,
-    int offset = 0,
-  }) async {
+  Future<List<PostModel>> getFeedPosts({int limit = 20, int offset = 0}) async {
     try {
       // First, get posts without joins
       final postsResponse = await _supabase
@@ -109,14 +106,13 @@ class SocialService {
       final enrichedPosts = postsResponse.map((post) {
         final authorId = post['author_id'] as String;
         final profile = profilesMap[authorId];
-        
-        return {
-          ...post,
-          'profiles': profile,
-        };
+
+        return {...post, 'profiles': profile};
       }).toList();
 
-      return enrichedPosts.map<PostModel>((json) => PostModel.fromJson(json)).toList();
+      return enrichedPosts
+          .map<PostModel>((json) => PostModel.fromJson(json))
+          .toList();
     } catch (e) {
       throw Exception('Failed to load feed posts: $e');
     }
@@ -146,13 +142,12 @@ class SocialService {
 
       // Merge posts with profile
       final enrichedPosts = postsResponse.map((post) {
-        return {
-          ...post,
-          'profiles': profileResponse,
-        };
+        return {...post, 'profiles': profileResponse};
       }).toList();
 
-      return enrichedPosts.map<PostModel>((json) => PostModel.fromJson(json)).toList();
+      return enrichedPosts
+          .map<PostModel>((json) => PostModel.fromJson(json))
+          .toList();
     } catch (e) {
       throw Exception('Failed to load user posts: $e');
     }
@@ -183,9 +178,10 @@ class SocialService {
             .eq('user_id', user.id);
 
         // Decrement likes count
-        await _supabase.rpc('decrement_likes_count', params: {
-          'post_id': postId,
-        });
+        await _supabase.rpc(
+          'decrement_likes_count',
+          params: {'post_id': postId},
+        );
       } else {
         // Like: Add the like
         await _supabase.from('post_likes').insert({
@@ -195,9 +191,10 @@ class SocialService {
         });
 
         // Increment likes count
-        await _supabase.rpc('increment_likes_count', params: {
-          'post_id': postId,
-        });
+        await _supabase.rpc(
+          'increment_likes_count',
+          params: {'post_id': postId},
+        );
       }
     } catch (e) {
       throw Exception('Failed to toggle like: $e');
@@ -215,8 +212,9 @@ class SocialService {
       final List<String> uploadedUrls = [];
 
       for (final imagePath in imagePaths) {
-        final fileName = '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-        
+        final fileName =
+            '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
         await _supabase.storage
             .from('post-images')
             .upload(fileName, File(imagePath));
@@ -236,14 +234,14 @@ class SocialService {
 
   /// Check for duplicate posts to prevent spam/reposting
   Future<void> _checkForDuplicatePost(
-    String userId, 
-    String content, 
-    List<String> mediaUrls
+    String userId,
+    String content,
+    List<String> mediaUrls,
   ) async {
     try {
       // Define time window for duplicate checking (e.g., 5 minutes)
       final timeWindow = DateTime.now().subtract(const Duration(minutes: 5));
-      
+
       // Check for exact content duplicates from the same user in recent time
       final duplicateContentCheck = await _supabase
           .from('posts')
@@ -254,7 +252,9 @@ class SocialService {
           .limit(1);
 
       if (duplicateContentCheck.isNotEmpty) {
-        throw Exception('You recently posted the same content. Please wait before posting again.');
+        throw Exception(
+          'You recently posted the same content. Please wait before posting again.',
+        );
       }
 
       // Check for rapid posting from the same user (rate limiting)
@@ -262,11 +262,18 @@ class SocialService {
           .from('posts')
           .select('id, created_at')
           .eq('author_id', userId)
-          .gte('created_at', DateTime.now().subtract(const Duration(minutes: 1)).toIso8601String())
+          .gte(
+            'created_at',
+            DateTime.now()
+                .subtract(const Duration(minutes: 1))
+                .toIso8601String(),
+          )
           .limit(3); // Allow max 3 posts per minute
 
       if (recentPostsCheck.length >= 3) {
-        throw Exception('You are posting too frequently. Please wait a moment before posting again.');
+        throw Exception(
+          'You are posting too frequently. Please wait a moment before posting again.',
+        );
       }
 
       // If content is very short and no media, check for identical recent posts
@@ -276,14 +283,20 @@ class SocialService {
             .select('id')
             .eq('author_id', userId)
             .eq('content', content.trim())
-            .gte('created_at', DateTime.now().subtract(const Duration(hours: 1)).toIso8601String())
+            .gte(
+              'created_at',
+              DateTime.now()
+                  .subtract(const Duration(hours: 1))
+                  .toIso8601String(),
+            )
             .limit(1);
 
         if (shortContentCheck.isNotEmpty) {
-          throw Exception('You already posted this content recently. Please create a new post with different content.');
+          throw Exception(
+            'You already posted this content recently. Please create a new post with different content.',
+          );
         }
       }
-
     } catch (e) {
       // Re-throw the exception to be handled by the calling method
       rethrow;

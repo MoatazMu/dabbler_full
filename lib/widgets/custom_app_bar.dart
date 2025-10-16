@@ -8,7 +8,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final IconData? actionIcon;
   final VoidCallback? onActionPressed;
   final bool showBackButton;
-  
+
   const CustomAppBar({
     super.key,
     this.actionIcon,
@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     // Get the status bar height dynamically
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    
+
     return PreferredSize(
       preferredSize: Size.fromHeight(statusBarHeight + kToolbarHeight + 12),
       child: Container(
@@ -40,7 +40,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 context.go(RoutePaths.home);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
                   color: const Color(0xFF301C4D),
@@ -67,7 +70,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
-            
+
             // Action Icon (if provided)
             if (actionIcon != null)
               GestureDetector(
@@ -81,11 +84,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     borderRadius: BorderRadius.circular(24),
                     color: const Color(0xFF301C4D),
                   ),
-                  child: Icon(
-                    actionIcon,
-                    size: 24,
-                    color: Colors.white,
-                  ),
+                  child: Icon(actionIcon, size: 24, color: Colors.white),
                 ),
               ),
           ],

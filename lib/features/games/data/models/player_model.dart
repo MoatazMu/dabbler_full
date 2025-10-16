@@ -35,32 +35,31 @@ class PlayerModel extends Player {
       status: _parsePlayerStatus(json['status']),
       teamAssignment: _parseTeamAssignment(json['team_assignment']),
       position: json['position'] as String?,
-      playerName: json['player_name'] as String? ?? 
-                  json['name'] as String? ?? 
-                  'Unknown Player',
-      playerAvatar: json['player_avatar'] as String? ??
-                    json['avatar_url'] as String?,
-      playerPhone: json['player_phone'] as String? ??
-                   json['phone'] as String?,
-      playerEmail: json['player_email'] as String? ??
-                   json['email'] as String?,
+      playerName:
+          json['player_name'] as String? ??
+          json['name'] as String? ??
+          'Unknown Player',
+      playerAvatar:
+          json['player_avatar'] as String? ?? json['avatar_url'] as String?,
+      playerPhone: json['player_phone'] as String? ?? json['phone'] as String?,
+      playerEmail: json['player_email'] as String? ?? json['email'] as String?,
       joinedAt: DateTime.parse(json['joined_at'] as String),
-      checkedInAt: json['checked_in_at'] != null 
+      checkedInAt: json['checked_in_at'] != null
           ? DateTime.parse(json['checked_in_at'] as String)
           : null,
-      cancelledAt: json['cancelled_at'] != null 
+      cancelledAt: json['cancelled_at'] != null
           ? DateTime.parse(json['cancelled_at'] as String)
           : null,
       checkInCode: json['check_in_code'] as String?,
       isOrganizer: json['is_organizer'] as bool? ?? false,
       playerRating: (json['player_rating'] as num?)?.toDouble(),
-      ratedAt: json['rated_at'] != null 
+      ratedAt: json['rated_at'] != null
           ? DateTime.parse(json['rated_at'] as String)
           : null,
       ratingComment: json['rating_comment'] as String?,
       hasPaid: json['has_paid'] as bool? ?? false,
       amountPaid: (json['amount_paid'] as num?)?.toDouble(),
-      paidAt: json['paid_at'] != null 
+      paidAt: json['paid_at'] != null
           ? DateTime.parse(json['paid_at'] as String)
           : null,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -70,35 +69,39 @@ class PlayerModel extends Player {
 
   static PlayerStatus _parsePlayerStatus(dynamic statusData) {
     if (statusData == null) return PlayerStatus.confirmed;
-    
+
     if (statusData is String) {
       try {
         return PlayerStatus.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == statusData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              statusData.toLowerCase(),
           orElse: () => PlayerStatus.confirmed,
         );
       } catch (e) {
         return PlayerStatus.confirmed;
       }
     }
-    
+
     return PlayerStatus.confirmed;
   }
 
   static TeamAssignment _parseTeamAssignment(dynamic teamData) {
     if (teamData == null) return TeamAssignment.unassigned;
-    
+
     if (teamData is String) {
       try {
         return TeamAssignment.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == teamData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              teamData.toLowerCase(),
           orElse: () => TeamAssignment.unassigned,
         );
       } catch (e) {
         return TeamAssignment.unassigned;
       }
     }
-    
+
     return TeamAssignment.unassigned;
   }
 
@@ -215,8 +218,8 @@ class PlayerModel extends Player {
 
   // Check if player has valid profile data
   bool get hasCompleteProfile {
-    return playerName.isNotEmpty && 
-           (playerEmail != null && playerEmail!.isNotEmpty);
+    return playerName.isNotEmpty &&
+        (playerEmail != null && playerEmail!.isNotEmpty);
   }
 
   // Get player avatar URL or default

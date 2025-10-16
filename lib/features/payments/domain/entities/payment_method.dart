@@ -1,13 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Payment method types
-enum PaymentType { 
-  card, 
-  paypal, 
-  applePay,
-  googlePay,
-  bankTransfer 
-}
+enum PaymentType { card, paypal, applePay, googlePay, bankTransfer }
 
 /// Payment method entity
 class PaymentMethod extends Equatable {
@@ -63,15 +57,15 @@ class PaymentMethod extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        type,
-        lastFour,
-        brand,
-        expiryDate,
-        email,
-        isDefault,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    userId,
+    type,
+    lastFour,
+    brand,
+    expiryDate,
+    email,
+    isDefault,
+    createdAt,
+    updatedAt,
+  ];
 }

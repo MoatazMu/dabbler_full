@@ -48,16 +48,15 @@ class DabblerButton extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                variant == ButtonVariant.primary ? Colors.white : DabblerColors.primary,
+                variant == ButtonVariant.primary
+                    ? Colors.white
+                    : DabblerColors.primary,
               ),
             ),
           ),
           const SizedBox(width: 8),
         ],
-        Text(
-          text,
-          style: _getTextStyle(),
-        ),
+        Text(text, style: _getTextStyle()),
       ],
     );
   }
@@ -87,8 +86,8 @@ class DabblerButton extends StatelessWidget {
     final color = variant == ButtonVariant.primary
         ? Colors.white
         : variant == ButtonVariant.secondary
-            ? DabblerColors.primary
-            : DabblerColors.textPrimaryLight;
+        ? DabblerColors.primary
+        : DabblerColors.textPrimaryLight;
 
     double fontSize;
     switch (size) {
@@ -140,14 +139,6 @@ class DabblerButton extends StatelessWidget {
   }
 }
 
-enum ButtonVariant {
-  primary,
-  secondary,
-  text,
-}
+enum ButtonVariant { primary, secondary, text }
 
-enum ButtonSize {
-  small,
-  medium,
-  large,
-}
+enum ButtonSize { small, medium, large }

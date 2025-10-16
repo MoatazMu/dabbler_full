@@ -8,11 +8,14 @@ import '../models/player_model.dart';
 class SupabaseGamesDataSource implements GamesRemoteDataSource {
   final SupabaseClient _supabaseClient;
   StreamSubscription? _gamesSubscription;
-  
+
   // Real-time controllers
-  final StreamController<GameModel> _gameUpdatesController = StreamController.broadcast();
-  final StreamController<Map<String, dynamic>> _playerEventsController = StreamController.broadcast();
-  final StreamController<Map<String, dynamic>> _gameStatusController = StreamController.broadcast();
+  final StreamController<GameModel> _gameUpdatesController =
+      StreamController.broadcast();
+  final StreamController<Map<String, dynamic>> _playerEventsController =
+      StreamController.broadcast();
+  final StreamController<Map<String, dynamic>> _gameStatusController =
+      StreamController.broadcast();
 
   SupabaseGamesDataSource(this._supabaseClient) {
     _initializeRealTimeSubscriptions();
@@ -20,8 +23,10 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
 
   // Real-time streams
   Stream<GameModel> get gameUpdates => _gameUpdatesController.stream;
-  Stream<Map<String, dynamic>> get playerEvents => _playerEventsController.stream;
-  Stream<Map<String, dynamic>> get gameStatusChanges => _gameStatusController.stream;
+  Stream<Map<String, dynamic>> get playerEvents =>
+      _playerEventsController.stream;
+  Stream<Map<String, dynamic>> get gameStatusChanges =>
+      _gameStatusController.stream;
 
   void _initializeRealTimeSubscriptions() {
     // Subscribe to games table changes
@@ -44,7 +49,7 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   Future<GameModel> createGame(Map<String, dynamic> gameData) async {
     try {
       print('📤 [Datasource] Inserting game with data: $gameData');
-      
+
       // Insert game
       final gameResponse = await _supabaseClient
           .from('games')
@@ -86,7 +91,7 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }) async {
     try {
       print('🔍 [DEBUG] getGames called with filters: $filters');
-      
+
       // JOIN with venues table to get venue name
       var query = _supabaseClient
           .from('games')
@@ -116,13 +121,15 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
       final response = await query
           .order(sortBy ?? 'scheduled_date', ascending: ascending)
           .range((page - 1) * limit, page * limit - 1);
-      
+
       print('🔍 [DEBUG] getGames response: ${response.length} games found');
       if (response.isNotEmpty) {
         print('🔍 [DEBUG] First public game: ${response.first}');
       }
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } on PostgrestException catch (e) {
       print('❌ [ERROR] getGames PostgrestException: ${e.message}');
       throw GameServerException('Database error: ${e.message}');
@@ -143,8 +150,9 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
           .single();
 
       final game = GameModel.fromJson(gameResponse);
-      final currentPlayerCount = gameResponse['game_players'][0]['count'] as int;
-      
+      final currentPlayerCount =
+          gameResponse['game_players'][0]['count'] as int;
+
       // Check if game is full
       if (currentPlayerCount >= game.maxPlayers) {
         throw GameFullException('Game is full');
@@ -152,9 +160,13 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
 
       // Check if game has already started
       final now = DateTime.now();
-      final gameDateTime = DateTime.parse('${game.scheduledDate} ${game.startTime}');
+      final gameDateTime = DateTime.parse(
+        '${game.scheduledDate} ${game.startTime}',
+      );
       if (gameDateTime.isBefore(now)) {
-        throw GameAlreadyStartedException('Cannot join a game that has already started');
+        throw GameAlreadyStartedException(
+          'Cannot join a game that has already started',
+        );
       }
 
       // Add player to game
@@ -167,7 +179,8 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
 
       return true;
     } on PostgrestException catch (e) {
-      if (e.code == '23505') { // Unique violation - already joined
+      if (e.code == '23505') {
+        // Unique violation - already joined
         throw GameServerException('Player is already in this game');
       }
       throw GameServerException('Database error: ${e.message}');
@@ -197,7 +210,10 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }
 
   @override
-  Future<GameModel> updateGame(String gameId, Map<String, dynamic> updates) async {
+  Future<GameModel> updateGame(
+    String gameId,
+    Map<String, dynamic> updates,
+  ) async {
     try {
       final response = await _supabaseClient
           .from('games')
@@ -245,8 +261,10 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     int limit = 20,
   }) async {
     try {
-      print('🔍 [DEBUG] getMyGames called with userId: $userId, status: $status');
-      
+      print(
+        '🔍 [DEBUG] getMyGames called with userId: $userId, status: $status',
+      );
+
       // Get games where user is organizer, JOIN with venues
       var query = _supabaseClient
           .from('games')
@@ -261,15 +279,17 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
       final response = await query
           .order('scheduled_date', ascending: true)
           .range((page - 1) * limit, page * limit - 1);
-      
+
       print('🔍 [DEBUG] Query response: ${response.length} games found');
       if (response.isNotEmpty) {
         print('🔍 [DEBUG] First game: ${response.first}');
       }
-      
-      final games = response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+
+      final games = response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
       print('🔍 [DEBUG] Parsed ${games.length} games successfully');
-      
+
       return games;
     } on PostgrestException catch (e) {
       print('❌ [ERROR] PostgrestException: ${e.message}, code: ${e.code}');
@@ -306,8 +326,10 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
       final response = await searchQuery
           .order('scheduled_date', ascending: true)
           .range((page - 1) * limit, page * limit - 1);
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } on PostgrestException catch (e) {
       throw GameServerException('Database error: ${e.message}');
     } catch (e) {
@@ -326,15 +348,20 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }) async {
     try {
       // Use RPC function for location-based queries
-      final response = await _supabaseClient.rpc('get_nearby_games', params: {
-        'lat': latitude,
-        'lng': longitude,
-        'radius_km': radiusKm,
-        'page_offset': (page - 1) * limit,
-        'page_limit': limit,
-      });
+      final response = await _supabaseClient.rpc(
+        'get_nearby_games',
+        params: {
+          'lat': latitude,
+          'lng': longitude,
+          'radius_km': radiusKm,
+          'page_offset': (page - 1) * limit,
+          'page_limit': limit,
+        },
+      );
 
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } on PostgrestException catch (e) {
       throw GameServerException('Database error: ${e.message}');
     } catch (e) {
@@ -350,7 +377,7 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
           .from('games')
           .update({
             'status': 'cancelled',
-            'cancelled_at': DateTime.now().toIso8601String()
+            'cancelled_at': DateTime.now().toIso8601String(),
           })
           .eq('id', gameId);
       return true;
@@ -374,10 +401,14 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
           .eq('status', 'active')
           .order('scheduled_date')
           .range((page - 1) * limit, page * limit - 1);
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } catch (e) {
-      throw GameServerException('Failed to get games by sport: ${e.toString()}');
+      throw GameServerException(
+        'Failed to get games by sport: ${e.toString()}',
+      );
     }
   }
 
@@ -387,15 +418,18 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     int limit = 20,
   }) async {
     try {
-      final response = await _supabaseClient
-          .rpc('get_trending_games', params: {
-            'page_offset': (page - 1) * limit,
-            'page_limit': limit,
-          });
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+      final response = await _supabaseClient.rpc(
+        'get_trending_games',
+        params: {'page_offset': (page - 1) * limit, 'page_limit': limit},
+      );
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } catch (e) {
-      throw GameServerException('Failed to get trending games: ${e.toString()}');
+      throw GameServerException(
+        'Failed to get trending games: ${e.toString()}',
+      );
     }
   }
 
@@ -406,16 +440,22 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
     int limit = 20,
   }) async {
     try {
-      final response = await _supabaseClient
-          .rpc('get_recommended_games', params: {
-            'user_id': userId,
-            'page_offset': (page - 1) * limit,
-            'page_limit': limit,
-          });
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+      final response = await _supabaseClient.rpc(
+        'get_recommended_games',
+        params: {
+          'user_id': userId,
+          'page_offset': (page - 1) * limit,
+          'page_limit': limit,
+        },
+      );
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } catch (e) {
-      throw GameServerException('Failed to get recommended games: ${e.toString()}');
+      throw GameServerException(
+        'Failed to get recommended games: ${e.toString()}',
+      );
     }
   }
 
@@ -431,13 +471,20 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }
 
   @override
-  Future<bool> invitePlayersToGame(String gameId, List<String> playerIds, String? message) async {
+  Future<bool> invitePlayersToGame(
+    String gameId,
+    List<String> playerIds,
+    String? message,
+  ) async {
     try {
-      await _supabaseClient.rpc('invite_players_to_game', params: {
-        'game_id': gameId,
-        'player_ids': playerIds,
-        'invitation_message': message,
-      });
+      await _supabaseClient.rpc(
+        'invite_players_to_game',
+        params: {
+          'game_id': gameId,
+          'player_ids': playerIds,
+          'invitation_message': message,
+        },
+      );
       return true;
     } catch (e) {
       throw GameServerException('Failed to invite players: ${e.toString()}');
@@ -445,7 +492,11 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }
 
   @override
-  Future<bool> respondToGameInvitation(String gameId, String playerId, bool accepted) async {
+  Future<bool> respondToGameInvitation(
+    String gameId,
+    String playerId,
+    bool accepted,
+  ) async {
     try {
       if (accepted) {
         return await joinGame(gameId, playerId);
@@ -454,16 +505,19 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
         return true;
       }
     } catch (e) {
-      throw GameServerException('Failed to respond to invitation: ${e.toString()}');
+      throw GameServerException(
+        'Failed to respond to invitation: ${e.toString()}',
+      );
     }
   }
 
   @override
   Future<Map<String, dynamic>> getUserGameStats(String userId) async {
     try {
-      final response = await _supabaseClient.rpc('get_user_game_stats', params: {
-        'user_id': userId,
-      });
+      final response = await _supabaseClient.rpc(
+        'get_user_game_stats',
+        params: {'user_id': userId},
+      );
       return response as Map<String, dynamic>;
     } catch (e) {
       throw GameServerException('Failed to get user stats: ${e.toString()}');
@@ -471,7 +525,11 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }
 
   @override
-  Future<bool> reportGame(String gameId, String reason, String? description) async {
+  Future<bool> reportGame(
+    String gameId,
+    String reason,
+    String? description,
+  ) async {
     try {
       await _supabaseClient.from('game_reports').insert({
         'game_id': gameId,
@@ -488,10 +546,10 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   @override
   Future<bool> toggleGameFavorite(String gameId, String userId) async {
     try {
-      await _supabaseClient.rpc('toggle_game_favorite', params: {
-        'game_id': gameId,
-        'user_id': userId,
-      });
+      await _supabaseClient.rpc(
+        'toggle_game_favorite',
+        params: {'game_id': gameId, 'user_id': userId},
+      );
       return true;
     } catch (e) {
       throw GameServerException('Failed to toggle favorite: ${e.toString()}');
@@ -499,7 +557,11 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }
 
   @override
-  Future<List<GameModel>> getFavoriteGames(String userId, {int page = 1, int limit = 20}) async {
+  Future<List<GameModel>> getFavoriteGames(
+    String userId, {
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _supabaseClient
           .from('games')
@@ -507,20 +569,24 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
           .eq('game_favorites.user_id', userId)
           .order('scheduled_date')
           .range((page - 1) * limit, page * limit - 1);
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } catch (e) {
-      throw GameServerException('Failed to get favorite games: ${e.toString()}');
+      throw GameServerException(
+        'Failed to get favorite games: ${e.toString()}',
+      );
     }
   }
 
   @override
   Future<bool> canUserJoinGame(String gameId, String userId) async {
     try {
-      final response = await _supabaseClient.rpc('can_user_join_game', params: {
-        'game_id': gameId,
-        'user_id': userId,
-      });
+      final response = await _supabaseClient.rpc(
+        'can_user_join_game',
+        params: {'game_id': gameId, 'user_id': userId},
+      );
       return response as bool;
     } catch (e) {
       return false; // Default to false if check fails
@@ -528,7 +594,11 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
   }
 
   @override
-  Future<List<GameModel>> getGameHistory(String userId, {int page = 1, int limit = 20}) async {
+  Future<List<GameModel>> getGameHistory(
+    String userId, {
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _supabaseClient
           .from('games')
@@ -537,22 +607,32 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
           .inFilter('status', ['completed', 'cancelled'])
           .order('scheduled_date', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
-      
-      return response.map<GameModel>((json) => GameModel.fromJson(json)).toList();
+
+      return response
+          .map<GameModel>((json) => GameModel.fromJson(json))
+          .toList();
     } catch (e) {
       throw GameServerException('Failed to get game history: ${e.toString()}');
     }
   }
 
   @override
-  Future<GameModel> duplicateGame(String gameId, String newDate, String newStartTime, String newEndTime) async {
+  Future<GameModel> duplicateGame(
+    String gameId,
+    String newDate,
+    String newStartTime,
+    String newEndTime,
+  ) async {
     try {
-      final response = await _supabaseClient.rpc('duplicate_game', params: {
-        'original_game_id': gameId,
-        'new_date': newDate,
-        'new_start_time': newStartTime,
-        'new_end_time': newEndTime,
-      });
+      final response = await _supabaseClient.rpc(
+        'duplicate_game',
+        params: {
+          'original_game_id': gameId,
+          'new_date': newDate,
+          'new_start_time': newStartTime,
+          'new_end_time': newEndTime,
+        },
+      );
 
       return GameModel.fromJson(response);
     } catch (e) {
@@ -568,8 +648,10 @@ class SupabaseGamesDataSource implements GamesRemoteDataSource {
           .select('*')
           .eq('game_id', gameId)
           .order('joined_at', ascending: true);
-      
-      return response.map<PlayerModel>((json) => PlayerModel.fromJson(json)).toList();
+
+      return response
+          .map<PlayerModel>((json) => PlayerModel.fromJson(json))
+          .toList();
     } on PostgrestException catch (e) {
       throw GameServerException('Database error: ${e.message}');
     } catch (e) {

@@ -49,8 +49,10 @@ class AchievementPreferences {
     bool? celebrateProgress,
   }) {
     return AchievementPreferences(
-      showHiddenAchievements: showHiddenAchievements ?? this.showHiddenAchievements,
-      trackProgressNotifications: trackProgressNotifications ?? this.trackProgressNotifications,
+      showHiddenAchievements:
+          showHiddenAchievements ?? this.showHiddenAchievements,
+      trackProgressNotifications:
+          trackProgressNotifications ?? this.trackProgressNotifications,
       enableProgressHints: enableProgressHints ?? this.enableProgressHints,
       reminderFrequency: reminderFrequency ?? this.reminderFrequency,
       priorityCategories: priorityCategories ?? this.priorityCategories,
@@ -92,11 +94,12 @@ class AchievementPreferences {
       ),
       priorityCategories: Set<AchievementCategory>.from(
         (map['priorityCategories'] as List<dynamic>?)?.map(
-          (e) => AchievementCategory.values.firstWhere(
-            (category) => category.name == e,
-            orElse: () => AchievementCategory.gameParticipation,
-          ),
-        ) ?? [],
+              (e) => AchievementCategory.values.firstWhere(
+                (category) => category.name == e,
+                orElse: () => AchievementCategory.gameParticipation,
+              ),
+            ) ??
+            [],
       ),
       enableGoalSetting: map['enableGoalSetting'] ?? true,
       showProgressBars: map['showProgressBars'] ?? true,
@@ -112,20 +115,9 @@ class AchievementPreferences {
   }
 }
 
-enum NotificationFrequency {
-  minimal,
-  normal,
-  frequent,
-  all,
-}
+enum NotificationFrequency { minimal, normal, frequent, all }
 
-enum ReminderTiming {
-  morning,
-  afternoon,
-  evening,
-  optimal,
-  custom,
-}
+enum ReminderTiming { morning, afternoon, evening, optimal, custom }
 
 /// Goal data model
 class AchievementGoal {
@@ -151,17 +143,24 @@ class AchievementGoal {
     this.metadata = const {},
   });
 
-  double get progressPercentage => targetProgress > 0 ? (currentProgress / targetProgress).clamp(0.0, 1.0) : 0.0;
+  double get progressPercentage => targetProgress > 0
+      ? (currentProgress / targetProgress).clamp(0.0, 1.0)
+      : 0.0;
   int get daysLeft => targetDate.difference(DateTime.now()).inDays;
   bool get isOverdue => DateTime.now().isAfter(targetDate) && !isCompleted;
 }
 
 /// Achievement preferences provider
-final achievementPreferencesProvider = StateNotifierProvider<AchievementPreferencesNotifier, AchievementPreferences>((ref) {
-  return AchievementPreferencesNotifier();
-});
+final achievementPreferencesProvider =
+    StateNotifierProvider<
+      AchievementPreferencesNotifier,
+      AchievementPreferences
+    >((ref) {
+      return AchievementPreferencesNotifier();
+    });
 
-class AchievementPreferencesNotifier extends StateNotifier<AchievementPreferences> {
+class AchievementPreferencesNotifier
+    extends StateNotifier<AchievementPreferences> {
   AchievementPreferencesNotifier() : super(const AchievementPreferences()) {
     _loadPreferences();
   }
@@ -172,7 +171,7 @@ class AchievementPreferencesNotifier extends StateNotifier<AchievementPreference
       final prefsJson = prefs.getString('achievement_preferences');
       if (prefsJson != null) {
         final prefsMap = Map<String, dynamic>.from(
-          Uri.splitQueryString(prefsJson)
+          Uri.splitQueryString(prefsJson),
         );
         state = AchievementPreferences.fromMap(prefsMap);
       }
@@ -185,10 +184,12 @@ class AchievementPreferencesNotifier extends StateNotifier<AchievementPreference
     try {
       final prefs = await SharedPreferences.getInstance();
       final prefsMap = newPreferences.toMap();
-      final prefsJson = Uri(queryParameters: prefsMap.map(
-        (key, value) => MapEntry(key, value.toString())
-      )).query;
-      
+      final prefsJson = Uri(
+        queryParameters: prefsMap.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      ).query;
+
       await prefs.setString('achievement_preferences', prefsJson);
       state = newPreferences;
     } catch (e) {
@@ -196,18 +197,30 @@ class AchievementPreferencesNotifier extends StateNotifier<AchievementPreference
     }
   }
 
-  void toggleHiddenAchievements(bool value) => updatePreferences(state.copyWith(showHiddenAchievements: value));
-  void toggleProgressNotifications(bool value) => updatePreferences(state.copyWith(trackProgressNotifications: value));
-  void toggleProgressHints(bool value) => updatePreferences(state.copyWith(enableProgressHints: value));
-  void updateReminderFrequency(NotificationFrequency value) => updatePreferences(state.copyWith(reminderFrequency: value));
-  void updatePriorityCategories(Set<AchievementCategory> categories) => updatePreferences(state.copyWith(priorityCategories: categories));
-  void toggleGoalSetting(bool value) => updatePreferences(state.copyWith(enableGoalSetting: value));
-  void toggleProgressBars(bool value) => updatePreferences(state.copyWith(showProgressBars: value));
-  void toggleSmartReminders(bool value) => updatePreferences(state.copyWith(enableSmartReminders: value));
-  void updateReminderTiming(ReminderTiming value) => updatePreferences(state.copyWith(reminderTiming: value));
-  void updateDailyReminderLimit(int value) => updatePreferences(state.copyWith(dailyReminderLimit: value));
-  void toggleContextualHints(bool value) => updatePreferences(state.copyWith(contextualHints: value));
-  void toggleCelebrateProgress(bool value) => updatePreferences(state.copyWith(celebrateProgress: value));
+  void toggleHiddenAchievements(bool value) =>
+      updatePreferences(state.copyWith(showHiddenAchievements: value));
+  void toggleProgressNotifications(bool value) =>
+      updatePreferences(state.copyWith(trackProgressNotifications: value));
+  void toggleProgressHints(bool value) =>
+      updatePreferences(state.copyWith(enableProgressHints: value));
+  void updateReminderFrequency(NotificationFrequency value) =>
+      updatePreferences(state.copyWith(reminderFrequency: value));
+  void updatePriorityCategories(Set<AchievementCategory> categories) =>
+      updatePreferences(state.copyWith(priorityCategories: categories));
+  void toggleGoalSetting(bool value) =>
+      updatePreferences(state.copyWith(enableGoalSetting: value));
+  void toggleProgressBars(bool value) =>
+      updatePreferences(state.copyWith(showProgressBars: value));
+  void toggleSmartReminders(bool value) =>
+      updatePreferences(state.copyWith(enableSmartReminders: value));
+  void updateReminderTiming(ReminderTiming value) =>
+      updatePreferences(state.copyWith(reminderTiming: value));
+  void updateDailyReminderLimit(int value) =>
+      updatePreferences(state.copyWith(dailyReminderLimit: value));
+  void toggleContextualHints(bool value) =>
+      updatePreferences(state.copyWith(contextualHints: value));
+  void toggleCelebrateProgress(bool value) =>
+      updatePreferences(state.copyWith(celebrateProgress: value));
 }
 
 /// Achievement preferences screen
@@ -215,10 +228,12 @@ class AchievementPreferencesScreen extends ConsumerStatefulWidget {
   const AchievementPreferencesScreen({super.key});
 
   @override
-  ConsumerState<AchievementPreferencesScreen> createState() => _AchievementPreferencesScreenState();
+  ConsumerState<AchievementPreferencesScreen> createState() =>
+      _AchievementPreferencesScreenState();
 }
 
-class _AchievementPreferencesScreenState extends ConsumerState<AchievementPreferencesScreen> {
+class _AchievementPreferencesScreenState
+    extends ConsumerState<AchievementPreferencesScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -230,7 +245,9 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
   @override
   Widget build(BuildContext context) {
     final preferences = ref.watch(achievementPreferencesProvider);
-    final preferencesNotifier = ref.watch(achievementPreferencesProvider.notifier);
+    final preferencesNotifier = ref.watch(
+      achievementPreferencesProvider.notifier,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -253,9 +270,17 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
           children: [
             _buildVisibilitySection(context, preferences, preferencesNotifier),
             const SizedBox(height: 24),
-            _buildProgressTrackingSection(context, preferences, preferencesNotifier),
+            _buildProgressTrackingSection(
+              context,
+              preferences,
+              preferencesNotifier,
+            ),
             const SizedBox(height: 24),
-            _buildNotificationSection(context, preferences, preferencesNotifier),
+            _buildNotificationSection(
+              context,
+              preferences,
+              preferencesNotifier,
+            ),
             const SizedBox(height: 24),
             _buildCategorySection(context, preferences, preferencesNotifier),
             const SizedBox(height: 24),
@@ -269,7 +294,11 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
     );
   }
 
-  Widget _buildVisibilitySection(BuildContext context, AchievementPreferences preferences, AchievementPreferencesNotifier notifier) {
+  Widget _buildVisibilitySection(
+    BuildContext context,
+    AchievementPreferences preferences,
+    AchievementPreferencesNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Hidden Achievement Visibility',
       icon: Icons.visibility,
@@ -284,7 +313,9 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
           const Divider(),
           SwitchListTile(
             title: const Text('Enable Progress Hints'),
-            subtitle: const Text('Show hints for unlocking hidden achievements'),
+            subtitle: const Text(
+              'Show hints for unlocking hidden achievements',
+            ),
             value: preferences.enableProgressHints,
             onChanged: notifier.toggleProgressHints,
           ),
@@ -299,7 +330,11 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
     );
   }
 
-  Widget _buildProgressTrackingSection(BuildContext context, AchievementPreferences preferences, AchievementPreferencesNotifier notifier) {
+  Widget _buildProgressTrackingSection(
+    BuildContext context,
+    AchievementPreferences preferences,
+    AchievementPreferencesNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Progress Tracking Options',
       icon: Icons.trending_up,
@@ -333,14 +368,20 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
     );
   }
 
-  Widget _buildNotificationSection(BuildContext context, AchievementPreferences preferences, AchievementPreferencesNotifier notifier) {
+  Widget _buildNotificationSection(
+    BuildContext context,
+    AchievementPreferences preferences,
+    AchievementPreferencesNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Notification Frequency',
       icon: Icons.notifications,
       children: [
         ListTile(
           title: const Text('Reminder Frequency'),
-          subtitle: Text(_getFrequencyDescription(preferences.reminderFrequency)),
+          subtitle: Text(
+            _getFrequencyDescription(preferences.reminderFrequency),
+          ),
           trailing: DropdownButton<NotificationFrequency>(
             value: preferences.reminderFrequency,
             onChanged: (value) {
@@ -357,7 +398,9 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
         const Divider(),
         SwitchListTile(
           title: const Text('Smart Reminders'),
-          subtitle: const Text('AI-powered reminder timing based on your habits'),
+          subtitle: const Text(
+            'AI-powered reminder timing based on your habits',
+          ),
           value: preferences.enableSmartReminders,
           onChanged: notifier.toggleSmartReminders,
         ),
@@ -365,7 +408,11 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
     );
   }
 
-  Widget _buildCategorySection(BuildContext context, AchievementPreferences preferences, AchievementPreferencesNotifier notifier) {
+  Widget _buildCategorySection(
+    BuildContext context,
+    AchievementPreferences preferences,
+    AchievementPreferencesNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Category Priorities',
       icon: Icons.category,
@@ -384,12 +431,16 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
                 spacing: 8,
                 runSpacing: 8,
                 children: AchievementCategory.values.map((category) {
-                  final isSelected = preferences.priorityCategories.contains(category);
+                  final isSelected = preferences.priorityCategories.contains(
+                    category,
+                  );
                   return FilterChip(
                     label: Text(_getCategoryLabel(category)),
                     selected: isSelected,
                     onSelected: (selected) {
-                      final newCategories = Set<AchievementCategory>.from(preferences.priorityCategories);
+                      final newCategories = Set<AchievementCategory>.from(
+                        preferences.priorityCategories,
+                      );
                       if (selected) {
                         newCategories.add(category);
                       } else {
@@ -414,7 +465,11 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
     );
   }
 
-  Widget _buildGoalSection(BuildContext context, AchievementPreferences preferences, AchievementPreferencesNotifier notifier) {
+  Widget _buildGoalSection(
+    BuildContext context,
+    AchievementPreferences preferences,
+    AchievementPreferencesNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Goal Setting',
       icon: Icons.flag,
@@ -444,7 +499,11 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
     );
   }
 
-  Widget _buildReminderSection(BuildContext context, AchievementPreferences preferences, AchievementPreferencesNotifier notifier) {
+  Widget _buildReminderSection(
+    BuildContext context,
+    AchievementPreferences preferences,
+    AchievementPreferencesNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Reminder Preferences',
       icon: Icons.alarm,
@@ -468,7 +527,9 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
         const Divider(),
         ListTile(
           title: const Text('Daily Reminder Limit'),
-          subtitle: Text('Maximum ${preferences.dailyReminderLimit} reminders per day'),
+          subtitle: Text(
+            'Maximum ${preferences.dailyReminderLimit} reminders per day',
+          ),
           trailing: SizedBox(
             width: 100,
             child: Slider(
@@ -477,7 +538,8 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
               max: 10,
               divisions: 9,
               label: preferences.dailyReminderLimit.toString(),
-              onChanged: (value) => notifier.updateDailyReminderLimit(value.round()),
+              onChanged: (value) =>
+                  notifier.updateDailyReminderLimit(value.round()),
             ),
           ),
         ),
@@ -507,7 +569,9 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
             ),
             child: Row(
               children: [
@@ -618,19 +682,34 @@ class _AchievementPreferencesScreenState extends ConsumerState<AchievementPrefer
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Hidden Achievements:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Hidden Achievements:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Control whether you see locked achievements and hints.'),
               SizedBox(height: 12),
-              Text('Progress Tracking:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Progress Tracking:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Customize how progress is tracked and displayed.'),
               SizedBox(height: 12),
-              Text('Category Priorities:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Category Priorities:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Focus on specific types of achievements.'),
               SizedBox(height: 12),
-              Text('Goal Setting:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Goal Setting:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Set personal targets and deadlines.'),
               SizedBox(height: 12),
-              Text('Smart Reminders:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Smart Reminders:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('AI learns your patterns for optimal reminder timing.'),
             ],
           ),

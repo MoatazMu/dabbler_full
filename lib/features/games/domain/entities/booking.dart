@@ -1,69 +1,57 @@
-enum BookingStatus {
-  pending,
-  confirmed,
-  cancelled,
-  completed,
-  noShow,
-}
+enum BookingStatus { pending, confirmed, cancelled, completed, noShow }
 
-enum PaymentStatus {
-  pending,
-  paid,
-  failed,
-  refunded,
-  partiallyRefunded,
-}
+enum PaymentStatus { pending, paid, failed, refunded, partiallyRefunded }
 
 class Booking {
   final String id;
   final String venueId;
   final String gameId;
   final String bookedBy; // User ID who made the booking
-  
+
   // Booking details
   final DateTime bookingDate;
   final String startTime; // Format: "HH:mm"
-  final String endTime;   // Format: "HH:mm"
+  final String endTime; // Format: "HH:mm"
   final String? courtNumber; // Optional court/field identifier
-  
+
   // Venue details (cached for performance)
   final String venueName;
   final String venueAddress;
-  
+
   // Financial details
   final double totalAmount;
   final String currency;
   final double? deposit; // Security deposit if required
   final double? tax; // Tax amount
   final double? serviceFee; // Platform service fee
-  
+
   // Status tracking
   final BookingStatus status;
   final PaymentStatus paymentStatus;
   final String? paymentMethod; // 'card', 'cash', 'paypal', etc.
   final String? transactionId;
-  
+
   // Cancellation details
   final String? cancellationReason;
   final DateTime? cancelledAt;
   final String? cancelledBy; // User ID who cancelled
   final double? refundAmount;
   final DateTime? refundedAt;
-  
+
   // Additional details
   final String? specialRequests;
   final String? notes;
   final List<String> attachments; // Photos, documents, etc.
-  
+
   // Confirmation details
   final String? confirmationCode;
   final DateTime? confirmedAt;
-  
+
   // Check-in details
   final DateTime? checkedInAt;
   final DateTime? checkedOutAt;
   final String? actualUsageDuration; // Actual time used vs booked time
-  
+
   // Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -110,7 +98,7 @@ class Booking {
     final timeParts = startTime.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
-    
+
     return DateTime(
       bookingDate.year,
       bookingDate.month,
@@ -125,7 +113,7 @@ class Booking {
     final timeParts = endTime.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
-    
+
     return DateTime(
       bookingDate.year,
       bookingDate.month,
@@ -147,18 +135,18 @@ class Booking {
 
   /// Check if booking is active (confirmed and not cancelled)
   bool get isActive {
-    return status == BookingStatus.confirmed && 
-           paymentStatus == PaymentStatus.paid;
+    return status == BookingStatus.confirmed &&
+        paymentStatus == PaymentStatus.paid;
   }
 
   /// Check if booking can be cancelled
   bool canCancel() {
-    if (status == BookingStatus.cancelled || 
+    if (status == BookingStatus.cancelled ||
         status == BookingStatus.completed ||
         status == BookingStatus.noShow) {
       return false;
     }
-    
+
     // Can't cancel if booking has already started
     return DateTime.now().isBefore(bookingStartDateTime);
   }
@@ -168,22 +156,29 @@ class Booking {
     if (status != BookingStatus.confirmed && status != BookingStatus.pending) {
       return false;
     }
-    
+
     // Can't modify if booking is within 2 hours
-    final twoHoursBefore = bookingStartDateTime.subtract(const Duration(hours: 2));
+    final twoHoursBefore = bookingStartDateTime.subtract(
+      const Duration(hours: 2),
+    );
     return DateTime.now().isBefore(twoHoursBefore);
   }
 
   /// Check if check-in is available
   bool canCheckIn() {
-    if (status != BookingStatus.confirmed || paymentStatus != PaymentStatus.paid) {
+    if (status != BookingStatus.confirmed ||
+        paymentStatus != PaymentStatus.paid) {
       return false;
     }
-    
+
     final now = DateTime.now();
-    final checkInWindow = bookingStartDateTime.subtract(const Duration(minutes: 15));
-    
-    return now.isAfter(checkInWindow) && now.isBefore(bookingEndDateTime) && checkedInAt == null;
+    final checkInWindow = bookingStartDateTime.subtract(
+      const Duration(minutes: 15),
+    );
+
+    return now.isAfter(checkInWindow) &&
+        now.isBefore(bookingEndDateTime) &&
+        checkedInAt == null;
   }
 
   /// Check if check-out is available
@@ -230,8 +225,8 @@ class Booking {
 
   /// Get court/field display text
   String get courtText {
-    return courtNumber != null && courtNumber!.isNotEmpty 
-        ? 'Court $courtNumber' 
+    return courtNumber != null && courtNumber!.isNotEmpty
+        ? 'Court $courtNumber'
         : 'Court TBD';
   }
 
@@ -242,8 +237,10 @@ class Booking {
 
   /// Calculate cancellation fee (if applicable)
   double calculateCancellationFee() {
-    final hoursUntilBooking = bookingStartDateTime.difference(DateTime.now()).inHours;
-    
+    final hoursUntilBooking = bookingStartDateTime
+        .difference(DateTime.now())
+        .inHours;
+
     // Cancellation fee structure
     if (hoursUntilBooking < 2) {
       return totalAmount; // Full charge
@@ -275,14 +272,16 @@ class Booking {
   bool get isToday {
     final now = DateTime.now();
     return bookingDate.year == now.year &&
-           bookingDate.month == now.month &&
-           bookingDate.day == now.day;
+        bookingDate.month == now.month &&
+        bookingDate.day == now.day;
   }
 
   /// Generate confirmation code
   static String generateConfirmationCode() {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final code = timestamp.toString().substring(timestamp.toString().length - 6);
+    final code = timestamp.toString().substring(
+      timestamp.toString().length - 6,
+    );
     return 'BK$code';
   }
 

@@ -33,8 +33,8 @@ class SocialErrorTrackingService {
   SocialErrorTrackingService({
     required AnalyticsService analytics,
     required StorageService storage,
-  })  : _analytics = analytics,
-        _storage = storage {
+  }) : _analytics = analytics,
+       _storage = storage {
     _initializeErrorTracking();
   }
 
@@ -85,7 +85,7 @@ class SocialErrorTrackingService {
     // Add to buffer
     _errorBuffer.putIfAbsent(feature, () => <SocialError>[]);
     final featureBuffer = _errorBuffer[feature]!;
-    
+
     if (featureBuffer.length >= _maxBufferSize) {
       featureBuffer.removeAt(0);
     }
@@ -165,14 +165,15 @@ class SocialErrorTrackingService {
     try {
       final now = DateTime.now();
       final startTime = now.subtract(period);
-      
+
       final errors = await _getErrorsInPeriod(startTime, now, [feature]);
-      
+
       // Filter by severity if specified
       var filteredErrors = errors;
       if (minSeverity != null) {
-        filteredErrors = errors.where((error) => 
-            error.severity.index >= minSeverity.index).toList();
+        filteredErrors = errors
+            .where((error) => error.severity.index >= minSeverity.index)
+            .toList();
       }
 
       // Sort by timestamp (most recent first)
@@ -196,9 +197,9 @@ class SocialErrorTrackingService {
     try {
       final now = DateTime.now();
       final startTime = now.subtract(period);
-      
+
       final errors = await _getErrorsInPeriod(startTime, now);
-      
+
       final patterns = ErrorPatternAnalysis(
         period: period,
         calculatedAt: now,
@@ -217,21 +218,31 @@ class SocialErrorTrackingService {
   }
 
   /// Calculate overall error statistics
-  OverallErrorStats _calculateOverallErrorStats(List<SocialError> errors, Duration period) {
+  OverallErrorStats _calculateOverallErrorStats(
+    List<SocialError> errors,
+    Duration period,
+  ) {
     final totalErrors = errors.length;
-    final uniqueErrors = errors.map((e) => '${e.feature}_${e.operation}_${e.errorType}').toSet().length;
-    
+    final uniqueErrors = errors
+        .map((e) => '${e.feature}_${e.operation}_${e.errorType}')
+        .toSet()
+        .length;
+
     // Calculate error rate (errors per hour)
     final errorRate = totalErrors / period.inHours;
-    
+
     // Calculate affected users
-    final affectedUsers = errors.where((e) => e.userId != null)
-        .map((e) => e.userId!).toSet().length;
-    
+    final affectedUsers = errors
+        .where((e) => e.userId != null)
+        .map((e) => e.userId!)
+        .toSet()
+        .length;
+
     // Calculate severity distribution
     final severityCounts = <ErrorSeverity, int>{};
     for (final error in errors) {
-      severityCounts[error.severity] = (severityCounts[error.severity] ?? 0) + 1;
+      severityCounts[error.severity] =
+          (severityCounts[error.severity] ?? 0) + 1;
     }
 
     // Calculate resolution time (placeholder - would need resolution data)
@@ -250,12 +261,16 @@ class SocialErrorTrackingService {
   }
 
   /// Calculate feature-wise error breakdown
-  Map<String, FeatureErrorStats> _calculateFeatureBreakdown(List<SocialError> errors) {
+  Map<String, FeatureErrorStats> _calculateFeatureBreakdown(
+    List<SocialError> errors,
+  ) {
     final breakdown = <String, FeatureErrorStats>{};
 
     final errorsByFeature = <String, List<SocialError>>{};
     for (final error in errors) {
-      errorsByFeature.putIfAbsent(error.feature, () => <SocialError>[]).add(error);
+      errorsByFeature
+          .putIfAbsent(error.feature, () => <SocialError>[])
+          .add(error);
     }
 
     for (final entry in errorsByFeature.entries) {
@@ -267,9 +282,12 @@ class SocialErrorTrackingService {
       final severityCounts = <ErrorSeverity, int>{};
 
       for (final error in featureErrors) {
-        operationCounts[error.operation] = (operationCounts[error.operation] ?? 0) + 1;
-        errorTypeCounts[error.errorType] = (errorTypeCounts[error.errorType] ?? 0) + 1;
-        severityCounts[error.severity] = (severityCounts[error.severity] ?? 0) + 1;
+        operationCounts[error.operation] =
+            (operationCounts[error.operation] ?? 0) + 1;
+        errorTypeCounts[error.errorType] =
+            (errorTypeCounts[error.errorType] ?? 0) + 1;
+        severityCounts[error.severity] =
+            (severityCounts[error.severity] ?? 0) + 1;
       }
 
       breakdown[feature] = FeatureErrorStats(
@@ -278,8 +296,10 @@ class SocialErrorTrackingService {
         topOperations: _getTopItems(operationCounts, 5),
         topErrorTypes: _getTopItems(errorTypeCounts, 5),
         severityDistribution: severityCounts,
-        lastError: featureErrors.isNotEmpty 
-            ? featureErrors.reduce((a, b) => a.timestamp.isAfter(b.timestamp) ? a : b).timestamp
+        lastError: featureErrors.isNotEmpty
+            ? featureErrors
+                  .reduce((a, b) => a.timestamp.isAfter(b.timestamp) ? a : b)
+                  .timestamp
             : null,
       );
     }
@@ -288,13 +308,17 @@ class SocialErrorTrackingService {
   }
 
   /// Calculate operation-wise error breakdown
-  Map<String, OperationErrorStats> _calculateOperationBreakdown(List<SocialError> errors) {
+  Map<String, OperationErrorStats> _calculateOperationBreakdown(
+    List<SocialError> errors,
+  ) {
     final breakdown = <String, OperationErrorStats>{};
 
     final errorsByOperation = <String, List<SocialError>>{};
     for (final error in errors) {
       final operationKey = '${error.feature}.${error.operation}';
-      errorsByOperation.putIfAbsent(operationKey, () => <SocialError>[]).add(error);
+      errorsByOperation
+          .putIfAbsent(operationKey, () => <SocialError>[])
+          .add(error);
     }
 
     for (final entry in errorsByOperation.entries) {
@@ -305,8 +329,10 @@ class SocialErrorTrackingService {
       final severityCounts = <ErrorSeverity, int>{};
 
       for (final error in operationErrors) {
-        errorTypeCounts[error.errorType] = (errorTypeCounts[error.errorType] ?? 0) + 1;
-        severityCounts[error.severity] = (severityCounts[error.severity] ?? 0) + 1;
+        errorTypeCounts[error.errorType] =
+            (errorTypeCounts[error.errorType] ?? 0) + 1;
+        severityCounts[error.severity] =
+            (severityCounts[error.severity] ?? 0) + 1;
       }
 
       breakdown[operation] = OperationErrorStats(
@@ -322,12 +348,16 @@ class SocialErrorTrackingService {
   }
 
   /// Calculate error type breakdown
-  Map<String, ErrorTypeStats> _calculateErrorTypeBreakdown(List<SocialError> errors) {
+  Map<String, ErrorTypeStats> _calculateErrorTypeBreakdown(
+    List<SocialError> errors,
+  ) {
     final breakdown = <String, ErrorTypeStats>{};
 
     final errorsByType = <String, List<SocialError>>{};
     for (final error in errors) {
-      errorsByType.putIfAbsent(error.errorType, () => <SocialError>[]).add(error);
+      errorsByType
+          .putIfAbsent(error.errorType, () => <SocialError>[])
+          .add(error);
     }
 
     for (final entry in errorsByType.entries) {
@@ -339,7 +369,8 @@ class SocialErrorTrackingService {
 
       for (final error in typeErrors) {
         featureCounts[error.feature] = (featureCounts[error.feature] ?? 0) + 1;
-        operationCounts[error.operation] = (operationCounts[error.operation] ?? 0) + 1;
+        operationCounts[error.operation] =
+            (operationCounts[error.operation] ?? 0) + 1;
       }
 
       breakdown[errorType] = ErrorTypeStats(
@@ -347,8 +378,12 @@ class SocialErrorTrackingService {
         affectedFeatures: featureCounts.keys.toList(),
         topFeatures: _getTopItems(featureCounts, 3),
         topOperations: _getTopItems(operationCounts, 3),
-        firstSeen: typeErrors.map((e) => e.timestamp).reduce((a, b) => a.isBefore(b) ? a : b),
-        lastSeen: typeErrors.map((e) => e.timestamp).reduce((a, b) => a.isAfter(b) ? a : b),
+        firstSeen: typeErrors
+            .map((e) => e.timestamp)
+            .reduce((a, b) => a.isBefore(b) ? a : b),
+        lastSeen: typeErrors
+            .map((e) => e.timestamp)
+            .reduce((a, b) => a.isAfter(b) ? a : b),
       );
     }
 
@@ -356,12 +391,16 @@ class SocialErrorTrackingService {
   }
 
   /// Calculate severity breakdown
-  Map<ErrorSeverity, SeverityStats> _calculateSeverityBreakdown(List<SocialError> errors) {
+  Map<ErrorSeverity, SeverityStats> _calculateSeverityBreakdown(
+    List<SocialError> errors,
+  ) {
     final breakdown = <ErrorSeverity, SeverityStats>{};
 
     final errorsBySeverity = <ErrorSeverity, List<SocialError>>{};
     for (final error in errors) {
-      errorsBySeverity.putIfAbsent(error.severity, () => <SocialError>[]).add(error);
+      errorsBySeverity
+          .putIfAbsent(error.severity, () => <SocialError>[])
+          .add(error);
     }
 
     for (final entry in errorsBySeverity.entries) {
@@ -388,12 +427,15 @@ class SocialErrorTrackingService {
   void _updateErrorStatistics(SocialError error) {
     final key = error.feature;
     _errorStats.putIfAbsent(key, () => ErrorStatistics());
-    
+
     final stats = _errorStats[key]!;
     stats.totalErrors++;
-    stats.errorsByType[error.errorType] = (stats.errorsByType[error.errorType] ?? 0) + 1;
-    stats.errorsByOperation[error.operation] = (stats.errorsByOperation[error.operation] ?? 0) + 1;
-    stats.errorsBySeverity[error.severity] = (stats.errorsBySeverity[error.severity] ?? 0) + 1;
+    stats.errorsByType[error.errorType] =
+        (stats.errorsByType[error.errorType] ?? 0) + 1;
+    stats.errorsByOperation[error.operation] =
+        (stats.errorsByOperation[error.operation] ?? 0) + 1;
+    stats.errorsBySeverity[error.severity] =
+        (stats.errorsBySeverity[error.severity] ?? 0) + 1;
     stats.lastUpdated = DateTime.now();
 
     _lastErrorTimes[key] = error.timestamp;
@@ -406,7 +448,10 @@ class SocialErrorTrackingService {
     }
 
     // Check error rate threshold
-    final recentErrors = _getRecentErrors(error.feature, const Duration(minutes: 1));
+    final recentErrors = _getRecentErrors(
+      error.feature,
+      const Duration(minutes: 1),
+    );
     if (recentErrors.length >= _criticalErrorThreshold) {
       _handleErrorRateThreshold(error.feature, recentErrors);
     }
@@ -415,7 +460,9 @@ class SocialErrorTrackingService {
   /// Handle critical errors
   void _handleCriticalError(SocialError error) {
     // Log critical error
-    print('CRITICAL ERROR in ${error.feature}.${error.operation}: ${error.errorMessage}');
+    print(
+      'CRITICAL ERROR in ${error.feature}.${error.operation}: ${error.errorMessage}',
+    );
 
     // Track critical error event
     _analytics.trackEvent('critical_social_error', {
@@ -431,8 +478,13 @@ class SocialErrorTrackingService {
   }
 
   /// Handle error rate threshold exceeded
-  void _handleErrorRateThreshold(String feature, List<SocialError> recentErrors) {
-    print('ERROR RATE THRESHOLD EXCEEDED for $feature: ${recentErrors.length} errors in 1 minute');
+  void _handleErrorRateThreshold(
+    String feature,
+    List<SocialError> recentErrors,
+  ) {
+    print(
+      'ERROR RATE THRESHOLD EXCEEDED for $feature: ${recentErrors.length} errors in 1 minute',
+    );
 
     _analytics.trackEvent('error_rate_threshold_exceeded', {
       'feature': feature,
@@ -491,13 +543,23 @@ class SocialErrorTrackingService {
   }
 
   // Helper methods
-  String _generateErrorId() => '${DateTime.now().millisecondsSinceEpoch}_${_generateRandomString(8)}';
-  String _generateRandomString(int length) => 'abcdefghijklmnopqrstuvwxyz0123456789'[DateTime.now().millisecondsSinceEpoch % 36].toString() * length;
+  String _generateErrorId() =>
+      '${DateTime.now().millisecondsSinceEpoch}_${_generateRandomString(8)}';
+  String _generateRandomString(int length) =>
+      'abcdefghijklmnopqrstuvwxyz0123456789'[DateTime.now()
+                  .millisecondsSinceEpoch %
+              36]
+          .toString() *
+      length;
   String _getUserAgent() => 'DabblerApp/1.0'; // Would get actual user agent
-  Map<String, String> _getDeviceInfo() => {'platform': Platform.operatingSystem}; // Would get actual device info
-  
+  Map<String, String> _getDeviceInfo() => {
+    'platform': Platform.operatingSystem,
+  }; // Would get actual device info
+
   void _logError(SocialError error) {
-    print('Social Error [${error.severity.name.toUpperCase()}] ${error.feature}.${error.operation}: ${error.errorMessage}');
+    print(
+      'Social Error [${error.severity.name.toUpperCase()}] ${error.feature}.${error.operation}: ${error.errorMessage}',
+    );
   }
 
   List<SocialError> _getRecentErrors(String feature, Duration duration) {
@@ -514,7 +576,7 @@ class SocialErrorTrackingService {
 
   Duration _calculateErrorFreeTime(List<SocialError> errors) {
     if (errors.isEmpty) return const Duration(days: 30);
-    
+
     errors.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return DateTime.now().difference(errors.first.timestamp);
   }
@@ -539,11 +601,22 @@ class SocialErrorTrackingService {
   }
 
   // Placeholder methods for detailed implementations
-  Future<List<SocialError>> _getErrorsInPeriod(DateTime start, DateTime end, [List<String>? features]) async => [];
-  Future<ErrorTrends> _calculateErrorTrends(List<SocialError> errors, Duration period) async => ErrorTrends.empty();
-  ErrorImpactAnalysis _calculateImpactAnalysis(List<SocialError> errors) => ErrorImpactAnalysis.empty();
-  Future<List<String>> _generateErrorRecommendations(List<SocialError> errors) async => [];
-  List<SocialError> _getCriticalErrors(List<SocialError> errors) => errors.where((e) => e.severity == ErrorSeverity.critical).toList();
+  Future<List<SocialError>> _getErrorsInPeriod(
+    DateTime start,
+    DateTime end, [
+    List<String>? features,
+  ]) async => [];
+  Future<ErrorTrends> _calculateErrorTrends(
+    List<SocialError> errors,
+    Duration period,
+  ) async => ErrorTrends.empty();
+  ErrorImpactAnalysis _calculateImpactAnalysis(List<SocialError> errors) =>
+      ErrorImpactAnalysis.empty();
+  Future<List<String>> _generateErrorRecommendations(
+    List<SocialError> errors,
+  ) async => [];
+  List<SocialError> _getCriticalErrors(List<SocialError> errors) =>
+      errors.where((e) => e.severity == ErrorSeverity.critical).toList();
   List<ErrorPattern> _identifyFrequentPatterns(List<SocialError> errors) => [];
   List<ErrorCluster> _identifyErrorClusters(List<SocialError> errors) => [];
   Map<int, int> _analyzeTimeBasedPatterns(List<SocialError> errors) => {};
@@ -553,35 +626,34 @@ class SocialErrorTrackingService {
   Future<void> _persistErrors(String feature, List<SocialError> errors) async {
     // Minimal persistence: store a lightweight summary per feature
     try {
-      await _storage.saveDraft(
-        'social_errors_$feature',
-        {
-          'lastSaved': DateTime.now().toIso8601String(),
-          'gameTitle': 'Social Errors ($feature)',
-          'errorsCount': errors.length,
-        },
-      );
+      await _storage.saveDraft('social_errors_$feature', {
+        'lastSaved': DateTime.now().toIso8601String(),
+        'gameTitle': 'Social Errors ($feature)',
+        'errorsCount': errors.length,
+      });
     } catch (_) {
       // Best-effort only
     }
   }
-  Future<void> _analyzeErrorPatterns(String feature, List<SocialError> errors) async {}
+
+  Future<void> _analyzeErrorPatterns(
+    String feature,
+    List<SocialError> errors,
+  ) async {}
   Future<void> _storeErrorReport(SocialErrorMetrics metrics) async {
     // Minimal persistence: store summary of the latest hourly report
     try {
-      await _storage.saveDraft(
-        'social_error_report_latest',
-        {
-          'lastSaved': metrics.calculatedAt.toIso8601String(),
-          'gameTitle': 'Social Error Report',
-          'totalErrors': metrics.overallStats.totalErrors,
-          'criticalErrors': metrics.overallStats.criticalErrorCount,
-        },
-      );
+      await _storage.saveDraft('social_error_report_latest', {
+        'lastSaved': metrics.calculatedAt.toIso8601String(),
+        'gameTitle': 'Social Error Report',
+        'totalErrors': metrics.overallStats.totalErrors,
+        'criticalErrors': metrics.overallStats.criticalErrorCount,
+      });
     } catch (_) {
       // Best-effort only
     }
   }
+
   Future<void> _checkErrorThresholds(SocialErrorMetrics metrics) async {}
   Future<void> _deleteErrorsOlderThan(DateTime cutoffDate) async {}
 

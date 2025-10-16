@@ -59,18 +59,28 @@ class UsersBackup {
       id: json['id'],
       email: json['email'],
       display_name: json['display_name'],
-      created_at: (json['created_at'] == null ? null : DateTime.parse(json['created_at'] as String)),
+      created_at: (json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String)),
       age: json['age'],
       preferred_sports: json['preferred_sports'],
       intent: json['intent'],
       avatar_url: json['avatar_url'],
-      updated_at: (json['updated_at'] == null ? null : DateTime.parse(json['updated_at'] as String)),
+      updated_at: (json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String)),
       sports: json['sports'],
       phone: json['phone'],
-      phone_confirmed_at: (json['phone_confirmed_at'] == null ? null : DateTime.parse(json['phone_confirmed_at'] as String)),
+      phone_confirmed_at: (json['phone_confirmed_at'] == null
+          ? null
+          : DateTime.parse(json['phone_confirmed_at'] as String)),
       phone_confirmed: json['phone_confirmed'],
-      email_confirmed_at: (json['email_confirmed_at'] == null ? null : DateTime.parse(json['email_confirmed_at'] as String)),
-      last_sign_in_at: (json['last_sign_in_at'] == null ? null : DateTime.parse(json['last_sign_in_at'] as String)),
+      email_confirmed_at: (json['email_confirmed_at'] == null
+          ? null
+          : DateTime.parse(json['email_confirmed_at'] as String)),
+      last_sign_in_at: (json['last_sign_in_at'] == null
+          ? null
+          : DateTime.parse(json['last_sign_in_at'] as String)),
       is_anonymous: json['is_anonymous'],
       onboarding_completed: json['onboarding_completed'],
       onboarding_step: json['onboarding_step'],

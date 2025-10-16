@@ -60,9 +60,9 @@ class Games {
       sport_id: json['sport_id'],
       venue_id: json['venue_id'],
       organizer_id: json['organizer_id'],
-    scheduled_date: json['scheduled_date'] != null
-      ? DateTime.parse(json['scheduled_date'] as String)
-      : DateTime.now(),
+      scheduled_date: json['scheduled_date'] != null
+          ? DateTime.parse(json['scheduled_date'] as String)
+          : DateTime.now(),
       start_time: json['start_time'],
       end_time: json['end_time'],
       min_players: json['min_players'],
@@ -75,13 +75,15 @@ class Games {
       is_public: json['is_public'],
       allows_waitlist: json['allows_waitlist'],
       check_in_enabled: json['check_in_enabled'],
-      cancellation_deadline: (json['cancellation_deadline'] == null ? null : DateTime.parse(json['cancellation_deadline'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      cancellation_deadline: (json['cancellation_deadline'] == null
+          ? null
+          : DateTime.parse(json['cancellation_deadline'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
       sport: json['sport'],
       skill_level: json['skill_level'],
     );

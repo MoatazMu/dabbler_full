@@ -3,6 +3,7 @@
 // Supports keyset pagination, realtime updates, and comprehensive filtering
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ============================================================================
@@ -102,15 +103,12 @@ class NotificationCursor {
   final DateTime createdAt;
   final String id;
 
-  const NotificationCursor({
-    required this.createdAt,
-    required this.id,
-  });
+  const NotificationCursor({required this.createdAt, required this.id});
 
   Map<String, dynamic> toMap() => {
-        'created_at': createdAt.toIso8601String(),
-        'id': id,
-      };
+    'created_at': createdAt.toIso8601String(),
+    'id': id,
+  };
 
   factory NotificationCursor.fromMap(Map<String, dynamic> map) {
     return NotificationCursor(
@@ -169,32 +167,93 @@ class NotificationItem {
   });
 
   /// Create cursor for pagination
-  NotificationCursor get cursor => NotificationCursor(
-        createdAt: createdAt,
-        id: id,
-      );
+  NotificationCursor get cursor =>
+      NotificationCursor(createdAt: createdAt, id: id);
 
-  /// Parse from Supabase row
+  /// Parse from Supabase row with defensive null handling
   factory NotificationItem.fromMap(Map<String, dynamic> map) {
+    // Local helpers for null-safe parsing
+    String? _s(dynamic v) => v == null ? null : v as String;
+    Map<String, dynamic>? _m(dynamic v) {
+      if (v == null) return null;
+      if (v is Map<String, dynamic>) return v;
+      // Handle JSON encoded strings
+      return v as Map<String, dynamic>?;
+    }
+
+    DateTime? _dt(dynamic v) => v == null ? null : DateTime.parse(v as String);
+
+    // Validate required fields
+    final id = _s(map['id']);
+    if (id == null || id.isEmpty) {
+      throw RepoException(
+        'NotificationItem.fromMap: missing or empty id',
+        error: map,
+      );
+    }
+
+    final userId = _s(map['user_id']);
+    if (userId == null || userId.isEmpty) {
+      throw RepoException(
+        'NotificationItem.fromMap: missing user_id',
+        error: map,
+      );
+    }
+
+    final title = _s(map['title']);
+    if (title == null) {
+      throw RepoException(
+        'NotificationItem.fromMap: missing title',
+        error: map,
+      );
+    }
+
+    final message = _s(map['message']);
+    if (message == null) {
+      throw RepoException(
+        'NotificationItem.fromMap: missing message',
+        error: map,
+      );
+    }
+
+    final typeStr = _s(map['type']);
+    if (typeStr == null) {
+      throw RepoException('NotificationItem.fromMap: missing type', error: map);
+    }
+
+    final createdAtStr = _s(map['created_at']);
+    if (createdAtStr == null) {
+      throw RepoException(
+        'NotificationItem.fromMap: missing created_at',
+        error: map,
+      );
+    }
+
+    final updatedAtStr = _s(map['updated_at']);
+    if (updatedAtStr == null) {
+      throw RepoException(
+        'NotificationItem.fromMap: missing updated_at',
+        error: map,
+      );
+    }
+
     return NotificationItem(
-      id: map['id'] as String,
-      userId: map['user_id'] as String,
-      title: map['title'] as String,
-      message: map['message'] as String,
-      type: NotificationType.fromDb(map['type'] as String),
+      id: id,
+      userId: userId,
+      title: title,
+      message: message,
+      type: NotificationType.fromDb(typeStr), // Has safe default
       priority: NotificationPriority.fromDb(
-        map['priority'] as String? ?? 'normal',
+        _s(map['priority']) ?? 'normal', // Default to normal if null
       ),
       isRead: map['is_read'] as bool? ?? false,
-      data: map['data'] as Map<String, dynamic>?,
-      imageUrl: map['image_url'] as String?,
-      actionText: map['action_text'] as String?,
-      actionRoute: map['action_route'] as String?,
-      readAt: map['read_at'] != null
-          ? DateTime.parse(map['read_at'] as String)
-          : null,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
+      data: _m(map['data']),
+      imageUrl: _s(map['image_url']),
+      actionText: _s(map['action_text']),
+      actionRoute: _s(map['action_route']),
+      readAt: _dt(map['read_at']),
+      createdAt: DateTime.parse(createdAtStr),
+      updatedAt: DateTime.parse(updatedAtStr),
     );
   }
 
@@ -254,7 +313,8 @@ class NotificationItem {
   }
 
   @override
-  String toString() => 'NotificationItem(id: $id, title: $title, isRead: $isRead)';
+  String toString() =>
+      'NotificationItem(id: $id, title: $title, isRead: $isRead)';
 
   @override
   bool operator ==(Object other) {
@@ -278,7 +338,8 @@ class RepoException implements Exception {
   RepoException(this.message, {this.error, this.stackTrace});
 
   @override
-  String toString() => 'RepoException: $message${error != null ? ' ($error)' : ''}';
+  String toString() =>
+      'RepoException: $message${error != null ? ' ($error)' : ''}';
 }
 
 // ============================================================================
@@ -287,14 +348,14 @@ class RepoException implements Exception {
 
 class NotificationsRepository {
   final SupabaseClient _client;
-  
+
   // Cache for realtime subscriptions
   final Map<String, RealtimeChannel> _subscriptions = {};
 
   NotificationsRepository(this._client);
 
   /// List notifications with keyset pagination and filters
-  /// 
+  ///
   /// Example indexes (assumed to exist):
   /// ```sql
   /// create index on notifications (user_id, is_read, created_at desc);
@@ -308,11 +369,19 @@ class NotificationsRepository {
     String? priorityFilter,
     bool? isRead,
   }) async {
+    if (kDebugMode) {
+      print(
+        '[NOTIF-REPO] list() - userId: $userId, limit: $limit, cursor: ${cursor?.id}',
+      );
+    }
+
     try {
-      // Start query
+      // Start query with explicit column selection
       var query = _client
           .from('notifications')
-          .select()
+          .select(
+            'id,user_id,title,message,type,priority,is_read,data,image_url,action_text,action_route,read_at,created_at,updated_at',
+          )
           .eq('user_id', userId);
 
       // Apply type filter
@@ -335,9 +404,9 @@ class NotificationsRepository {
         // Keyset pagination: created_at < cursor OR (created_at = cursor AND id < cursor.id)
         final cursorTime = cursor.createdAt.toIso8601String();
         final cursorId = cursor.id;
-        
+
         query = query.or(
-          'created_at.lt.$cursorTime,and(created_at.eq.$cursorTime,id.lt.$cursorId)'
+          'created_at.lt.$cursorTime,and(created_at.eq.$cursorTime,id.lt.$cursorId)',
         );
       }
 
@@ -347,10 +416,53 @@ class NotificationsRepository {
           .order('id', ascending: false)
           .limit(limit);
 
-      return (response as List)
-          .map((json) => NotificationItem.fromMap(json as Map<String, dynamic>))
-          .toList();
+      final rows = response as List;
+
+      // Log first row structure for debugging
+      if (kDebugMode && rows.isNotEmpty) {
+        print('[NOTIF-REPO] list() keys: ${(rows.first as Map).keys.toList()}');
+      }
+
+      // Defensively map rows, collecting failures
+      final items = <NotificationItem>[];
+      RepoException? firstError;
+
+      for (var i = 0; i < rows.length; i++) {
+        try {
+          final item = NotificationItem.fromMap(
+            rows[i] as Map<String, dynamic>,
+          );
+          items.add(item);
+        } catch (e, stack) {
+          if (kDebugMode) {
+            print('[NOTIF-REPO] list() - failed to map row $i: $e');
+            print('[NOTIF-REPO] list() - raw row: ${rows[i]}');
+          }
+          // Capture first error but continue processing
+          firstError ??= RepoException(
+            'Failed to map notification at index $i',
+            error: e,
+            stackTrace: stack,
+          );
+        }
+      }
+
+      if (kDebugMode) {
+        print(
+          '[NOTIF-REPO] list() - returned ${items.length} items (${rows.length - items.length} failed)',
+        );
+      }
+
+      // If we got at least some items, return them; otherwise rethrow first error
+      if (items.isNotEmpty || firstError == null) {
+        return items;
+      } else {
+        throw firstError;
+      }
     } catch (e, stack) {
+      if (kDebugMode) {
+        print('[NOTIF-REPO] list() - error: $e');
+      }
       throw RepoException(
         'Failed to list notifications',
         error: e,
@@ -360,7 +472,7 @@ class NotificationsRepository {
   }
 
   /// Create a new notification
-  /// 
+  ///
   /// RLS policy (assumed):
   /// ```sql
   /// create policy "Users can insert own notifications"
@@ -380,7 +492,7 @@ class NotificationsRepository {
   }) async {
     try {
       final now = DateTime.now().toIso8601String();
-      
+
       final response = await _client
           .from('notifications')
           .insert({
@@ -411,7 +523,7 @@ class NotificationsRepository {
   }
 
   /// Mark notification as read
-  /// 
+  ///
   /// RLS policy (assumed):
   /// ```sql
   /// create policy "Users can update own notifications"
@@ -419,6 +531,10 @@ class NotificationsRepository {
   /// using (auth.uid() = user_id);
   /// ```
   Future<void> markRead({required String notificationId}) async {
+    if (kDebugMode) {
+      print('[NOTIF-REPO] markRead() - notificationId: $notificationId');
+    }
+
     try {
       await _client
           .from('notifications')
@@ -428,7 +544,14 @@ class NotificationsRepository {
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', notificationId);
+
+      if (kDebugMode) {
+        print('[NOTIF-REPO] markRead() - success');
+      }
     } catch (e, stack) {
+      if (kDebugMode) {
+        print('[NOTIF-REPO] markRead() - error: $e');
+      }
       throw RepoException(
         'Failed to mark notification as read',
         error: e,
@@ -459,19 +582,26 @@ class NotificationsRepository {
 
   /// Mark all notifications as read for a user (single statement)
   Future<void> markAllReadForUser({required String userId}) async {
+    if (kDebugMode) {
+      print('[NOTIF-REPO] markAllReadForUser() - userId: $userId');
+    }
+
     try {
       final now = DateTime.now().toIso8601String();
-      
+
       await _client
           .from('notifications')
-          .update({
-            'is_read': true,
-            'read_at': now,
-            'updated_at': now,
-          })
+          .update({'is_read': true, 'read_at': now, 'updated_at': now})
           .eq('user_id', userId)
           .eq('is_read', false); // Only update unread notifications
+
+      if (kDebugMode) {
+        print('[NOTIF-REPO] markAllReadForUser() - success');
+      }
     } catch (e, stack) {
+      if (kDebugMode) {
+        print('[NOTIF-REPO] markAllReadForUser() - error: $e');
+      }
       throw RepoException(
         'Failed to mark all notifications as read',
         error: e,
@@ -481,7 +611,7 @@ class NotificationsRepository {
   }
 
   /// Delete a notification
-  /// 
+  ///
   /// RLS policy (assumed):
   /// ```sql
   /// create policy "Users can delete own notifications"
@@ -490,10 +620,7 @@ class NotificationsRepository {
   /// ```
   Future<void> delete({required String notificationId}) async {
     try {
-      await _client
-          .from('notifications')
-          .delete()
-          .eq('id', notificationId);
+      await _client.from('notifications').delete().eq('id', notificationId);
     } catch (e, stack) {
       throw RepoException(
         'Failed to delete notification',
@@ -504,10 +631,10 @@ class NotificationsRepository {
   }
 
   /// Subscribe to realtime notifications for a user
-  /// 
+  ///
   /// Listens to INSERT and UPDATE events on the notifications table
   /// filtered by user_id. Emits NotificationItem instances.
-  /// 
+  ///
   /// Example usage:
   /// ```dart
   /// final subscription = repo.subscribeUserNotifications(userId);
@@ -516,8 +643,12 @@ class NotificationsRepository {
   /// });
   /// ```
   Stream<NotificationItem> subscribeUserNotifications(String userId) {
+    if (kDebugMode) {
+      print('[NOTIF-REPO] subscribeUserNotifications() - userId: $userId');
+    }
+
     final controller = StreamController<NotificationItem>.broadcast();
-    
+
     // Clean up any existing subscription for this user
     final channelKey = 'notifications_$userId';
     _subscriptions[channelKey]?.unsubscribe();
@@ -535,16 +666,19 @@ class NotificationsRepository {
             value: userId,
           ),
           callback: (payload) {
+            if (kDebugMode) {
+              print('[NOTIF-REPO] Realtime INSERT received');
+            }
             try {
-              final notification = NotificationItem.fromMap(
-                payload.newRecord,
-              );
+              final notification = NotificationItem.fromMap(payload.newRecord);
               controller.add(notification);
             } catch (e) {
-              controller.addError(RepoException(
-                'Failed to parse INSERT payload',
-                error: e,
-              ));
+              if (kDebugMode) {
+                print('[NOTIF-REPO] INSERT parse error: $e');
+              }
+              controller.addError(
+                RepoException('Failed to parse INSERT payload', error: e),
+              );
             }
           },
         )
@@ -558,16 +692,19 @@ class NotificationsRepository {
             value: userId,
           ),
           callback: (payload) {
+            if (kDebugMode) {
+              print('[NOTIF-REPO] Realtime UPDATE received');
+            }
             try {
-              final notification = NotificationItem.fromMap(
-                payload.newRecord,
-              );
+              final notification = NotificationItem.fromMap(payload.newRecord);
               controller.add(notification);
             } catch (e) {
-              controller.addError(RepoException(
-                'Failed to parse UPDATE payload',
-                error: e,
-              ));
+              if (kDebugMode) {
+                print('[NOTIF-REPO] UPDATE parse error: $e');
+              }
+              controller.addError(
+                RepoException('Failed to parse UPDATE payload', error: e),
+              );
             }
           },
         )
@@ -575,8 +712,15 @@ class NotificationsRepository {
 
     _subscriptions[channelKey] = channel;
 
+    if (kDebugMode) {
+      print('[NOTIF-REPO] Realtime channel subscribed: $channelKey');
+    }
+
     // Clean up on stream close
     controller.onCancel = () {
+      if (kDebugMode) {
+        print('[NOTIF-REPO] Realtime channel cancelled: $channelKey');
+      }
       _subscriptions[channelKey]?.unsubscribe();
       _subscriptions.remove(channelKey);
     };

@@ -33,11 +33,15 @@ class PointsMultipliers {
       multiplier: json['multiplier'],
       conditions: json['conditions'],
       is_active: json['is_active'],
-      valid_from: (json['valid_from'] == null ? null : DateTime.parse(json['valid_from'] as String)),
-      valid_until: (json['valid_until'] == null ? null : DateTime.parse(json['valid_until'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      valid_from: (json['valid_from'] == null
+          ? null
+          : DateTime.parse(json['valid_from'] as String)),
+      valid_until: (json['valid_until'] == null
+          ? null
+          : DateTime.parse(json['valid_until'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

@@ -87,13 +87,15 @@ class CommunityEvents {
       description: json['description'],
       type: json['type'],
       status: json['status'],
-    start_date: json['start_date'] != null
-      ? DateTime.parse(json['start_date'] as String)
-      : DateTime.now(),
-    end_date: json['end_date'] != null
-      ? DateTime.parse(json['end_date'] as String)
-      : DateTime.now(),
-      registration_deadline: (json['registration_deadline'] == null ? null : DateTime.parse(json['registration_deadline'] as String)),
+      start_date: json['start_date'] != null
+          ? DateTime.parse(json['start_date'] as String)
+          : DateTime.now(),
+      end_date: json['end_date'] != null
+          ? DateTime.parse(json['end_date'] as String)
+          : DateTime.now(),
+      registration_deadline: (json['registration_deadline'] == null
+          ? null
+          : DateTime.parse(json['registration_deadline'] as String)),
       min_participants: json['min_participants'],
       max_participants: json['max_participants'],
       current_participants: json['current_participants'],
@@ -116,12 +118,12 @@ class CommunityEvents {
       allow_waitlist: json['allow_waitlist'],
       view_count: json['view_count'],
       share_count: json['share_count'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

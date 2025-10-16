@@ -47,27 +47,29 @@ class ProfileSharingWidget extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Title
           Text(
             'Share Profile',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          
+
           // User info
           Row(
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundImage: profileImageUrl != null 
+                backgroundImage: profileImageUrl != null
                     ? NetworkImage(profileImageUrl!)
                     : null,
-                child: profileImageUrl == null 
-                    ? Text(userName.isNotEmpty ? userName[0].toUpperCase() : '?')
+                child: profileImageUrl == null
+                    ? Text(
+                        userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+                      )
                     : null,
               ),
               const SizedBox(width: 12),
@@ -94,24 +96,24 @@ class ProfileSharingWidget extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Quick sharing options
           _buildQuickShareOptions(context),
-          
+
           const SizedBox(height: 16),
-          
+
           // QR Code section
           if (showQRCode) ...[
             _buildQRCodeSection(context),
             const SizedBox(height: 16),
           ],
-          
+
           // Social media sharing
           if (showSocialShare) ...[
             _buildSocialMediaSection(context),
             const SizedBox(height: 16),
           ],
-          
+
           // Close button
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -173,10 +175,7 @@ class ProfileSharingWidget extends ConsumerWidget {
           children: [
             Icon(icon, size: 24),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(label, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),
@@ -189,9 +188,9 @@ class ProfileSharingWidget extends ConsumerWidget {
       children: [
         Text(
           'QR Code',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         InkWell(
@@ -241,9 +240,9 @@ class ProfileSharingWidget extends ConsumerWidget {
       children: [
         Text(
           'Share to Social Media',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Row(
@@ -292,16 +291,13 @@ class ProfileSharingWidget extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              platform.icon,
-              size: 24,
-            ),
+            Icon(platform.icon, size: 24),
             const SizedBox(height: 2),
             Text(
               platform.displayName[0].toUpperCase(),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontSize: 10,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontSize: 10),
             ),
           ],
         ),

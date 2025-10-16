@@ -10,13 +10,25 @@ class GameHistoryScreen extends StatefulWidget {
 class _GameHistoryScreenState extends State<GameHistoryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   String _selectedSport = 'All';
   String _selectedTimeRange = 'All Time';
-  
-  final List<String> _sports = ['All', 'Soccer', 'Basketball', 'Tennis', 'Volleyball', 'Other'];
-  final List<String> _timeRanges = ['All Time', 'This Month', 'Last 3 Months', 'Last Year'];
-  
+
+  final List<String> _sports = [
+    'All',
+    'Soccer',
+    'Basketball',
+    'Tennis',
+    'Volleyball',
+    'Other',
+  ];
+  final List<String> _timeRanges = [
+    'All Time',
+    'This Month',
+    'Last 3 Months',
+    'Last Year',
+  ];
+
   final List<Map<String, dynamic>> _gameHistory = [
     {
       'id': '1',
@@ -124,7 +136,8 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
 
   List<Map<String, dynamic>> get _filteredGames {
     return _gameHistory.where((game) {
-      final sportMatch = _selectedSport == 'All' || game['sport'] == _selectedSport;
+      final sportMatch =
+          _selectedSport == 'All' || game['sport'] == _selectedSport;
       final timeMatch = _isInTimeRange(game['date']);
       return sportMatch && timeMatch;
     }).toList();
@@ -206,9 +219,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[300]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Row(
         children: [
@@ -218,12 +229,17 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
               decoration: const InputDecoration(
                 labelText: 'Sport',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
-              items: _sports.map((sport) => DropdownMenuItem(
-                value: sport,
-                child: Text(sport),
-              )).toList(),
+              items: _sports
+                  .map(
+                    (sport) =>
+                        DropdownMenuItem(value: sport, child: Text(sport)),
+                  )
+                  .toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedSport = value!;
@@ -232,19 +248,24 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
             ),
           ),
           const SizedBox(width: 16),
-          
+
           Expanded(
             child: DropdownButtonFormField<String>(
               initialValue: _selectedTimeRange,
               decoration: const InputDecoration(
                 labelText: 'Time Range',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
-              items: _timeRanges.map((range) => DropdownMenuItem(
-                value: range,
-                child: Text(range),
-              )).toList(),
+              items: _timeRanges
+                  .map(
+                    (range) =>
+                        DropdownMenuItem(value: range, child: Text(range)),
+                  )
+                  .toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedTimeRange = value!;
@@ -259,7 +280,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
 
   Widget _buildGamesTab() {
     final games = _filteredGames;
-    
+
     if (games.isEmpty) {
       return const Center(
         child: Column(
@@ -269,10 +290,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
             SizedBox(height: 16),
             Text(
               'No games found',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
             SizedBox(height: 8),
             Text(
@@ -299,7 +317,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
     Color resultColor;
     IconData resultIcon;
     String resultText;
-    
+
     if (won == true) {
       resultColor = Colors.green;
       resultIcon = Icons.emoji_events;
@@ -328,7 +346,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 children: [
                   _buildSportIcon(game['sport']),
                   const SizedBox(width: 12),
-                  
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +359,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                           ),
                         ),
                         const SizedBox(height: 4),
-                        
+
                         Text(
                           _formatDate(game['date']),
                           style: TextStyle(
@@ -352,9 +370,12 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                       ],
                     ),
                   ),
-                  
+
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: resultColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -377,9 +398,9 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               Row(
                 children: [
                   Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
@@ -387,17 +408,14 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                   Expanded(
                     child: Text(
                       game['venue'],
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
                     ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Row(
                 children: [
                   Icon(Icons.emoji_events, size: 16, color: Colors.grey[600]),
@@ -405,13 +423,10 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                   Expanded(
                     child: Text(
                       game['result'],
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
                     ),
                   ),
-                  
+
                   if (game['rating'] != null) ...[
                     Icon(Icons.star, color: Colors.amber[600], size: 16),
                     const SizedBox(width: 2),
@@ -425,35 +440,37 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                   ],
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               Row(
                 children: [
                   _buildStatChip(Icons.people, '${game['players']} players'),
                   const SizedBox(width: 8),
                   _buildStatChip(Icons.timer, '${game['duration']}min'),
-                  
-                  if (game['goals'] != null)
-                    ...[
-                      const SizedBox(width: 8),
-                      _buildStatChip(Icons.sports_soccer, '${game['goals']} goals'),
-                    ]
-                  else if (game['points'] != null)
-                    ...[
-                      const SizedBox(width: 8),
-                      _buildStatChip(Icons.sports_basketball, '${game['points']} pts'),
-                    ]
-                  else if (game['aces'] != null)
-                    ...[
-                      const SizedBox(width: 8),
-                      _buildStatChip(Icons.sports_tennis, '${game['aces']} aces'),
-                    ]
-                  else if (game['spikes'] != null)
-                    ...[
-                      const SizedBox(width: 8),
-                      _buildStatChip(Icons.sports_volleyball, '${game['spikes']} spikes'),
-                    ],
+
+                  if (game['goals'] != null) ...[
+                    const SizedBox(width: 8),
+                    _buildStatChip(
+                      Icons.sports_soccer,
+                      '${game['goals']} goals',
+                    ),
+                  ] else if (game['points'] != null) ...[
+                    const SizedBox(width: 8),
+                    _buildStatChip(
+                      Icons.sports_basketball,
+                      '${game['points']} pts',
+                    ),
+                  ] else if (game['aces'] != null) ...[
+                    const SizedBox(width: 8),
+                    _buildStatChip(Icons.sports_tennis, '${game['aces']} aces'),
+                  ] else if (game['spikes'] != null) ...[
+                    const SizedBox(width: 8),
+                    _buildStatChip(
+                      Icons.sports_volleyball,
+                      '${game['spikes']} spikes',
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -466,7 +483,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
   Widget _buildSportIcon(String sport) {
     IconData icon;
     Color color;
-    
+
     switch (sport.toLowerCase()) {
       case 'soccer':
         icon = Icons.sports_soccer;
@@ -512,13 +529,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
         children: [
           Icon(icon, size: 12, color: Colors.grey[600]),
           const SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-            ),
-          ),
+          Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
         ],
       ),
     );
@@ -530,8 +541,10 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
     final wins = games.where((g) => g['won'] == true).length;
     final losses = games.where((g) => g['won'] == false).length;
     final ties = games.where((g) => g['won'] == null).length;
-    final avgRating = games.isEmpty ? 0.0 : 
-        games.map((g) => g['rating'] as double).reduce((a, b) => a + b) / games.length;
+    final avgRating = games.isEmpty
+        ? 0.0
+        : games.map((g) => g['rating'] as double).reduce((a, b) => a + b) /
+              games.length;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -549,7 +562,13 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
     );
   }
 
-  Widget _buildOverviewStats(int total, int wins, int losses, int ties, double avgRating) {
+  Widget _buildOverviewStats(
+    int total,
+    int wins,
+    int losses,
+    int ties,
+    double avgRating,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -558,44 +577,69 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           children: [
             const Text(
               'Overview',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
-                  child: _buildStatItem('Total Games', total.toString(), Icons.sports),
+                  child: _buildStatItem(
+                    'Total Games',
+                    total.toString(),
+                    Icons.sports,
+                  ),
                 ),
                 Expanded(
-                  child: _buildStatItem('Wins', wins.toString(), Icons.emoji_events, Colors.green),
+                  child: _buildStatItem(
+                    'Wins',
+                    wins.toString(),
+                    Icons.emoji_events,
+                    Colors.green,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             Row(
               children: [
                 Expanded(
-                  child: _buildStatItem('Losses', losses.toString(), Icons.close, Colors.red),
+                  child: _buildStatItem(
+                    'Losses',
+                    losses.toString(),
+                    Icons.close,
+                    Colors.red,
+                  ),
                 ),
                 Expanded(
-                  child: _buildStatItem('Ties', ties.toString(), Icons.remove, Colors.orange),
+                  child: _buildStatItem(
+                    'Ties',
+                    ties.toString(),
+                    Icons.remove,
+                    Colors.orange,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             Row(
               children: [
                 Expanded(
-                  child: _buildStatItem('Win Rate', total > 0 ? '${(wins / total * 100).round()}%' : '0%', Icons.trending_up),
+                  child: _buildStatItem(
+                    'Win Rate',
+                    total > 0 ? '${(wins / total * 100).round()}%' : '0%',
+                    Icons.trending_up,
+                  ),
                 ),
                 Expanded(
-                  child: _buildStatItem('Avg Rating', avgRating.toStringAsFixed(1), Icons.star, Colors.amber),
+                  child: _buildStatItem(
+                    'Avg Rating',
+                    avgRating.toStringAsFixed(1),
+                    Icons.star,
+                    Colors.amber,
+                  ),
                 ),
               ],
             ),
@@ -605,7 +649,12 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, [Color? color]) {
+  Widget _buildStatItem(
+    String label,
+    String value,
+    IconData icon, [
+    Color? color,
+  ]) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -618,18 +667,9 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
     );
@@ -650,13 +690,10 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           children: [
             const Text(
               'Sport Breakdown',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             if (sportCounts.isEmpty)
               const Center(
                 child: Text(
@@ -665,41 +702,43 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 ),
               )
             else
-              ...sportCounts.entries.map((entry) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    _buildSportIcon(entry.key),
-                    const SizedBox(width: 12),
-                    
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            entry.key,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            '${entry.value} game${entry.value == 1 ? '' : 's'}',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
+              ...sportCounts.entries.map(
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      _buildSportIcon(entry.key),
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                            Text(
+                              '${entry.value} game${entry.value == 1 ? '' : 's'}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    
-                    Text(
-                      '${(entry.value / games.length * 100).round()}%',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+
+                      Text(
+                        '${(entry.value / games.length * 100).round()}%',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
           ],
         ),
       ),
@@ -715,13 +754,10 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           children: [
             const Text(
               'Monthly Trend',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Container(
               height: 200,
               decoration: BoxDecoration(
@@ -757,34 +793,31 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           children: [
             const Text(
               'Achievements',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             _buildAchievementItem(
               '🏆',
               'First Victory',
               'Won your first game',
               true,
             ),
-            
+
             _buildAchievementItem(
               '🔥',
               'Hat Trick',
               'Score 3 goals in a soccer game',
               true,
             ),
-            
+
             _buildAchievementItem(
               '⭐',
               'Perfect Rating',
               'Receive a 5-star rating',
               false,
             ),
-            
+
             _buildAchievementItem(
               '🏅',
               'Team Player',
@@ -797,7 +830,12 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
     );
   }
 
-  Widget _buildAchievementItem(String emoji, String title, String description, bool earned) {
+  Widget _buildAchievementItem(
+    String emoji,
+    String title,
+    String description,
+    bool earned,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -824,7 +862,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
             ),
           ),
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -838,15 +876,12 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 ),
                 Text(
                   description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
           ),
-          
+
           if (earned)
             Icon(Icons.check_circle, color: Colors.green[600], size: 20),
         ],
@@ -860,17 +895,14 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
       children: [
         const Text(
           'Favorite Players',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        
+
         ..._favoritePlayers.map((player) => _buildPlayerCard(player)),
-        
+
         const SizedBox(height: 24),
-        
+
         ElevatedButton.icon(
           onPressed: _viewAllPlayers,
           icon: const Icon(Icons.people),
@@ -915,20 +947,22 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
           spacing: 4,
           children: (player['sports'] as List<String>)
               .take(2)
-              .map((sport) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.blue[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  sport,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.blue[700],
+              .map(
+                (sport) => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    sport,
+                    style: TextStyle(fontSize: 10, color: Colors.blue[700]),
                   ),
                 ),
-              ))
+              )
               .toList(),
         ),
         isThreeLine: true,
@@ -938,7 +972,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
 
   bool _isInTimeRange(DateTime date) {
     final now = DateTime.now();
-    
+
     switch (_selectedTimeRange) {
       case 'This Month':
         return date.year == now.year && date.month == now.month;
@@ -954,8 +988,20 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
   }
 
   String _formatDate(DateTime date) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
@@ -983,7 +1029,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               Text(
                 game['title'],
                 style: const TextStyle(
@@ -992,7 +1038,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               Text(
                 'Game Details:',
                 style: const TextStyle(
@@ -1001,7 +1047,7 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               Text('Sport: ${game['sport']}'),
               Text('Date: ${_formatDate(game['date'])}'),
               Text('Venue: ${game['venue']}'),
@@ -1009,11 +1055,10 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
               Text('Your Team: ${game['yourTeam']}'),
               Text('Players: ${game['players']}'),
               Text('Duration: ${game['duration']} minutes'),
-              if (game['rating'] != null)
-                Text('Rating: ${game['rating']} ⭐'),
-              
+              if (game['rating'] != null) Text('Rating: ${game['rating']} ⭐'),
+
               const SizedBox(height: 16),
-              
+
               if (game['goals'] != null) ...[
                 Text(
                   'Your Performance:',
@@ -1027,9 +1072,9 @@ class _GameHistoryScreenState extends State<GameHistoryScreen>
                 if (game['assists'] != null)
                   Text('Assists: ${game['assists']}'),
               ],
-              
+
               const Spacer(),
-              
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

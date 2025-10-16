@@ -92,7 +92,10 @@ class UserSettingsModel extends UserSettings {
       themeMode: _parseThemeMode(json['theme_mode']),
       enableAnimations: _parseBoolWithDefault(json['enable_animations'], true),
       textScale: _parseDoubleWithDefault(json['text_scale'], 1.0),
-      highContrastMode: _parseBoolWithDefault(json['high_contrast_mode'], false),
+      highContrastMode: _parseBoolWithDefault(
+        json['high_contrast_mode'],
+        false,
+      ),
       reduceMotion: _parseBoolWithDefault(json['reduce_motion'], false),
       language: json['language'] as String? ?? 'en',
       region: json['region'] as String? ?? 'US',
@@ -101,32 +104,86 @@ class UserSettingsModel extends UserSettings {
       timeFormat: _parseTimeFormat(json['time_format']),
       dateFormat: _parseDateFormat(json['date_format']),
       defaultSport: json['default_sport'] as String? ?? '',
-      defaultGameDuration: _parseIntWithDefault(json['default_game_duration'], 60),
+      defaultGameDuration: _parseIntWithDefault(
+        json['default_game_duration'],
+        60,
+      ),
       defaultMaxPlayers: _parseIntWithDefault(json['default_max_players'], 10),
       defaultIsPublic: _parseBoolWithDefault(json['default_is_public'], true),
-      defaultAllowWaitlist: _parseBoolWithDefault(json['default_allow_waitlist'], true),
-      defaultAdvanceNoticeHours: _parseIntWithDefault(json['default_advance_notice_hours'], 24),
-      enablePushNotifications: _parseBoolWithDefault(json['enable_push_notifications'], true),
-      gameInviteNotifications: _parseBoolWithDefault(json['game_invite_notifications'], true),
-      gameReminderNotifications: _parseBoolWithDefault(json['game_reminder_notifications'], true),
-      gameUpdateNotifications: _parseBoolWithDefault(json['game_update_notifications'], true),
-      socialNotifications: _parseBoolWithDefault(json['social_notifications'], true),
-      systemNotifications: _parseBoolWithDefault(json['system_notifications'], false),
+      defaultAllowWaitlist: _parseBoolWithDefault(
+        json['default_allow_waitlist'],
+        true,
+      ),
+      defaultAdvanceNoticeHours: _parseIntWithDefault(
+        json['default_advance_notice_hours'],
+        24,
+      ),
+      enablePushNotifications: _parseBoolWithDefault(
+        json['enable_push_notifications'],
+        true,
+      ),
+      gameInviteNotifications: _parseBoolWithDefault(
+        json['game_invite_notifications'],
+        true,
+      ),
+      gameReminderNotifications: _parseBoolWithDefault(
+        json['game_reminder_notifications'],
+        true,
+      ),
+      gameUpdateNotifications: _parseBoolWithDefault(
+        json['game_update_notifications'],
+        true,
+      ),
+      socialNotifications: _parseBoolWithDefault(
+        json['social_notifications'],
+        true,
+      ),
+      systemNotifications: _parseBoolWithDefault(
+        json['system_notifications'],
+        false,
+      ),
       notificationSound: _parseNotificationSound(json['notification_sound']),
       vibrationEnabled: _parseBoolWithDefault(json['vibration_enabled'], true),
-      reminderMinutesBefore: _parseIntWithDefault(json['reminder_minutes_before'], 60),
-      showTrafficLayer: _parseBoolWithDefault(json['show_traffic_layer'], false),
-      showSatelliteView: _parseBoolWithDefault(json['show_satellite_view'], false),
+      reminderMinutesBefore: _parseIntWithDefault(
+        json['reminder_minutes_before'],
+        60,
+      ),
+      showTrafficLayer: _parseBoolWithDefault(
+        json['show_traffic_layer'],
+        false,
+      ),
+      showSatelliteView: _parseBoolWithDefault(
+        json['show_satellite_view'],
+        false,
+      ),
       defaultMapZoom: _parseDoubleWithDefault(json['default_map_zoom'], 14.0),
-      autoLocationDetection: _parseBoolWithDefault(json['auto_location_detection'], true),
+      autoLocationDetection: _parseBoolWithDefault(
+        json['auto_location_detection'],
+        true,
+      ),
       enableDataSaver: _parseBoolWithDefault(json['enable_data_saver'], false),
       preloadImages: _parseBoolWithDefault(json['preload_images'], true),
-      backgroundRefresh: _parseBoolWithDefault(json['background_refresh'], true),
+      backgroundRefresh: _parseBoolWithDefault(
+        json['background_refresh'],
+        true,
+      ),
       cacheSize: _parseIntWithDefault(json['cache_size'], 100),
-      screenReaderEnabled: _parseBoolWithDefault(json['screen_reader_enabled'], false),
-      voiceOverEnabled: _parseBoolWithDefault(json['voice_over_enabled'], false),
-      largeTextEnabled: _parseBoolWithDefault(json['large_text_enabled'], false),
-      buttonShapesEnabled: _parseBoolWithDefault(json['button_shapes_enabled'], false),
+      screenReaderEnabled: _parseBoolWithDefault(
+        json['screen_reader_enabled'],
+        false,
+      ),
+      voiceOverEnabled: _parseBoolWithDefault(
+        json['voice_over_enabled'],
+        false,
+      ),
+      largeTextEnabled: _parseBoolWithDefault(
+        json['large_text_enabled'],
+        false,
+      ),
+      buttonShapesEnabled: _parseBoolWithDefault(
+        json['button_shapes_enabled'],
+        false,
+      ),
     );
   }
 
@@ -547,20 +604,27 @@ class UserSettingsModel extends UserSettings {
       defaultMaxPlayers: defaultMaxPlayers ?? this.defaultMaxPlayers,
       defaultIsPublic: defaultIsPublic ?? this.defaultIsPublic,
       defaultAllowWaitlist: defaultAllowWaitlist ?? this.defaultAllowWaitlist,
-      defaultAdvanceNoticeHours: defaultAdvanceNoticeHours ?? this.defaultAdvanceNoticeHours,
-      enablePushNotifications: enablePushNotifications ?? this.enablePushNotifications,
-      gameInviteNotifications: gameInviteNotifications ?? this.gameInviteNotifications,
-      gameReminderNotifications: gameReminderNotifications ?? this.gameReminderNotifications,
-      gameUpdateNotifications: gameUpdateNotifications ?? this.gameUpdateNotifications,
+      defaultAdvanceNoticeHours:
+          defaultAdvanceNoticeHours ?? this.defaultAdvanceNoticeHours,
+      enablePushNotifications:
+          enablePushNotifications ?? this.enablePushNotifications,
+      gameInviteNotifications:
+          gameInviteNotifications ?? this.gameInviteNotifications,
+      gameReminderNotifications:
+          gameReminderNotifications ?? this.gameReminderNotifications,
+      gameUpdateNotifications:
+          gameUpdateNotifications ?? this.gameUpdateNotifications,
       socialNotifications: socialNotifications ?? this.socialNotifications,
       systemNotifications: systemNotifications ?? this.systemNotifications,
       notificationSound: notificationSound ?? this.notificationSound,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
-      reminderMinutesBefore: reminderMinutesBefore ?? this.reminderMinutesBefore,
+      reminderMinutesBefore:
+          reminderMinutesBefore ?? this.reminderMinutesBefore,
       showTrafficLayer: showTrafficLayer ?? this.showTrafficLayer,
       showSatelliteView: showSatelliteView ?? this.showSatelliteView,
       defaultMapZoom: defaultMapZoom ?? this.defaultMapZoom,
-      autoLocationDetection: autoLocationDetection ?? this.autoLocationDetection,
+      autoLocationDetection:
+          autoLocationDetection ?? this.autoLocationDetection,
       enableDataSaver: enableDataSaver ?? this.enableDataSaver,
       preloadImages: preloadImages ?? this.preloadImages,
       backgroundRefresh: backgroundRefresh ?? this.backgroundRefresh,

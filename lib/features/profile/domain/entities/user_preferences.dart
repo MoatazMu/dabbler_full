@@ -1,7 +1,11 @@
 enum GameDuration { short, medium, long, any } // 30min, 1hr, 2hr+, flexible
+
 enum TeamSize { small, medium, large, any } // 2-6, 6-12, 12+, flexible
+
 enum TravelWillingness { local, moderate, high } // 5mi, 15mi, 30mi+
+
 enum AgeRangePreference { similar, younger, older, any }
+
 enum GenderMixPreference { mixed, sameGender, any }
 
 class TimeSlot {
@@ -22,11 +26,7 @@ class TimeSlot {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'dayOfWeek': dayOfWeek,
-      'startHour': startHour,
-      'endHour': endHour,
-    };
+    return {'dayOfWeek': dayOfWeek, 'startHour': startHour, 'endHour': endHour};
   }
 
   factory TimeSlot.fromJson(Map<String, dynamic> json) {
@@ -53,14 +53,16 @@ class TimeSlot {
 class UserPreferences {
   // User identification
   final String userId;
-  
+
   // Game preferences
-  final List<String> preferredSports; // sport IDs - for compatibility with use case
+  final List<String>
+  preferredSports; // sport IDs - for compatibility with use case
   final List<String> preferredGameTypes; // sport IDs - existing property
   final GameDuration preferredDuration;
   final TeamSize preferredTeamSize;
   final List<String> skillLevelPreferences; // beginner, intermediate, etc.
-  final String? skillLevel; // single skill level - for compatibility with use case
+  final String?
+  skillLevel; // single skill level - for compatibility with use case
   final int? minPlayers; // for compatibility with use case
   final int? maxPlayers; // for compatibility with use case
   final String? competitionLevel; // for compatibility with use case
@@ -77,7 +79,8 @@ class UserPreferences {
 
   // Availability preferences
   final List<TimeSlot> weeklyAvailability;
-  final Map<String, List<String>> availableTimeSlots; // for compatibility with use case
+  final Map<String, List<String>>
+  availableTimeSlots; // for compatibility with use case
   final int advanceBookingDays; // how far ahead willing to book
   final int minimumNoticeHours; // minimum notice for games
   final List<String> unavailableDates; // ISO date strings
@@ -231,7 +234,9 @@ class UserPreferences {
 
   /// Gets available time slots for a specific day
   List<TimeSlot> getAvailabilityForDay(int dayOfWeek) {
-    return weeklyAvailability.where((slot) => slot.dayOfWeek == dayOfWeek).toList();
+    return weeklyAvailability
+        .where((slot) => slot.dayOfWeek == dayOfWeek)
+        .toList();
   }
 
   /// Creates a copy with updated fields
@@ -280,7 +285,8 @@ class UserPreferences {
       preferredGameTypes: preferredGameTypes ?? this.preferredGameTypes,
       preferredDuration: preferredDuration ?? this.preferredDuration,
       preferredTeamSize: preferredTeamSize ?? this.preferredTeamSize,
-      skillLevelPreferences: skillLevelPreferences ?? this.skillLevelPreferences,
+      skillLevelPreferences:
+          skillLevelPreferences ?? this.skillLevelPreferences,
       skillLevel: skillLevel ?? this.skillLevel,
       minPlayers: minPlayers ?? this.minPlayers,
       maxPlayers: maxPlayers ?? this.maxPlayers,
@@ -302,7 +308,8 @@ class UserPreferences {
       openToNewSports: openToNewSports ?? this.openToNewSports,
       ageRangePreference: ageRangePreference ?? this.ageRangePreference,
       genderMixPreference: genderMixPreference ?? this.genderMixPreference,
-      preferFriendsOfFriends: preferFriendsOfFriends ?? this.preferFriendsOfFriends,
+      preferFriendsOfFriends:
+          preferFriendsOfFriends ?? this.preferFriendsOfFriends,
       maxGroupSize: maxGroupSize ?? this.maxGroupSize,
       minGroupSize: minGroupSize ?? this.minGroupSize,
       preferCompetitive: preferCompetitive ?? this.preferCompetitive,
@@ -319,8 +326,12 @@ class UserPreferences {
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
     return UserPreferences(
       userId: json['userId'] as String? ?? '',
-      preferredSports: List<String>.from(json['preferredSports'] as List? ?? []),
-      preferredGameTypes: List<String>.from(json['preferredGameTypes'] as List? ?? []),
+      preferredSports: List<String>.from(
+        json['preferredSports'] as List? ?? [],
+      ),
+      preferredGameTypes: List<String>.from(
+        json['preferredGameTypes'] as List? ?? [],
+      ),
       preferredDuration: GameDuration.values.firstWhere(
         (e) => e.toString().split('.').last == json['preferredDuration'],
         orElse: () => GameDuration.any,
@@ -329,7 +340,9 @@ class UserPreferences {
         (e) => e.toString().split('.').last == json['preferredTeamSize'],
         orElse: () => TeamSize.any,
       ),
-      skillLevelPreferences: List<String>.from(json['skillLevelPreferences'] as List? ?? []),
+      skillLevelPreferences: List<String>.from(
+        json['skillLevelPreferences'] as List? ?? [],
+      ),
       skillLevel: json['skillLevel'] as String?,
       minPlayers: json['minPlayers'] as int?,
       maxPlayers: json['maxPlayers'] as int?,
@@ -337,21 +350,30 @@ class UserPreferences {
       playerType: json['playerType'] as String?,
       maxTravelRadius: (json['maxTravelRadius'] as num?)?.toDouble() ?? 15.0,
       maxTravelDistance: (json['maxTravelDistance'] as num?)?.toDouble(),
-      preferredVenues: List<String>.from(json['preferredVenues'] as List? ?? []),
-      preferredLocations: List<String>.from(json['preferredLocations'] as List? ?? []),
+      preferredVenues: List<String>.from(
+        json['preferredVenues'] as List? ?? [],
+      ),
+      preferredLocations: List<String>.from(
+        json['preferredLocations'] as List? ?? [],
+      ),
       travelWillingness: TravelWillingness.values.firstWhere(
         (e) => e.toString().split('.').last == json['travelWillingness'],
         orElse: () => TravelWillingness.moderate,
       ),
       preferOutdoor: json['preferOutdoor'] as bool? ?? true,
       preferIndoor: json['preferIndoor'] as bool? ?? true,
-      weeklyAvailability: (json['weeklyAvailability'] as List?)
-          ?.map((e) => TimeSlot.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
-      availableTimeSlots: _parseAvailableTimeSlots(json['availableTimeSlots']) ?? {},
+      weeklyAvailability:
+          (json['weeklyAvailability'] as List?)
+              ?.map((e) => TimeSlot.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      availableTimeSlots:
+          _parseAvailableTimeSlots(json['availableTimeSlots']) ?? {},
       advanceBookingDays: json['advanceBookingDays'] as int? ?? 14,
       minimumNoticeHours: json['minimumNoticeHours'] as int? ?? 4,
-      unavailableDates: List<String>.from(json['unavailableDates'] as List? ?? []),
+      unavailableDates: List<String>.from(
+        json['unavailableDates'] as List? ?? [],
+      ),
       openToNewPlayers: json['openToNewPlayers'] as bool? ?? true,
       openToNewSports: json['openToNewSports'] as bool? ?? true,
       ageRangePreference: AgeRangePreference.values.firstWhere(
@@ -369,9 +391,15 @@ class UserPreferences {
       preferCasual: json['preferCasual'] as bool? ?? true,
       acceptWaitlist: json['acceptWaitlist'] as bool? ?? true,
       autoAcceptInvites: json['autoAcceptInvites'] as bool? ?? false,
-      languagesSpoken: List<String>.from(json['languagesSpoken'] as List? ?? []),
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+      languagesSpoken: List<String>.from(
+        json['languagesSpoken'] as List? ?? [],
+      ),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
     );
   }
 
@@ -396,7 +424,9 @@ class UserPreferences {
       'travelWillingness': travelWillingness.toString().split('.').last,
       'preferOutdoor': preferOutdoor,
       'preferIndoor': preferIndoor,
-      'weeklyAvailability': weeklyAvailability.map((slot) => slot.toJson()).toList(),
+      'weeklyAvailability': weeklyAvailability
+          .map((slot) => slot.toJson())
+          .toList(),
       'availableTimeSlots': availableTimeSlots,
       'advanceBookingDays': advanceBookingDays,
       'minimumNoticeHours': minimumNoticeHours,
@@ -486,7 +516,7 @@ class UserPreferences {
       Object.hashAll(weeklyAvailability),
       availableTimeSlots,
     );
-    
+
     final hash2 = Object.hash(
       advanceBookingDays,
       minimumNoticeHours,
@@ -506,7 +536,7 @@ class UserPreferences {
       createdAt,
       updatedAt,
     );
-    
+
     return Object.hash(hash1, hash2);
   }
 

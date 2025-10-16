@@ -32,12 +32,14 @@ class ActivityFeed {
       title: json['title'],
       message: json['message'],
       action_route: json['action_route'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       notification_id: json['notification_id'],
       is_read: json['is_read'],
-      read_at: (json['read_at'] == null ? null : DateTime.parse(json['read_at'] as String)),
+      read_at: (json['read_at'] == null
+          ? null
+          : DateTime.parse(json['read_at'] as String)),
     );
   }
 

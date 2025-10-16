@@ -4,7 +4,7 @@ import '../../../../core/services/auth_service.dart';
 class AuthValidationService {
   final AuthRepository repository;
   final AuthService _authService = AuthService();
-  
+
   AuthValidationService(this.repository);
 
   Future<bool> isEmailAvailable(String email) async {

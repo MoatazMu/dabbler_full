@@ -176,21 +176,10 @@ enum LeaderboardType {
 }
 
 /// Leaderboard scopes
-enum LeaderboardScope {
-  global,
-  friends,
-  local,
-  tier,
-}
+enum LeaderboardScope { global, friends, local, tier }
 
 /// Time ranges for leaderboards
-enum TimeRange {
-  today,
-  thisWeek,
-  thisMonth,
-  thisYear,
-  allTime,
-}
+enum TimeRange { today, thisWeek, thisMonth, thisYear, allTime }
 
 /// Leaderboard data container
 class LeaderboardData {
@@ -252,20 +241,18 @@ class LeaderboardService extends ChangeNotifier {
 
   // Real-time subscriptions
   final Map<String, RealtimeChannel> _activeSubscriptions = {};
-  
+
   // State management
   bool _isInitialized = false;
   String? _currentUserId;
   Set<String> _friendIds = {};
-  
+
   // Processing state
   final Map<LeaderboardFilter, bool> _isUpdating = {};
   Timer? _periodicUpdateTimer;
   DateTime? _lastRealTimeUpdate;
 
-  LeaderboardService({
-    required SupabaseClient supabase,
-  })  : _supabase = supabase;
+  LeaderboardService({required SupabaseClient supabase}) : _supabase = supabase;
 
   // Getters
   bool get isInitialized => _isInitialized;
@@ -278,21 +265,20 @@ class LeaderboardService extends ChangeNotifier {
 
     try {
       _currentUserId = userId;
-      
+
       // Load user's friends
       await _loadUserFriends();
-      
+
       // Setup real-time subscriptions
       await _setupRealtimeSubscriptions();
-      
+
       // Start periodic updates
       _startPeriodicUpdates();
-      
+
       _isInitialized = true;
       notifyListeners();
-      
+
       debugPrint('LeaderboardService initialized for user: $userId');
-      
     } catch (e) {
       debugPrint('Error initializing LeaderboardService: $e');
       rethrow;
@@ -310,7 +296,7 @@ class LeaderboardService extends ChangeNotifier {
   /// Get leaderboard data
   Future<LeaderboardData> getLeaderboard(LeaderboardFilter filter) async {
     final cacheKey = _generateCacheKey(filter);
-    
+
     // Check if update is already in progress
     if (_isUpdating[filter] == true) {
       // Return cached data if available
@@ -338,27 +324,26 @@ class LeaderboardService extends ChangeNotifier {
 
   /// Get user's rank in leaderboard
   Future<LeaderboardEntry?> getUserRank(
-    String userId, 
+    String userId,
     LeaderboardFilter filter,
   ) async {
     try {
       final leaderboard = await getLeaderboard(filter);
-      
+
       // Check if user is in the leaderboard entries
       for (final entry in leaderboard.entries) {
         if (entry.userId == userId) {
           return entry;
         }
       }
-      
+
       // If not in entries, check current user entry
       if (leaderboard.currentUserEntry?.userId == userId) {
         return leaderboard.currentUserEntry;
       }
-      
+
       // Fetch user rank separately
       return await _fetchUserRank(userId, filter);
-      
     } catch (e) {
       debugPrint('Error getting user rank: $e');
       return null;
@@ -366,12 +351,14 @@ class LeaderboardService extends ChangeNotifier {
   }
 
   /// Get friends leaderboard
-  Future<LeaderboardData> getFriendsLeaderboard(LeaderboardFilter filter) async {
+  Future<LeaderboardData> getFriendsLeaderboard(
+    LeaderboardFilter filter,
+  ) async {
     final friendsFilter = filter.copyWith(
       scope: LeaderboardScope.friends,
       friendsOnly: true,
     );
-    
+
     return await getLeaderboard(friendsFilter);
   }
 
@@ -384,7 +371,7 @@ class LeaderboardService extends ChangeNotifier {
       scope: LeaderboardScope.tier,
       tierFilter: tier,
     );
-    
+
     return await getLeaderboard(tierFilter);
   }
 
@@ -395,15 +382,14 @@ class LeaderboardService extends ChangeNotifier {
   }) async {
     try {
       final searchFilter = filter ?? const LeaderboardFilter();
-      
+
       // Get leaderboard data
       final leaderboard = await getLeaderboard(searchFilter);
-      
+
       // Filter entries by query
       return leaderboard.entries.where((entry) {
         return entry.userName.toLowerCase().contains(query.toLowerCase());
       }).toList();
-      
     } catch (e) {
       debugPrint('Error searching users: $e');
       return [];
@@ -445,21 +431,30 @@ class LeaderboardService extends ChangeNotifier {
   /// Preload common leaderboards
   Future<void> preloadCommonLeaderboards() async {
     if (_currentUserId == null) return;
-    
+
     try {
       final commonFilters = [
-        const LeaderboardFilter(type: LeaderboardType.points, scope: LeaderboardScope.global),
-        const LeaderboardFilter(type: LeaderboardType.points, scope: LeaderboardScope.friends),
-        const LeaderboardFilter(type: LeaderboardType.achievements, scope: LeaderboardScope.global),
-        const LeaderboardFilter(type: LeaderboardType.weeklyPoints, scope: LeaderboardScope.global),
+        const LeaderboardFilter(
+          type: LeaderboardType.points,
+          scope: LeaderboardScope.global,
+        ),
+        const LeaderboardFilter(
+          type: LeaderboardType.points,
+          scope: LeaderboardScope.friends,
+        ),
+        const LeaderboardFilter(
+          type: LeaderboardType.achievements,
+          scope: LeaderboardScope.global,
+        ),
+        const LeaderboardFilter(
+          type: LeaderboardType.weeklyPoints,
+          scope: LeaderboardScope.global,
+        ),
       ];
-      
-      await Future.wait(
-        commonFilters.map((filter) => getLeaderboard(filter)),
-      );
-      
+
+      await Future.wait(commonFilters.map((filter) => getLeaderboard(filter)));
+
       debugPrint('Preloaded ${commonFilters.length} common leaderboards');
-      
     } catch (e) {
       debugPrint('Error preloading leaderboards: $e');
     }
@@ -472,14 +467,19 @@ class LeaderboardService extends ChangeNotifier {
     bool forceUpdate = false,
   }) async {
     final cacheKey = _generateCacheKey(filter);
-    
+
     if (!forceUpdate && _isUpdating[filter] == true) {
       // Wait for ongoing update
       while (_isUpdating[filter] == true) {
         await Future.delayed(const Duration(milliseconds: 100));
       }
-      return _leaderboardCache[cacheKey] ?? 
-             LeaderboardData(entries: [], filter: filter, totalCount: 0, lastUpdated: DateTime.now());
+      return _leaderboardCache[cacheKey] ??
+          LeaderboardData(
+            entries: [],
+            filter: filter,
+            totalCount: 0,
+            lastUpdated: DateTime.now(),
+          );
     }
 
     _isUpdating[filter] = true;
@@ -509,17 +509,18 @@ class LeaderboardService extends ChangeNotifier {
 
       // Apply filters
       entries = _applyFilters(entries, filter);
-      
+
       // Calculate ranks
       entries = _calculateRanks(entries);
-      
+
       // Get current user entry if not in top entries
-      if (_currentUserId != null && !entries.any((e) => e.userId == _currentUserId)) {
+      if (_currentUserId != null &&
+          !entries.any((e) => e.userId == _currentUserId)) {
         currentUserEntry = await _fetchUserRank(_currentUserId!, filter);
       }
 
       totalCount = await _getTotalCountForFilter(filter);
-      
+
       final leaderboardData = LeaderboardData(
         entries: entries,
         currentUserEntry: currentUserEntry,
@@ -532,11 +533,10 @@ class LeaderboardService extends ChangeNotifier {
       // Cache the result
       _leaderboardCache[cacheKey] = leaderboardData;
       _lastCacheTime[cacheKey] = DateTime.now();
-      
-      notifyListeners();
-      
-      return leaderboardData;
 
+      notifyListeners();
+
+      return leaderboardData;
     } catch (e) {
       debugPrint('Error fetching leaderboard: $e');
       rethrow;
@@ -545,55 +545,74 @@ class LeaderboardService extends ChangeNotifier {
     }
   }
 
-  Future<List<LeaderboardEntry>> _fetchPointsLeaderboard(LeaderboardFilter filter) async {
+  Future<List<LeaderboardEntry>> _fetchPointsLeaderboard(
+    LeaderboardFilter filter,
+  ) async {
     // This would typically make a database query
     // For now, returning mock data
     return await _mockLeaderboardEntries(filter);
   }
 
-  Future<List<LeaderboardEntry>> _fetchAchievementsLeaderboard(LeaderboardFilter filter) async {
+  Future<List<LeaderboardEntry>> _fetchAchievementsLeaderboard(
+    LeaderboardFilter filter,
+  ) async {
     // This would typically make a database query for achievement counts
     return await _mockLeaderboardEntries(filter);
   }
 
-  Future<List<LeaderboardEntry>> _fetchStreaksLeaderboard(LeaderboardFilter filter) async {
+  Future<List<LeaderboardEntry>> _fetchStreaksLeaderboard(
+    LeaderboardFilter filter,
+  ) async {
     // This would typically make a database query for streaks
     return await _mockLeaderboardEntries(filter);
   }
 
-  Future<List<LeaderboardEntry>> _fetchWeeklyPointsLeaderboard(LeaderboardFilter filter) async {
+  Future<List<LeaderboardEntry>> _fetchWeeklyPointsLeaderboard(
+    LeaderboardFilter filter,
+  ) async {
     // This would typically make a database query for weekly points
     return await _mockLeaderboardEntries(filter);
   }
 
-  Future<List<LeaderboardEntry>> _fetchMonthlyPointsLeaderboard(LeaderboardFilter filter) async {
+  Future<List<LeaderboardEntry>> _fetchMonthlyPointsLeaderboard(
+    LeaderboardFilter filter,
+  ) async {
     // This would typically make a database query for monthly points
     return await _mockLeaderboardEntries(filter);
   }
 
-  Future<List<LeaderboardEntry>> _mockLeaderboardEntries(LeaderboardFilter filter) async {
+  Future<List<LeaderboardEntry>> _mockLeaderboardEntries(
+    LeaderboardFilter filter,
+  ) async {
     // Mock data generation for demonstration
     final random = math.Random(42); // Fixed seed for consistent results
     final entries = <LeaderboardEntry>[];
-    
+
     for (int i = 0; i < filter.limit; i++) {
-      entries.add(LeaderboardEntry(
-        userId: 'user_${i + filter.offset + 1}',
-        userName: 'User ${i + filter.offset + 1}',
-        avatarUrl: null,
-        points: 10000 - (i + filter.offset) * 100 + random.nextInt(100),
-        rank: i + filter.offset + 1,
-        tier: BadgeTier.values[random.nextInt(BadgeTier.values.length)],
-        achievementsCount: random.nextInt(50),
-        lastActiveAt: DateTime.now().subtract(Duration(hours: random.nextInt(48))),
-        isFriend: _friendIds.contains('user_${i + filter.offset + 1}'),
-      ));
+      entries.add(
+        LeaderboardEntry(
+          userId: 'user_${i + filter.offset + 1}',
+          userName: 'User ${i + filter.offset + 1}',
+          avatarUrl: null,
+          points: 10000 - (i + filter.offset) * 100 + random.nextInt(100),
+          rank: i + filter.offset + 1,
+          tier: BadgeTier.values[random.nextInt(BadgeTier.values.length)],
+          achievementsCount: random.nextInt(50),
+          lastActiveAt: DateTime.now().subtract(
+            Duration(hours: random.nextInt(48)),
+          ),
+          isFriend: _friendIds.contains('user_${i + filter.offset + 1}'),
+        ),
+      );
     }
-    
+
     return entries;
   }
 
-  List<LeaderboardEntry> _applyFilters(List<LeaderboardEntry> entries, LeaderboardFilter filter) {
+  List<LeaderboardEntry> _applyFilters(
+    List<LeaderboardEntry> entries,
+    LeaderboardFilter filter,
+  ) {
     var filtered = entries;
 
     if (filter.friendsOnly) {
@@ -610,15 +629,18 @@ class LeaderboardService extends ChangeNotifier {
   List<LeaderboardEntry> _calculateRanks(List<LeaderboardEntry> entries) {
     // Sort by points (or other criteria) and assign ranks
     entries.sort((a, b) => b.points.compareTo(a.points));
-    
+
     for (int i = 0; i < entries.length; i++) {
       entries[i] = entries[i].copyWith(rank: i + 1);
     }
-    
+
     return entries;
   }
 
-  Future<LeaderboardEntry?> _fetchUserRank(String userId, LeaderboardFilter filter) async {
+  Future<LeaderboardEntry?> _fetchUserRank(
+    String userId,
+    LeaderboardFilter filter,
+  ) async {
     try {
       // This would typically query the database for the specific user's rank
       // For now, returning mock data
@@ -645,7 +667,7 @@ class LeaderboardService extends ChangeNotifier {
 
   Future<void> _loadUserFriends() async {
     if (_currentUserId == null) return;
-    
+
     try {
       // This would typically load from friends/social service
       _friendIds = {'user_2', 'user_5', 'user_8', 'user_12'}; // Mock friends
@@ -693,7 +715,6 @@ class LeaderboardService extends ChangeNotifier {
 
       achievementsChannel.subscribe();
       _activeSubscriptions['achievements'] = achievementsChannel;
-
     } catch (e) {
       debugPrint('Error setting up real-time subscriptions: $e');
     }
@@ -701,31 +722,31 @@ class LeaderboardService extends ChangeNotifier {
 
   void _handleRealtimeUpdate(Map<String, dynamic> payload) {
     final now = DateTime.now();
-    
+
     // Throttle updates to prevent excessive rebuilds
-    if (_lastRealTimeUpdate != null && 
+    if (_lastRealTimeUpdate != null &&
         now.difference(_lastRealTimeUpdate!) < _realTimeThrottle) {
       return;
     }
-    
+
     _lastRealTimeUpdate = now;
-    
+
     // Invalidate relevant caches
     _invalidateRelevantCaches(payload);
-    
+
     notifyListeners();
   }
 
   void _invalidateRelevantCaches(Map<String, dynamic> payload) {
     // Clear cache for leaderboards that might be affected by this update
     final keysToRemove = <String>[];
-    
+
     for (final cacheKey in _leaderboardCache.keys) {
       // For simplicity, clear all caches on any update
       // In production, this could be more selective
       keysToRemove.add(cacheKey);
     }
-    
+
     for (final key in keysToRemove) {
       _leaderboardCache.remove(key);
       _lastCacheTime.remove(key);
@@ -751,10 +772,9 @@ class LeaderboardService extends ChangeNotifier {
     try {
       // Update commonly accessed leaderboards
       await preloadCommonLeaderboards();
-      
+
       // Clean up expired cache entries
       _cleanupExpiredCache();
-      
     } catch (e) {
       debugPrint('Error in periodic updates: $e');
     }
@@ -763,18 +783,18 @@ class LeaderboardService extends ChangeNotifier {
   void _cleanupExpiredCache() {
     final now = DateTime.now();
     final keysToRemove = <String>[];
-    
+
     for (final entry in _lastCacheTime.entries) {
       if (now.difference(entry.value) > _cacheExpiry) {
         keysToRemove.add(entry.key);
       }
     }
-    
+
     for (final key in keysToRemove) {
       _leaderboardCache.remove(key);
       _lastCacheTime.remove(key);
     }
-    
+
     if (keysToRemove.isNotEmpty) {
       debugPrint('Cleaned up ${keysToRemove.length} expired cache entries');
     }
@@ -782,16 +802,16 @@ class LeaderboardService extends ChangeNotifier {
 
   String _generateCacheKey(LeaderboardFilter filter) {
     return '${filter.type.name}_${filter.scope.name}_${filter.timeRange.name}_'
-           '${filter.tierFilter?.name ?? 'all'}_${filter.friendsOnly}_'
-           '${filter.limit}_${filter.offset}';
+        '${filter.tierFilter?.name ?? 'all'}_${filter.friendsOnly}_'
+        '${filter.limit}_${filter.offset}';
   }
 
   bool _isCacheValid(String cacheKey) {
     if (!_leaderboardCache.containsKey(cacheKey)) return false;
-    
+
     final cacheTime = _lastCacheTime[cacheKey];
     if (cacheTime == null) return false;
-    
+
     return DateTime.now().difference(cacheTime) < _cacheExpiry;
   }
 

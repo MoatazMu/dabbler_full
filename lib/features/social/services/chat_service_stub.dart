@@ -38,7 +38,7 @@ class ChatService {
         isSystemMessage: false,
         metadata: metadata,
       );
-      
+
       debugPrint('Message sent: ${message.id}');
       return Right(message);
     } catch (e) {
@@ -98,7 +98,7 @@ class ChatService {
         settings: const ConversationSettings(),
         metadata: metadata,
       );
-      
+
       debugPrint('Conversation created: ${conversation.id}');
       return Right(conversation);
     } catch (e) {
@@ -128,7 +128,9 @@ class ChatService {
     bool deleteForEveryone = false,
   }) async {
     try {
-      debugPrint('Deleting message: $messageId (for everyone: $deleteForEveryone)');
+      debugPrint(
+        'Deleting message: $messageId (for everyone: $deleteForEveryone)',
+      );
       return const Right(true);
     } catch (e) {
       debugPrint('Error deleting message: $e');
@@ -160,7 +162,8 @@ class ChatService {
   }) async {
     try {
       // Return stub URL
-      final url = 'https://dabbler.app/attachments/stub_${DateTime.now().millisecondsSinceEpoch}';
+      final url =
+          'https://dabbler.app/attachments/stub_${DateTime.now().millisecondsSinceEpoch}';
       debugPrint('Attachment uploaded: $url');
       return Right(url);
     } catch (e) {

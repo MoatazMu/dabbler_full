@@ -1,51 +1,42 @@
-enum PlayerStatus {
-  confirmed,
-  waitlisted,
-  cancelled,
-  noShow,
-}
+enum PlayerStatus { confirmed, waitlisted, cancelled, noShow }
 
-enum TeamAssignment {
-  teamA,
-  teamB,
-  unassigned,
-}
+enum TeamAssignment { teamA, teamB, unassigned }
 
 class Player {
   final String id;
   final String playerId; // Reference to user ID
   final String gameId;
   final PlayerStatus status;
-  
+
   // Team assignment
   final TeamAssignment teamAssignment;
   final String? position; // Optional position within the team
-  
+
   // Player details
   final String playerName;
   final String? playerAvatar;
   final String? playerPhone;
   final String? playerEmail;
-  
+
   // Timestamps
   final DateTime joinedAt;
   final DateTime? checkedInAt;
   final DateTime? cancelledAt;
-  
+
   // Check-in functionality
   final String? checkInCode; // QR code or unique identifier for check-in
   final bool isOrganizer;
-  
+
   // Rating system
   final double? playerRating; // Rating given to this player after the game
   final DateTime? ratedAt;
   final String? ratingComment;
-  
+
   // Payment status
   final bool hasPaid;
   final double? amountPaid;
   final DateTime? paidAt;
-  
+
   // Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -90,14 +81,15 @@ class Player {
 
   /// Check if player can be checked in
   bool canCheckIn() {
-    return status == PlayerStatus.confirmed && 
-           !isCheckedIn && 
-           checkInCode != null;
+    return status == PlayerStatus.confirmed &&
+        !isCheckedIn &&
+        checkInCode != null;
   }
 
   /// Check if player can cancel
   bool canCancel() {
-    return status == PlayerStatus.confirmed || status == PlayerStatus.waitlisted;
+    return status == PlayerStatus.confirmed ||
+        status == PlayerStatus.waitlisted;
   }
 
   /// Get status display text

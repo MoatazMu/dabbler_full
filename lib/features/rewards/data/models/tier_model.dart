@@ -121,18 +121,18 @@ class TierModel extends UserTier {
 
   static TierLevel _parseTierLevel(dynamic value) {
     if (value == null) return TierLevel.freshPlayer;
-    
+
     if (value is int) {
       return TierLevel.fromLevel(value) ?? TierLevel.freshPlayer;
     }
-    
+
     if (value is String) {
       // Try to parse as level number
       final levelNum = int.tryParse(value);
       if (levelNum != null) {
         return TierLevel.fromLevel(levelNum) ?? TierLevel.freshPlayer;
       }
-      
+
       // Try to parse as tier name
       for (final tier in TierLevel.values) {
         if (tier.name.toLowerCase() == value.toLowerCase() ||
@@ -141,7 +141,7 @@ class TierModel extends UserTier {
         }
       }
     }
-    
+
     return TierLevel.freshPlayer;
   }
 
@@ -191,11 +191,14 @@ class TierModel extends UserTier {
       'points_in_tier': data['points_in_tier'] ?? data['pointsInTier'],
       'achieved_at': data['achieved_at'] ?? data['achievedAt'],
       'previous_tier_at': data['previous_tier_at'] ?? data['previousTierAt'],
-      'has_notification_sent': data['has_notification_sent'] ?? data['hasNotificationSent'],
+      'has_notification_sent':
+          data['has_notification_sent'] ?? data['hasNotificationSent'],
       'created_at': data['created_at'] ?? data['createdAt'],
       'updated_at': data['updated_at'] ?? data['updatedAt'],
-      'benefits_breakdown': data['benefits_breakdown'] ?? data['benefitsBreakdown'],
-      'privileges_breakdown': data['privileges_breakdown'] ?? data['privilegesBreakdown'],
+      'benefits_breakdown':
+          data['benefits_breakdown'] ?? data['benefitsBreakdown'],
+      'privileges_breakdown':
+          data['privileges_breakdown'] ?? data['privilegesBreakdown'],
       'progress_data': data['progress_data'] ?? data['progressData'],
       'comparison_data': data['comparison_data'] ?? data['comparisonData'],
     });
@@ -205,7 +208,7 @@ class TierModel extends UserTier {
   Map<String, dynamic> toSupabase() {
     final json = toJson();
     json.removeWhere((key, value) => value == null);
-    
+
     return {
       ...json,
       'user_id': json['user_id'],
@@ -256,7 +259,7 @@ class TierModel extends UserTier {
   }) {
     final now = DateTime.now();
     final pointsInCurrentTier = currentPoints - level.minPoints;
-    
+
     // Create base tier
     final baseTier = TierModel(
       id: id,
@@ -270,13 +273,13 @@ class TierModel extends UserTier {
       createdAt: now,
       updatedAt: now,
     );
-    
+
     // Calculate benefits and privileges
     final calculatedBenefits = baseTier.getDefaultBenefits();
     final calculatedPrivileges = baseTier.getDefaultPrivileges();
     final progressData = baseTier._calculateProgressData();
     final comparisonData = baseTier._calculateComparisonData();
-    
+
     return baseTier.copyWith(
       benefits: calculatedBenefits,
       privileges: calculatedPrivileges,
@@ -287,13 +290,15 @@ class TierModel extends UserTier {
     );
   }
 
-  static Map<String, dynamic> _generateBenefitsBreakdown(Map<String, dynamic> benefits) {
+  static Map<String, dynamic> _generateBenefitsBreakdown(
+    Map<String, dynamic> benefits,
+  ) {
     final breakdown = <String, dynamic>{};
-    
+
     for (final entry in benefits.entries) {
       final key = entry.key;
       final value = entry.value;
-      
+
       breakdown[key] = {
         'value': value,
         'description': _getBenefitDescription(key),
@@ -302,17 +307,19 @@ class TierModel extends UserTier {
         'numeric_value': value is num ? value : null,
       };
     }
-    
+
     return breakdown;
   }
 
-  static Map<String, dynamic> _generatePrivilegesBreakdown(Map<String, dynamic> privileges) {
+  static Map<String, dynamic> _generatePrivilegesBreakdown(
+    Map<String, dynamic> privileges,
+  ) {
     final breakdown = <String, dynamic>{};
-    
+
     for (final entry in privileges.entries) {
       final key = entry.key;
       final value = entry.value;
-      
+
       breakdown[key] = {
         'enabled': value,
         'description': _getPrivilegeDescription(key),
@@ -320,7 +327,7 @@ class TierModel extends UserTier {
         'unlock_level': _getPrivilegeUnlockLevel(key),
       };
     }
-    
+
     return breakdown;
   }
 
@@ -349,8 +356,10 @@ class TierModel extends UserTier {
 
   static String _getBenefitCategory(String key) {
     if (key.contains('point')) return 'Points & Rewards';
-    if (key.contains('profile') || key.contains('customization')) return 'Customization';
-    if (key.contains('matchmaking') || key.contains('priority')) return 'Gameplay';
+    if (key.contains('profile') || key.contains('customization'))
+      return 'Customization';
+    if (key.contains('matchmaking') || key.contains('priority'))
+      return 'Gameplay';
     if (key.contains('event') || key.contains('access')) return 'Access';
     return 'General';
   }
@@ -410,7 +419,7 @@ class TierModel extends UserTier {
     final nextTier = getNextTier();
     final progress = calculateProgress();
     final pointsToNext = getPointsToNextTier();
-    
+
     return {
       'current_progress_percentage': progress,
       'points_to_next_tier': pointsToNext,
@@ -420,21 +429,23 @@ class TierModel extends UserTier {
       'points_in_current_tier': pointsInTier,
       'tier_point_range': level.pointsRange,
       'days_in_current_tier': DateTime.now().difference(achievedAt).inDays,
-      'estimated_days_to_next': pointsToNext > 0 ? _estimateDaysToNextTier() : null,
+      'estimated_days_to_next': pointsToNext > 0
+          ? _estimateDaysToNextTier()
+          : null,
     };
   }
 
   int? _estimateDaysToNextTier() {
     final pointsToNext = getPointsToNextTier();
     if (pointsToNext <= 0) return null;
-    
+
     // Simple estimation based on current tier progress rate
     final daysInTier = DateTime.now().difference(achievedAt).inDays;
     if (daysInTier <= 0) return null;
-    
+
     final pointsPerDay = pointsInTier / daysInTier;
     if (pointsPerDay <= 0) return null;
-    
+
     return (pointsToNext / pointsPerDay).ceil();
   }
 
@@ -442,14 +453,18 @@ class TierModel extends UserTier {
   Map<String, dynamic> _calculateComparisonData() {
     final allTiers = TierLevel.values;
     final currentIndex = allTiers.indexOf(level);
-    
+
     return {
       'tier_position': '${currentIndex + 1} of ${allTiers.length}',
       'tiers_above': allTiers.length - currentIndex - 1,
       'tiers_below': currentIndex,
       'percentage_of_max': (currentIndex + 1) / allTiers.length * 100,
-      'previous_tier': currentIndex > 0 ? allTiers[currentIndex - 1].displayName : null,
-      'next_tier': currentIndex < allTiers.length - 1 ? allTiers[currentIndex + 1].displayName : null,
+      'previous_tier': currentIndex > 0
+          ? allTiers[currentIndex - 1].displayName
+          : null,
+      'next_tier': currentIndex < allTiers.length - 1
+          ? allTiers[currentIndex + 1].displayName
+          : null,
       'is_top_tier': level.isMaxTier,
       'is_bottom_tier': currentIndex == 0,
       'tier_category': _getTierCategory(),
@@ -468,14 +483,14 @@ class TierModel extends UserTier {
   Map<String, dynamic>? getNextTierPreview() {
     final nextTier = getNextTier();
     if (nextTier == null) return null;
-    
+
     final mockNextTierModel = TierModel.withCalculatedData(
       id: 'preview',
       userId: userId,
       level: nextTier,
       currentPoints: nextTier.minPoints,
     );
-    
+
     return {
       'tier_info': {
         'level': nextTier.level,
@@ -496,12 +511,12 @@ class TierModel extends UserTier {
     final currentBenefits = benefits;
     final nextBenefits = nextTierModel.benefits;
     final newBenefits = <String, dynamic>{};
-    
+
     for (final entry in nextBenefits.entries) {
       final key = entry.key;
       final nextValue = entry.value;
       final currentValue = currentBenefits[key];
-      
+
       if (currentValue != nextValue) {
         newBenefits[key] = {
           'current_value': currentValue,
@@ -511,7 +526,7 @@ class TierModel extends UserTier {
         };
       }
     }
-    
+
     return newBenefits;
   }
 
@@ -519,12 +534,12 @@ class TierModel extends UserTier {
     final currentPrivileges = privileges;
     final nextPrivileges = nextTierModel.privileges;
     final newPrivileges = <String, dynamic>{};
-    
+
     for (final entry in nextPrivileges.entries) {
       final key = entry.key;
       final nextValue = entry.value;
       final currentValue = currentPrivileges[key] ?? false;
-      
+
       if (nextValue == true && currentValue != true) {
         newPrivileges[key] = {
           'description': _getPrivilegeDescription(key),
@@ -532,7 +547,7 @@ class TierModel extends UserTier {
         };
       }
     }
-    
+
     return newPrivileges;
   }
 
@@ -544,9 +559,11 @@ class TierModel extends UserTier {
       level: otherLevel,
       currentPoints: otherLevel.minPoints,
     );
-    
+
     return {
-      'comparison_type': level.level > otherLevel.level ? 'upgrade' : 'downgrade',
+      'comparison_type': level.level > otherLevel.level
+          ? 'upgrade'
+          : 'downgrade',
       'level_difference': (level.level - otherLevel.level).abs(),
       'point_difference': (currentPoints - otherLevel.minPoints).abs(),
       'benefit_differences': _compareBenefits(otherTierModel),
@@ -563,11 +580,11 @@ class TierModel extends UserTier {
   Map<String, dynamic> _compareBenefits(TierModel other) {
     final differences = <String, dynamic>{};
     final allKeys = {...benefits.keys, ...other.benefits.keys};
-    
+
     for (final key in allKeys) {
       final currentValue = benefits[key];
       final otherValue = other.benefits[key];
-      
+
       if (currentValue != otherValue) {
         differences[key] = {
           'current': currentValue,
@@ -577,18 +594,18 @@ class TierModel extends UserTier {
         };
       }
     }
-    
+
     return differences;
   }
 
   Map<String, dynamic> _comparePrivileges(TierModel other) {
     final differences = <String, dynamic>{};
     final allKeys = {...privileges.keys, ...other.privileges.keys};
-    
+
     for (final key in allKeys) {
       final currentValue = privileges[key] ?? false;
       final otherValue = other.privileges[key] ?? false;
-      
+
       if (currentValue != otherValue) {
         differences[key] = {
           'current': currentValue,
@@ -598,7 +615,7 @@ class TierModel extends UserTier {
         };
       }
     }
-    
+
     return differences;
   }
 
@@ -613,6 +630,6 @@ class TierModel extends UserTier {
   @override
   String toString() {
     return 'TierModel(id: $id, userId: $userId, level: ${level.displayName}, '
-           'points: $currentPoints, progress: ${calculateProgress().toStringAsFixed(1)}%)';
+        'points: $currentPoints, progress: ${calculateProgress().toStringAsFixed(1)}%)';
   }
 }

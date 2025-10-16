@@ -39,11 +39,15 @@ class GroupMembers {
       can_invite_members: json['can_invite_members'],
       can_moderate_content: json['can_moderate_content'],
       contribution_score: json['contribution_score'],
-      last_active: (json['last_active'] == null ? null : DateTime.parse(json['last_active'] as String)),
+      last_active: (json['last_active'] == null
+          ? null
+          : DateTime.parse(json['last_active'] as String)),
       joined_at: json['joined_at'] != null
           ? DateTime.parse(json['joined_at'] as String)
           : DateTime.now(),
-      left_at: (json['left_at'] == null ? null : DateTime.parse(json['left_at'] as String)),
+      left_at: (json['left_at'] == null
+          ? null
+          : DateTime.parse(json['left_at'] as String)),
     );
   }
 

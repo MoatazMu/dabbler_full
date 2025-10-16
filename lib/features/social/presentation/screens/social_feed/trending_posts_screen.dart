@@ -13,14 +13,15 @@ class TrendingPostsScreen extends ConsumerStatefulWidget {
   const TrendingPostsScreen({super.key});
 
   @override
-  ConsumerState<TrendingPostsScreen> createState() => _TrendingPostsScreenState();
+  ConsumerState<TrendingPostsScreen> createState() =>
+      _TrendingPostsScreenState();
 }
 
 class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
-  
+
   TrendingCategory _selectedCategory = TrendingCategory.all;
   TrendingTimeRange _selectedTimeRange = TrendingTimeRange.today;
 
@@ -29,7 +30,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _scrollController.addListener(_onScroll);
-    
+
     // Load initial trending posts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTrendingPosts();
@@ -52,10 +53,12 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   }
 
   void _loadTrendingPosts() {
-    ref.read(socialFeedControllerProvider.notifier).loadTrendingPosts(
-      category: _selectedCategory,
-      timeRange: _selectedTimeRange,
-    );
+    ref
+        .read(socialFeedControllerProvider.notifier)
+        .loadTrendingPosts(
+          category: _selectedCategory,
+          timeRange: _selectedTimeRange,
+        );
   }
 
   void _loadMoreTrendingPosts() {
@@ -63,13 +66,15 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   }
 
   Future<void> _onRefresh() async {
-    await ref.read(socialFeedControllerProvider.notifier).refreshTrendingPosts();
+    await ref
+        .read(socialFeedControllerProvider.notifier)
+        .refreshTrendingPosts();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: _buildAppBar(context, theme),
@@ -88,7 +93,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
               _loadTrendingPosts();
             },
           ),
-          
+
           // Tab bar
           TabBar(
             controller: _tabController,
@@ -99,7 +104,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
               Tab(text: 'Metrics'),
             ],
           ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
@@ -156,7 +161,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
 
   Widget _buildTrendingPosts(BuildContext context, ThemeData theme) {
     final trendingState = ref.watch(socialFeedControllerProvider);
-    
+
     if (trendingState.isLoading && trendingState.trendingPosts.isEmpty) {
       return const Center(child: LoadingWidget());
     }
@@ -223,8 +228,9 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
                 child: Center(child: LoadingWidget()),
               );
             }
-            
-            if (!trendingState.hasMoreTrending && trendingState.trendingPosts.isNotEmpty) {
+
+            if (!trendingState.hasMoreTrending &&
+                trendingState.trendingPosts.isNotEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(16),
                 child: Center(
@@ -237,18 +243,21 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
                 ),
               );
             }
-            
+
             return const SizedBox.shrink();
           }
-          
+
           final post = trendingState.trendingPosts[index];
-          
+
           return Column(
             children: [
               // Trending rank indicator
               Container(
                 margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
@@ -279,7 +288,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
                   ],
                 ),
               ),
-              
+
               // Post card
               PostCard(
                 post: post,
@@ -299,8 +308,10 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   Widget _buildTrendingHashtags(BuildContext context, ThemeData theme) {
     return Consumer(
       builder: (context, ref, child) {
-        final hashtagsAsync = ref.watch(trendingHashtagsProvider(_selectedTimeRange));
-        
+        final hashtagsAsync = ref.watch(
+          trendingHashtagsProvider(_selectedTimeRange),
+        );
+
         return hashtagsAsync.when(
           data: (hashtags) => TrendingHashtagsWidget(
             hashtags: hashtags,
@@ -310,7 +321,8 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
           error: (error, stack) => Center(
             child: core_widgets.ErrorWidget(
               message: error.toString(),
-              onRetry: () => ref.refresh(trendingHashtagsProvider(_selectedTimeRange)),
+              onRetry: () =>
+                  ref.refresh(trendingHashtagsProvider(_selectedTimeRange)),
             ),
           ),
         );
@@ -321,8 +333,10 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   Widget _buildTopContributors(BuildContext context, ThemeData theme) {
     return Consumer(
       builder: (context, ref, child) {
-        final contributorsAsync = ref.watch(topContributorsProvider(_selectedTimeRange));
-        
+        final contributorsAsync = ref.watch(
+          topContributorsProvider(_selectedTimeRange),
+        );
+
         return contributorsAsync.when(
           data: (contributors) => TopContributorsWidget(
             contributors: contributors,
@@ -332,7 +346,8 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
           error: (error, stack) => Center(
             child: core_widgets.ErrorWidget(
               message: error.toString(),
-              onRetry: () => ref.refresh(topContributorsProvider(_selectedTimeRange)),
+              onRetry: () =>
+                  ref.refresh(topContributorsProvider(_selectedTimeRange)),
             ),
           ),
         );
@@ -343,17 +358,18 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   Widget _buildEngagementMetrics(BuildContext context, ThemeData theme) {
     return Consumer(
       builder: (context, ref, child) {
-        final metricsAsync = ref.watch(engagementMetricsProvider(_selectedTimeRange));
-        
+        final metricsAsync = ref.watch(
+          engagementMetricsProvider(_selectedTimeRange),
+        );
+
         return metricsAsync.when(
-          data: (metrics) => EngagementMetricsWidget(
-            metrics: metrics,
-          ),
+          data: (metrics) => EngagementMetricsWidget(metrics: metrics),
           loading: () => const Center(child: LoadingWidget()),
           error: (error, stack) => Center(
             child: core_widgets.ErrorWidget(
               message: error.toString(),
-              onRetry: () => ref.refresh(engagementMetricsProvider(_selectedTimeRange)),
+              onRetry: () =>
+                  ref.refresh(engagementMetricsProvider(_selectedTimeRange)),
             ),
           ),
         );
@@ -438,7 +454,9 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
             ),
             CheckboxListTile(
               title: const Text('Personalized trending'),
-              subtitle: const Text('Show trending content based on your interests'),
+              subtitle: const Text(
+                'Show trending content based on your interests',
+              ),
               value: true, // Get from settings
               onChanged: (value) {
                 // Update settings
@@ -446,7 +464,9 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
             ),
             CheckboxListTile(
               title: const Text('Hide seen posts'),
-              subtitle: const Text('Don\'t show posts you\'ve already interacted with'),
+              subtitle: const Text(
+                'Don\'t show posts you\'ve already interacted with',
+              ),
               value: false, // Get from settings
               onChanged: (value) {
                 // Update settings
@@ -477,10 +497,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   }
 
   void _handlePostLike(String postId) {
-    ref.read(socialFeedControllerProvider.notifier).reactToPost(
-      postId, 
-      'like',
-    );
+    ref.read(socialFeedControllerProvider.notifier).reactToPost(postId, 'like');
   }
 
   void _handlePostShare(dynamic post) {
@@ -499,11 +516,7 @@ class _TrendingPostsScreenState extends ConsumerState<TrendingPostsScreen>
   }
 
   void _navigateToProfile(String userId) {
-    Navigator.pushNamed(
-      context,
-      '/profile',
-      arguments: {'userId': userId},
-    );
+    Navigator.pushNamed(context, '/profile', arguments: {'userId': userId});
   }
 
   void _navigateToHashtag(String hashtag) {

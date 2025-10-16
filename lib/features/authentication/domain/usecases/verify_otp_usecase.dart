@@ -4,7 +4,8 @@ import '../entities/auth_session.dart';
 import '../repositories/auth_repository.dart';
 import 'usecase.dart';
 
-class VerifyOtpUseCase extends UseCase<Either<Failure, AuthSession>, VerifyOtpParams> {
+class VerifyOtpUseCase
+    extends UseCase<Either<Failure, AuthSession>, VerifyOtpParams> {
   final AuthRepository repository;
   VerifyOtpUseCase(this.repository);
 

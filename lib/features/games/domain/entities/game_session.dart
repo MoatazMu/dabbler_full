@@ -64,7 +64,8 @@ class Score {
 
 class GameEvent {
   final String id;
-  final String type; // 'goal', 'point', 'penalty', 'substitution', 'timeout', etc.
+  final String
+  type; // 'goal', 'point', 'penalty', 'substitution', 'timeout', etc.
   final DateTime timestamp;
   final String? playerId;
   final String? playerName;
@@ -111,13 +112,13 @@ class GameSession {
   final String gameId;
   final String venueId;
   final String? bookingId;
-  
+
   // Basic session info
   final SessionType type;
   final SessionStatus status;
   final String? description;
   final String? rules; // Special rules for this session
-  
+
   // Timing details
   final DateTime scheduledStartTime;
   final DateTime scheduledEndTime;
@@ -126,64 +127,64 @@ class GameSession {
   final int? scheduledDurationMinutes;
   final List<DateTime> pausedTimes; // Track pause/resume times
   final List<DateTime> resumedTimes;
-  
+
   // Environmental conditions
   final WeatherCondition? weatherCondition;
   final double? temperature; // In Celsius
   final double? humidity; // Percentage
   final String? windSpeed; // e.g., "5 km/h"
   final String? surfaceCondition; // 'excellent', 'good', 'fair', 'poor'
-  
+
   // Scoring and competition
   final List<Score> scores;
   final String? winnerId; // Team or player ID
   final String? winnerName;
   final bool isDraw;
   final String? gameResult; // Final score summary
-  
+
   // Game events and timeline
   final List<GameEvent> events;
   final List<String> timeouts; // Track timeouts called
   final int? currentPeriod; // Current set, quarter, half, etc.
   final int? totalPeriods;
-  
+
   // Equipment and setup
   final List<String> requiredEquipment;
   final List<String> providedEquipment;
   final String? equipmentNotes;
   final String? setupNotes;
-  
+
   // Officials and supervision
   final String? refereeId;
   final String? refereeName;
   final List<String> officialIds;
   final String? supervisorId;
-  
+
   // Media and documentation
   final List<String> photos; // Photo URLs
   final List<String> videos; // Video URLs
   final String? streamingUrl; // Live stream if available
   final bool isLiveStreaming;
-  
+
   // Player participation tracking
   final List<String> checkedInPlayerIds;
   final List<String> noShowPlayerIds;
   final List<String> injuredPlayerIds;
   final Map<String, DateTime> playerCheckInTimes;
   final Map<String, DateTime> playerCheckOutTimes;
-  
+
   // Session quality and feedback
   final double? sessionRating; // Overall session rating (1-5)
   final String? sessionFeedback;
   final List<String> issues; // Any problems during the session
   final List<String> highlights; // Notable moments
-  
+
   // Cancellation/Abandonment details
   final String? cancellationReason;
   final DateTime? cancelledAt;
   final String? cancelledBy;
   final String? abandonmentReason;
-  
+
   // Administrative details
   final String? createdBy; // User ID who created the session
   final DateTime createdAt;
@@ -254,28 +255,31 @@ class GameSession {
   /// Get actual session duration in minutes
   int? get actualDurationMinutes {
     if (actualStartTime == null || actualEndTime == null) return null;
-    
+
     var duration = actualEndTime!.difference(actualStartTime!);
-    
+
     // Subtract paused time
     for (int i = 0; i < pausedTimes.length; i++) {
       final pausedAt = pausedTimes[i];
-      final resumedAt = i < resumedTimes.length ? resumedTimes[i] : actualEndTime!;
+      final resumedAt = i < resumedTimes.length
+          ? resumedTimes[i]
+          : actualEndTime!;
       duration = duration - resumedAt.difference(pausedAt);
     }
-    
+
     return duration.inMinutes;
   }
 
   /// Get scheduled duration in minutes
   int get scheduledDurationMinutesCalculated {
-    return scheduledDurationMinutes ?? 
-           scheduledEndTime.difference(scheduledStartTime).inMinutes;
+    return scheduledDurationMinutes ??
+        scheduledEndTime.difference(scheduledStartTime).inMinutes;
   }
 
   /// Check if session is currently active
   bool get isActive {
-    return status == SessionStatus.inProgress || status == SessionStatus.overtime;
+    return status == SessionStatus.inProgress ||
+        status == SessionStatus.overtime;
   }
 
   /// Check if session is currently paused
@@ -285,7 +289,8 @@ class GameSession {
 
   /// Check if session can be started
   bool canStart() {
-    return status == SessionStatus.scheduled || status == SessionStatus.preparing;
+    return status == SessionStatus.scheduled ||
+        status == SessionStatus.preparing;
   }
 
   /// Check if session can be paused
@@ -300,21 +305,22 @@ class GameSession {
 
   /// Check if session can be completed
   bool canComplete() {
-    return status == SessionStatus.inProgress || 
-           status == SessionStatus.paused || 
-           status == SessionStatus.overtime;
+    return status == SessionStatus.inProgress ||
+        status == SessionStatus.paused ||
+        status == SessionStatus.overtime;
   }
 
   /// Check if session can be cancelled
   bool canCancel() {
-    return status == SessionStatus.scheduled || status == SessionStatus.preparing;
+    return status == SessionStatus.scheduled ||
+        status == SessionStatus.preparing;
   }
 
   /// Check if session can be abandoned (during play)
   bool canAbandon() {
-    return status == SessionStatus.inProgress || 
-           status == SessionStatus.paused || 
-           status == SessionStatus.overtime;
+    return status == SessionStatus.inProgress ||
+        status == SessionStatus.paused ||
+        status == SessionStatus.overtime;
   }
 
   /// Get session status display text
@@ -409,7 +415,9 @@ class GameSession {
   /// Check if session is running late
   bool get isRunningLate {
     if (status != SessionStatus.scheduled) return false;
-    return DateTime.now().isAfter(scheduledStartTime.add(const Duration(minutes: 15)));
+    return DateTime.now().isAfter(
+      scheduledStartTime.add(const Duration(minutes: 15)),
+    );
   }
 
   /// Time until session starts
@@ -425,11 +433,11 @@ class GameSession {
   double? get progressPercentage {
     if (actualStartTime == null) return 0.0;
     if (actualEndTime != null) return 100.0;
-    
+
     final now = DateTime.now();
     final elapsed = now.difference(actualStartTime!).inMinutes;
     final scheduled = scheduledDurationMinutesCalculated;
-    
+
     return (elapsed / scheduled * 100).clamp(0.0, 100.0);
   }
 
@@ -438,8 +446,8 @@ class GameSession {
     int totalPaused = 0;
     for (int i = 0; i < pausedTimes.length; i++) {
       final pausedAt = pausedTimes[i];
-      final resumedAt = i < resumedTimes.length 
-          ? resumedTimes[i] 
+      final resumedAt = i < resumedTimes.length
+          ? resumedTimes[i]
           : DateTime.now(); // If still paused
       totalPaused += resumedAt.difference(pausedAt).inMinutes;
     }
@@ -447,24 +455,33 @@ class GameSession {
   }
 
   /// Add a score update
-  GameSession addScore(String teamOrPlayerId, String teamOrPlayerName, int points, {Map<String, dynamic>? stats}) {
-    final existingScoreIndex = scores.indexWhere((s) => s.teamOrPlayerId == teamOrPlayerId);
+  GameSession addScore(
+    String teamOrPlayerId,
+    String teamOrPlayerName,
+    int points, {
+    Map<String, dynamic>? stats,
+  }) {
+    final existingScoreIndex = scores.indexWhere(
+      (s) => s.teamOrPlayerId == teamOrPlayerId,
+    );
     List<Score> updatedScores = List.from(scores);
-    
+
     if (existingScoreIndex >= 0) {
       updatedScores[existingScoreIndex] = scores[existingScoreIndex].copyWith(
         points: points,
         stats: stats,
       );
     } else {
-      updatedScores.add(Score(
-        teamOrPlayerId: teamOrPlayerId,
-        teamOrPlayerName: teamOrPlayerName,
-        points: points,
-        stats: stats ?? {},
-      ));
+      updatedScores.add(
+        Score(
+          teamOrPlayerId: teamOrPlayerId,
+          teamOrPlayerName: teamOrPlayerName,
+          points: points,
+          stats: stats ?? {},
+        ),
+      );
     }
-    
+
     return copyWith(scores: updatedScores);
   }
 
@@ -476,10 +493,11 @@ class GameSession {
 
   /// Check in a player
   GameSession checkInPlayer(String playerId) {
-    final updatedCheckedIn = List<String>.from(checkedInPlayerIds)..add(playerId);
+    final updatedCheckedIn = List<String>.from(checkedInPlayerIds)
+      ..add(playerId);
     final updatedCheckInTimes = Map<String, DateTime>.from(playerCheckInTimes);
     updatedCheckInTimes[playerId] = DateTime.now();
-    
+
     return copyWith(
       checkedInPlayerIds: updatedCheckedIn,
       playerCheckInTimes: updatedCheckInTimes,
@@ -559,7 +577,8 @@ class GameSession {
       scheduledEndTime: scheduledEndTime ?? this.scheduledEndTime,
       actualStartTime: actualStartTime ?? this.actualStartTime,
       actualEndTime: actualEndTime ?? this.actualEndTime,
-      scheduledDurationMinutes: scheduledDurationMinutes ?? this.scheduledDurationMinutes,
+      scheduledDurationMinutes:
+          scheduledDurationMinutes ?? this.scheduledDurationMinutes,
       pausedTimes: pausedTimes ?? this.pausedTimes,
       resumedTimes: resumedTimes ?? this.resumedTimes,
       weatherCondition: weatherCondition ?? this.weatherCondition,

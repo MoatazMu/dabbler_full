@@ -1,5 +1,7 @@
 enum ProfileVisibility { public, friends, private }
+
 enum CommunicationPreference { anyone, friendsOnly, organizersOnly, none }
+
 enum DataSharingLevel { full, limited, minimal }
 
 class PrivacySettings {
@@ -211,12 +213,14 @@ class PrivacySettings {
       showAchievements: showAchievements ?? this.showAchievements,
       messagePreference: messagePreference ?? this.messagePreference,
       gameInvitePreference: gameInvitePreference ?? this.gameInvitePreference,
-      allowLocationTracking: allowLocationTracking ?? this.allowLocationTracking,
+      allowLocationTracking:
+          allowLocationTracking ?? this.allowLocationTracking,
       allowDataAnalytics: allowDataAnalytics ?? this.allowDataAnalytics,
       dataSharingLevel: dataSharingLevel ?? this.dataSharingLevel,
       blockedUsers: blockedUsers ?? this.blockedUsers,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
-      allowGameRecommendations: allowGameRecommendations ?? this.allowGameRecommendations,
+      allowGameRecommendations:
+          allowGameRecommendations ?? this.allowGameRecommendations,
     );
   }
 
@@ -252,7 +256,8 @@ class PrivacySettings {
       ),
       blockedUsers: List<String>.from(json['blockedUsers'] as List? ?? []),
       showOnlineStatus: json['showOnlineStatus'] as bool? ?? true,
-      allowGameRecommendations: json['allowGameRecommendations'] as bool? ?? true,
+      allowGameRecommendations:
+          json['allowGameRecommendations'] as bool? ?? true,
     );
   }
 

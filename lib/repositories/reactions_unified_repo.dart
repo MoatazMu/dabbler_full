@@ -7,17 +7,21 @@ class ReactionsUnifiedRepo {
   ReactionsUnifiedRepo(this._db);
 
   Future<List<ReactionsUnified>> list({int limit = 50, int offset = 0}) async {
-    final res = await _db.from('reactions_unified')
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', ascending: false);
+    final res = await _db
+        .from('reactions_unified')
+        .select('*')
+        .range(offset, offset + limit - 1)
+        .order('created_at', ascending: false);
     final list = (res as List).cast<Map<String, dynamic>>();
     return list.map(ReactionsUnified.fromJson).toList();
   }
 
   Future<ReactionsUnified?> getById(dynamic id) async {
-    final res = await _db.from('reactions_unified')
-      .select('*').eq('id', id).maybeSingle();
+    final res = await _db
+        .from('reactions_unified')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
     if (res == null) return null;
     return ReactionsUnified.fromJson(res);
   }

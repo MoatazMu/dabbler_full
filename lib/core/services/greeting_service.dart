@@ -81,29 +81,34 @@ class GreetingService {
     final timeOfDay = _getTimeOfDay();
 
     // Get base greeting
-    final baseGreeting = _getBaseGreeting(currentLanguage, timeOfDay, currentTone);
-    
+    final baseGreeting = _getBaseGreeting(
+      currentLanguage,
+      timeOfDay,
+      currentTone,
+    );
+
     // Add personalized name if available
     if (currentUserName.isNotEmpty && currentUserName != 'Player') {
       return '$baseGreeting, $currentUserName!';
     }
-    
+
     return '$baseGreeting!';
   }
 
   // Get cached greeting or generate new one
   String getGreeting() {
     // Check if we have a valid cached greeting
-    if (_userService.isGreetingCacheValid && _userService.cachedGreeting != null) {
+    if (_userService.isGreetingCacheValid &&
+        _userService.cachedGreeting != null) {
       return _userService.cachedGreeting!;
     }
 
     // Generate new greeting
     final greeting = getPersonalizedGreeting();
-    
+
     // Cache the greeting (we'll need to add a public method for this)
     _cacheGreeting(greeting);
-    
+
     return greeting;
   }
 
@@ -112,7 +117,10 @@ class GreetingService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('greeting_cache', greeting);
-      await prefs.setString('last_greeting_update', DateTime.now().toIso8601String());
+      await prefs.setString(
+        'last_greeting_update',
+        DateTime.now().toIso8601String(),
+      );
     } catch (e) {
       // Handle storage error
     }
@@ -121,7 +129,7 @@ class GreetingService {
   // Get time of day
   String _getTimeOfDay() {
     final hour = DateTime.now().hour;
-    
+
     if (hour >= 5 && hour < 12) {
       return 'morning';
     } else if (hour >= 12 && hour < 17) {
@@ -136,7 +144,7 @@ class GreetingService {
   // Get default tone based on time and user preferences
   String _getDefaultTone() {
     final hour = DateTime.now().hour;
-    
+
     // Morning: more energetic
     if (hour >= 5 && hour < 10) {
       return 'energetic';
@@ -154,21 +162,26 @@ class GreetingService {
   // Get base greeting based on language and time
   String _getBaseGreeting(String language, String timeOfDay, String tone) {
     final greetings = language == 'ar' ? _arabicGreetings : _englishGreetings;
-    
+
     final timeGreetings = greetings[timeOfDay];
     if (timeGreetings == null) {
       // Fallback to friendly tone
       return language == 'ar' ? 'أهلاً' : 'Hello';
     }
-    
+
     return timeGreetings[tone] ?? timeGreetings['friendly']!;
   }
 
   // Get greeting for specific time (for testing)
-  String getGreetingForTime(DateTime time, {String? userName, String? language, String? tone}) {
+  String getGreetingForTime(
+    DateTime time, {
+    String? userName,
+    String? language,
+    String? tone,
+  }) {
     final hour = time.hour;
     String timeOfDay;
-    
+
     if (hour >= 5 && hour < 12) {
       timeOfDay = 'morning';
     } else if (hour >= 12 && hour < 17) {
@@ -183,12 +196,16 @@ class GreetingService {
     final currentUserName = userName ?? _userService.getUserDisplayName();
     final currentTone = tone ?? _getDefaultTone();
 
-    final baseGreeting = _getBaseGreeting(currentLanguage, timeOfDay, currentTone);
-    
+    final baseGreeting = _getBaseGreeting(
+      currentLanguage,
+      timeOfDay,
+      currentTone,
+    );
+
     if (currentUserName.isNotEmpty && currentUserName != 'Player') {
       return '$baseGreeting, $currentUserName!';
     }
-    
+
     return '$baseGreeting!';
   }
 
@@ -223,7 +240,7 @@ class GreetingService {
     };
 
     final previews = <String, String>{};
-    
+
     for (final entry in times.entries) {
       previews[entry.key] = getGreetingForTime(
         entry.value,
@@ -234,4 +251,4 @@ class GreetingService {
 
     return previews;
   }
-} 
+}

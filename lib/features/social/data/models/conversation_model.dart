@@ -105,7 +105,7 @@ class ConversationModel extends Conversation {
 
     // Parse conversation settings
     ConversationSettings settings = ConversationSettings.fromJson(
-      json['settings'] ?? {}
+      json['settings'] ?? {},
     );
 
     return ConversationModel(
@@ -153,7 +153,7 @@ class ConversationModel extends Conversation {
     // Add participant roles
     if (participantRoles.isNotEmpty) {
       json['participant_roles'] = participantRoles.map(
-        (userId, role) => MapEntry(userId, _participantRoleToString(role))
+        (userId, role) => MapEntry(userId, _participantRoleToString(role)),
       );
     }
 
@@ -172,9 +172,7 @@ class ConversationModel extends Conversation {
 
   /// Create JSON for creating new conversation
   Map<String, dynamic> toCreateJson() {
-    final json = <String, dynamic>{
-      'type': _conversationTypeToString(type),
-    };
+    final json = <String, dynamic>{'type': _conversationTypeToString(type)};
 
     if (name != null) json['name'] = name;
     if (description != null) json['description'] = description;
@@ -259,7 +257,10 @@ class ConversationModel extends Conversation {
   }
 
   /// Update last message and unread count
-  ConversationModel updateLastMessage(ChatMessageModel message, {int? newUnreadCount}) {
+  ConversationModel updateLastMessage(
+    ChatMessageModel message, {
+    int? newUnreadCount,
+  }) {
     return copyWith(
       lastMessage: message,
       updatedAt: message.sentAt,
@@ -273,7 +274,10 @@ class ConversationModel extends Conversation {
   }
 
   /// Add participant to conversation
-  ConversationModel addParticipant(ConversationParticipant participant, {ParticipantRole role = ParticipantRole.member}) {
+  ConversationModel addParticipant(
+    ConversationParticipant participant, {
+    ParticipantRole role = ParticipantRole.member,
+  }) {
     final newParticipants = [...participants, participant];
     final newRoles = Map<String, ParticipantRole>.from(participantRoles);
     newRoles[participant.id] = role;
@@ -287,7 +291,9 @@ class ConversationModel extends Conversation {
 
   /// Remove participant from conversation
   ConversationModel removeParticipant(String participantId) {
-    final newParticipants = participants.where((p) => p.id != participantId).toList();
+    final newParticipants = participants
+        .where((p) => p.id != participantId)
+        .toList();
     final newRoles = Map<String, ParticipantRole>.from(participantRoles);
     newRoles.remove(participantId);
 
@@ -299,14 +305,14 @@ class ConversationModel extends Conversation {
   }
 
   /// Update participant role
-  ConversationModel updateParticipantRole(String participantId, ParticipantRole role) {
+  ConversationModel updateParticipantRole(
+    String participantId,
+    ParticipantRole role,
+  ) {
     final newRoles = Map<String, ParticipantRole>.from(participantRoles);
     newRoles[participantId] = role;
 
-    return copyWith(
-      participantRoles: newRoles,
-      updatedAt: DateTime.now(),
-    );
+    return copyWith(participantRoles: newRoles, updatedAt: DateTime.now());
   }
 
   /// Check if user is participant
@@ -332,17 +338,19 @@ class ConversationModel extends Conversation {
   bool canUserSendMessages(String userId) {
     if (!isParticipant(userId)) return false;
     if (!isActive) return false;
-    
+
     final role = getParticipantRole(userId);
-    return role != ParticipantRole.member || !settings.membersCannotSendMessages;
+    return role != ParticipantRole.member ||
+        !settings.membersCannotSendMessages;
   }
 
   /// Check if user can add participants
   bool canUserAddParticipants(String userId) {
     final role = getParticipantRole(userId);
-    return role == ParticipantRole.owner || 
-           role == ParticipantRole.admin || 
-           (!settings.onlyAdminsCanAddParticipants && role == ParticipantRole.member);
+    return role == ParticipantRole.owner ||
+        role == ParticipantRole.admin ||
+        (!settings.onlyAdminsCanAddParticipants &&
+            role == ParticipantRole.member);
   }
 
   /// Check if user can remove participants
@@ -393,7 +401,9 @@ class ConversationModel extends Conversation {
           (p) => p.id != currentUserId,
           orElse: () => participants.first,
         );
-        return otherParticipant.avatar.isNotEmpty ? otherParticipant.avatar : null;
+        return otherParticipant.avatar.isNotEmpty
+            ? otherParticipant.avatar
+            : null;
       }
     }
 
@@ -504,19 +514,18 @@ class ConversationParticipant {
   factory ConversationParticipant.fromJson(Map<String, dynamic> json) {
     return ConversationParticipant(
       id: json['id'] ?? json['user_id'] ?? '',
-      name: json['name'] ?? 
-            json['full_name'] ?? 
-            json['username'] ?? 
-            'Unknown User',
-      avatar: json['avatar'] ?? 
-              json['avatar_url'] ?? 
-              json['profile_picture'] ?? 
-              '',
-      verified: json['verified'] == true || 
-               json['is_verified'] == true,
-      isOnline: json['is_online'] == true || 
-               json['online'] == true,
-      lastSeen: json['last_seen'] != null ? _parseDateTime(json['last_seen']) : null,
+      name:
+          json['name'] ??
+          json['full_name'] ??
+          json['username'] ??
+          'Unknown User',
+      avatar:
+          json['avatar'] ?? json['avatar_url'] ?? json['profile_picture'] ?? '',
+      verified: json['verified'] == true || json['is_verified'] == true,
+      isOnline: json['is_online'] == true || json['online'] == true,
+      lastSeen: json['last_seen'] != null
+          ? _parseDateTime(json['last_seen'])
+          : null,
       joinedAt: _parseDateTime(json['joined_at'] ?? json['created_at']),
       profile: json['profile'] as Map<String, dynamic>?,
     );
@@ -580,7 +589,7 @@ class GroupChatMetadata {
       maxParticipants: json['max_participants'] ?? 100,
       inviteLinksEnabled: json['invite_links_enabled'] == true,
       inviteCode: json['invite_code'],
-      inviteCodeExpiry: json['invite_code_expiry'] != null 
+      inviteCodeExpiry: json['invite_code_expiry'] != null
           ? ConversationParticipant._parseDateTime(json['invite_code_expiry'])
           : null,
       tags: tags,
@@ -633,7 +642,8 @@ class ConversationSettings {
 
     return ConversationSettings(
       muteNotifications: json['mute_notifications'] == true,
-      onlyAdminsCanAddParticipants: json['only_admins_can_add_participants'] == true,
+      onlyAdminsCanAddParticipants:
+          json['only_admins_can_add_participants'] == true,
       membersCannotSendMessages: json['members_cannot_send_messages'] == true,
       readReceiptsEnabled: json['read_receipts_enabled'] ?? true,
       typingIndicatorsEnabled: json['typing_indicators_enabled'] ?? true,

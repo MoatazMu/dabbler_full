@@ -6,22 +6,22 @@ import '../../../utils/constants/sports_constants.dart';
 class PlayerCountSelector extends StatefulWidget {
   /// Current minimum player count
   final int minPlayers;
-  
+
   /// Current maximum player count
   final int maxPlayers;
-  
+
   /// Sport type for validation limits
   final SportType? sportType;
-  
+
   /// Called when player counts change
   final Function(int minPlayers, int maxPlayers)? onChanged;
-  
+
   /// Whether the selector is enabled
   final bool enabled;
-  
+
   /// Custom validation function
   final String? Function(int min, int max)? validator;
-  
+
   /// Show validation errors
   final bool showValidation;
 
@@ -88,11 +88,11 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
 
   void _validateAndUpdate(int min, int max) {
     String? error = _validatePlayerCounts(min, max);
-    
+
     setState(() {
       _validationError = error;
     });
-    
+
     if (error == null) {
       widget.onChanged?.call(min, max);
     }
@@ -113,12 +113,12 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
     // Sport-specific validation
     if (widget.sportType != null) {
       final sportConfig = SportsConstants.getConfiguration(widget.sportType!);
-      
+
       if (sportConfig != null) {
         if (min < sportConfig.minPlayers) {
           return 'Minimum players for ${widget.sportType!.displayName} is ${sportConfig.minPlayers}';
         }
-        
+
         if (max > sportConfig.maxPlayers) {
           return 'Maximum players for ${widget.sportType!.displayName} is ${sportConfig.maxPlayers}';
         }
@@ -131,7 +131,7 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -150,9 +150,9 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
             ],
           ],
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Min/Max input row
         Row(
           children: [
@@ -164,9 +164,9 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
                 enabled: widget.enabled,
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Dash separator
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -177,9 +177,9 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Maximum players
             Expanded(
               child: _buildPlayerCountField(
@@ -190,11 +190,11 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
             ),
           ],
         ),
-        
+
         // Quick selection buttons
         const SizedBox(height: 12),
         _buildQuickSelectionButtons(),
-        
+
         // Validation error
         if (widget.showValidation && _validationError != null) ...[
           const SizedBox(height: 8),
@@ -215,7 +215,7 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
     required bool enabled,
   }) {
     final theme = Theme.of(context);
-    
+
     return TextField(
       controller: controller,
       enabled: enabled,
@@ -226,27 +226,23 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
       ],
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 16,
         ),
       ),
       textAlign: TextAlign.center,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-      ),
+      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 
   Widget _buildSportLimitsChip(ThemeData theme) {
     if (widget.sportType == null) return const SizedBox.shrink();
-    
+
     final sportConfig = SportsConstants.getConfiguration(widget.sportType!);
     if (sportConfig == null) return const SizedBox.shrink();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -265,30 +261,30 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
 
   Widget _buildQuickSelectionButtons() {
     if (widget.sportType == null) return const SizedBox.shrink();
-    
+
     final sportConfig = SportsConstants.getConfiguration(widget.sportType!);
     if (sportConfig == null) return const SizedBox.shrink();
-    
+
     final theme = Theme.of(context);
-    
+
     // Generate common player count options
     final commonCounts = <String, List<int>>{};
-    
+
     // Typical range
     final typicalMin = sportConfig.minPlayers;
     final typicalMax = sportConfig.maxPlayers;
     commonCounts['Typical'] = [typicalMin, typicalMax];
-    
+
     // Small group
     if (typicalMin > 2) {
       commonCounts['Small'] = [2, typicalMin];
     }
-    
+
     // Large group
     if (typicalMax < 20) {
       commonCounts['Large'] = [typicalMax, (typicalMax * 1.5).round()];
     }
-    
+
     return Wrap(
       spacing: 8,
       children: commonCounts.entries.map((entry) {
@@ -296,15 +292,19 @@ class _PlayerCountSelectorState extends State<PlayerCountSelector> {
         final range = entry.value;
         final min = range[0];
         final max = range[1];
-        
+
         return ActionChip(
           label: Text('$label ($min-$max)'),
-          onPressed: widget.enabled ? () {
-            _minController.text = min.toString();
-            _maxController.text = max.toString();
-            _validateAndUpdate(min, max);
-          } : null,
-          backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          onPressed: widget.enabled
+              ? () {
+                  _minController.text = min.toString();
+                  _maxController.text = max.toString();
+                  _validateAndUpdate(min, max);
+                }
+              : null,
+          backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.5,
+          ),
           labelStyle: theme.textTheme.bodySmall,
         );
       }).toList(),
@@ -334,7 +334,7 @@ class PlayerCountStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       children: [
         Text(
@@ -343,9 +343,9 @@ class PlayerCountStepper extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -360,9 +360,9 @@ class PlayerCountStepper extends StatelessWidget {
                 foregroundColor: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Value display
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -377,9 +377,9 @@ class PlayerCountStepper extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Increase button
             IconButton(
               onPressed: enabled && value < maxValue
@@ -393,7 +393,7 @@ class PlayerCountStepper extends StatelessWidget {
             ),
           ],
         ),
-        
+
         // Range indicator
         const SizedBox(height: 4),
         Text(

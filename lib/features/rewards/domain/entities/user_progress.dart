@@ -4,10 +4,13 @@ import 'achievement.dart';
 enum ProgressStatus {
   /// Not started yet
   notStarted,
+
   /// In progress
   inProgress,
+
   /// Completed successfully
   completed,
+
   /// Expired without completion
   expired,
 }
@@ -26,7 +29,7 @@ class UserProgress {
   final DateTime updatedAt;
   final Achievement? achievement;
   final Map<String, dynamic>? metadata;
-  
+
   // Additional properties needed by rewards service
   final Map<String, dynamic> stats;
   final Map<String, dynamic> streaks;
@@ -82,7 +85,8 @@ class UserProgress {
   /// Checks if progress has expired
   bool isExpired() {
     if (expiresAt == null) return false;
-    return DateTime.now().isAfter(expiresAt!) && status != ProgressStatus.completed;
+    return DateTime.now().isAfter(expiresAt!) &&
+        status != ProgressStatus.completed;
   }
 
   /// Gets a human-readable progress description
@@ -90,11 +94,11 @@ class UserProgress {
     if (status == ProgressStatus.completed) {
       return 'Completed';
     }
-    
+
     if (status == ProgressStatus.expired) {
       return 'Expired';
     }
-    
+
     if (status == ProgressStatus.notStarted) {
       return 'Not started';
     }
@@ -118,21 +122,24 @@ class UserProgress {
   /// Gets detailed progress breakdown by criteria
   Map<String, String> getDetailedProgress() {
     final details = <String, String>{};
-    
+
     for (final key in requiredProgress.keys) {
       final required = requiredProgress[key];
       final current = currentProgress[key] ?? 0;
-      
+
       if (required is num) {
-        final percentage = required > 0 ? (current / required * 100).clamp(0, 100) : 0;
-        details[key] = '$current / $required (${percentage.toStringAsFixed(0)}%)';
+        final percentage = required > 0
+            ? (current / required * 100).clamp(0, 100)
+            : 0;
+        details[key] =
+            '$current / $required (${percentage.toStringAsFixed(0)}%)';
       } else if (required is bool) {
         details[key] = current == true ? 'Completed' : 'Pending';
       } else {
         details[key] = '$current / $required';
       }
     }
-    
+
     return details;
   }
 
@@ -141,7 +148,7 @@ class UserProgress {
     for (final key in requiredProgress.keys) {
       final required = requiredProgress[key];
       final current = currentProgress[key] ?? 0;
-      
+
       if (required is num && current < required) {
         final remaining = required - current;
         return {
@@ -153,27 +160,27 @@ class UserProgress {
         };
       }
     }
-    
+
     return null;
   }
 
   /// Estimates time to completion based on recent progress
   Duration? estimateTimeToCompletion() {
     if (status == ProgressStatus.completed) return Duration.zero;
-    
+
     final now = DateTime.now();
     final timeSinceStart = now.difference(startedAt);
     final currentProgressPercent = calculateProgress();
-    
+
     if (currentProgressPercent <= 0 || timeSinceStart.inDays < 1) {
       return null; // Not enough data
     }
-    
+
     final progressRate = currentProgressPercent / timeSinceStart.inDays;
     final remainingProgress = 100 - currentProgressPercent;
-    
+
     if (progressRate <= 0) return null;
-    
+
     final estimatedDays = (remainingProgress / progressRate).ceil();
     return Duration(days: estimatedDays);
   }
@@ -184,16 +191,16 @@ class UserProgress {
       final duration = completedAt!.difference(startedAt);
       return 'Completed in ${_formatDuration(duration)}';
     }
-    
+
     if (isExpired()) {
       return 'Expired';
     }
-    
+
     final estimate = estimateTimeToCompletion();
     if (estimate != null) {
       return 'Estimated ${_formatDuration(estimate)} remaining';
     }
-    
+
     final timeSinceStart = DateTime.now().difference(startedAt);
     return 'In progress for ${_formatDuration(timeSinceStart)}';
   }
@@ -249,7 +256,7 @@ class UserProgress {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is UserProgress &&
         other.id == id &&
         other.userId == userId &&
@@ -268,6 +275,6 @@ class UserProgress {
   @override
   String toString() {
     return 'UserProgress(id: $id, userId: $userId, achievementId: $achievementId, '
-           'status: $status, progress: ${calculateProgress().toStringAsFixed(1)}%)';
+        'status: $status, progress: ${calculateProgress().toStringAsFixed(1)}%)';
   }
 }

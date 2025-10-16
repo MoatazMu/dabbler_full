@@ -4,7 +4,6 @@ import 'loading_spinner.dart';
 
 /// Examples of how to use the different loading screen widgets
 class LoadingScreenExamples {
-  
   /// Show a full-screen elegant loading screen
   static Widget showElegantLoading({
     String? title,
@@ -21,7 +20,7 @@ class LoadingScreenExamples {
       showProgress: showProgress,
     );
   }
-  
+
   /// Show a simple loading screen
   static Widget showSimpleLoading({
     String? message,
@@ -34,7 +33,7 @@ class LoadingScreenExamples {
       accentColor: accentColor,
     );
   }
-  
+
   /// Show an enhanced loading spinner with logo
   static Widget showEnhancedSpinner({
     String? message,
@@ -50,7 +49,7 @@ class LoadingScreenExamples {
       color: color,
     );
   }
-  
+
   /// Show a minimal loading indicator
   static Widget showMinimalIndicator({
     double size = 20,
@@ -63,7 +62,7 @@ class LoadingScreenExamples {
       strokeWidth: strokeWidth,
     );
   }
-  
+
   /// Show a loading overlay on top of existing content
   static Widget showLoadingOverlay({
     required Widget child,
@@ -113,7 +112,7 @@ class LoadingScreenExamples {
       ],
     );
   }
-  
+
   /// Show a loading button with text
   static Widget showLoadingButton({
     required String text,
@@ -132,10 +131,7 @@ class LoadingScreenExamples {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const MinimalLoadingIndicator(
-                  size: 20,
-                  color: Colors.white,
-                ),
+                const MinimalLoadingIndicator(size: 20, color: Colors.white),
                 const SizedBox(width: 12),
                 Text(loadingText ?? 'Loading...'),
               ],
@@ -147,20 +143,17 @@ class LoadingScreenExamples {
 
 /// Usage examples for different scenarios
 class LoadingScreenUsageExamples {
-  
   /// Example: Show loading while fetching data
   static Widget buildDataLoadingExample() {
     return Scaffold(
       body: LoadingScreenExamples.showLoadingOverlay(
-        child: const Center(
-          child: Text('Your app content here'),
-        ),
+        child: const Center(child: Text('Your app content here')),
         isLoading: true,
         message: 'Fetching data...',
       ),
     );
   }
-  
+
   /// Example: Show loading button
   static Widget buildLoadingButtonExample() {
     return Scaffold(
@@ -174,7 +167,7 @@ class LoadingScreenUsageExamples {
       ),
     );
   }
-  
+
   /// Example: Show elegant loading screen
   static Widget buildElegantLoadingExample() {
     return LoadingScreenExamples.showElegantLoading(
@@ -184,7 +177,7 @@ class LoadingScreenUsageExamples {
       accentColor: Colors.purple,
     );
   }
-  
+
   /// Example: Show simple loading screen
   static Widget buildSimpleLoadingExample() {
     return LoadingScreenExamples.showSimpleLoading(

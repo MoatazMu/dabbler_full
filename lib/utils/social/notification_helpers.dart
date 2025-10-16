@@ -3,112 +3,119 @@ import 'social_helpers.dart';
 /// Helper functions for social notifications management
 class NotificationHelpers {
   /// Generate notification title based on type and context
-  static String generateNotificationTitle(NotificationType type, NotificationContext context) {
+  static String generateNotificationTitle(
+    NotificationType type,
+    NotificationContext context,
+  ) {
     switch (type) {
       case NotificationType.friendRequest:
         return 'New friend request';
-        
+
       case NotificationType.friendAccepted:
         return 'Friend request accepted';
-        
+
       case NotificationType.postLike:
-        return context.count > 1 
+        return context.count > 1
             ? '${SocialHelpers.formatLargeNumber(context.count)} people liked your post'
             : '${context.actorName} liked your post';
-            
+
       case NotificationType.postComment:
         return context.count > 1
             ? '${SocialHelpers.formatLargeNumber(context.count)} comments on your post'
             : '${context.actorName} commented on your post';
-            
+
       case NotificationType.commentReply:
         return '${context.actorName} replied to your comment';
-        
+
       case NotificationType.mention:
         return '${context.actorName} mentioned you';
-        
+
       case NotificationType.message:
         return context.count > 1
             ? '${SocialHelpers.formatLargeNumber(context.count)} new messages'
             : 'New message from ${context.actorName}';
-            
+
       case NotificationType.groupInvite:
         return 'Group invitation';
-        
+
       case NotificationType.eventInvite:
         return 'Event invitation';
-        
+
       case NotificationType.postShare:
         return context.count > 1
             ? '${SocialHelpers.formatLargeNumber(context.count)} people shared your post'
             : '${context.actorName} shared your post';
-            
+
       case NotificationType.achievement:
         return 'Achievement unlocked!';
-        
+
       case NotificationType.reminder:
         return 'Reminder';
-        
+
       case NotificationType.system:
         return 'System notification';
     }
   }
 
   /// Generate notification body text
-  static String generateNotificationBody(NotificationType type, NotificationContext context) {
+  static String generateNotificationBody(
+    NotificationType type,
+    NotificationContext context,
+  ) {
     switch (type) {
       case NotificationType.friendRequest:
         return '${context.actorName} wants to be friends with you';
-        
+
       case NotificationType.friendAccepted:
         return '${context.actorName} accepted your friend request';
-        
+
       case NotificationType.postLike:
         if (context.count > 1) {
           return 'Your post "${_truncateText(context.contentPreview)}" is getting attention!';
         }
         return 'Your post "${_truncateText(context.contentPreview)}"';
-        
+
       case NotificationType.postComment:
         if (context.count > 1) {
           return 'People are discussing your post "${_truncateText(context.contentPreview)}"';
         }
         return '"${_truncateText(context.commentText)}"';
-        
+
       case NotificationType.commentReply:
         return '"${_truncateText(context.commentText)}"';
-        
+
       case NotificationType.mention:
-        return context.contentPreview.isNotEmpty 
+        return context.contentPreview.isNotEmpty
             ? '"${_truncateText(context.contentPreview)}"'
             : 'in a post';
-            
+
       case NotificationType.message:
         if (context.count > 1) {
           return 'You have unread messages';
         }
-        return context.contentPreview.isNotEmpty 
+        return context.contentPreview.isNotEmpty
             ? '"${_truncateText(context.contentPreview)}"'
             : 'sent you a message';
-            
+
       case NotificationType.groupInvite:
         return '${context.actorName} invited you to join "${context.groupName}"';
-        
+
       case NotificationType.eventInvite:
         return '${context.actorName} invited you to "${context.eventName}"';
-        
+
       case NotificationType.postShare:
         if (context.count > 1) {
           return 'Your post is being shared!';
         }
         return 'Your post "${_truncateText(context.contentPreview)}"';
-        
+
       case NotificationType.achievement:
-        return context.achievementDescription ?? 'You\'ve reached a new milestone!';
-        
+        return context.achievementDescription ??
+            'You\'ve reached a new milestone!';
+
       case NotificationType.reminder:
         return context.reminderText ?? 'Don\'t forget!';
-        
+
       case NotificationType.system:
         return context.systemMessage ?? 'System update';
     }
@@ -116,55 +123,62 @@ class NotificationHelpers {
 
   /// Group similar notifications together
   static List<NotificationGroup> groupSimilarNotifications(
-    List<NotificationData> notifications,
-    {Duration groupingWindow = const Duration(hours: 24)}
-  ) {
+    List<NotificationData> notifications, {
+    Duration groupingWindow = const Duration(hours: 24),
+  }) {
     final groups = <String, List<NotificationData>>{};
     final now = DateTime.now();
-    
+
     for (final notification in notifications) {
       // Only group recent notifications
       if (now.difference(notification.timestamp) > groupingWindow) {
         continue;
       }
-      
+
       final groupKey = _generateGroupKey(notification);
       groups.putIfAbsent(groupKey, () => []).add(notification);
     }
-    
+
     final result = <NotificationGroup>[];
-    
+
     for (final entry in groups.entries) {
       final notificationsList = entry.value;
       if (notificationsList.length == 1) {
         // Single notification - don't group
-        result.add(NotificationGroup(
-          id: notificationsList.first.id,
-          type: notificationsList.first.type,
-          notifications: notificationsList,
-          isGrouped: false,
-          timestamp: notificationsList.first.timestamp,
-        ));
+        result.add(
+          NotificationGroup(
+            id: notificationsList.first.id,
+            type: notificationsList.first.type,
+            notifications: notificationsList,
+            isGrouped: false,
+            timestamp: notificationsList.first.timestamp,
+          ),
+        );
       } else {
         // Multiple similar notifications - group them
         notificationsList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-        result.add(NotificationGroup(
-          id: 'group_${entry.key}',
-          type: notificationsList.first.type,
-          notifications: notificationsList,
-          isGrouped: true,
-          timestamp: notificationsList.first.timestamp,
-        ));
+        result.add(
+          NotificationGroup(
+            id: 'group_${entry.key}',
+            type: notificationsList.first.type,
+            notifications: notificationsList,
+            isGrouped: true,
+            timestamp: notificationsList.first.timestamp,
+          ),
+        );
       }
     }
-    
+
     // Sort groups by most recent timestamp
     result.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return result;
   }
 
   /// Create action buttons for notifications
-  static List<NotificationAction> createActionButtons(NotificationType type, String notificationId) {
+  static List<NotificationAction> createActionButtons(
+    NotificationType type,
+    String notificationId,
+  ) {
     switch (type) {
       case NotificationType.friendRequest:
         return [
@@ -181,7 +195,7 @@ class NotificationHelpers {
             action: NotificationActionType.declineFriendRequest,
           ),
         ];
-        
+
       case NotificationType.message:
         return [
           NotificationAction(
@@ -197,7 +211,7 @@ class NotificationHelpers {
             action: NotificationActionType.markAsRead,
           ),
         ];
-        
+
       case NotificationType.postLike:
       case NotificationType.postComment:
         return [
@@ -208,7 +222,7 @@ class NotificationHelpers {
             action: NotificationActionType.openPost,
           ),
         ];
-        
+
       case NotificationType.groupInvite:
         return [
           NotificationAction(
@@ -224,7 +238,7 @@ class NotificationHelpers {
             action: NotificationActionType.declineGroupInvite,
           ),
         ];
-        
+
       case NotificationType.eventInvite:
         return [
           NotificationAction(
@@ -234,7 +248,7 @@ class NotificationHelpers {
             action: NotificationActionType.openEvent,
           ),
         ];
-        
+
       default:
         return [
           NotificationAction(
@@ -260,14 +274,14 @@ class NotificationHelpers {
           targetId: data['senderId'] ?? targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.friendAccepted:
         return NotificationTapResult(
           action: NotificationActionType.openProfile,
           targetId: data['userId'] ?? targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.postLike:
       case NotificationType.postComment:
       case NotificationType.postShare:
@@ -276,14 +290,14 @@ class NotificationHelpers {
           targetId: data['postId'] ?? targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.commentReply:
         return NotificationTapResult(
           action: NotificationActionType.openPost,
           targetId: data['postId'] ?? targetId,
           additionalData: {'scrollToComment': data['commentId']},
         );
-        
+
       case NotificationType.mention:
         final postId = data['postId'];
         final commentId = data['commentId'];
@@ -291,46 +305,48 @@ class NotificationHelpers {
           return NotificationTapResult(
             action: NotificationActionType.openPost,
             targetId: postId,
-            additionalData: commentId != null ? {'scrollToComment': commentId} : {},
+            additionalData: commentId != null
+                ? {'scrollToComment': commentId}
+                : {},
           );
         }
         break;
-        
+
       case NotificationType.message:
         return NotificationTapResult(
           action: NotificationActionType.openChat,
           targetId: data['conversationId'] ?? targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.groupInvite:
         return NotificationTapResult(
           action: NotificationActionType.openGroup,
           targetId: data['groupId'] ?? targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.eventInvite:
         return NotificationTapResult(
           action: NotificationActionType.openEvent,
           targetId: data['eventId'] ?? targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.achievement:
         return NotificationTapResult(
           action: NotificationActionType.openProfile,
           targetId: data['userId'] ?? targetId,
           additionalData: {'tab': 'achievements'},
         );
-        
+
       case NotificationType.system:
         return NotificationTapResult(
           action: NotificationActionType.openSettings,
           targetId: targetId,
           additionalData: data,
         );
-        
+
       case NotificationType.reminder:
         return NotificationTapResult(
           action: NotificationActionType.openReminder,
@@ -338,7 +354,7 @@ class NotificationHelpers {
           additionalData: data,
         );
     }
-    
+
     return NotificationTapResult(
       action: NotificationActionType.openDetails,
       targetId: targetId,
@@ -352,7 +368,7 @@ class NotificationHelpers {
     Future<void> Function(List<String>) clearFunction,
   ) async {
     if (groupIds.isEmpty) return;
-    
+
     // Batch clear operations for efficiency
     const batchSize = 10;
     for (int i = 0; i < groupIds.length; i += batchSize) {
@@ -370,12 +386,12 @@ class NotificationHelpers {
   ) {
     // Base priority by type
     int basePriority = _getBasePriorityByType(type);
-    
+
     // Boost for close friends
     if (closeFriends.contains(senderId)) {
       basePriority += 20;
     }
-    
+
     // Boost for high interaction users
     final interactionScore = userInteractionScores[senderId] ?? 0;
     if (interactionScore > 100) {
@@ -385,7 +401,7 @@ class NotificationHelpers {
     } else if (interactionScore > 10) {
       basePriority += 5;
     }
-    
+
     // Return priority level
     if (basePriority >= 80) return NotificationPriority.critical;
     if (basePriority >= 60) return NotificationPriority.high;
@@ -397,12 +413,12 @@ class NotificationHelpers {
   static String formatNotificationTime(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inMinutes < 1) return 'Just now';
     if (difference.inMinutes < 60) return '${difference.inMinutes}m';
     if (difference.inHours < 24) return '${difference.inHours}h';
     if (difference.inDays < 7) return '${difference.inDays}d';
-    
+
     // For older notifications, show actual date
     return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
   }
@@ -414,20 +430,21 @@ class NotificationHelpers {
     NotificationPreferences preferences,
   ) {
     // Check do not disturb
-    if (preferences.isDoNotDisturbEnabled && _isInDoNotDisturbTime(timestamp, preferences)) {
+    if (preferences.isDoNotDisturbEnabled &&
+        _isInDoNotDisturbTime(timestamp, preferences)) {
       return true;
     }
-    
+
     // Check type-specific muting
     if (preferences.mutedNotificationTypes.contains(type)) {
       return true;
     }
-    
+
     // Check rate limiting
     if (_exceedsRateLimit(type, timestamp, preferences)) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -487,20 +504,25 @@ class NotificationHelpers {
     }
   }
 
-  static bool _isInDoNotDisturbTime(DateTime timestamp, NotificationPreferences preferences) {
+  static bool _isInDoNotDisturbTime(
+    DateTime timestamp,
+    NotificationPreferences preferences,
+  ) {
     if (preferences.dndStartTime == null || preferences.dndEndTime == null) {
       return false;
     }
-    
+
     final time = TimeOfDay.fromDateTime(timestamp);
     final start = preferences.dndStartTime!;
     final end = preferences.dndEndTime!;
-    
+
     if (start.hour < end.hour) {
-      return _timeOfDayCompareTo(time, start) >= 0 && _timeOfDayCompareTo(time, end) <= 0;
+      return _timeOfDayCompareTo(time, start) >= 0 &&
+          _timeOfDayCompareTo(time, end) <= 0;
     } else {
       // Overnight DND (e.g., 22:00 to 07:00)
-      return _timeOfDayCompareTo(time, start) >= 0 || _timeOfDayCompareTo(time, end) <= 0;
+      return _timeOfDayCompareTo(time, start) >= 0 ||
+          _timeOfDayCompareTo(time, end) <= 0;
     }
   }
 
@@ -510,11 +532,15 @@ class NotificationHelpers {
     return aMinutes.compareTo(bMinutes);
   }
 
-  static bool _exceedsRateLimit(NotificationType type, DateTime timestamp, NotificationPreferences preferences) {
+  static bool _exceedsRateLimit(
+    NotificationType type,
+    DateTime timestamp,
+    NotificationPreferences preferences,
+  ) {
     // Simple rate limiting - in production, this would be more sophisticated
     final rateLimits = preferences.rateLimits[type];
     if (rateLimits == null) return false;
-    
+
     // This would check against stored notification history
     // For now, just return false
     return false;
@@ -576,15 +602,19 @@ class NotificationGroup {
   });
 
   int get count => notifications.length;
-  
+
   String get displayTitle {
     if (!isGrouped) {
-      return NotificationHelpers.generateNotificationTitle(type, 
-        NotificationContext(actorName: _getActorName()));
+      return NotificationHelpers.generateNotificationTitle(
+        type,
+        NotificationContext(actorName: _getActorName()),
+      );
     }
-    
-    return NotificationHelpers.generateNotificationTitle(type, 
-      NotificationContext(count: count));
+
+    return NotificationHelpers.generateNotificationTitle(
+      type,
+      NotificationContext(count: count),
+    );
   }
 
   String _getActorName() {
@@ -679,9 +709,4 @@ enum NotificationActionType {
   declineGroupInvite,
 }
 
-enum NotificationPriority {
-  low,
-  medium,
-  high,
-  critical,
-}
+enum NotificationPriority { low, medium, high, critical }

@@ -13,7 +13,7 @@ class UserProfile {
   final String? avatarUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   // Enhanced profile fields
   final String? bio;
   final DateTime? dateOfBirth;
@@ -25,7 +25,7 @@ class UserProfile {
   final double profileCompletionPercentage;
   final bool isVerified;
   final DateTime? lastActiveAt;
-  
+
   // Related entities
   final List<SportProfile> sportsProfiles;
   final ProfileStatistics statistics;
@@ -72,7 +72,9 @@ class UserProfile {
 
   static double _calculateInitialCompletion(User user) {
     double completion = 40.0; // Base for having account
-    if ((user.fullName?.isNotEmpty ?? false) || (user.username?.isNotEmpty ?? false)) completion += 10.0;
+    if ((user.fullName?.isNotEmpty ?? false) ||
+        (user.username?.isNotEmpty ?? false))
+      completion += 10.0;
     if (user.avatarUrl != null) completion += 20.0;
     return completion;
   }
@@ -89,8 +91,9 @@ class UserProfile {
     } catch (e) {
       // If no primary sport set, return most played sport
       if (sportsProfiles.isEmpty) return null;
-      return sportsProfiles.reduce((a, b) => 
-          a.gamesPlayed > b.gamesPlayed ? a : b);
+      return sportsProfiles.reduce(
+        (a, b) => a.gamesPlayed > b.gamesPlayed ? a : b,
+      );
     }
   }
 
@@ -99,7 +102,7 @@ class UserProfile {
     if (dateOfBirth == null) return null;
     final now = DateTime.now();
     int age = now.year - dateOfBirth!.year;
-    if (now.month < dateOfBirth!.month || 
+    if (now.month < dateOfBirth!.month ||
         (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
       age--;
     }
@@ -120,7 +123,9 @@ class UserProfile {
   /// Returns display name with privacy considerations
   String getDisplayName({String? viewerId}) {
     if (!privacySettings.canViewField('realName', viewerId)) {
-      return displayName.isNotEmpty ? displayName : ''; // Return username/handle instead
+      return displayName.isNotEmpty
+          ? displayName
+          : ''; // Return username/handle instead
     }
     final fullName = getFullName();
     return fullName.isNotEmpty ? fullName : '';
@@ -144,7 +149,8 @@ class UserProfile {
     // Sports profiles (20%)
     if (sportsProfiles.isNotEmpty) completion += 10.0;
     if (sportsProfiles.any((sport) => sport.isPrimarySport)) completion += 5.0;
-    if (sportsProfiles.any((sport) => sport.skillLevel != SkillLevel.beginner)) completion += 5.0;
+    if (sportsProfiles.any((sport) => sport.skillLevel != SkillLevel.beginner))
+      completion += 5.0;
 
     // Preferences and settings (10%)
     if (preferences.preferredGameTypes.isNotEmpty) completion += 5.0;
@@ -156,20 +162,20 @@ class UserProfile {
   /// Checks if user is active based on various factors
   bool isActiveUser() {
     if (lastActiveAt == null) return false;
-    
+
     final now = DateTime.now();
     final daysSinceActive = now.difference(lastActiveAt!).inDays;
-    
+
     return daysSinceActive <= 7; // Active within last week
   }
 
   /// Returns user's activity status
   String getActivityStatus() {
     if (lastActiveAt == null) return 'New User';
-    
+
     final now = DateTime.now();
     final duration = now.difference(lastActiveAt!);
-    
+
     if (duration.inMinutes < 5) return 'Online';
     if (duration.inHours < 1) return 'Active';
     if (duration.inDays < 1) return 'Today';
@@ -185,13 +191,16 @@ class UserProfile {
     // Sport compatibility (30%)
     final myPrimarySport = getPrimarySport();
     final otherPrimarySport = otherUser.getPrimarySport();
-    
+
     if (myPrimarySport != null && otherPrimarySport != null) {
       if (myPrimarySport.sportId == otherPrimarySport.sportId) {
         score += 30.0;
-        
+
         // Skill level compatibility bonus
-        final skillDiff = (myPrimarySport.skillLevel.index - otherPrimarySport.skillLevel.index).abs();
+        final skillDiff =
+            (myPrimarySport.skillLevel.index -
+                    otherPrimarySport.skillLevel.index)
+                .abs();
         if (skillDiff <= 1) score += 10.0;
       }
     }
@@ -207,13 +216,13 @@ class UserProfile {
     final otherAge = otherUser.getAge();
     if (myAge != null && otherAge != null) {
       final ageDiff = (myAge - otherAge).abs();
-          if (ageDiff <= 5) {
-      score += 15.0;
-    } else if (ageDiff <= 10) {
-      score += 10.0;
-    } else if (ageDiff <= 15) {
-      score += 5.0;
-    }
+      if (ageDiff <= 5) {
+        score += 15.0;
+      } else if (ageDiff <= 10) {
+        score += 10.0;
+      } else if (ageDiff <= 15) {
+        score += 5.0;
+      }
     }
 
     // Activity compatibility (10%)
@@ -222,7 +231,8 @@ class UserProfile {
     }
 
     // Experience compatibility (15%)
-    if (statistics.isExperiencedPlayer() == otherUser.statistics.isExperiencedPlayer()) {
+    if (statistics.isExperiencedPlayer() ==
+        otherUser.statistics.isExperiencedPlayer()) {
       score += 15.0;
     }
 
@@ -230,7 +240,7 @@ class UserProfile {
     final myReliability = statistics.getReliabilityScore();
     final otherReliability = otherUser.statistics.getReliabilityScore();
     final reliabilityDiff = (myReliability - otherReliability).abs();
-    
+
     if (reliabilityDiff <= 10) {
       score += 10.0;
     } else if (reliabilityDiff <= 20) {
@@ -278,7 +288,8 @@ class UserProfile {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       gender: gender ?? this.gender,
-      profileCompletionPercentage: profileCompletionPercentage ?? this.profileCompletionPercentage,
+      profileCompletionPercentage:
+          profileCompletionPercentage ?? this.profileCompletionPercentage,
       isVerified: isVerified ?? this.isVerified,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
       sportsProfiles: sportsProfiles ?? this.sportsProfiles,
@@ -299,15 +310,20 @@ class UserProfile {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       bio: json['bio'] as String?,
-      dateOfBirth: json['date_of_birth'] != null ? DateTime.parse(json['date_of_birth'] as String) : null,
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.parse(json['date_of_birth'] as String)
+          : null,
       location: json['location'] as String?,
       phoneNumber: json['phone_number'] as String?,
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       gender: json['gender'] as String?,
-      profileCompletionPercentage: (json['profile_completion_percentage'] as num?)?.toDouble() ?? 0.0,
+      profileCompletionPercentage:
+          (json['profile_completion_percentage'] as num?)?.toDouble() ?? 0.0,
       isVerified: json['is_verified'] as bool? ?? false,
-      lastActiveAt: json['last_active_at'] != null ? DateTime.parse(json['last_active_at'] as String) : null,
+      lastActiveAt: json['last_active_at'] != null
+          ? DateTime.parse(json['last_active_at'] as String)
+          : null,
       sportsProfiles: const [], // Placeholder for now
       statistics: const ProfileStatistics(),
       privacySettings: const PrivacySettings(),

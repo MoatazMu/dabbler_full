@@ -11,7 +11,8 @@ class GameFailure extends Failure {
   const GameFailure(super.message);
 }
 
-class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenueParams> {
+class BookVenueUseCase
+    extends UseCase<Either<Failure, BookingResult>, BookVenueParams> {
   final BookingsRepository bookingsRepository;
   final VenuesRepository venuesRepository;
 
@@ -30,48 +31,44 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
 
     // Get venue details
     final venueResult = await venuesRepository.getVenue(params.venueId);
-    
-    return venueResult.fold(
-      (failure) => Left(failure),
-      (venue) async {
-        // Check venue availability
-        final availabilityResult = await _checkVenueAvailability(params, venue);
-        if (availabilityResult != null) {
-          return Left(availabilityResult);
+
+    return venueResult.fold((failure) => Left(failure), (venue) async {
+      // Check venue availability
+      final availabilityResult = await _checkVenueAvailability(params, venue);
+      if (availabilityResult != null) {
+        return Left(availabilityResult);
+      }
+
+      // Calculate total cost
+      final costCalculation = await _calculateTotalCost(params, venue);
+      if (costCalculation.isLeft()) {
+        return Left(costCalculation.fold((l) => l, (r) => throw Exception()));
+      }
+      final totalCost = costCalculation.fold((l) => 0.0, (r) => r);
+
+      // Create booking record
+      final bookingData = _buildBookingData(params, venue, totalCost);
+      final bookingResult = await bookingsRepository.createBooking(bookingData);
+
+      return bookingResult.fold((failure) => Left(failure), (booking) async {
+        // Process payment (stub for now)
+        final paymentResult = await _processPayment(booking, totalCost, params);
+        if (paymentResult != null) {
+          // Cancel the booking if payment fails
+          await bookingsRepository.cancelBooking(booking.id, 'Payment failed');
+          return Left(paymentResult);
         }
 
-        // Calculate total cost
-        final costCalculation = await _calculateTotalCost(params, venue);
-        if (costCalculation.isLeft()) {
-          return Left(costCalculation.fold((l) => l, (r) => throw Exception()));
-        }
-        final totalCost = costCalculation.fold((l) => 0.0, (r) => r);
-
-        // Create booking record
-        final bookingData = _buildBookingData(params, venue, totalCost);
-        final bookingResult = await bookingsRepository.createBooking(bookingData);
-        
-        return bookingResult.fold(
-          (failure) => Left(failure),
-          (booking) async {
-            // Process payment (stub for now)
-            final paymentResult = await _processPayment(booking, totalCost, params);
-            if (paymentResult != null) {
-              // Cancel the booking if payment fails
-              await bookingsRepository.cancelBooking(booking.id, 'Payment failed');
-              return Left(paymentResult);
-            }
-
-            return Right(BookingResult(
-              booking: booking,
-              totalCost: totalCost,
-              paymentStatus: PaymentStatus.paid,
-              confirmationMessage: _getConfirmationMessage(booking, venue),
-            ));
-          },
+        return Right(
+          BookingResult(
+            booking: booking,
+            totalCost: totalCost,
+            paymentStatus: PaymentStatus.paid,
+            confirmationMessage: _getConfirmationMessage(booking, venue),
+          ),
         );
-      },
-    );
+      });
+    });
   }
 
   /// Validates booking parameters
@@ -110,15 +107,17 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
       return const GameFailure('Minimum booking duration is 30 minutes');
     }
 
-    if (durationMinutes > 480) { // 8 hours
+    if (durationMinutes > 480) {
+      // 8 hours
       return const GameFailure('Maximum booking duration is 8 hours');
     }
 
     // Validate calculated end time matches duration
     final calculatedEndMinutes = startTime.inMinutes + durationMinutes;
     final actualEndMinutes = endTime.inMinutes;
-    
-    if ((calculatedEndMinutes - actualEndMinutes).abs() > 1) { // Allow 1 minute tolerance
+
+    if ((calculatedEndMinutes - actualEndMinutes).abs() > 1) {
+      // Allow 1 minute tolerance
       return const GameFailure('Duration does not match start and end times');
     }
 
@@ -126,16 +125,21 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
   }
 
   /// Checks if venue is available for the requested time slot
-  Future<Failure?> _checkVenueAvailability(BookVenueParams params, Venue venue) async {
+  Future<Failure?> _checkVenueAvailability(
+    BookVenueParams params,
+    Venue venue,
+  ) async {
     // For now, we'll assume all venues are active since isActive property doesn't exist
     // In a real implementation, you might add status checking
-    
+
     // Check venue operating hours
     if (!_isWithinOperatingHours(params.startTime, params.endTime, venue)) {
-      return const GameFailure('Requested time is outside venue operating hours');
+      return const GameFailure(
+        'Requested time is outside venue operating hours',
+      );
     }
     // This would require venue entity to have operating hours
-    
+
     // Check for booking conflicts
     final conflictsResult = await bookingsRepository.getBookingConflicts(
       params.venueId,
@@ -150,32 +154,37 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
         if (conflicts.isNotEmpty) {
           return const GameFailure('The requested time slot is not available');
         }
-        
+
         // Check specific court/field availability if specified
         if (params.courtNumber != null) {
-          final courtConflicts = conflicts.where(
-            (booking) => booking.courtNumber == params.courtNumber
-          ).toList();
-          
+          final courtConflicts = conflicts
+              .where((booking) => booking.courtNumber == params.courtNumber)
+              .toList();
+
           if (courtConflicts.isNotEmpty) {
-            return GameFailure('Court ${params.courtNumber} is not available at the requested time');
+            return GameFailure(
+              'Court ${params.courtNumber} is not available at the requested time',
+            );
           }
         }
-        
+
         return null; // No conflicts found
       },
     );
   }
 
   /// Calculates the total cost for the booking
-  Future<Either<Failure, double>> _calculateTotalCost(BookVenueParams params, Venue venue) async {
+  Future<Either<Failure, double>> _calculateTotalCost(
+    BookVenueParams params,
+    Venue venue,
+  ) async {
     try {
       double baseCost = 0.0;
-      
+
       // Calculate base cost based on venue pricing
       // This is a simplified calculation - real implementation would be more complex
       final durationHours = params.durationMinutes / 60.0;
-      
+
       // Use venue's pricePerHour property
       baseCost = venue.pricePerHour * durationHours;
 
@@ -197,17 +206,23 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
       // Add taxes and fees
       final tax = baseCost * 0.1; // 10% tax
       final serviceFee = 2.0; // $2 service fee
-      
+
       final totalCost = baseCost + tax + serviceFee;
 
       return Right(totalCost);
     } catch (e) {
-      return Left(GameFailure('Failed to calculate booking cost: ${e.toString()}'));
+      return Left(
+        GameFailure('Failed to calculate booking cost: ${e.toString()}'),
+      );
     }
   }
 
   /// Processes payment for the booking (stub implementation)
-  Future<Failure?> _processPayment(Booking booking, double amount, BookVenueParams params) async {
+  Future<Failure?> _processPayment(
+    Booking booking,
+    double amount,
+    BookVenueParams params,
+  ) async {
     try {
       // This is a stub implementation
       // In a real app, this would integrate with payment providers like:
@@ -215,19 +230,23 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
       // - PayPal
       // - Apple Pay / Google Pay
       // - Local payment gateways
-      
-      print('Processing payment of \$${amount.toStringAsFixed(2)} for booking ${booking.id}');
-      
+
+      print(
+        'Processing payment of \$${amount.toStringAsFixed(2)} for booking ${booking.id}',
+      );
+
       // Simulate payment processing
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // Simulate payment success/failure based on some logic
       // In real implementation, this would handle actual payment processing
       final random = DateTime.now().millisecondsSinceEpoch % 100;
       final paymentSuccess = random > 5; // 95% success rate for simulation
-      
+
       if (!paymentSuccess) {
-        return const GameFailure('Payment processing failed. Please try again or use a different payment method.');
+        return const GameFailure(
+          'Payment processing failed. Please try again or use a different payment method.',
+        );
       }
 
       // Update booking payment status
@@ -244,7 +263,11 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
   }
 
   /// Builds booking data for creation
-  Map<String, dynamic> _buildBookingData(BookVenueParams params, Venue venue, double totalCost) {
+  Map<String, dynamic> _buildBookingData(
+    BookVenueParams params,
+    Venue venue,
+    double totalCost,
+  ) {
     return {
       'userId': params.userId,
       'venueId': params.venueId,
@@ -267,8 +290,8 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
   /// Gets confirmation message for successful booking
   String _getConfirmationMessage(Booking booking, Venue venue) {
     return 'Your booking at ${venue.name} has been confirmed! '
-           'Booking ID: ${booking.id}. '
-           'You will receive a confirmation email shortly.';
+        'Booking ID: ${booking.id}. '
+        'You will receive a confirmation email shortly.';
   }
 
   /// Utility methods
@@ -277,14 +300,21 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
     if (parts.length != 2) {
       throw const GameFailure('Invalid time format. Use HH:mm');
     }
-    
+
     final hours = int.tryParse(parts[0]);
     final minutes = int.tryParse(parts[1]);
-    
-    if (hours == null || minutes == null || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-      throw const GameFailure('Invalid time format. Use HH:mm (24-hour format)');
+
+    if (hours == null ||
+        minutes == null ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59) {
+      throw const GameFailure(
+        'Invalid time format. Use HH:mm (24-hour format)',
+      );
     }
-    
+
     return Duration(hours: hours, minutes: minutes);
   }
 
@@ -303,7 +333,7 @@ class BookVenueUseCase extends UseCase<Either<Failure, BookingResult>, BookVenue
       final endMinutes = _parseTime(endTime).inMinutes;
       final openingMinutes = _parseTime(venue.openingTime).inMinutes;
       final closingMinutes = _parseTime(venue.closingTime).inMinutes;
-      
+
       return startMinutes >= openingMinutes && endMinutes <= closingMinutes;
     } catch (e) {
       // If time parsing fails, allow the booking and let venue handle it
@@ -317,7 +347,7 @@ class BookVenueParams {
   final String venueId;
   final DateTime date;
   final String startTime; // Format: "HH:mm"
-  final String endTime;   // Format: "HH:mm"
+  final String endTime; // Format: "HH:mm"
   final int durationMinutes;
   final String? sport;
   final String? courtNumber;

@@ -67,14 +67,14 @@ class UserModel {
   // Check if user has a valid name
   bool get hasValidName {
     return (firstName != null && firstName!.isNotEmpty) ||
-           (lastName != null && lastName!.isNotEmpty);
+        (lastName != null && lastName!.isNotEmpty);
   }
 
   // Sanitize name for display
   String get sanitizedName {
     final name = displayName;
     if (name.isEmpty) return 'Player';
-    
+
     // Remove special characters and normalize
     return name
         .replaceAll(RegExp(r'[^\w\s]'), '')
@@ -169,7 +169,9 @@ class UserModel {
       onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
       onboardingStep: json['onboardingStep'] as String? ?? 'phone_input',
       timezone: json['timezone'] as String? ?? 'UTC',
-      notificationSettings: Map<String, dynamic>.from(json['notificationSettings'] ?? {}),
+      notificationSettings: Map<String, dynamic>.from(
+        json['notificationSettings'] ?? {},
+      ),
       privacySettings: Map<String, dynamic>.from(json['privacySettings'] ?? {}),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -179,10 +181,11 @@ class UserModel {
   /// Create UserModel from Supabase JSON response
   factory UserModel.fromSupabaseJson(Map<String, dynamic> json) {
     final displayName = json['display_name'] as String? ?? '';
-    
+
     return UserModel(
       id: json['id'] as String,
-      firstName: displayName, // Store display name as firstName for compatibility
+      firstName:
+          displayName, // Store display name as firstName for compatibility
       lastName: '', // Keep lastName empty since we're using display name
       email: json['email'] as String?,
       phone: json['phone'] as String?,
@@ -196,12 +199,14 @@ class UserModel {
       onboardingCompleted: json['onboarding_completed'] as bool? ?? false,
       onboardingStep: json['onboarding_step'] as String? ?? 'phone_input',
       timezone: json['timezone'] as String? ?? 'UTC',
-      notificationSettings: Map<String, dynamic>.from(json['notification_settings'] ?? {}),
-      privacySettings: Map<String, dynamic>.from(json['privacy_settings'] ?? {}),
+      notificationSettings: Map<String, dynamic>.from(
+        json['notification_settings'] ?? {},
+      ),
+      privacySettings: Map<String, dynamic>.from(
+        json['privacy_settings'] ?? {},
+      ),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
-
-
 }

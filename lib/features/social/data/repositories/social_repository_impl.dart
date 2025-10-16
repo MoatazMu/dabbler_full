@@ -48,10 +48,10 @@ class SocialRepositoryImpl implements SocialRepository {
     required PostsRepository postsRepository,
     required ChatRepository chatRepository,
     required NetworkInfo networkInfo,
-  })  : _friendsRepository = friendsRepository,
-        _postsRepository = postsRepository,
-        _chatRepository = chatRepository,
-        _networkInfo = networkInfo {
+  }) : _friendsRepository = friendsRepository,
+       _postsRepository = postsRepository,
+       _chatRepository = chatRepository,
+       _networkInfo = networkInfo {
     _initializeNetworkMonitoring();
     _startPeriodicSync();
   }
@@ -106,9 +106,16 @@ class SocialRepositoryImpl implements SocialRepository {
       // Invalidate affected caches
       await _processInvalidatedCaches();
 
-      developer.log('Successfully synced data after coming back online', name: 'SocialRepository');
+      developer.log(
+        'Successfully synced data after coming back online',
+        name: 'SocialRepository',
+      );
     } catch (e) {
-      developer.log('Error syncing data when back online: $e', name: 'SocialRepository', level: 1000);
+      developer.log(
+        'Error syncing data when back online: $e',
+        name: 'SocialRepository',
+        level: 1000,
+      );
     }
   }
 
@@ -121,7 +128,11 @@ class SocialRepositoryImpl implements SocialRepository {
       try {
         await operation();
       } catch (e) {
-        developer.log('Error processing pending sync operation: $e', name: 'SocialRepository', level: 1000);
+        developer.log(
+          'Error processing pending sync operation: $e',
+          name: 'SocialRepository',
+          level: 1000,
+        );
       }
     }
   }
@@ -137,7 +148,11 @@ class SocialRepositoryImpl implements SocialRepository {
 
       _lastSyncTimes['full'] = DateTime.now();
     } catch (e) {
-      developer.log('Error during periodic sync: $e', name: 'SocialRepository', level: 1000);
+      developer.log(
+        'Error during periodic sync: $e',
+        name: 'SocialRepository',
+        level: 1000,
+      );
     }
   }
 
@@ -145,19 +160,24 @@ class SocialRepositoryImpl implements SocialRepository {
   Future<void> _syncFriendsData() async {
     try {
       final lastSync = _lastSyncTimes['friends'];
-      if (lastSync != null && DateTime.now().difference(lastSync) < Duration(minutes: 2)) {
+      if (lastSync != null &&
+          DateTime.now().difference(lastSync) < Duration(minutes: 2)) {
         return; // Skip if recently synced
       }
 
       // Refresh friends list - using current user ID placeholder
       await _friendsRepository.getFriends('current_user');
-      
+
       // Refresh friend requests
       await _friendsRepository.getPendingRequests();
 
       _lastSyncTimes['friends'] = DateTime.now();
     } catch (e) {
-      developer.log('Error syncing friends data: $e', name: 'SocialRepository', level: 1000);
+      developer.log(
+        'Error syncing friends data: $e',
+        name: 'SocialRepository',
+        level: 1000,
+      );
     }
   }
 
@@ -165,7 +185,8 @@ class SocialRepositoryImpl implements SocialRepository {
   Future<void> _syncPostsData() async {
     try {
       final lastSync = _lastSyncTimes['posts'];
-      if (lastSync != null && DateTime.now().difference(lastSync) < Duration(minutes: 1)) {
+      if (lastSync != null &&
+          DateTime.now().difference(lastSync) < Duration(minutes: 1)) {
         return; // Skip if recently synced
       }
 
@@ -174,7 +195,11 @@ class SocialRepositoryImpl implements SocialRepository {
 
       _lastSyncTimes['posts'] = DateTime.now();
     } catch (e) {
-      developer.log('Error syncing posts data: $e', name: 'SocialRepository', level: 1000);
+      developer.log(
+        'Error syncing posts data: $e',
+        name: 'SocialRepository',
+        level: 1000,
+      );
     }
   }
 
@@ -182,7 +207,8 @@ class SocialRepositoryImpl implements SocialRepository {
   Future<void> _syncChatData() async {
     try {
       final lastSync = _lastSyncTimes['chat'];
-      if (lastSync != null && DateTime.now().difference(lastSync) < Duration(minutes: 1)) {
+      if (lastSync != null &&
+          DateTime.now().difference(lastSync) < Duration(minutes: 1)) {
         return; // Skip if recently synced
       }
 
@@ -191,7 +217,11 @@ class SocialRepositoryImpl implements SocialRepository {
 
       _lastSyncTimes['chat'] = DateTime.now();
     } catch (e) {
-      developer.log('Error syncing chat data: $e', name: 'SocialRepository', level: 1000);
+      developer.log(
+        'Error syncing chat data: $e',
+        name: 'SocialRepository',
+        level: 1000,
+      );
     }
   }
 
@@ -204,7 +234,11 @@ class SocialRepositoryImpl implements SocialRepository {
       try {
         await _invalidateSpecificCache(cache);
       } catch (e) {
-        developer.log('Error invalidating cache $cache: $e', name: 'SocialRepository', level: 1000);
+        developer.log(
+          'Error invalidating cache $cache: $e',
+          name: 'SocialRepository',
+          level: 1000,
+        );
       }
     }
   }
@@ -222,7 +256,11 @@ class SocialRepositoryImpl implements SocialRepository {
         await _chatRepository.getConversations();
         break;
       default:
-        developer.log('Unknown cache type: $cacheType', name: 'SocialRepository', level: 900);
+        developer.log(
+          'Unknown cache type: $cacheType',
+          name: 'SocialRepository',
+          level: 900,
+        );
     }
   }
 
@@ -232,22 +270,26 @@ class SocialRepositoryImpl implements SocialRepository {
   Future<Either<Failure, Map<String, dynamic>>> getSocialDashboard() async {
     try {
       final results = await Future.wait([
-        _friendsRepository.getFriends('current_user').then((result) => result.fold(
-          (failure) => null,
-          (friends) => friends,
-        )),
-        _postsRepository.getSocialFeed().then((result) => result.fold(
-          (failure) => null,
-          (feed) => feed.posts.take(10).toList(),
-        )),
-        _chatRepository.getConversations().then((result) => result.fold(
-          (failure) => null,
-          (conversations) => conversations.take(5).toList(),
-        )),
-        _chatRepository.getTotalUnreadCount().then((result) => result.fold(
-          (failure) => 0,
-          (count) => count,
-        )),
+        _friendsRepository
+            .getFriends('current_user')
+            .then(
+              (result) => result.fold((failure) => null, (friends) => friends),
+            ),
+        _postsRepository.getSocialFeed().then(
+          (result) => result.fold(
+            (failure) => null,
+            (feed) => feed.posts.take(10).toList(),
+          ),
+        ),
+        _chatRepository.getConversations().then(
+          (result) => result.fold(
+            (failure) => null,
+            (conversations) => conversations.take(5).toList(),
+          ),
+        ),
+        _chatRepository.getTotalUnreadCount().then(
+          (result) => result.fold((failure) => 0, (count) => count),
+        ),
       ]);
 
       final dashboard = {
@@ -305,13 +347,15 @@ class SocialRepositoryImpl implements SocialRepository {
       // Get post details
       final postResult = await _postsRepository.getPost(postId);
       if (postResult.isLeft()) {
-        return Left(postResult.fold((failure) => failure, (_) => throw Exception()));
+        return Left(
+          postResult.fold((failure) => failure, (_) => throw Exception()),
+        );
       }
 
       final post = postResult.fold((_) => throw Exception(), (post) => post);
 
       // Create share message content
-      final shareContent = message != null 
+      final shareContent = message != null
           ? '$message\n\nShared post: ${post.content}'
           : 'Shared post: ${post.content}';
 
@@ -352,7 +396,9 @@ class SocialRepositoryImpl implements SocialRepository {
 
       return postResult;
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to create post from message: $e'));
+      return Left(
+        ServerFailure(message: 'Failed to create post from message: $e'),
+      );
     }
   }
 
@@ -362,18 +408,31 @@ class SocialRepositoryImpl implements SocialRepository {
   ) async {
     try {
       // Get conversation participants
-      final conversationResult = await _chatRepository.getConversation(conversationId);
+      final conversationResult = await _chatRepository.getConversation(
+        conversationId,
+      );
       if (conversationResult.isLeft()) {
-        return Left(conversationResult.fold((failure) => failure, (_) => throw Exception()));
+        return Left(
+          conversationResult.fold(
+            (failure) => failure,
+            (_) => throw Exception(),
+          ),
+        );
       }
 
-      final conversation = conversationResult.fold((_) => throw Exception(), (conv) => conv);
+      final conversation = conversationResult.fold(
+        (_) => throw Exception(),
+        (conv) => conv,
+      );
 
       // Get mutual friends for each participant
       final mutualFriends = <Friend>[];
       for (final participant in conversation.participants) {
-        if (participant.id != 'current_user') { // Replace with actual current user ID
-          final mutualResult = await _friendsRepository.getMutualFriends(participant.id);
+        if (participant.id != 'current_user') {
+          // Replace with actual current user ID
+          final mutualResult = await _friendsRepository.getMutualFriends(
+            participant.id,
+          );
           mutualResult.fold(
             (_) => {},
             (friends) => mutualFriends.addAll(friends),
@@ -401,10 +460,9 @@ class SocialRepositoryImpl implements SocialRepository {
     try {
       if (!_isOnline) {
         // Queue for later sync
-        _pendingSyncOperations.add(() => syncUserSocialStatus(
-          userId: userId,
-          statusData: statusData,
-        ));
+        _pendingSyncOperations.add(
+          () => syncUserSocialStatus(userId: userId, statusData: statusData),
+        );
         return Right(true);
       }
 
@@ -441,14 +499,12 @@ class SocialRepositoryImpl implements SocialRepository {
   Future<Either<Failure, Map<String, dynamic>>> getNotificationSummary() async {
     try {
       final results = await Future.wait([
-        _friendsRepository.getPendingRequests().then((result) => result.fold(
-          (_) => 0,
-          (requests) => requests.length,
-        )),
-        _chatRepository.getTotalUnreadCount().then((result) => result.fold(
-          (_) => 0,
-          (count) => count,
-        )),
+        _friendsRepository.getPendingRequests().then(
+          (result) => result.fold((_) => 0, (requests) => requests.length),
+        ),
+        _chatRepository.getTotalUnreadCount().then(
+          (result) => result.fold((_) => 0, (count) => count),
+        ),
         // Posts mentions/reactions would need implementation
         Future.value(0), // Placeholder for post notifications
       ]);
@@ -463,7 +519,9 @@ class SocialRepositoryImpl implements SocialRepository {
 
       return Right(summary);
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to get notification summary: $e'));
+      return Left(
+        ServerFailure(message: 'Failed to get notification summary: $e'),
+      );
     }
   }
 
@@ -478,9 +536,12 @@ class SocialRepositoryImpl implements SocialRepository {
 
       // Preload important data
       await _preloadCriticalData();
-
     } catch (e) {
-      developer.log('Error optimizing cache usage: $e', name: 'SocialRepository', level: 1000);
+      developer.log(
+        'Error optimizing cache usage: $e',
+        name: 'SocialRepository',
+        level: 1000,
+      );
     }
   }
 
@@ -514,16 +575,18 @@ class SocialRepositoryImpl implements SocialRepository {
 
   /// Helper methods for activity tracking
 
-  Future<Map<String, dynamic>> _getPostsActivity(DateTime start, DateTime end) async {
+  Future<Map<String, dynamic>> _getPostsActivity(
+    DateTime start,
+    DateTime end,
+  ) async {
     // Placeholder - would need implementation in PostsRepository
-    return {
-      'posts_created': 0,
-      'posts_liked': 0,
-      'comments_made': 0,
-    };
+    return {'posts_created': 0, 'posts_liked': 0, 'comments_made': 0};
   }
 
-  Future<Map<String, dynamic>> _getFriendsActivity(DateTime start, DateTime end) async {
+  Future<Map<String, dynamic>> _getFriendsActivity(
+    DateTime start,
+    DateTime end,
+  ) async {
     // Placeholder - would need implementation in FriendsRepository
     return {
       'friends_added': 0,
@@ -532,13 +595,12 @@ class SocialRepositoryImpl implements SocialRepository {
     };
   }
 
-  Future<Map<String, dynamic>> _getChatActivity(DateTime start, DateTime end) async {
+  Future<Map<String, dynamic>> _getChatActivity(
+    DateTime start,
+    DateTime end,
+  ) async {
     // Placeholder - would need implementation in ChatRepository
-    return {
-      'messages_sent': 0,
-      'conversations_started': 0,
-      'groups_joined': 0,
-    };
+    return {'messages_sent': 0, 'conversations_started': 0, 'groups_joined': 0};
   }
 
   /// Real-time cross-feature coordination
@@ -626,11 +688,11 @@ class SocialRepositoryImpl implements SocialRepository {
         content: content,
         // Note: Individual repository might need updates to support all parameters
       );
-      
+
       if (result.isRight()) {
         _invalidatedCaches.add('social_feed');
       }
-      
+
       return result;
     } catch (e) {
       return Left(ServerFailure(message: 'Failed to create post: $e'));
@@ -645,7 +707,7 @@ class SocialRepositoryImpl implements SocialRepository {
   }) async {
     try {
       final result = await _postsRepository.getSocialFeed();
-      
+
       return result.fold(
         (failure) => Left(failure),
         (feed) => Right({
@@ -716,24 +778,29 @@ class SocialRepositoryImpl implements SocialRepository {
     String? message,
   }) async {
     final result = await _friendsRepository.sendFriendRequest(targetUserId);
-    
+
     if (result.isRight()) {
       _invalidatedCaches.add('friends');
     }
-    
+
     return result;
   }
 
   @override
   Future<Either<Failure, bool>> acceptFriendRequest(String requestId) async {
     final result = await _friendsRepository.acceptFriendRequest(requestId);
-    
+
     if (result.isRight()) {
       _invalidatedCaches.add('friends');
       return const Right(true);
     }
-    
-    return Left(result.fold((failure) => failure, (_) => throw Exception('Should not reach here')));
+
+    return Left(
+      result.fold(
+        (failure) => failure,
+        (_) => throw Exception('Should not reach here'),
+      ),
+    );
   }
 
   @override
@@ -743,7 +810,9 @@ class SocialRepositoryImpl implements SocialRepository {
 
   @override
   Future<Either<Failure, List<dynamic>>> getFriends({String? userId}) async {
-    final result = await _friendsRepository.getFriends(userId ?? 'current_user');
+    final result = await _friendsRepository.getFriends(
+      userId ?? 'current_user',
+    );
     return result.fold(
       (failure) => Left(failure),
       (friends) => Right(friends.cast<dynamic>()),
@@ -751,7 +820,8 @@ class SocialRepositoryImpl implements SocialRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, List<dynamic>>>> getFriendRequests() async {
+  Future<Either<Failure, Map<String, List<dynamic>>>>
+  getFriendRequests() async {
     final result = await _friendsRepository.getPendingRequests();
     return result.fold(
       (failure) => Left(failure),
@@ -776,22 +846,22 @@ class SocialRepositoryImpl implements SocialRepository {
   @override
   Future<Either<Failure, bool>> removeFriend(String friendId) async {
     final result = await _friendsRepository.removeFriend(friendId);
-    
+
     if (result.isRight()) {
       _invalidatedCaches.add('friends');
     }
-    
+
     return result;
   }
 
   @override
   Future<Either<Failure, bool>> blockUser(String userId) async {
     final result = await _friendsRepository.blockUser(userId);
-    
+
     if (result.isRight()) {
       _invalidatedCaches.addAll(['friends', 'social_feed']);
     }
-    
+
     return result;
   }
 
@@ -806,7 +876,9 @@ class SocialRepositoryImpl implements SocialRepository {
     int? limit,
   }) async {
     // Would need implementation in FriendsRepository
-    return Left(ServerFailure(message: 'Get potential friends not implemented'));
+    return Left(
+      ServerFailure(message: 'Get potential friends not implemented'),
+    );
   }
 
   @override
@@ -828,11 +900,11 @@ class SocialRepositoryImpl implements SocialRepository {
       conversationId: conversationId,
       content: content,
     );
-    
+
     if (result.isRight()) {
       _invalidatedCaches.add('conversations');
     }
-    
+
     return result;
   }
 
@@ -861,16 +933,18 @@ class SocialRepositoryImpl implements SocialRepository {
           messageId: messageId,
           userId: 'current_user', // TODO: Replace with actual current user ID
         );
-        
+
         // If any message fails to mark as read, return the failure
         if (result.isLeft()) {
           return result;
         }
       }
-      
+
       return const Right(true);
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to mark messages as read: $e'));
+      return Left(
+        ServerFailure(message: 'Failed to mark messages as read: $e'),
+      );
     }
   }
 
@@ -910,7 +984,9 @@ class SocialRepositoryImpl implements SocialRepository {
     String? conversationType,
   }) async {
     // Would need implementation in ChatRepository
-    return Left(ServerFailure(message: 'Get or create conversation not implemented'));
+    return Left(
+      ServerFailure(message: 'Get or create conversation not implemented'),
+    );
   }
 
   @override
@@ -932,7 +1008,9 @@ class SocialRepositoryImpl implements SocialRepository {
     int? limit,
   }) async {
     // Would need implementation in UserRepository
-    return Left(ServerFailure(message: 'Get users near location not implemented'));
+    return Left(
+      ServerFailure(message: 'Get users near location not implemented'),
+    );
   }
 
   @override
@@ -942,7 +1020,9 @@ class SocialRepositoryImpl implements SocialRepository {
     int? limit,
   }) async {
     // Would need implementation in UserRepository
-    return Left(ServerFailure(message: 'Get users by sports interests not implemented'));
+    return Left(
+      ServerFailure(message: 'Get users by sports interests not implemented'),
+    );
   }
 
   @override
@@ -953,7 +1033,9 @@ class SocialRepositoryImpl implements SocialRepository {
     int? limit,
   }) async {
     // Would need implementation in UserRepository
-    return Left(ServerFailure(message: 'Get users by skill level not implemented'));
+    return Left(
+      ServerFailure(message: 'Get users by skill level not implemented'),
+    );
   }
 
   @override
@@ -962,7 +1044,9 @@ class SocialRepositoryImpl implements SocialRepository {
     int? limit,
   }) async {
     // Would need implementation in UserRepository
-    return Left(ServerFailure(message: 'Get users by activity level not implemented'));
+    return Left(
+      ServerFailure(message: 'Get users by activity level not implemented'),
+    );
   }
 
   @override
@@ -971,19 +1055,21 @@ class SocialRepositoryImpl implements SocialRepository {
     String userId2,
   ) async {
     // Would need implementation in UserRepository
-    return Left(ServerFailure(message: 'Get mutual connections not implemented'));
+    return Left(
+      ServerFailure(message: 'Get mutual connections not implemented'),
+    );
   }
 
   @override
   Future<Either<Failure, List<String>>> getTrendingInterests() async {
     // Would need implementation in UserRepository
-    return Left(ServerFailure(message: 'Get trending interests not implemented'));
+    return Left(
+      ServerFailure(message: 'Get trending interests not implemented'),
+    );
   }
 
   @override
-  Future<Either<Failure, bool>> syncData({
-    List<String>? features,
-  }) async {
+  Future<Either<Failure, bool>> syncData({List<String>? features}) async {
     try {
       if (features == null || features.isEmpty) {
         await _performPeriodicSync();
@@ -992,7 +1078,7 @@ class SocialRepositoryImpl implements SocialRepository {
         if (features.contains('posts')) await _syncPostsData();
         if (features.contains('chat')) await _syncChatData();
       }
-      
+
       return Right(true);
     } catch (e) {
       return Left(ServerFailure(message: 'Failed to sync data: $e'));

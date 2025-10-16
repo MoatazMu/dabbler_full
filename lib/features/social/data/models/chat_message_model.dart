@@ -41,7 +41,7 @@ class ChatMessageModel extends ChatMessage {
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
     // Parse sender information from nested profiles data
     final senderData = json['sender'] ?? json['profiles'] ?? {};
-    
+
     // Parse message type
     MessageType messageType = MessageType.text;
     final typeStr = json['message_type']?.toString().toLowerCase() ?? 'text';
@@ -81,22 +81,22 @@ class ChatMessageModel extends ChatMessage {
 
     List<String> readBy = [];
     if (json['read_by'] != null && json['read_by'] is List) {
-      readBy = (json['read_by'] as List)
-          .map((id) => id.toString())
-          .toList();
+      readBy = (json['read_by'] as List).map((id) => id.toString()).toList();
     }
 
     // Parse read timestamps
     Map<String, DateTime> readTimestamps = {};
     if (json['read_timestamps'] != null && json['read_timestamps'] is Map) {
       final timestampsMap = json['read_timestamps'] as Map<String, dynamic>;
-      readTimestamps = timestampsMap.map((userId, timestamp) => 
-          MapEntry(userId, _parseDateTime(timestamp)));
+      readTimestamps = timestampsMap.map(
+        (userId, timestamp) => MapEntry(userId, _parseDateTime(timestamp)),
+      );
     }
 
     // Parse media attachments
     List<MediaAttachment> mediaAttachments = [];
-    if (json['media_attachments'] != null && json['media_attachments'] is List) {
+    if (json['media_attachments'] != null &&
+        json['media_attachments'] is List) {
       mediaAttachments = (json['media_attachments'] as List)
           .map((attachment) => MediaAttachment.fromJson(attachment))
           .toList();
@@ -109,7 +109,7 @@ class ChatMessageModel extends ChatMessage {
           type: _getAttachmentTypeFromMessageType(messageType),
           name: json['attachment_name'] ?? '',
           size: json['attachment_size'] ?? 0,
-        )
+        ),
       ];
     }
 
@@ -133,25 +133,30 @@ class ChatMessageModel extends ChatMessage {
       sentAt: _parseDateTime(json['sent_at'] ?? json['created_at']),
       messageType: messageType,
       isEdited: json['is_edited'] == true,
-      editedAt: json['edited_at'] != null ? _parseDateTime(json['edited_at']) : null,
+      editedAt: json['edited_at'] != null
+          ? _parseDateTime(json['edited_at'])
+          : null,
       isDeleted: json['is_deleted'] == true || json['deleted'] == true,
-      deletedAt: json['deleted_at'] != null ? _parseDateTime(json['deleted_at']) : null,
-      senderName: senderData['full_name'] ?? 
-                  senderData['display_name'] ?? 
-                  senderData['username'] ?? 
-                  'Unknown User',
-      senderAvatar: senderData['avatar_url'] ?? 
-                   senderData['profile_picture'] ?? 
-                   '',
-      senderIsVerified: senderData['verified'] == true || 
-                       senderData['is_verified'] == true,
+      deletedAt: json['deleted_at'] != null
+          ? _parseDateTime(json['deleted_at'])
+          : null,
+      senderName:
+          senderData['full_name'] ??
+          senderData['display_name'] ??
+          senderData['username'] ??
+          'Unknown User',
+      senderAvatar:
+          senderData['avatar_url'] ?? senderData['profile_picture'] ?? '',
+      senderIsVerified:
+          senderData['verified'] == true || senderData['is_verified'] == true,
       deliveredTo: deliveredTo,
       readBy: readBy,
       readTimestamps: readTimestamps,
       mediaAttachments: mediaAttachments,
       replyTo: replyTo,
-      isSystemMessage: messageType == MessageType.system || 
-                      json['is_system_message'] == true,
+      isSystemMessage:
+          messageType == MessageType.system ||
+          json['is_system_message'] == true,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -192,12 +197,14 @@ class ChatMessageModel extends ChatMessage {
 
     if (readTimestamps.isNotEmpty) {
       json['read_timestamps'] = readTimestamps.map(
-        (userId, timestamp) => MapEntry(userId, timestamp.toIso8601String())
+        (userId, timestamp) => MapEntry(userId, timestamp.toIso8601String()),
       );
     }
 
     if (mediaAttachments.isNotEmpty) {
-      json['media_attachments'] = mediaAttachments.map((a) => a.toJson()).toList();
+      json['media_attachments'] = mediaAttachments
+          .map((a) => a.toJson())
+          .toList();
     }
 
     if (replyTo != null) {
@@ -229,7 +236,9 @@ class ChatMessageModel extends ChatMessage {
 
     // Add media attachments for non-text messages
     if (mediaAttachments.isNotEmpty) {
-      json['media_attachments'] = mediaAttachments.map((a) => a.toJson()).toList();
+      json['media_attachments'] = mediaAttachments
+          .map((a) => a.toJson())
+          .toList();
     }
 
     // Add reply reference
@@ -260,10 +269,8 @@ class ChatMessageModel extends ChatMessage {
     if (!newDeliveredTo.contains(userId)) {
       newDeliveredTo.add(userId);
     }
-    
-    return {
-      'delivered_to': newDeliveredTo,
-    };
+
+    return {'delivered_to': newDeliveredTo};
   }
 
   /// Create JSON for marking message as read
@@ -272,14 +279,14 @@ class ChatMessageModel extends ChatMessage {
     if (!newReadBy.contains(userId)) {
       newReadBy.add(userId);
     }
-    
+
     final newReadTimestamps = Map<String, DateTime>.from(readTimestamps);
     newReadTimestamps[userId] = DateTime.now();
 
     return {
       'read_by': newReadBy,
       'read_timestamps': newReadTimestamps.map(
-        (userId, timestamp) => MapEntry(userId, timestamp.toIso8601String())
+        (userId, timestamp) => MapEntry(userId, timestamp.toIso8601String()),
       ),
     };
   }

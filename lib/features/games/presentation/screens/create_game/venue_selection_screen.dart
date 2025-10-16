@@ -88,7 +88,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
         return venue['name'].toString().toLowerCase().contains(query) ||
-               venue['address'].toString().toLowerCase().contains(query);
+            venue['address'].toString().toLowerCase().contains(query);
       }
 
       return true;
@@ -96,7 +96,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
 
     // Sort by distance
     venues.sort((a, b) => a['distance'].compareTo(b['distance']));
-    
+
     return venues;
   }
 
@@ -125,24 +125,18 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
           children: [
             const Text(
               'Where will you play?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Find a venue or play without a specific location.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
-            
+
             _buildVenueOptions(),
             const SizedBox(height: 24),
-            
+
             if (_selectedOption == 'find_venue') ...[
               _buildVenueSearch(),
               const SizedBox(height: 16),
@@ -165,13 +159,10 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
           children: [
             const Text(
               'Choose an Option',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             // Find a Venue option
             GestureDetector(
               onTap: () {
@@ -186,23 +177,31 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: _selectedOption == 'find_venue' ? Colors.blue : Colors.grey[300]!,
+                    color: _selectedOption == 'find_venue'
+                        ? Colors.blue
+                        : Colors.grey[300]!,
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(12),
-                  color: _selectedOption == 'find_venue' ? Colors.blue[50] : Colors.white,
+                  color: _selectedOption == 'find_venue'
+                      ? Colors.blue[50]
+                      : Colors.white,
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _selectedOption == 'find_venue' ? Colors.blue : Colors.grey[300],
+                        color: _selectedOption == 'find_venue'
+                            ? Colors.blue
+                            : Colors.grey[300],
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.location_on,
-                        color: _selectedOption == 'find_venue' ? Colors.white : Colors.grey[600],
+                        color: _selectedOption == 'find_venue'
+                            ? Colors.white
+                            : Colors.grey[600],
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -215,7 +214,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: _selectedOption == 'find_venue' ? Colors.blue : Colors.black,
+                              color: _selectedOption == 'find_venue'
+                                  ? Colors.blue
+                                  : Colors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -235,9 +236,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // No Venue Needed option
             GestureDetector(
               onTap: () {
@@ -251,23 +252,31 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: _selectedOption == 'no_venue' ? Colors.green : Colors.grey[300]!,
+                    color: _selectedOption == 'no_venue'
+                        ? Colors.green
+                        : Colors.grey[300]!,
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(12),
-                  color: _selectedOption == 'no_venue' ? Colors.green[50] : Colors.white,
+                  color: _selectedOption == 'no_venue'
+                      ? Colors.green[50]
+                      : Colors.white,
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _selectedOption == 'no_venue' ? Colors.green : Colors.grey[300],
+                        color: _selectedOption == 'no_venue'
+                            ? Colors.green
+                            : Colors.grey[300],
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.nature_people,
-                        color: _selectedOption == 'no_venue' ? Colors.white : Colors.grey[600],
+                        color: _selectedOption == 'no_venue'
+                            ? Colors.white
+                            : Colors.grey[600],
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -280,7 +289,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: _selectedOption == 'no_venue' ? Colors.green : Colors.black,
+                              color: _selectedOption == 'no_venue'
+                                  ? Colors.green
+                                  : Colors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -319,10 +330,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                 const SizedBox(width: 8),
                 const Text(
                   'Search Venues',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 TextButton.icon(
@@ -333,7 +341,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -363,7 +371,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                 });
               },
             ),
-            
+
             if (widget.sport != null) ...[
               const SizedBox(height: 12),
               Container(
@@ -378,10 +386,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                     const SizedBox(width: 8),
                     Text(
                       'Showing venues for ${widget.sport}',
-                      style: TextStyle(
-                        color: Colors.blue[600],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.blue[600], fontSize: 12),
                     ),
                   ],
                 ),
@@ -395,7 +400,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
 
   Widget _buildVenueList() {
     final venues = _filteredVenues;
-    
+
     if (venues.isEmpty) {
       return Card(
         child: Padding(
@@ -406,17 +411,11 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
               const SizedBox(height: 12),
               const Text(
                 'No venues found',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
                 'Try adjusting your search or filters',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(
@@ -437,10 +436,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
           children: [
             Text(
               '${venues.length} venues found',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const Spacer(),
             TextButton(
@@ -450,7 +446,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        
+
         ...venues.map((venue) => _buildVenueCard(venue)),
       ],
     );
@@ -459,7 +455,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
   Widget _buildVenueCard(Map<String, dynamic> venue) {
     final isSelected = _selectedVenue?['id'] == venue['id'];
     final isAvailable = venue['availability'] as bool;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: isSelected ? 4 : 1,
@@ -491,12 +487,15 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                     child: venue['imageUrl'] != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(venue['imageUrl'], fit: BoxFit.cover),
+                            child: Image.network(
+                              venue['imageUrl'],
+                              fit: BoxFit.cover,
+                            ),
                           )
                         : const Icon(Icons.image, size: 24, color: Colors.grey),
                   ),
                   const SizedBox(width: 12),
-                  
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,7 +529,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        
+
                         Text(
                           venue['address'],
                           style: TextStyle(
@@ -543,7 +542,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                       ],
                     ),
                   ),
-                  
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -552,7 +551,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: venue['price'] == 0 ? Colors.green : Colors.blue,
+                          color: venue['price'] == 0
+                              ? Colors.green
+                              : Colors.blue,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -571,9 +572,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Venue details
               Row(
                 children: [
@@ -581,10 +582,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                   const SizedBox(width: 4),
                   Text(
                     '${venue['distance']} km away',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(width: 16),
                   Icon(Icons.sports, size: 14, color: Colors.grey[600]),
@@ -592,41 +590,43 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                   Expanded(
                     child: Text(
                       (venue['sports'] as List).join(', '),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Amenities
               Wrap(
                 spacing: 4,
                 children: (venue['amenities'] as List<String>)
                     .take(3)
-                    .map((amenity) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
+                    .map(
+                      (amenity) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          amenity,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
                           ),
-                          child: Text(
-                            amenity,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ))
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
-              
+
               if (!isAvailable) ...[
                 const SizedBox(height: 8),
                 Container(
@@ -642,18 +642,15 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'Not available for selected time',
-                        style: TextStyle(
-                          color: Colors.red[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.red[600], fontSize: 12),
                       ),
                     ],
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 12),
-              
+
               // Action buttons
               Row(
                 children: [
@@ -668,7 +665,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                     child: ElevatedButton(
                       onPressed: isAvailable ? () => _selectVenue(venue) : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isSelected ? Colors.green : Colors.blue,
+                        backgroundColor: isSelected
+                            ? Colors.green
+                            : Colors.blue,
                       ),
                       child: Text(
                         isSelected ? 'Selected' : 'Select',
@@ -704,26 +703,20 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             const Text(
               'Playing Without a Venue',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             Text(
               'Great choice for outdoor activities! Players will coordinate the exact location among themselves.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
-            
+
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -748,11 +741,15 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  
-                  const Text('• Suggest a specific location in your game description'),
+
+                  const Text(
+                    '• Suggest a specific location in your game description',
+                  ),
                   const Text('• Consider accessibility and parking'),
                   const Text('• Have a backup plan in case of weather'),
-                  const Text('• Share contact info for last-minute coordination'),
+                  const Text(
+                    '• Share contact info for last-minute coordination',
+                  ),
                 ],
               ),
             ),
@@ -796,7 +793,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              
+
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -817,7 +814,7 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                   ],
                 ),
               ),
-              
+
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
@@ -834,18 +831,22 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Center(
-                          child: Icon(Icons.image, size: 48, color: Colors.grey),
+                          child: Icon(
+                            Icons.image,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Details
                       Text(
                         venue['description'],
                         style: const TextStyle(fontSize: 16),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Amenities
                       const Text(
                         'Amenities',
@@ -855,29 +856,31 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      
+
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: (venue['amenities'] as List<String>)
-                            .map((amenity) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[100],
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Text(
-                                    amenity,
-                                    style: TextStyle(color: Colors.blue[800]),
-                                  ),
-                                ))
+                            .map(
+                              (amenity) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[100],
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  amenity,
+                                  style: TextStyle(color: Colors.blue[800]),
+                                ),
+                              ),
+                            )
                             .toList(),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Select button
                       SizedBox(
                         width: double.infinity,
@@ -918,13 +921,10 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
           children: [
             const Text(
               'Filters',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             const ListTile(
               leading: Icon(Icons.monetization_on),
               title: Text('Price Range'),
@@ -943,9 +943,9 @@ class _VenueSelectionScreenState extends State<VenueSelectionScreen> {
               subtitle: Text('4+ stars'),
               trailing: Icon(Icons.arrow_forward_ios),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(

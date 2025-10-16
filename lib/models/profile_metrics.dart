@@ -27,9 +27,9 @@ class ProfileMetrics {
   factory ProfileMetrics.fromJson(Map<String, dynamic> json) {
     return ProfileMetrics(
       id: json['id'],
-    metric_date: json['metric_date'] != null
-      ? DateTime.parse(json['metric_date'] as String)
-      : DateTime.now(),
+      metric_date: json['metric_date'] != null
+          ? DateTime.parse(json['metric_date'] as String)
+          : DateTime.now(),
       total_profiles: json['total_profiles'],
       completed_profiles: json['completed_profiles'],
       active_users_daily: json['active_users_daily'],

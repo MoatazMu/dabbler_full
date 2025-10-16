@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 /// Professional Notifications Screen
-/// 
+///
 /// Features:
 /// - Real-time notifications from Supabase
 /// - Mark as read functionality
@@ -174,17 +174,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
-        child: _buildBody(context),
-      ),
+      body: SafeArea(child: _buildBody(context)),
     );
   }
 
   Widget _buildBody(BuildContext context) {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null) {
@@ -214,7 +210,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -249,7 +245,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildErrorState(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -294,10 +290,7 @@ class _NotificationCard extends StatelessWidget {
   final NotificationItem notification;
   final VoidCallback onTap;
 
-  const _NotificationCard({
-    required this.notification,
-    required this.onTap,
-  });
+  const _NotificationCard({required this.notification, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -491,10 +484,7 @@ class _NotificationConfig {
   final IconData icon;
   final Color color;
 
-  _NotificationConfig({
-    required this.icon,
-    required this.color,
-  });
+  _NotificationConfig({required this.icon, required this.color});
 }
 
 /// Notification Item Model
@@ -544,8 +534,8 @@ class NotificationItem {
       imageUrl: json['image_url'] as String?,
       actionText: json['action_text'] as String?,
       actionRoute: json['action_route'] as String?,
-      readAt: json['read_at'] != null 
-          ? DateTime.parse(json['read_at'] as String) 
+      readAt: json['read_at'] != null
+          ? DateTime.parse(json['read_at'] as String)
           : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),

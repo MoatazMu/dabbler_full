@@ -1,75 +1,55 @@
 /// Enhanced cached network image widget with advanced features
 library;
+
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 /// Image transformation types
-enum ImageTransformation {
-  resize,
-  crop,
-  blur,
-  grayscale,
-  sepia,
-}
+enum ImageTransformation { resize, crop, blur, grayscale, sepia }
 
 /// Image transformation configuration
 class ImageTransformConfig {
   final ImageTransformation type;
   final Map<String, dynamic> params;
-  
+
   const ImageTransformConfig(this.type, this.params);
-  
+
   factory ImageTransformConfig.resize({
     required int width,
     required int height,
     bool maintainAspectRatio = true,
   }) {
-    return ImageTransformConfig(
-      ImageTransformation.resize,
-      {
-        'width': width,
-        'height': height,
-        'maintainAspectRatio': maintainAspectRatio,
-      },
-    );
+    return ImageTransformConfig(ImageTransformation.resize, {
+      'width': width,
+      'height': height,
+      'maintainAspectRatio': maintainAspectRatio,
+    });
   }
-  
+
   factory ImageTransformConfig.crop({
     required int x,
     required int y,
     required int width,
     required int height,
   }) {
-    return ImageTransformConfig(
-      ImageTransformation.crop,
-      {
-        'x': x,
-        'y': y,
-        'width': width,
-        'height': height,
-      },
-    );
+    return ImageTransformConfig(ImageTransformation.crop, {
+      'x': x,
+      'y': y,
+      'width': width,
+      'height': height,
+    });
   }
-  
+
   factory ImageTransformConfig.blur({required double sigma}) {
-    return ImageTransformConfig(
-      ImageTransformation.blur,
-      {'sigma': sigma},
-    );
+    return ImageTransformConfig(ImageTransformation.blur, {'sigma': sigma});
   }
-  
+
   factory ImageTransformConfig.grayscale() {
-    return const ImageTransformConfig(
-      ImageTransformation.grayscale,
-      {},
-    );
+    return const ImageTransformConfig(ImageTransformation.grayscale, {});
   }
-  
+
   factory ImageTransformConfig.sepia() {
-    return const ImageTransformConfig(
-      ImageTransformation.sepia,
-      {},
-    );
+    return const ImageTransformConfig(ImageTransformation.sepia, {});
   }
 }
 
@@ -81,7 +61,7 @@ class CacheConfig {
   final bool useMemoryCache;
   final bool useDiskCache;
   final String? cacheKey;
-  
+
   const CacheConfig({
     this.maxAge,
     this.maxMemoryCacheSize,
@@ -90,19 +70,19 @@ class CacheConfig {
     this.useDiskCache = true,
     this.cacheKey,
   });
-  
+
   static const CacheConfig defaultConfig = CacheConfig(
     maxAge: Duration(days: 7),
     maxMemoryCacheSize: 100, // MB
     maxDiskCacheSize: 500, // MB
   );
-  
+
   static const CacheConfig lowMemory = CacheConfig(
     maxAge: Duration(days: 3),
     maxMemoryCacheSize: 50,
     maxDiskCacheSize: 200,
   );
-  
+
   static const CacheConfig aggressive = CacheConfig(
     maxAge: Duration(days: 30),
     maxMemoryCacheSize: 200,
@@ -111,12 +91,7 @@ class CacheConfig {
 }
 
 /// Loading state types
-enum LoadingState {
-  loading,
-  loaded,
-  error,
-  placeholder,
-}
+enum LoadingState { loading, loaded, error, placeholder }
 
 /// Enhanced cached network image widget
 class CachedNetworkImageWidget extends StatefulWidget {
@@ -149,7 +124,7 @@ class CachedNetworkImageWidget extends StatefulWidget {
   final bool gaplessPlayback;
   final String? semanticLabel;
   final bool excludeFromSemantics;
-  
+
   const CachedNetworkImageWidget({
     super.key,
     required this.imageUrl,
@@ -182,9 +157,10 @@ class CachedNetworkImageWidget extends StatefulWidget {
     this.semanticLabel,
     this.excludeFromSemantics = false,
   });
-  
+
   @override
-  State<CachedNetworkImageWidget> createState() => _CachedNetworkImageWidgetState();
+  State<CachedNetworkImageWidget> createState() =>
+      _CachedNetworkImageWidgetState();
 }
 
 class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
@@ -195,53 +171,52 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
   bool _isRetrying = false;
   int _retryCount = 0;
   static const int _maxRetries = 3;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _notifyStateChanged(LoadingState.loading);
   }
-  
+
   void _setupAnimations() {
     _fadeController = AnimationController(
       duration: widget.fadeInDuration,
       reverseDuration: widget.fadeOutDuration,
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: widget.fadeInCurve,
-      reverseCurve: widget.fadeOutCurve,
-    ));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: widget.fadeInCurve,
+        reverseCurve: widget.fadeOutCurve,
+      ),
+    );
   }
-  
+
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return _buildImageWidget();
   }
-  
+
   Widget _buildImageWidget() {
     // In a real implementation, this would use cached_network_image package
     // For now, we'll simulate the behavior with a regular Image.network
-    
+
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
         return Stack(
           children: [
             // Placeholder
-            if (_currentState == LoadingState.loading || 
+            if (_currentState == LoadingState.loading ||
                 _currentState == LoadingState.placeholder) ...[
               SizedBox(
                 width: widget.width,
@@ -249,7 +224,7 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
                 child: widget.placeholder ?? _buildDefaultPlaceholder(),
               ),
             ],
-            
+
             // Error widget
             if (_currentState == LoadingState.error) ...[
               SizedBox(
@@ -258,7 +233,7 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
                 child: widget.errorWidget ?? _buildDefaultErrorWidget(),
               ),
             ],
-            
+
             // Actual image with fade transition
             if (_currentState == LoadingState.loaded) ...[
               Opacity(
@@ -271,7 +246,7 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
       },
     );
   }
-  
+
   Widget _buildNetworkImage() {
     return Image.network(
       widget.imageUrl,
@@ -292,7 +267,7 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
       loadingBuilder: _loadingBuilder,
     );
   }
-  
+
   Widget _errorBuilder(
     BuildContext context,
     Object error,
@@ -301,7 +276,7 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
     _notifyError(error);
     return widget.errorWidget ?? _buildDefaultErrorWidget();
   }
-  
+
   Widget _loadingBuilder(
     BuildContext context,
     Widget child,
@@ -311,16 +286,18 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
       _notifyLoaded();
       return child;
     }
-    
+
     _notifyStateChanged(LoadingState.loading);
-    
-    return widget.placeholder ?? _buildDefaultPlaceholder(
-      progress: loadingProgress.expectedTotalBytes != null
-          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-          : null,
-    );
+
+    return widget.placeholder ??
+        _buildDefaultPlaceholder(
+          progress: loadingProgress.expectedTotalBytes != null
+              ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+              : null,
+        );
   }
-  
+
   Widget _buildDefaultPlaceholder({double? progress}) {
     return Container(
       width: widget.width,
@@ -333,38 +310,25 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (progress != null) ...[
-            CircularProgressIndicator(
-              value: progress,
-              strokeWidth: 2,
-            ),
+            CircularProgressIndicator(value: progress, strokeWidth: 2),
             const SizedBox(height: 8),
             Text(
               '${(progress * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ] else ...[
-            Icon(
-              Icons.image,
-              size: 32,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.image, size: 32, color: Colors.grey[400]),
             const SizedBox(height: 8),
             Text(
               'Loading...',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ],
       ),
     );
   }
-  
+
   Widget _buildDefaultErrorWidget() {
     return Container(
       width: widget.width,
@@ -377,34 +341,24 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 32,
-            color: Colors.grey[600],
-          ),
+          Icon(Icons.error_outline, size: 32, color: Colors.grey[600]),
           const SizedBox(height: 8),
           Text(
             'Failed to load',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
           if (_canRetry()) ...[
             const SizedBox(height: 8),
             TextButton(
               onPressed: _retry,
-              child: Text(
-                'Retry',
-                style: TextStyle(fontSize: 12),
-              ),
+              child: Text('Retry', style: TextStyle(fontSize: 12)),
             ),
           ],
         ],
       ),
     );
   }
-  
+
   void _notifyStateChanged(LoadingState state) {
     if (_currentState != state) {
       setState(() {
@@ -413,40 +367,40 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget>
       widget.onStateChanged?.call(state);
     }
   }
-  
+
   void _notifyLoaded() {
     _notifyStateChanged(LoadingState.loaded);
     _fadeController.forward();
     widget.onImageLoaded?.call();
     _retryCount = 0; // Reset retry count on success
   }
-  
+
   void _notifyError(Object error) {
     _notifyStateChanged(LoadingState.error);
     widget.onError?.call(error);
   }
-  
+
   bool _canRetry() {
     return !_isRetrying && _retryCount < _maxRetries;
   }
-  
+
   Future<void> _retry() async {
     if (!_canRetry()) return;
-    
+
     setState(() {
       _isRetrying = true;
       _retryCount++;
     });
-    
+
     _notifyStateChanged(LoadingState.loading);
-    
+
     // Add delay before retry
     await Future.delayed(Duration(seconds: _retryCount));
-    
+
     setState(() {
       _isRetrying = false;
     });
-    
+
     // Force rebuild to retry loading
     setState(() {});
   }
@@ -458,7 +412,7 @@ extension CachedNetworkImageExtensions on CachedNetworkImageWidget {
   CachedNetworkImageWidget withBlur(double sigma) {
     final transforms = [...(transformations ?? [])];
     transforms.add(ImageTransformConfig.blur(sigma: sigma));
-    
+
     return CachedNetworkImageWidget(
       imageUrl: imageUrl,
       placeholder: placeholder,
@@ -491,12 +445,12 @@ extension CachedNetworkImageExtensions on CachedNetworkImageWidget {
       excludeFromSemantics: excludeFromSemantics,
     );
   }
-  
+
   /// Create with grayscale effect
   CachedNetworkImageWidget withGrayscale() {
     final transforms = [...(transformations ?? [])];
     transforms.add(ImageTransformConfig.grayscale());
-    
+
     return CachedNetworkImageWidget(
       imageUrl: imageUrl,
       placeholder: placeholder,
@@ -529,7 +483,7 @@ extension CachedNetworkImageExtensions on CachedNetworkImageWidget {
       excludeFromSemantics: excludeFromSemantics,
     );
   }
-  
+
   /// Create with custom cache configuration
   CachedNetworkImageWidget withCache(CacheConfig config) {
     return CachedNetworkImageWidget(
@@ -564,11 +518,11 @@ extension CachedNetworkImageExtensions on CachedNetworkImageWidget {
       excludeFromSemantics: excludeFromSemantics,
     );
   }
-  
+
   /// Create with authentication headers
   CachedNetworkImageWidget withAuth(Map<String, String> headers) {
     final allHeaders = {...(httpHeaders ?? {}), ...headers};
-    
+
     return CachedNetworkImageWidget(
       imageUrl: imageUrl,
       placeholder: placeholder,
@@ -608,19 +562,19 @@ class ImageCacheManager {
   static final Map<String, ImageCacheEntry> _memoryCache = {};
   static int _maxMemoryCacheSize = 100; // MB
   static int _currentMemoryUsage = 0;
-  
+
   /// Set maximum memory cache size in MB
   static void setMaxMemoryCacheSize(int sizeInMB) {
     _maxMemoryCacheSize = sizeInMB;
     _evictIfNeeded();
   }
-  
+
   /// Clear all cached images
   static void clearCache() {
     _memoryCache.clear();
     _currentMemoryUsage = 0;
   }
-  
+
   /// Clear cache for specific URL
   static void clearImageCache(String url) {
     final entry = _memoryCache.remove(url);
@@ -628,7 +582,7 @@ class ImageCacheManager {
       _currentMemoryUsage -= entry.sizeInBytes;
     }
   }
-  
+
   /// Get cache statistics
   static Map<String, dynamic> getCacheStats() {
     return {
@@ -638,36 +592,37 @@ class ImageCacheManager {
       'hitRate': _calculateHitRate(),
     };
   }
-  
+
   static double _calculateHitRate() {
     if (_memoryCache.isEmpty) return 0.0;
-    
+
     int totalHits = 0;
     int totalRequests = 0;
-    
+
     for (final entry in _memoryCache.values) {
       totalHits += entry.hitCount;
       totalRequests += entry.requestCount;
     }
-    
+
     return totalRequests > 0 ? totalHits / totalRequests : 0.0;
   }
-  
+
   static void _evictIfNeeded() {
     while (_currentMemoryUsage > _maxMemoryCacheSize * 1024 * 1024) {
       if (_memoryCache.isEmpty) break;
-      
+
       // Find least recently used entry
       String? lruKey;
       DateTime? oldestAccess;
-      
+
       for (final entry in _memoryCache.entries) {
-        if (oldestAccess == null || entry.value.lastAccessed.isBefore(oldestAccess)) {
+        if (oldestAccess == null ||
+            entry.value.lastAccessed.isBefore(oldestAccess)) {
           oldestAccess = entry.value.lastAccessed;
           lruKey = entry.key;
         }
       }
-      
+
       if (lruKey != null) {
         clearImageCache(lruKey);
       }
@@ -682,22 +637,20 @@ class ImageCacheEntry {
   DateTime lastAccessed;
   int hitCount;
   int requestCount;
-  
-  ImageCacheEntry({
-    required this.data,
-    required this.createdAt,
-  }) : lastAccessed = createdAt,
-       hitCount = 0,
-       requestCount = 0;
-  
+
+  ImageCacheEntry({required this.data, required this.createdAt})
+    : lastAccessed = createdAt,
+      hitCount = 0,
+      requestCount = 0;
+
   int get sizeInBytes => data.length;
-  
+
   void recordHit() {
     lastAccessed = DateTime.now();
     hitCount++;
     requestCount++;
   }
-  
+
   void recordMiss() {
     requestCount++;
   }

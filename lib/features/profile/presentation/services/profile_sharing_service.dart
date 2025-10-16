@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 /// Service for handling profile sharing functionality
 class ProfileSharingService {
   static const String _logTag = 'ProfileSharingService';
-  static const String _baseUrl = 'https://dabbler.app'; // Replace with actual domain
+  static const String _baseUrl =
+      'https://dabbler.app'; // Replace with actual domain
 
   /// Generate shareable profile link
   static String generateProfileLink(String userId) {
@@ -20,7 +21,8 @@ class ProfileSharingService {
   }) async {
     try {
       final profileLink = generateProfileLink(userId);
-      final message = customMessage ?? 
+      final message =
+          customMessage ??
           'Check out $userName\'s profile on Dabbler! $profileLink';
 
       // TODO: Implement share functionality when share_plus package is added
@@ -45,9 +47,9 @@ class ProfileSharingService {
   }) async {
     try {
       final profileLink = generateProfileLink(userId);
-      
+
       await Clipboard.setData(ClipboardData(text: profileLink));
-      
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -64,7 +66,7 @@ class ProfileSharingService {
       });
     } catch (e) {
       debugPrint('$_logTag: Error copying profile link: $e');
-      
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -104,11 +106,7 @@ class ProfileSharingService {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.qr_code,
-              size: size * 0.4,
-              color: foregroundColor,
-            ),
+            Icon(Icons.qr_code, size: size * 0.4, color: foregroundColor),
             const SizedBox(height: 8),
             Text(
               'QR Code',
@@ -138,11 +136,7 @@ class ProfileSharingService {
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Icon(
-          Icons.error_outline,
-          color: Colors.grey,
-          size: 48,
-        ),
+        child: const Icon(Icons.error_outline, color: Colors.grey, size: 48),
       );
     }
   }
@@ -173,10 +167,7 @@ class ProfileSharingService {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  generateProfileQRCode(
-                    userId: userId,
-                    size: 200,
-                  ),
+                  generateProfileQRCode(userId: userId, size: 200),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -191,10 +182,8 @@ class ProfileSharingService {
                         label: const Text('Copy Link'),
                       ),
                       TextButton.icon(
-                        onPressed: () => shareProfile(
-                          userId: userId,
-                          userName: userName,
-                        ),
+                        onPressed: () =>
+                            shareProfile(userId: userId, userName: userName),
                         icon: const Icon(Icons.share),
                         label: const Text('Share'),
                       ),
@@ -230,17 +219,19 @@ class ProfileSharingService {
   }) async {
     try {
       final profileLink = generateProfileLink(userId);
-      final message = customMessage ?? 
-          'Check out $userName\'s profile on Dabbler!';
+      final message =
+          customMessage ?? 'Check out $userName\'s profile on Dabbler!';
 
       String shareUrl = '';
-      
+
       switch (platform) {
         case SocialPlatform.twitter:
-          shareUrl = 'https://twitter.com/intent/tweet?text=${Uri.encodeComponent(message)}&url=${Uri.encodeComponent(profileLink)}';
+          shareUrl =
+              'https://twitter.com/intent/tweet?text=${Uri.encodeComponent(message)}&url=${Uri.encodeComponent(profileLink)}';
           break;
         case SocialPlatform.facebook:
-          shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=${Uri.encodeComponent(profileLink)}';
+          shareUrl =
+              'https://www.facebook.com/sharer/sharer.php?u=${Uri.encodeComponent(profileLink)}';
           break;
         case SocialPlatform.instagram:
           // Instagram doesn't support direct URL sharing, fallback to system share
@@ -251,7 +242,8 @@ class ProfileSharingService {
           );
           return;
         case SocialPlatform.whatsapp:
-          shareUrl = 'https://wa.me/?text=${Uri.encodeComponent('$message $profileLink')}';
+          shareUrl =
+              'https://wa.me/?text=${Uri.encodeComponent('$message $profileLink')}';
           break;
       }
 
@@ -281,18 +273,22 @@ class ProfileSharingService {
   }) {
     try {
       final profileLink = generateProfileLink(userId);
-      
+
       return {
         'og:title': '$userName\'s Dabbler Profile',
-        'og:description': userBio ?? 'Connect and play sports with $userName on Dabbler!',
-        'og:image': profileImageUrl ?? 'https://dabbler.app/default-profile.png',
+        'og:description':
+            userBio ?? 'Connect and play sports with $userName on Dabbler!',
+        'og:image':
+            profileImageUrl ?? 'https://dabbler.app/default-profile.png',
         'og:url': profileLink,
         'og:type': 'profile',
         'og:site_name': 'Dabbler',
         'twitter:card': 'summary_large_image',
         'twitter:title': '$userName\'s Dabbler Profile',
-        'twitter:description': userBio ?? 'Connect and play sports with $userName on Dabbler!',
-        'twitter:image': profileImageUrl ?? 'https://dabbler.app/default-profile.png',
+        'twitter:description':
+            userBio ?? 'Connect and play sports with $userName on Dabbler!',
+        'twitter:image':
+            profileImageUrl ?? 'https://dabbler.app/default-profile.png',
         if (sports != null && sports.isNotEmpty)
           'profile:sports': sports.join(', '),
       };
@@ -320,8 +316,11 @@ class ProfileSharingService {
   }
 
   /// Private helper methods
-  
-  static Future<void> _trackSharingEvent(String event, Map<String, dynamic> parameters) async {
+
+  static Future<void> _trackSharingEvent(
+    String event,
+    Map<String, dynamic> parameters,
+  ) async {
     try {
       // TODO: Implement analytics tracking
       debugPrint('$_logTag: Sharing event: $event, params: $parameters');
@@ -332,12 +331,7 @@ class ProfileSharingService {
 }
 
 /// Enum for social media platforms
-enum SocialPlatform {
-  twitter,
-  facebook,
-  instagram,
-  whatsapp,
-}
+enum SocialPlatform { twitter, facebook, instagram, whatsapp }
 
 /// Extension for social platform display names
 extension SocialPlatformExtension on SocialPlatform {

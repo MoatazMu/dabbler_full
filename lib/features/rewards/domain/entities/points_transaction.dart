@@ -23,15 +23,15 @@ class PointsTransaction extends BaseEntity {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        points,
-        type,
-        reason,
-        sourceId,
-        sourceType,
-        createdAt,
-      ];
+    id,
+    userId,
+    points,
+    type,
+    reason,
+    sourceId,
+    sourceType,
+    createdAt,
+  ];
 
   @override
   String toString() {
@@ -102,12 +102,7 @@ class PointsTransaction extends BaseEntity {
 }
 
 /// Types of points transactions
-enum PointsTransactionType {
-  earned,
-  spent,
-  bonus,
-  penalty,
-}
+enum PointsTransactionType { earned, spent, bonus, penalty }
 
 /// Extension for points transaction type display
 extension PointsTransactionTypeExtension on PointsTransactionType {

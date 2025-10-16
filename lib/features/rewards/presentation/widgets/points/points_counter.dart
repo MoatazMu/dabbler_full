@@ -50,10 +50,7 @@ class PointsHistoryPoint {
   final int points;
   final DateTime timestamp;
 
-  const PointsHistoryPoint({
-    required this.points,
-    required this.timestamp,
-  });
+  const PointsHistoryPoint({required this.points, required this.timestamp});
 }
 
 /// Animated points counter widget
@@ -125,21 +122,17 @@ class _PointsCounterState extends State<PointsCounter>
       vsync: this,
     );
 
-    _countAnimation = IntTween(
-      begin: widget.data.previousPoints,
-      end: widget.data.currentPoints,
-    ).animate(CurvedAnimation(
-      parent: _countController,
-      curve: Curves.easeOutCubic,
-    ));
+    _countAnimation =
+        IntTween(
+          begin: widget.data.previousPoints,
+          end: widget.data.currentPoints,
+        ).animate(
+          CurvedAnimation(parent: _countController, curve: Curves.easeOutCubic),
+        );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
 
     _changeAnimation = CurvedAnimation(
       parent: _changeController,
@@ -164,19 +157,22 @@ class _PointsCounterState extends State<PointsCounter>
   @override
   void didUpdateWidget(PointsCounter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (oldWidget.data.currentPoints != widget.data.currentPoints) {
-      _countAnimation = IntTween(
-        begin: oldWidget.data.currentPoints,
-        end: widget.data.currentPoints,
-      ).animate(CurvedAnimation(
-        parent: _countController,
-        curve: Curves.easeOutCubic,
-      ));
-      
+      _countAnimation =
+          IntTween(
+            begin: oldWidget.data.currentPoints,
+            end: widget.data.currentPoints,
+          ).animate(
+            CurvedAnimation(
+              parent: _countController,
+              curve: Curves.easeOutCubic,
+            ),
+          );
+
       _countController.reset();
       _countController.forward();
-      
+
       if (widget.data.showGlow && widget.data.hasChanged) {
         _glowController.repeat(reverse: true);
         _changeController.forward();
@@ -201,21 +197,21 @@ class _PointsCounterState extends State<PointsCounter>
 
   void _handleTap() {
     if (!widget.enableInteraction) return;
-    
+
     if (widget.enableHaptics) {
       HapticFeedback.lightImpact();
     }
-    
+
     widget.onTap?.call();
   }
 
   void _handleLongPress() {
     if (!widget.enableInteraction) return;
-    
+
     if (widget.enableHaptics) {
       HapticFeedback.mediumImpact();
     }
-    
+
     widget.onBreakdown?.call('detailed');
   }
 
@@ -281,7 +277,8 @@ class _PointsCounterState extends State<PointsCounter>
               if (widget.data.label.isNotEmpty) ...[
                 Text(
                   widget.data.label,
-                  style: widget.labelStyle ??
+                  style:
+                      widget.labelStyle ??
                       theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w500,
@@ -297,7 +294,8 @@ class _PointsCounterState extends State<PointsCounter>
                   if (widget.data.currency.isNotEmpty) ...[
                     Text(
                       widget.data.currency,
-                      style: widget.textStyle?.copyWith(
+                      style:
+                          widget.textStyle?.copyWith(
                             fontSize: (widget.textStyle?.fontSize ?? 24) * 0.7,
                             color: Colors.grey[600],
                           ) ??
@@ -314,7 +312,8 @@ class _PointsCounterState extends State<PointsCounter>
                     builder: (context, child) {
                       return Text(
                         _formatNumber(_countAnimation.value),
-                        style: widget.textStyle ??
+                        style:
+                            widget.textStyle ??
                             theme.textTheme.headlineLarge?.copyWith(
                               fontSize: widget.size ?? 48,
                               fontWeight: FontWeight.bold,
@@ -324,8 +323,9 @@ class _PointsCounterState extends State<PointsCounter>
                               shadows: glowOpacity > 0
                                   ? [
                                       Shadow(
-                                        color: changeColor
-                                            .withOpacity(0.5 * glowOpacity),
+                                        color: changeColor.withOpacity(
+                                          0.5 * glowOpacity,
+                                        ),
                                         blurRadius: 10 * glowOpacity,
                                       ),
                                     ]
@@ -478,7 +478,7 @@ class SparklinePainter extends CustomPainter {
       final x = size.width * progress;
       final normalizedPoint = (history[i].points - minPoints) / pointsRange;
       final y = size.height * (1 - normalizedPoint);
-      
+
       points.add(Offset(x, y));
     }
 
@@ -510,7 +510,11 @@ class SparklinePainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     // Draw dots at key points
-    for (int i = 0; i < visiblePath.length; i += math.max(1, visiblePath.length ~/ 5)) {
+    for (
+      int i = 0;
+      i < visiblePath.length;
+      i += math.max(1, visiblePath.length ~/ 5)
+    ) {
       canvas.drawCircle(visiblePath[i], 3, dotPaint);
     }
 
@@ -520,7 +524,7 @@ class SparklinePainter extends CustomPainter {
         ..color = color
         ..style = PaintingStyle.fill;
       canvas.drawCircle(visiblePath.last, 4, currentPaint);
-      
+
       // Glow effect for current point
       final glowPaint = Paint()
         ..color = color.withOpacity(0.3)
@@ -532,7 +536,7 @@ class SparklinePainter extends CustomPainter {
   @override
   bool shouldRepaint(SparklinePainter oldDelegate) {
     return animationProgress != oldDelegate.animationProgress ||
-           history != oldDelegate.history ||
-           color != oldDelegate.color;
+        history != oldDelegate.history ||
+        color != oldDelegate.color;
   }
 }

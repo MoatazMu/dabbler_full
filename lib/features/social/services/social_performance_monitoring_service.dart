@@ -1,12 +1,7 @@
-
 import 'dart:async';
 import 'dart:math' as math;
 import '../../../core/utils/either.dart';
 import '../../../core/analytics/analytics_service.dart';
-
-
-
-
 
 /// Service for monitoring performance of social features
 class SocialPerformanceMonitoringService {
@@ -34,9 +29,8 @@ class SocialPerformanceMonitoringService {
   static const int _maxBufferSize = 1000;
   static const int _maxHistoryDays = 30;
 
-  SocialPerformanceMonitoringService({
-    required AnalyticsService analytics,
-  })  : _analytics = analytics {
+  SocialPerformanceMonitoringService({required AnalyticsService analytics})
+    : _analytics = analytics {
     _initializeMonitoring();
   }
 
@@ -48,7 +42,9 @@ class SocialPerformanceMonitoringService {
     });
 
     // Aggregation every 15 minutes
-    _performanceAggregationTimer = Timer.periodic(_aggregationInterval, (_) async {
+    _performanceAggregationTimer = Timer.periodic(_aggregationInterval, (
+      _,
+    ) async {
       await _aggregatePerformanceData();
     });
 
@@ -59,8 +55,12 @@ class SocialPerformanceMonitoringService {
   }
 
   /// Start measuring an operation
-  String startMeasurement(String operationType, {Map<String, dynamic>? metadata}) {
-    final measurementId = '${operationType}_${DateTime.now().millisecondsSinceEpoch}';
+  String startMeasurement(
+    String operationType, {
+    Map<String, dynamic>? metadata,
+  }) {
+    final measurementId =
+        '${operationType}_${DateTime.now().millisecondsSinceEpoch}';
     final stopwatch = Stopwatch()..start();
     _activeTimers[measurementId] = stopwatch;
 
@@ -77,10 +77,12 @@ class SocialPerformanceMonitoringService {
 
   /// End a measurement and record performance data
   void endMeasurement(
-    String measurementId, 
-    String operationType,
-    {bool wasSuccessful = true, String? errorType, Map<String, dynamic>? metadata}
-  ) {
+    String measurementId,
+    String operationType, {
+    bool wasSuccessful = true,
+    String? errorType,
+    Map<String, dynamic>? metadata,
+  }) {
     final stopwatch = _activeTimers.remove(measurementId);
     if (stopwatch == null) return;
 
@@ -90,7 +92,7 @@ class SocialPerformanceMonitoringService {
     // Add to response time buffer
     _responseTimeBuffers.putIfAbsent(operationType, () => <int>[]);
     final buffer = _responseTimeBuffers[operationType]!;
-    
+
     if (buffer.length >= _maxBufferSize) {
       buffer.removeAt(0);
     }
@@ -100,15 +102,17 @@ class SocialPerformanceMonitoringService {
     _requestCounts[operationType] = (_requestCounts[operationType] ?? 0) + 1;
 
     // Record performance data
-    _recordPerformanceData(PerformanceDataPoint(
-      operationType: operationType,
-      measurementId: measurementId,
-      timestamp: DateTime.now(),
-      responseTime: Duration(milliseconds: duration),
-      wasSuccessful: wasSuccessful,
-      errorType: errorType,
-      metadata: metadata ?? {},
-    ));
+    _recordPerformanceData(
+      PerformanceDataPoint(
+        operationType: operationType,
+        measurementId: measurementId,
+        timestamp: DateTime.now(),
+        responseTime: Duration(milliseconds: duration),
+        wasSuccessful: wasSuccessful,
+        errorType: errorType,
+        metadata: metadata ?? {},
+      ),
+    );
 
     // Track the operation completion
     _analytics.trackEvent('performance_measurement_completed', {
@@ -132,7 +136,7 @@ class SocialPerformanceMonitoringService {
       final now = DateTime.now();
 
       // Check cache validity
-      if (!forceRefresh && 
+      if (!forceRefresh &&
           _metricsCache.containsKey(cacheKey) &&
           _lastMeasurements[cacheKey] != null &&
           now.difference(_lastMeasurements[cacheKey]!).inMinutes < 5) {
@@ -144,7 +148,9 @@ class SocialPerformanceMonitoringService {
       final messagingPerformance = await _calculateMessagingPerformance(period);
       final searchPerformance = await _calculateSearchPerformance(period);
       final mediaPerformance = await _calculateMediaPerformance(period);
-      final connectionPerformance = await _calculateConnectionPerformance(period);
+      final connectionPerformance = await _calculateConnectionPerformance(
+        period,
+      );
       final cachePerformance = await _calculateCachePerformance(period);
       final systemHealth = await _calculateSystemHealth();
 
@@ -172,20 +178,23 @@ class SocialPerformanceMonitoringService {
   }
 
   /// Calculate feed loading performance
-  Future<FeedPerformanceMetrics> _calculateFeedPerformance(Duration period) async {
+  Future<FeedPerformanceMetrics> _calculateFeedPerformance(
+    Duration period,
+  ) async {
     final feedResponseTimes = _responseTimeBuffers['feed_load'] ?? [];
     final feedRequests = _requestCounts['feed_load'] ?? 0;
 
     // Basic statistics
-    final averageLoadTime = feedResponseTimes.isEmpty ? 0 : 
-        feedResponseTimes.reduce((a, b) => a + b) / feedResponseTimes.length;
+    final averageLoadTime = feedResponseTimes.isEmpty
+        ? 0
+        : feedResponseTimes.reduce((a, b) => a + b) / feedResponseTimes.length;
 
     final medianLoadTime = _calculateMedian(feedResponseTimes);
     final p95LoadTime = _calculatePercentile(feedResponseTimes, 95);
     final p99LoadTime = _calculatePercentile(feedResponseTimes, 99);
 
     // Performance ratings
-  final loadTimeScore = _calculateLoadTimeScore(averageLoadTime.toDouble());
+    final loadTimeScore = _calculateLoadTimeScore(averageLoadTime.toDouble());
     final consistencyScore = _calculateConsistencyScore(feedResponseTimes);
 
     // Feed-specific metrics
@@ -202,29 +211,33 @@ class SocialPerformanceMonitoringService {
       loadTimeScore: loadTimeScore,
       consistencyScore: consistencyScore,
       postsPerSecond: postsPerSecond,
-  scrollPerformance: scrollPerformance,
+      scrollPerformance: scrollPerformance,
       refreshSuccessRate: refreshSuccess,
-  trends: await _calculateFeedTrends(period),
+      trends: await _calculateFeedTrends(period),
     );
   }
 
   /// Calculate messaging performance
-  Future<MessagingPerformanceMetrics> _calculateMessagingPerformance(Duration period) async {
-  final messageLatencies = _responseTimeBuffers['message_send'] ?? [];
+  Future<MessagingPerformanceMetrics> _calculateMessagingPerformance(
+    Duration period,
+  ) async {
+    final messageLatencies = _responseTimeBuffers['message_send'] ?? [];
     final connectionUptime = await _calculateConnectionUptime(period);
 
     return MessagingPerformanceMetrics(
       averageMessageLatency: _calculateAverage(messageLatencies),
       messageDeliverySuccess: await _calculateDeliverySuccessRate(period),
       connectionStability: connectionUptime,
-  websocketPerformance: await _calculateWebSocketPerformance(period),
-  messageQueueHealth: await _calculateMessageQueueHealth(period),
-  realTimeSync: await _calculateRealTimeSyncMetrics(period),
+      websocketPerformance: await _calculateWebSocketPerformance(period),
+      messageQueueHealth: await _calculateMessageQueueHealth(period),
+      realTimeSync: await _calculateRealTimeSyncMetrics(period),
     );
   }
 
   /// Calculate search performance
-  Future<SearchPerformanceMetrics> _calculateSearchPerformance(Duration period) async {
+  Future<SearchPerformanceMetrics> _calculateSearchPerformance(
+    Duration period,
+  ) async {
     final searchResponseTimes = _responseTimeBuffers['search_query'] ?? [];
     final userSearchTimes = _responseTimeBuffers['user_search'] ?? [];
     final contentSearchTimes = _responseTimeBuffers['content_search'] ?? [];
@@ -234,13 +247,15 @@ class SocialPerformanceMonitoringService {
       userSearchTime: _calculateAverage(userSearchTimes),
       contentSearchTime: _calculateAverage(contentSearchTimes),
       searchAccuracy: await _calculateSearchAccuracy(period),
-  indexingPerformance: await _calculateIndexingPerformance(period),
+      indexingPerformance: await _calculateIndexingPerformance(period),
       searchCacheHitRate: await _calculateSearchCacheHitRate(period),
     );
   }
 
   /// Calculate media upload/processing performance
-  Future<MediaPerformanceMetrics> _calculateMediaPerformance(Duration period) async {
+  Future<MediaPerformanceMetrics> _calculateMediaPerformance(
+    Duration period,
+  ) async {
     final uploadTimes = _responseTimeBuffers['media_upload'] ?? [];
     final processingTimes = _responseTimeBuffers['media_processing'] ?? [];
 
@@ -255,7 +270,9 @@ class SocialPerformanceMonitoringService {
   }
 
   /// Calculate connection and network performance
-  Future<ConnectionPerformanceMetrics> _calculateConnectionPerformance(Duration period) async {
+  Future<ConnectionPerformanceMetrics> _calculateConnectionPerformance(
+    Duration period,
+  ) async {
     return ConnectionPerformanceMetrics(
       websocketStability: await _calculateWebSocketStability(period),
       apiLatency: await _calculateApiLatency(period),
@@ -266,20 +283,24 @@ class SocialPerformanceMonitoringService {
   }
 
   /// Calculate cache performance metrics
-  Future<CachePerformanceMetrics> _calculateCachePerformance(Duration period) async {
+  Future<CachePerformanceMetrics> _calculateCachePerformance(
+    Duration period,
+  ) async {
     final cacheHits = await _getCacheHits(period);
     final cacheMisses = await _getCacheMisses(period);
     final totalRequests = cacheHits + cacheMisses;
 
     final hitRate = totalRequests == 0 ? 0.0 : cacheHits / totalRequests;
-    
+
     return CachePerformanceMetrics(
       hitRate: hitRate,
       missRate: 1.0 - hitRate,
       averageRetrievalTime: await _calculateCacheRetrievalTime(period),
       evictionRate: await _calculateEvictionRate(period),
       memoryUtilization: await _calculateCacheMemoryUtilization(),
-      distributionEfficiency: await _calculateCacheDistributionEfficiency(period),
+      distributionEfficiency: await _calculateCacheDistributionEfficiency(
+        period,
+      ),
     );
   }
 
@@ -291,7 +312,11 @@ class SocialPerformanceMonitoringService {
     final networkHealth = await _getNetworkHealth();
 
     final healthScore = _calculateOverallHealthScore(
-      memoryUsage, cpuUsage, diskUsage, networkHealth);
+      memoryUsage,
+      cpuUsage,
+      diskUsage,
+      networkHealth,
+    );
 
     return SystemHealthMetrics(
       memoryUsage: memoryUsage,
@@ -308,18 +333,20 @@ class SocialPerformanceMonitoringService {
   void _recordPerformanceData(PerformanceDataPoint dataPoint) {
     final key = dataPoint.operationType;
     _snapshotHistory.putIfAbsent(key, () => <PerformanceSnapshot>[]);
-    
+
     final history = _snapshotHistory[key]!;
-    history.add(PerformanceSnapshot(
-  timestamp: dataPoint.timestamp,
-  responseTime: dataPoint.responseTime,
-  wasSuccessful: dataPoint.wasSuccessful,
-  errorType: dataPoint.errorType,
-    ));
+    history.add(
+      PerformanceSnapshot(
+        timestamp: dataPoint.timestamp,
+        responseTime: dataPoint.responseTime,
+        wasSuccessful: dataPoint.wasSuccessful,
+        errorType: dataPoint.errorType,
+      ),
+    );
 
     // Limit history size
     final cutoffDate = DateTime.now().subtract(Duration(days: _maxHistoryDays));
-  history.removeWhere((snapshot) => snapshot.timestamp.isBefore(cutoffDate));
+    history.removeWhere((snapshot) => snapshot.timestamp.isBefore(cutoffDate));
   }
 
   /// Perform regular performance checks
@@ -327,14 +354,13 @@ class SocialPerformanceMonitoringService {
     try {
       // Check for performance degradation
       final issues = await _detectPerformanceIssues();
-      
+
       if (issues.isNotEmpty) {
         await _handlePerformanceIssues(issues);
       }
 
       // Update real-time metrics
       await _updateRealTimeMetrics();
-
     } catch (e) {
       print('Performance check failed: $e');
     }
@@ -383,7 +409,7 @@ class SocialPerformanceMonitoringService {
     if (values.isEmpty) return 0.0;
     final sorted = List<int>.from(values)..sort();
     final middle = sorted.length ~/ 2;
-    
+
     if (sorted.length % 2 == 0) {
       return (sorted[middle - 1] + sorted[middle]) / 2.0;
     } else {
@@ -401,73 +427,110 @@ class SocialPerformanceMonitoringService {
   double _calculateLoadTimeScore(double averageLoadTime) {
     // Score based on load time thresholds
     if (averageLoadTime <= 1000) return 100.0; // Excellent < 1s
-    if (averageLoadTime <= 2000) return 80.0;  // Good < 2s
-    if (averageLoadTime <= 3000) return 60.0;  // Fair < 3s
-    if (averageLoadTime <= 5000) return 40.0;  // Poor < 5s
+    if (averageLoadTime <= 2000) return 80.0; // Good < 2s
+    if (averageLoadTime <= 3000) return 60.0; // Fair < 3s
+    if (averageLoadTime <= 5000) return 40.0; // Poor < 5s
     return 20.0; // Very poor >= 5s
   }
 
   double _calculateConsistencyScore(List<int> values) {
     if (values.length < 2) return 100.0;
-    
+
     final mean = _calculateAverage(values);
-    final variance = values.map((x) => math.pow(x - mean, 2)).reduce((a, b) => a + b) / values.length;
+    final variance =
+        values.map((x) => math.pow(x - mean, 2)).reduce((a, b) => a + b) /
+        values.length;
     final stdDev = math.sqrt(variance);
     final coefficient = mean == 0 ? 0 : stdDev / mean;
-    
+
     // Lower coefficient of variation = higher consistency score
     return math.max(0, 100 - (coefficient * 100));
   }
 
   double _calculateOverallHealthScore(
-    double memoryUsage, double cpuUsage, double diskUsage, double networkHealth) {
+    double memoryUsage,
+    double cpuUsage,
+    double diskUsage,
+    double networkHealth,
+  ) {
     final memoryScore = math.max(0, 100 - (memoryUsage * 100));
     final cpuScore = math.max(0, 100 - (cpuUsage * 100));
     final diskScore = math.max(0, 100 - (diskUsage * 100));
-    
+
     return (memoryScore + cpuScore + diskScore + networkHealth) / 4;
   }
 
   // Placeholder methods for detailed calculations
   Future<double> _calculatePostsPerSecond(Duration period) async => 0.0;
-  Future<ScrollPerformanceMetrics> _calculateScrollPerformance(Duration period) async => ScrollPerformanceMetrics.empty();
+  Future<ScrollPerformanceMetrics> _calculateScrollPerformance(
+    Duration period,
+  ) async => ScrollPerformanceMetrics.empty();
   Future<double> _calculateRefreshSuccessRate(Duration period) async => 0.95;
-  Future<FeedTrends> _calculateFeedTrends(Duration period) async => FeedTrends.empty();
+  Future<FeedTrends> _calculateFeedTrends(Duration period) async =>
+      FeedTrends.empty();
   Future<double> _calculateConnectionUptime(Duration period) async => 0.99;
   Future<double> _calculateDeliverySuccessRate(Duration period) async => 0.98;
-  Future<WebSocketPerformanceMetrics> _calculateWebSocketPerformance(Duration period) async => WebSocketPerformanceMetrics.empty();
-  Future<MessageQueueHealthMetrics> _calculateMessageQueueHealth(Duration period) async => MessageQueueHealthMetrics.empty();
-  Future<RealTimeSyncMetrics> _calculateRealTimeSyncMetrics(Duration period) async => RealTimeSyncMetrics.empty();
+  Future<WebSocketPerformanceMetrics> _calculateWebSocketPerformance(
+    Duration period,
+  ) async => WebSocketPerformanceMetrics.empty();
+  Future<MessageQueueHealthMetrics> _calculateMessageQueueHealth(
+    Duration period,
+  ) async => MessageQueueHealthMetrics.empty();
+  Future<RealTimeSyncMetrics> _calculateRealTimeSyncMetrics(
+    Duration period,
+  ) async => RealTimeSyncMetrics.empty();
   Future<double> _calculateSearchAccuracy(Duration period) async => 0.85;
-  Future<IndexingPerformanceMetrics> _calculateIndexingPerformance(Duration period) async => IndexingPerformanceMetrics.empty();
+  Future<IndexingPerformanceMetrics> _calculateIndexingPerformance(
+    Duration period,
+  ) async => IndexingPerformanceMetrics.empty();
   Future<double> _calculateSearchCacheHitRate(Duration period) async => 0.70;
   Future<double> _calculateUploadSuccessRate(Duration period) async => 0.95;
   Future<double> _calculateCompressionEfficiency(Duration period) async => 0.70;
-  Future<Duration> _calculateThumbnailGenerationTime(Duration period) async => const Duration(milliseconds: 500);
-  Future<StoragePerformanceMetrics> _calculateStoragePerformance(Duration period) async => StoragePerformanceMetrics.empty();
+  Future<Duration> _calculateThumbnailGenerationTime(Duration period) async =>
+      const Duration(milliseconds: 500);
+  Future<StoragePerformanceMetrics> _calculateStoragePerformance(
+    Duration period,
+  ) async => StoragePerformanceMetrics.empty();
   Future<double> _calculateWebSocketStability(Duration period) async => 0.95;
-  Future<Duration> _calculateApiLatency(Duration period) async => const Duration(milliseconds: 200);
+  Future<Duration> _calculateApiLatency(Duration period) async =>
+      const Duration(milliseconds: 200);
   Future<double> _calculateNetworkReliability(Duration period) async => 0.99;
-  Future<ReconnectionMetrics> _calculateReconnectionMetrics(Duration period) async => ReconnectionMetrics.empty();
-  Future<BandwidthMetrics> _calculateBandwidthUtilization(Duration period) async => BandwidthMetrics.empty();
+  Future<ReconnectionMetrics> _calculateReconnectionMetrics(
+    Duration period,
+  ) async => ReconnectionMetrics.empty();
+  Future<BandwidthMetrics> _calculateBandwidthUtilization(
+    Duration period,
+  ) async => BandwidthMetrics.empty();
   Future<int> _getCacheHits(Duration period) async => 1000;
   Future<int> _getCacheMisses(Duration period) async => 200;
-  Future<Duration> _calculateCacheRetrievalTime(Duration period) async => const Duration(milliseconds: 50);
+  Future<Duration> _calculateCacheRetrievalTime(Duration period) async =>
+      const Duration(milliseconds: 50);
   Future<double> _calculateEvictionRate(Duration period) async => 0.05;
   Future<double> _calculateCacheMemoryUtilization() async => 0.70;
-  Future<double> _calculateCacheDistributionEfficiency(Duration period) async => 0.85;
+  Future<double> _calculateCacheDistributionEfficiency(Duration period) async =>
+      0.85;
   Future<double> _getMemoryUsage() async => 0.60;
   Future<double> _getCpuUsage() async => 0.40;
   Future<double> _getDiskUsage() async => 0.30;
   Future<double> _getNetworkHealth() async => 85.0;
   Future<double> _getSystemLoad() async => 1.5;
-  Future<Map<String, double>> _getSystemErrorRates() async => {'api': 0.01, 'database': 0.005};
+  Future<Map<String, double>> _getSystemErrorRates() async => {
+    'api': 0.01,
+    'database': 0.005,
+  };
   Future<List<PerformanceIssue>> _detectPerformanceIssues() async => [];
   Future<void> _handlePerformanceIssues(List<PerformanceIssue> issues) async {}
   Future<void> _updateRealTimeMetrics() async {}
-  Future<void> _storeAggregatedData(String operationType, List<int> buffer) async {}
-  Future<void> _storePerformanceReport(SocialPerformanceMetrics metrics) async {}
-  Future<void> _checkPerformanceThresholds(SocialPerformanceMetrics metrics) async {}
+  Future<void> _storeAggregatedData(
+    String operationType,
+    List<int> buffer,
+  ) async {}
+  Future<void> _storePerformanceReport(
+    SocialPerformanceMetrics metrics,
+  ) async {}
+  Future<void> _checkPerformanceThresholds(
+    SocialPerformanceMetrics metrics,
+  ) async {}
   Future<List<PerformanceAlert>> _generatePerformanceAlerts() async => [];
 
   /// Dispose resources
@@ -475,7 +538,7 @@ class SocialPerformanceMonitoringService {
     _performanceCheckTimer?.cancel();
     _performanceAggregationTimer?.cancel();
     _performanceReportTimer?.cancel();
-    
+
     // Stop any active timers
     for (final stopwatch in _activeTimers.values) {
       stopwatch.stop();
@@ -726,7 +789,8 @@ class FeedTrends {
 }
 
 class WebSocketPerformanceMetrics {
-  static WebSocketPerformanceMetrics empty() => const WebSocketPerformanceMetrics();
+  static WebSocketPerformanceMetrics empty() =>
+      const WebSocketPerformanceMetrics();
   const WebSocketPerformanceMetrics();
 }
 
@@ -741,7 +805,8 @@ class RealTimeSyncMetrics {
 }
 
 class IndexingPerformanceMetrics {
-  static IndexingPerformanceMetrics empty() => const IndexingPerformanceMetrics();
+  static IndexingPerformanceMetrics empty() =>
+      const IndexingPerformanceMetrics();
   const IndexingPerformanceMetrics();
 }
 

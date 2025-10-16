@@ -42,12 +42,10 @@ class _VenueListScreenState extends State<VenueListScreen> {
       // Use the same mock data as ExploreScreen
       final allVenues = _getDemoVenues();
       setState(() {
-        _venues = allVenues
-            .where((venue) {
-              final sports = venue['sports'] as List<dynamic>;
-              return sports.contains(widget.sport);
-            })
-            .toList();
+        _venues = allVenues.where((venue) {
+          final sports = venue['sports'] as List<dynamic>;
+          return sports.contains(widget.sport);
+        }).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -67,8 +65,8 @@ class _VenueListScreenState extends State<VenueListScreen> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _hasError
-                  ? _buildErrorState()
-                  : _buildVenueList(),
+              ? _buildErrorState()
+              : _buildVenueList(),
         ),
       ],
     );
@@ -114,7 +112,10 @@ class _VenueListScreenState extends State<VenueListScreen> {
                   padding: EdgeInsets.only(
                     right: filter != filters.last ? 8 : 0,
                   ),
-                  child: _buildFilterChip(filter['label'] ?? '', filter['value'] ?? ''),
+                  child: _buildFilterChip(
+                    filter['label'] ?? '',
+                    filter['value'] ?? '',
+                  ),
                 );
               }).toList(),
             ),
@@ -159,12 +160,10 @@ class _VenueListScreenState extends State<VenueListScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? widget.sportColor
-              : context.violetWidgetBg,
+          color: isSelected ? widget.sportColor : context.violetWidgetBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? widget.sportColor
                 : context.colors.outline.withValues(alpha: 0.1),
             width: 1,
@@ -174,9 +173,7 @@ class _VenueListScreenState extends State<VenueListScreen> {
           label,
           style: context.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w600,
-            color: isSelected 
-                ? Colors.white
-                : context.colors.onSurface,
+            color: isSelected ? Colors.white : context.colors.onSurface,
           ),
         ),
       ),
@@ -200,7 +197,8 @@ class _VenueListScreenState extends State<VenueListScreen> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => VenueDetailScreen(venueId: venue['id'] ?? ''),
+                  builder: (context) =>
+                      VenueDetailScreen(venueId: venue['id'] ?? ''),
                 ),
               );
             },
@@ -220,8 +218,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         ..sort((a, b) => (b['rating'] as num).compareTo(a['rating'] as num));
     }
     if (_selectedFilter == 'nearby') {
-      return List<Map<String, dynamic>>.from(_venues)
-        ..sort((a, b) => (a['distance'] as String).compareTo(b['distance'] as String));
+      return List<Map<String, dynamic>>.from(_venues)..sort(
+        (a, b) => (a['distance'] as String).compareTo(b['distance'] as String),
+      );
     }
     return _venues;
   }
@@ -281,11 +280,7 @@ class _VenueListScreenState extends State<VenueListScreen> {
                 color: DS.error.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(
-                LucideIcons.wifiOff,
-                size: 48,
-                color: DS.error,
-              ),
+              child: Icon(LucideIcons.wifiOff, size: 48, color: DS.error),
             ),
             const SizedBox(height: 24),
             Text(
@@ -324,7 +319,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Al Wasl Sports Club',
         'location': 'Al Jaddaf, Dubai',
         'sports': ['Football', 'Padel'],
-        'images': ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+        ],
         'rating': 4.8,
         'isOpen': true,
         'slots': [
@@ -338,7 +335,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Padel Pro UAE',
         'location': 'Al Quoz, Dubai',
         'sports': ['Padel'],
-        'images': ['https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400',
+        ],
         'rating': 4.7,
         'isOpen': true,
         'slots': [
@@ -351,7 +350,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Dubai Tennis Stadium',
         'location': 'Garhoud, Dubai',
         'sports': ['Padel', 'Tennis'],
-        'images': ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
+        ],
         'rating': 4.9,
         'isOpen': true,
         'slots': [],
@@ -362,7 +363,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Sharjah Cricket Stadium',
         'location': 'Sharjah, UAE',
         'sports': ['Cricket'],
-        'images': ['https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400',
+        ],
         'rating': 4.5,
         'isOpen': false,
         'slots': [],
@@ -373,7 +376,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Mushrif Park Field',
         'location': 'Mushrif, Dubai',
         'sports': ['Football'],
-        'images': ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+        ],
         'rating': 4.2,
         'isOpen': true,
         'slots': [
@@ -387,7 +392,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Padel Point',
         'location': 'Jumeirah, Dubai',
         'sports': ['Padel'],
-        'images': ['https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400',
+        ],
         'rating': 4.8,
         'isOpen': true,
         'slots': [
@@ -401,7 +408,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Dubai International Cricket Stadium',
         'location': 'Sports City, Dubai',
         'sports': ['Cricket'],
-        'images': ['https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400',
+        ],
         'rating': 4.6,
         'isOpen': true,
         'slots': [
@@ -415,7 +424,9 @@ class _VenueListScreenState extends State<VenueListScreen> {
         'name': 'Al Nasr Basketball Arena',
         'location': 'Oud Metha, Dubai',
         'sports': ['Basketball'],
-        'images': ['https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400'],
+        'images': [
+          'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400',
+        ],
         'rating': 4.4,
         'isOpen': true,
         'slots': [

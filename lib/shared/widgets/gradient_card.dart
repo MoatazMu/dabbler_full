@@ -32,28 +32,23 @@ class GradientCard extends StatelessWidget {
       padding: padding,
       margin: margin,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: colors,
-          begin: begin,
-          end: end,
-        ),
+        gradient: LinearGradient(colors: colors, begin: begin, end: end),
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: elevation != null ? [
-          BoxShadow(
-            color: shadowColor ?? Colors.black.withOpacity(0.1),
-            blurRadius: elevation! * 2,
-            offset: Offset(0, elevation!),
-          ),
-        ] : null,
+        boxShadow: elevation != null
+            ? [
+                BoxShadow(
+                  color: shadowColor ?? Colors.black.withOpacity(0.1),
+                  blurRadius: elevation! * 2,
+                  offset: Offset(0, elevation!),
+                ),
+              ]
+            : null,
       ),
       child: child,
     );
 
     if (onTap != null) {
-      return GestureDetector(
-        onTap: onTap,
-        child: card,
-      );
+      return GestureDetector(onTap: onTap, child: card);
     }
 
     return card;
@@ -80,35 +75,17 @@ class RewardGradientCard extends StatelessWidget {
   List<Color> _getTierColors(String tier) {
     switch (tier.toLowerCase()) {
       case 'bronze':
-        return [
-          const Color(0xFFCD7F32),
-          const Color(0xFFA0522D),
-        ];
+        return [const Color(0xFFCD7F32), const Color(0xFFA0522D)];
       case 'silver':
-        return [
-          const Color(0xFFC0C0C0),
-          const Color(0xFF808080),
-        ];
+        return [const Color(0xFFC0C0C0), const Color(0xFF808080)];
       case 'gold':
-        return [
-          const Color(0xFFFFD700),
-          const Color(0xFFB8860B),
-        ];
+        return [const Color(0xFFFFD700), const Color(0xFFB8860B)];
       case 'platinum':
-        return [
-          const Color(0xFFE5E4E2),
-          const Color(0xFF9C9C9C),
-        ];
+        return [const Color(0xFFE5E4E2), const Color(0xFF9C9C9C)];
       case 'diamond':
-        return [
-          const Color(0xFFB9F2FF),
-          const Color(0xFF4A90E2),
-        ];
+        return [const Color(0xFFB9F2FF), const Color(0xFF4A90E2)];
       default:
-        return [
-          Colors.blue.shade400,
-          Colors.blue.shade600,
-        ];
+        return [Colors.blue.shade400, Colors.blue.shade600];
     }
   }
 
@@ -142,10 +119,7 @@ class SuccessGradientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GradientCard(
-      colors: [
-        Colors.green.shade400,
-        Colors.green.shade600,
-      ],
+      colors: [Colors.green.shade400, Colors.green.shade600],
       padding: padding,
       margin: margin,
       onTap: onTap,
@@ -172,10 +146,7 @@ class WarningGradientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GradientCard(
-      colors: [
-        Colors.orange.shade400,
-        Colors.orange.shade600,
-      ],
+      colors: [Colors.orange.shade400, Colors.orange.shade600],
       padding: padding,
       margin: margin,
       onTap: onTap,
@@ -202,10 +173,7 @@ class ErrorGradientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GradientCard(
-      colors: [
-        Colors.red.shade400,
-        Colors.red.shade600,
-      ],
+      colors: [Colors.red.shade400, Colors.red.shade600],
       padding: padding,
       margin: margin,
       onTap: onTap,
@@ -246,15 +214,10 @@ class _AnimatedGradientCardState extends State<AnimatedGradientCard>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    )..repeat();
-    
-    _animation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_controller);
+    _controller = AnimationController(duration: widget.duration, vsync: this)
+      ..repeat();
+
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
   }
 
   @override

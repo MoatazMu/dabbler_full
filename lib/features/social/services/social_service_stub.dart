@@ -10,7 +10,7 @@ import '../../../utils/enums/social_enums.dart';
 // import '../../../core/analytics/analytics_service.dart';
 // import '../../../core/services/notification_service.dart';
 // import '../content_sharing/content_sharing_service.dart'; // TODO: Create content sharing service
-// import '../notifications/social_notifications_service.dart'; // TODO: Create social notifications service  
+// import '../notifications/social_notifications_service.dart'; // TODO: Create social notifications service
 // import '../real_time/real_time_service.dart'; // TODO: Create real time service
 
 /// Minimal stub implementation of social service to resolve compilation errors
@@ -39,7 +39,7 @@ class SocialService {
     // TODO: Initialize services when dependencies are available
     _initializeService();
   }
-  
+
   // TODO: Add proper constructor when dependencies are created
   // SocialService({
   //   required SocialRepository repository,
@@ -95,7 +95,7 @@ class SocialService {
         sharesCount: 0,
         visibility: PostVisibility.public,
       );
-      
+
       return Right(postModel);
     } catch (e) {
       return Left('Failed to create post: $e');
@@ -109,11 +109,7 @@ class SocialService {
     String? cursor,
   }) async {
     try {
-      return Right({
-        'posts': <PostModel>[],
-        'cursor': null,
-        'hasMore': false,
-      });
+      return Right({'posts': <PostModel>[], 'cursor': null, 'hasMore': false});
     } catch (e) {
       return Left('Failed to load feed: $e');
     }
@@ -158,11 +154,11 @@ class SocialService {
     }
   }
 
-  // Helper methods - Stubbed implementations  
+  // Helper methods - Stubbed implementations
   void _syncOfflinePosts() {
     // Stub implementation
   }
-  
+
   void _cleanupCaches() {
     // Stub implementation
   }

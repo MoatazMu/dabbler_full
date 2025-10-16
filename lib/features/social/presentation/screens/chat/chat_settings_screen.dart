@@ -18,15 +18,15 @@ class ChatSettingsScreen extends ConsumerStatefulWidget {
 class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   String? _conversationId;
   dynamic _conversation;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _extractArguments();
       _loadChatSettings();
@@ -40,7 +40,8 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
   }
 
   void _extractArguments() {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
       _conversationId = args['conversationId'] as String?;
       _conversation = args['conversation'];
@@ -49,8 +50,12 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
 
   void _loadChatSettings() {
     if (_conversationId != null) {
-      ref.read(chatControllerProvider.notifier).loadConversationDetails(_conversationId!);
-      ref.read(chatControllerProvider.notifier).loadConversationMedia(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .loadConversationDetails(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .loadConversationMedia(_conversationId!);
     }
   }
 
@@ -118,7 +123,11 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
   }
 
-  Widget _buildBody(BuildContext context, ThemeData theme, ChatState chatState) {
+  Widget _buildBody(
+    BuildContext context,
+    ThemeData theme,
+    ChatState chatState,
+  ) {
     if (chatState.isLoadingConversations && _conversation == null) {
       return const Center(child: LoadingWidget());
     }
@@ -133,11 +142,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     }
 
     final conversation = _conversation ?? _getCurrentConversation(chatState);
-    
+
     if (conversation == null) {
-      return const Center(
-        child: Text('Conversation not found'),
-      );
+      return const Center(child: Text('Conversation not found'));
     }
 
     return TabBarView(
@@ -168,9 +175,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
             onEditDescription: () => _editChatDescription(conversation),
             onEditAvatar: () => _editChatAvatar(conversation),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Participants section (for group chats)
           if (conversation.isGroup) ...[
             Row(
@@ -189,13 +196,15 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             Consumer(
               builder: (context, ref, child) {
-                final participants = ref.watch(conversationParticipantsProvider(_conversationId!));
-                
+                final participants = ref.watch(
+                  conversationParticipantsProvider(_conversationId!),
+                );
+
                 return participants.when(
                   data: (participantList) => Column(
                     children: participantList.map((participant) {
@@ -211,24 +220,25 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                     }).toList(),
                   ),
                   loading: () => const LoadingWidget(),
-                  error: (error, stack) => Text('Error loading participants: $error'),
+                  error: (error, stack) =>
+                      Text('Error loading participants: $error'),
                 );
               },
             ),
-            
+
             const SizedBox(height: 24),
           ],
-          
+
           // Shared media preview
           _buildSharedMediaPreview(theme, conversation, chatState),
-          
+
           const SizedBox(height: 24),
-          
+
           // Chat statistics
           _buildChatStatistics(theme, conversation, chatState),
-          
+
           const SizedBox(height: 24),
-          
+
           // Quick actions
           _buildQuickActions(theme, conversation),
         ],
@@ -245,7 +255,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     return Consumer(
       builder: (context, ref, child) {
         final media = ref.watch(conversationMediaProvider(_conversationId!));
-        
+
         return media.when(
           data: (mediaList) {
             if (mediaList.isEmpty) {
@@ -276,7 +286,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                 ),
               );
             }
-            
+
             return MediaGrid(
               media: mediaList,
               onMediaTap: (media) => _openMediaViewer(media),
@@ -287,7 +297,8 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
           error: (error, stack) => Center(
             child: custom_error.ErrorWidget(
               message: 'Error loading media: $error',
-              onRetry: () => ref.refresh(conversationMediaProvider(_conversationId!)),
+              onRetry: () =>
+                  ref.refresh(conversationMediaProvider(_conversationId!)),
             ),
           ),
         );
@@ -318,20 +329,24 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                   ),
                 ),
               ),
-              
+
               Consumer(
                 builder: (context, ref, child) {
                   final isMuted = conversation.isMuted ?? false;
-                  
+
                   return SwitchListTile(
                     title: const Text('Mute notifications'),
-                    subtitle: Text(isMuted ? 'Notifications are muted' : 'Get notified for new messages'),
+                    subtitle: Text(
+                      isMuted
+                          ? 'Notifications are muted'
+                          : 'Get notified for new messages',
+                    ),
                     value: isMuted,
                     onChanged: (value) => _toggleMute(conversation, value),
                   );
                 },
               ),
-              
+
               ListTile(
                 title: const Text('Custom notification'),
                 subtitle: const Text('Set custom sound and vibration'),
@@ -341,9 +356,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
             ],
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Privacy settings
         Card(
           child: Column(
@@ -358,35 +373,39 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                   ),
                 ),
               ),
-              
+
               if (conversation.isGroup) ...[
                 Consumer(
                   builder: (context, ref, child) {
-                    final readReceipts = conversation.readReceiptsEnabled ?? true;
-                    
+                    final readReceipts =
+                        conversation.readReceiptsEnabled ?? true;
+
                     return SwitchListTile(
                       title: const Text('Read receipts'),
                       subtitle: const Text('Show when messages are read'),
                       value: readReceipts,
-                      onChanged: (value) => _toggleReadReceipts(conversation, value),
+                      onChanged: (value) =>
+                          _toggleReadReceipts(conversation, value),
                     );
                   },
                 ),
-                
+
                 Consumer(
                   builder: (context, ref, child) {
-                    final allowInvites = conversation.allowMemberInvites ?? true;
-                    
+                    final allowInvites =
+                        conversation.allowMemberInvites ?? true;
+
                     return SwitchListTile(
                       title: const Text('Allow member invites'),
                       subtitle: const Text('Let members add new participants'),
                       value: allowInvites,
-                      onChanged: (value) => _toggleMemberInvites(conversation, value),
+                      onChanged: (value) =>
+                          _toggleMemberInvites(conversation, value),
                     );
                   },
                 ),
               ],
-              
+
               ListTile(
                 title: const Text('Encryption info'),
                 subtitle: const Text('Messages are end-to-end encrypted'),
@@ -397,9 +416,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
             ],
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Chat management
         Card(
           child: Column(
@@ -414,18 +433,20 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                   ),
                 ),
               ),
-              
+
               ListTile(
                 title: const Text('Clear chat history'),
                 subtitle: const Text('Delete all messages in this chat'),
                 leading: const Icon(Icons.clear_all),
                 onTap: () => _clearChatHistory(conversation),
               ),
-              
+
               if (conversation.isGroup && _isAdmin(conversation)) ...[
                 ListTile(
                   title: const Text('Delete group'),
-                  subtitle: const Text('Permanently delete this group for everyone'),
+                  subtitle: const Text(
+                    'Permanently delete this group for everyone',
+                  ),
                   leading: Icon(Icons.delete, color: theme.colorScheme.error),
                   onTap: () => _deleteGroup(conversation),
                 ),
@@ -440,7 +461,10 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                 ListTile(
                   title: const Text('Leave group'),
                   subtitle: const Text('Leave this group chat'),
-                  leading: Icon(Icons.exit_to_app, color: theme.colorScheme.error),
+                  leading: Icon(
+                    Icons.exit_to_app,
+                    color: theme.colorScheme.error,
+                  ),
                   onTap: () => _leaveGroup(conversation),
                 ),
               ],
@@ -451,7 +475,11 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
   }
 
-  Widget _buildSharedMediaPreview(ThemeData theme, dynamic conversation, ChatState chatState) {
+  Widget _buildSharedMediaPreview(
+    ThemeData theme,
+    dynamic conversation,
+    ChatState chatState,
+  ) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,12 +502,12 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
               ],
             ),
           ),
-          
+
           Consumer(
             builder: (context, ref, child) {
               // TODO: Implement recentConversationMediaProvider
               const recentMedia = AsyncValue.data(<dynamic>[]);
-              
+
               return recentMedia.when(
                 data: (mediaList) {
                   if (mediaList.isEmpty) {
@@ -488,7 +516,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                       child: Text('No shared media'),
                     );
                   }
-                  
+
                   return Container(
                     height: 100,
                     padding: const EdgeInsets.all(16),
@@ -497,7 +525,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                       itemCount: mediaList.length,
                       itemBuilder: (context, index) {
                         final media = mediaList[index];
-                        
+
                         return Container(
                           width: 80,
                           margin: const EdgeInsets.only(right: 8),
@@ -540,7 +568,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
-                                
+
                                 // Tap overlay
                                 Material(
                                   color: Colors.transparent,
@@ -573,7 +601,11 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
   }
 
-  Widget _buildChatStatistics(ThemeData theme, dynamic conversation, ChatState chatState) {
+  Widget _buildChatStatistics(
+    ThemeData theme,
+    dynamic conversation,
+    ChatState chatState,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -586,32 +618,42 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             Consumer(
               builder: (context, ref, child) {
                 // TODO: Implement conversationStatsProvider
                 final mockStats = {
-                  'totalMessages': 0, 
-                  'mediaCount': 0, 
+                  'totalMessages': 0,
+                  'mediaCount': 0,
                   'participantCount': 0,
                   'createdDate': DateTime.now(),
                 };
                 final stats = AsyncValue.data(mockStats);
-                
+
                 return stats.when(
                   data: (statsData) => Column(
                     children: [
-                      _buildStatRow('Messages', '${statsData['totalMessages']}'),
-                      _buildStatRow('Media shared', '${statsData['mediaCount']}'),
-                      _buildStatRow('Created', _formatDate(statsData['createdDate'] as DateTime?)),
+                      _buildStatRow(
+                        'Messages',
+                        '${statsData['totalMessages']}',
+                      ),
+                      _buildStatRow(
+                        'Media shared',
+                        '${statsData['mediaCount']}',
+                      ),
+                      _buildStatRow(
+                        'Created',
+                        _formatDate(statsData['createdDate'] as DateTime?),
+                      ),
                       if (conversation.isGroup)
                         _buildStatRow('Members', '${statsData['memberCount']}'),
                     ],
                   ),
                   loading: () => const LoadingWidget(),
-                  error: (error, stack) => const Text('Unable to load statistics'),
+                  error: (error, stack) =>
+                      const Text('Unable to load statistics'),
                 );
               },
             ),
@@ -628,10 +670,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
         children: [
           Text(label),
           const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -651,19 +690,19 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
               ),
             ),
           ),
-          
+
           ListTile(
             leading: const Icon(Icons.search),
             title: const Text('Search in chat'),
             onTap: () => _searchInChat(conversation),
           ),
-          
+
           ListTile(
             leading: const Icon(Icons.star),
             title: const Text('Starred messages'),
             onTap: () => _viewStarredMessages(conversation),
           ),
-          
+
           ListTile(
             leading: const Icon(Icons.download),
             title: const Text('Export chat'),
@@ -700,10 +739,10 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Unknown';
-    
+
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 365) {
       return '${(difference.inDays / 365).floor()} years ago';
     } else if (difference.inDays > 30) {
@@ -760,8 +799,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
       builder: (context) => _EditChatNameDialog(
         currentName: conversation.name,
         onSave: (newName) {
-          ref.read(chatControllerProvider.notifier)
-            .updateConversationName(_conversationId!, newName);
+          ref
+              .read(chatControllerProvider.notifier)
+              .updateConversationName(_conversationId!, newName);
         },
       ),
     );
@@ -773,8 +813,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
       builder: (context) => _EditChatDescriptionDialog(
         currentDescription: conversation.description ?? '',
         onSave: (newDescription) {
-          ref.read(chatControllerProvider.notifier)
-            .updateConversationDescription(_conversationId!, newDescription);
+          ref
+              .read(chatControllerProvider.notifier)
+              .updateConversationDescription(_conversationId!, newDescription);
         },
       ),
     );
@@ -823,8 +864,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier)
-        .makeParticipantAdmin(_conversationId!, participant.id);
+      ref
+          .read(chatControllerProvider.notifier)
+          .makeParticipantAdmin(_conversationId!, participant.id);
     }
   }
 
@@ -848,8 +890,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier)
-        .removeParticipantAdmin(_conversationId!, participant.id);
+      ref
+          .read(chatControllerProvider.notifier)
+          .removeParticipantAdmin(_conversationId!, participant.id);
     }
   }
 
@@ -876,17 +919,14 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier)
-        .removeParticipant(_conversationId!, participant.id);
+      ref
+          .read(chatControllerProvider.notifier)
+          .removeParticipant(_conversationId!, participant.id);
     }
   }
 
   void _openMediaViewer(dynamic media) {
-    Navigator.pushNamed(
-      context,
-      '/media-viewer',
-      arguments: {'media': media},
-    );
+    Navigator.pushNamed(context, '/media-viewer', arguments: {'media': media});
   }
 
   void _showMediaOptions(dynamic media) {
@@ -926,9 +966,13 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
 
   void _toggleMute(dynamic conversation, bool value) {
     if (value) {
-      ref.read(chatControllerProvider.notifier).muteConversation(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .muteConversation(_conversationId!);
     } else {
-      ref.read(chatControllerProvider.notifier).unmuteConversation(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .unmuteConversation(_conversationId!);
     }
   }
 
@@ -940,13 +984,15 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
   }
 
   void _toggleReadReceipts(dynamic conversation, bool value) {
-    ref.read(chatControllerProvider.notifier)
-      .updateReadReceiptsEnabled(_conversationId!, value);
+    ref
+        .read(chatControllerProvider.notifier)
+        .updateReadReceiptsEnabled(_conversationId!, value);
   }
 
   void _toggleMemberInvites(dynamic conversation, bool value) {
-    ref.read(chatControllerProvider.notifier)
-      .updateMemberInvitesEnabled(_conversationId!, value);
+    ref
+        .read(chatControllerProvider.notifier)
+        .updateMemberInvitesEnabled(_conversationId!, value);
   }
 
   void _showEncryptionInfo() {
@@ -994,10 +1040,12 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier).clearChatHistory(_conversationId!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Chat history cleared')),
-      );
+      ref
+          .read(chatControllerProvider.notifier)
+          .clearChatHistory(_conversationId!);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Chat history cleared')));
     }
   }
 
@@ -1027,7 +1075,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier).deleteConversation(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .deleteConversation(_conversationId!);
       Navigator.popUntil(context, (route) => route.isFirst);
     }
   }
@@ -1085,7 +1135,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier).leaveConversation(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .leaveConversation(_conversationId!);
       Navigator.popUntil(context, (route) => route.isFirst);
     }
   }
@@ -1126,10 +1178,7 @@ class _EditChatNameDialog extends StatefulWidget {
   final String currentName;
   final Function(String) onSave;
 
-  const _EditChatNameDialog({
-    required this.currentName,
-    required this.onSave,
-  });
+  const _EditChatNameDialog({required this.currentName, required this.onSave});
 
   @override
   State<_EditChatNameDialog> createState() => _EditChatNameDialogState();
@@ -1194,10 +1243,12 @@ class _EditChatDescriptionDialog extends StatefulWidget {
   });
 
   @override
-  State<_EditChatDescriptionDialog> createState() => _EditChatDescriptionDialogState();
+  State<_EditChatDescriptionDialog> createState() =>
+      _EditChatDescriptionDialogState();
 }
 
-class _EditChatDescriptionDialogState extends State<_EditChatDescriptionDialog> {
+class _EditChatDescriptionDialogState
+    extends State<_EditChatDescriptionDialog> {
   late TextEditingController _controller;
 
   @override

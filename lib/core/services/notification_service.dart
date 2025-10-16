@@ -10,20 +10,21 @@ class NotificationService extends ChangeNotifier {
   List<NotificationModel> _notifications = [];
   bool _isLoading = false;
 
-  List<NotificationModel> get notifications => List.unmodifiable(_notifications);
+  List<NotificationModel> get notifications =>
+      List.unmodifiable(_notifications);
   bool get isLoading => _isLoading;
-  
+
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
-  
-  List<NotificationModel> get unreadNotifications => 
+
+  List<NotificationModel> get unreadNotifications =>
       _notifications.where((n) => !n.isRead).toList();
-  
+
   List<NotificationModel> get todayNotifications => _notifications.where((n) {
     final today = DateTime.now();
     final notificationDate = n.createdAt;
     return today.year == notificationDate.year &&
-           today.month == notificationDate.month &&
-           today.day == notificationDate.day;
+        today.month == notificationDate.month &&
+        today.day == notificationDate.day;
   }).toList();
 
   // Initialize with sample data
@@ -46,7 +47,7 @@ class NotificationService extends ChangeNotifier {
 
     // In a real app, this would fetch from an API
     _notifications = _getSampleNotifications();
-    
+
     _isLoading = false;
     notifyListeners();
   }
@@ -97,7 +98,9 @@ class NotificationService extends ChangeNotifier {
     return _notifications.where((n) => n.type == type).toList();
   }
 
-  List<NotificationModel> getNotificationsByPriority(NotificationPriority priority) {
+  List<NotificationModel> getNotificationsByPriority(
+    NotificationPriority priority,
+  ) {
     return _notifications.where((n) => n.priority == priority).toList();
   }
 
@@ -109,24 +112,25 @@ class NotificationService extends ChangeNotifier {
   // Group notifications by date
   Map<String, List<NotificationModel>> getGroupedNotifications() {
     final Map<String, List<NotificationModel>> grouped = {};
-    
+
     for (final notification in _notifications) {
       final dateKey = notification.formattedDate;
       grouped[dateKey] ??= [];
       grouped[dateKey]!.add(notification);
     }
-    
+
     return grouped;
   }
 
   List<NotificationModel> _getSampleNotifications() {
     final now = DateTime.now();
-    
+
     return [
       NotificationModel(
         id: '1',
         title: 'Game Invitation',
-        message: 'Carlos invited you to join a padel match at Elite Padel Center',
+        message:
+            'Carlos invited you to join a padel match at Elite Padel Center',
         type: NotificationType.gameInvite,
         priority: NotificationPriority.high,
         createdAt: now.subtract(const Duration(minutes: 5)),
@@ -137,7 +141,8 @@ class NotificationService extends ChangeNotifier {
       NotificationModel(
         id: '2',
         title: 'Booking Confirmed',
-        message: 'Your padel court booking for tomorrow at 7:00 PM has been confirmed',
+        message:
+            'Your padel court booking for tomorrow at 7:00 PM has been confirmed',
         type: NotificationType.bookingConfirmation,
         priority: NotificationPriority.normal,
         createdAt: now.subtract(const Duration(hours: 2)),
@@ -195,7 +200,8 @@ class NotificationService extends ChangeNotifier {
       NotificationModel(
         id: '7',
         title: 'Game Cancelled',
-        message: 'The football match scheduled for today has been cancelled due to weather',
+        message:
+            'The football match scheduled for today has been cancelled due to weather',
         type: NotificationType.gameUpdate,
         priority: NotificationPriority.high,
         createdAt: now.subtract(const Duration(days: 1, hours: 2)),
@@ -219,7 +225,8 @@ class NotificationService extends ChangeNotifier {
       NotificationModel(
         id: '9',
         title: 'App Update Available',
-        message: 'A new version of Dabbler is available with exciting new features!',
+        message:
+            'A new version of Dabbler is available with exciting new features!',
         type: NotificationType.systemAlert,
         priority: NotificationPriority.low,
         createdAt: now.subtract(const Duration(days: 3)),
@@ -230,7 +237,8 @@ class NotificationService extends ChangeNotifier {
       NotificationModel(
         id: '10',
         title: 'Welcome to Dabbler!',
-        message: 'Thanks for joining! Start by exploring games near you or creating your first booking.',
+        message:
+            'Thanks for joining! Start by exploring games near you or creating your first booking.',
         type: NotificationType.generalUpdate,
         priority: NotificationPriority.normal,
         createdAt: now.subtract(const Duration(days: 7)),

@@ -17,23 +17,27 @@ class AwardAchievementUseCase {
   }) async {
     try {
       // Get the achievement
-      final achievementResult = await _repository.getAchievementById(achievementId);
+      final achievementResult = await _repository.getAchievementById(
+        achievementId,
+      );
       if (achievementResult.isLeft()) {
         return Left(ServerFailure(message: 'Achievement not found'));
       }
 
-      final achievement = achievementResult.getOrElse(() => throw StateError('Should not happen'));
+      final achievement = achievementResult.getOrElse(
+        () => throw StateError('Should not happen'),
+      );
 
       // Check if user already has this achievement (if not repeatable)
       if (!achievement.type.isRepeatable) {
-        final existingProgress = await _repository.getUserProgressForAchievement(
-          userId, 
-          achievementId,
-        );
+        final existingProgress = await _repository
+            .getUserProgressForAchievement(userId, achievementId);
         if (existingProgress.isRight()) {
           final progress = existingProgress.getOrElse(() => null);
           if (progress != null && progress.status == ProgressStatus.completed) {
-            return Left(ServerFailure(message: 'Achievement already completed'));
+            return Left(
+              ServerFailure(message: 'Achievement already completed'),
+            );
           }
         }
       }
@@ -65,7 +69,9 @@ class AwardAchievementUseCase {
 
       // Try to award badges (non-blocking)
       try {
-        final badgesResult = await _repository.getBadgesForAchievement(achievementId);
+        final badgesResult = await _repository.getBadgesForAchievement(
+          achievementId,
+        );
         if (badgesResult.isRight()) {
           final badges = badgesResult.getOrElse(() => []);
           for (final badge in badges) {

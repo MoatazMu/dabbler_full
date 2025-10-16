@@ -148,7 +148,7 @@ class BadgeModel extends Badge {
 
   static BadgeTier _parseBadgeTier(dynamic value) {
     if (value == null) return BadgeTier.bronze;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'bronze':
@@ -165,13 +165,13 @@ class BadgeModel extends Badge {
           return BadgeTier.bronze;
       }
     }
-    
+
     return BadgeTier.bronze;
   }
 
   static BadgeStyle _parseBadgeStyle(dynamic value) {
     if (value == null) return BadgeStyle.classic;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'classic':
@@ -188,13 +188,13 @@ class BadgeModel extends Badge {
           return BadgeStyle.classic;
       }
     }
-    
+
     return BadgeStyle.classic;
   }
 
   static BadgeAnimation _parseBadgeAnimation(dynamic value) {
     if (value == null) return BadgeAnimation.none;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'none':
@@ -211,53 +211,53 @@ class BadgeModel extends Badge {
           return BadgeAnimation.none;
       }
     }
-    
+
     return BadgeAnimation.none;
   }
 
   static int _parseRarityScore(dynamic value) {
     if (value == null) return 0;
-    
+
     if (value is int) return value.clamp(0, 100);
     if (value is double) return value.round().clamp(0, 100);
     if (value is String) {
       return int.tryParse(value)?.clamp(0, 100) ?? 0;
     }
-    
+
     return 0;
   }
 
   static Map<String, dynamic> _parseDesignMetadata(dynamic value) {
     if (value == null) return {};
-    
+
     if (value is Map<String, dynamic>) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     if (value is Map) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     return {};
   }
 
   static Map<String, dynamic> _parseCollectionMetadata(dynamic value) {
     if (value == null) return {};
-    
+
     if (value is Map<String, dynamic>) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     if (value is Map) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     return {};
   }
 
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
-    
+
     if (value is String) {
       try {
         return DateTime.parse(value);
@@ -265,9 +265,9 @@ class BadgeModel extends Badge {
         return null;
       }
     }
-    
+
     if (value is DateTime) return value;
-    
+
     return null;
   }
 
@@ -281,7 +281,8 @@ class BadgeModel extends Badge {
       'unlock_message': data['unlock_message'] ?? data['unlockMessage'],
       'achievement_id': data['achievement_id'] ?? data['achievementId'],
       'design_metadata': data['design_metadata'] ?? data['designMetadata'],
-      'is_limited_edition': data['is_limited_edition'] ?? data['isLimitedEdition'],
+      'is_limited_edition':
+          data['is_limited_edition'] ?? data['isLimitedEdition'],
       'max_owners': data['max_owners'] ?? data['maxOwners'],
       'current_owners': data['current_owners'] ?? data['currentOwners'],
       'created_at': data['created_at'] ?? data['createdAt'],
@@ -291,7 +292,8 @@ class BadgeModel extends Badge {
       'last_earned_at': data['last_earned_at'] ?? data['lastEarnedAt'],
       'is_showcased': data['is_showcased'] ?? data['isShowcased'],
       'showcase_order': data['showcase_order'] ?? data['showcaseOrder'],
-      'collection_metadata': data['collection_metadata'] ?? data['collectionMetadata'],
+      'collection_metadata':
+          data['collection_metadata'] ?? data['collectionMetadata'],
     });
   }
 
@@ -299,7 +301,7 @@ class BadgeModel extends Badge {
   Map<String, dynamic> toSupabase() {
     final json = toJson();
     json.removeWhere((key, value) => value == null);
-    
+
     return {
       ...json,
       'icon_url': json['icon_url'],
@@ -367,10 +369,7 @@ class BadgeModel extends Badge {
   }
 
   /// Updates showcase settings
-  BadgeModel updateShowcase({
-    required bool isShowcased,
-    int? showcaseOrder,
-  }) {
+  BadgeModel updateShowcase({required bool isShowcased, int? showcaseOrder}) {
     return copyWith(
       isShowcased: isShowcased,
       showcaseOrder: showcaseOrder ?? this.showcaseOrder,
@@ -407,10 +406,10 @@ class BadgeModel extends Badge {
     if (timesEarned <= 1 || firstEarnedAt == null || lastEarnedAt == null) {
       return null;
     }
-    
+
     final daysBetween = lastEarnedAt!.difference(firstEarnedAt!).inDays;
     if (daysBetween <= 0) return null;
-    
+
     return timesEarned / daysBetween;
   }
 
@@ -429,10 +428,10 @@ class BadgeModel extends Badge {
   /// Gets earning milestones
   List<Map<String, dynamic>> getEarningMilestones() {
     final milestones = <Map<String, dynamic>>[];
-    
+
     // Define milestone thresholds
     final thresholds = [1, 5, 10, 25, 50, 100];
-    
+
     for (final threshold in thresholds) {
       final isReached = timesEarned >= threshold;
       milestones.add({
@@ -442,7 +441,7 @@ class BadgeModel extends Badge {
         'reward': _getMilestoneReward(threshold),
       });
     }
-    
+
     return milestones;
   }
 
@@ -487,6 +486,6 @@ class BadgeModel extends Badge {
   @override
   String toString() {
     return 'BadgeModel(id: $id, name: $name, tier: $tier, '
-           'timesEarned: $timesEarned, rarity: ${getRarityLabel()})';
+        'timesEarned: $timesEarned, rarity: ${getRarityLabel()})';
   }
 }

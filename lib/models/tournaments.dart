@@ -68,14 +68,18 @@ class Tournaments {
       bracket_data: json['bracket_data'],
       total_matches: json['total_matches'],
       completed_matches: json['completed_matches'],
-      started_at: (json['started_at'] == null ? null : DateTime.parse(json['started_at'] as String)),
-      completed_at: (json['completed_at'] == null ? null : DateTime.parse(json['completed_at'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      started_at: (json['started_at'] == null
+          ? null
+          : DateTime.parse(json['started_at'] as String)),
+      completed_at: (json['completed_at'] == null
+          ? null
+          : DateTime.parse(json['completed_at'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

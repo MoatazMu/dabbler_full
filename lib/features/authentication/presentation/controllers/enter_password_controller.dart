@@ -1,4 +1,3 @@
-
 import '../providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/auth_service.dart';
@@ -36,7 +35,8 @@ class EnterPasswordState {
 class EnterPasswordController extends StateNotifier<EnterPasswordState> {
   final AuthService _authService;
 
-  EnterPasswordController(this._authService) : super(const EnterPasswordState());
+  EnterPasswordController(this._authService)
+    : super(const EnterPasswordState());
 
   // Toggle password visibility
   void togglePasswordVisibility() {
@@ -57,10 +57,7 @@ class EnterPasswordController extends StateNotifier<EnterPasswordState> {
   }
 
   // Sign in with email and password
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     // Clear any previous errors and set loading state
     state = state.copyWith(
       isLoading: true,
@@ -75,10 +72,7 @@ class EnterPasswordController extends StateNotifier<EnterPasswordState> {
       );
 
       if (result.user != null) {
-        state = state.copyWith(
-          isLoading: false,
-          isSuccess: true,
-        );
+        state = state.copyWith(isLoading: false, isSuccess: true);
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -99,28 +93,42 @@ class EnterPasswordController extends StateNotifier<EnterPasswordState> {
   }
 }
 
-
-
 // Provider for EnterPasswordController
-final enterPasswordControllerProvider = StateNotifierProvider.family<
-    EnterPasswordController, EnterPasswordState, String>((ref, email) {
-  final authService = ref.read(authServiceProvider);
-  return EnterPasswordController(authService);
-});
+final enterPasswordControllerProvider =
+    StateNotifierProvider.family<
+      EnterPasswordController,
+      EnterPasswordState,
+      String
+    >((ref, email) {
+      final authService = ref.read(authServiceProvider);
+      return EnterPasswordController(authService);
+    });
 
 // Convenience providers for specific state properties
-final enterPasswordLoadingProvider = Provider.family<bool, String>((ref, email) {
+final enterPasswordLoadingProvider = Provider.family<bool, String>((
+  ref,
+  email,
+) {
   return ref.watch(enterPasswordControllerProvider(email)).isLoading;
 });
 
-final enterPasswordErrorProvider = Provider.family<String?, String>((ref, email) {
+final enterPasswordErrorProvider = Provider.family<String?, String>((
+  ref,
+  email,
+) {
   return ref.watch(enterPasswordControllerProvider(email)).errorMessage;
 });
 
-final enterPasswordObscureProvider = Provider.family<bool, String>((ref, email) {
+final enterPasswordObscureProvider = Provider.family<bool, String>((
+  ref,
+  email,
+) {
   return ref.watch(enterPasswordControllerProvider(email)).obscurePassword;
 });
 
-final enterPasswordSuccessProvider = Provider.family<bool, String>((ref, email) {
+final enterPasswordSuccessProvider = Provider.family<bool, String>((
+  ref,
+  email,
+) {
   return ref.watch(enterPasswordControllerProvider(email)).isSuccess;
 });

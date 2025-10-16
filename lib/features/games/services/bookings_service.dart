@@ -109,12 +109,9 @@ class BookingsService {
       );
 
       return BookingResult.success(booking: savedBooking);
-
     } catch (e, stackTrace) {
       debugPrint('Error creating booking: $e\n$stackTrace');
-      return BookingResult.failure(
-        error: 'Failed to create booking: $e',
-      );
+      return BookingResult.failure(error: 'Failed to create booking: $e');
     }
   }
 
@@ -127,7 +124,7 @@ class BookingsService {
   }) async {
     try {
       final endTime = dateTime.add(duration);
-      
+
       // Get existing bookings for the venue in the time range
       final existingBookings = await _bookingsRepository.getVenueBookings(
         venueId: venueId,
@@ -137,18 +134,23 @@ class BookingsService {
       );
 
       final conflicts = <BookingConflict>[];
-      
+
       for (final booking in existingBookings) {
         final bookingEnd = booking.dateTime.add(booking.duration);
-        
+
         // Check for time overlap
-        if (dateTime.isBefore(bookingEnd) && endTime.isAfter(booking.dateTime)) {
-          conflicts.add(BookingConflict(
-            conflictingBooking: booking,
-            overlapStart: dateTime.isAfter(booking.dateTime) ? dateTime : booking.dateTime,
-            overlapEnd: endTime.isBefore(bookingEnd) ? endTime : bookingEnd,
-            conflictType: _determineConflictType(dateTime, endTime, booking),
-          ));
+        if (dateTime.isBefore(bookingEnd) &&
+            endTime.isAfter(booking.dateTime)) {
+          conflicts.add(
+            BookingConflict(
+              conflictingBooking: booking,
+              overlapStart: dateTime.isAfter(booking.dateTime)
+                  ? dateTime
+                  : booking.dateTime,
+              overlapEnd: endTime.isBefore(bookingEnd) ? endTime : bookingEnd,
+              conflictType: _determineConflictType(dateTime, endTime, booking),
+            ),
+          );
         }
       }
 
@@ -166,7 +168,6 @@ class BookingsService {
         conflicts: conflicts,
         alternatives: alternatives,
       );
-
     } catch (e) {
       debugPrint('Error checking booking conflicts: $e');
       return ConflictResolutionResult(
@@ -188,7 +189,7 @@ class BookingsService {
     // Try the first alternative time
     if (conflictResult.alternatives.isNotEmpty) {
       final newDateTime = conflictResult.alternatives.first;
-      
+
       // Double-check the new time doesn't have conflicts
       final recheckResult = await _checkBookingConflicts(
         venueId: conflictResult.conflicts.first.conflictingBooking.venueId,
@@ -212,7 +213,7 @@ class BookingsService {
   }) async {
     final alternatives = <DateTime>[];
     final venue = await _venuesService.getVenueById(venueId);
-    
+
     if (venue == null) return alternatives;
 
     // Get the preferred day and try different hours
@@ -262,7 +263,7 @@ class BookingsService {
     List<DateTime> alternatives,
   ) async {
     final preferredHour = preferredTime.hour;
-    
+
     // Try 1-2 hours before and after the preferred time
     final candidateHours = [
       preferredHour - 2,
@@ -273,7 +274,7 @@ class BookingsService {
 
     for (final hour in candidateHours) {
       final candidateTime = baseDate.add(Duration(hours: hour));
-      
+
       if (await _isTimeSlotAvailable(venue.id, candidateTime, duration)) {
         alternatives.add(candidateTime);
         if (alternatives.length >= 3) break;
@@ -289,10 +290,10 @@ class BookingsService {
   ) async {
     // Try popular booking hours
     final popularHours = [9, 10, 14, 15, 18, 19, 20];
-    
+
     for (final hour in popularHours) {
       final candidateTime = baseDate.add(Duration(hours: hour));
-      
+
       if (candidateTime.isAfter(DateTime.now()) &&
           await _isTimeSlotAvailable(venue.id, candidateTime, duration)) {
         alternatives.add(candidateTime);
@@ -340,7 +341,6 @@ class BookingsService {
       );
 
       return paymentResult;
-
     } catch (e) {
       debugPrint('Payment processing error: $e');
       return PaymentResult.failure('Payment processing failed: $e');
@@ -362,13 +362,15 @@ class BookingsService {
 
       // Check user permission
       if (booking.organizerId != userId) {
-        return CancellationResult.failure('Not authorized to cancel this booking');
+        return CancellationResult.failure(
+          'Not authorized to cancel this booking',
+        );
       }
 
       // Check if booking can be cancelled
       final policy = booking.cancellationPolicy;
       final canCancel = _canCancelBooking(booking, policy);
-      
+
       if (!canCancel.allowed) {
         return CancellationResult.failure(canCancel.reason!);
       }
@@ -415,7 +417,6 @@ class BookingsService {
         refundAmount: refundCalculation.refundAmount,
         refundId: refundId,
       );
-
     } catch (e, stackTrace) {
       debugPrint('Error cancelling booking: $e\n$stackTrace');
       return CancellationResult.failure('Failed to cancel booking: $e');
@@ -445,7 +446,7 @@ class BookingsService {
       if (timeUntilGame >= tier.minimumNotice) {
         final refundAmount = totalAmount * tier.refundPercentage;
         final fees = totalAmount - refundAmount;
-        
+
         return RefundCalculation(
           refundAmount: refundAmount,
           refundPercentage: tier.refundPercentage,
@@ -490,7 +491,8 @@ class BookingsService {
     if (timeUntilGame < policy.minimumCancellationNotice) {
       return CancellationCheck(
         allowed: false,
-        reason: 'Cannot cancel - minimum notice period not met (${policy.minimumCancellationNotice.inHours} hours required)',
+        reason:
+            'Cannot cancel - minimum notice period not met (${policy.minimumCancellationNotice.inHours} hours required)',
       );
     }
 
@@ -539,11 +541,14 @@ class BookingsService {
 
     if (newStart == existingStart && newEnd == existingEnd) {
       return ConflictType.exactOverlap;
-    } else if (newStart.isBefore(existingStart) && newEnd.isAfter(existingEnd)) {
+    } else if (newStart.isBefore(existingStart) &&
+        newEnd.isAfter(existingEnd)) {
       return ConflictType.contains;
-    } else if (newStart.isAfter(existingStart) && newEnd.isBefore(existingEnd)) {
+    } else if (newStart.isAfter(existingStart) &&
+        newEnd.isBefore(existingEnd)) {
       return ConflictType.containedBy;
-    } else if (newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart)) {
+    } else if (newStart.isBefore(existingEnd) &&
+        newEnd.isAfter(existingStart)) {
       return ConflictType.partialOverlap;
     }
 
@@ -562,7 +567,8 @@ abstract class BookingResult {
 
   BookingResult._(this.isSuccess, this.error);
 
-  factory BookingResult.success({required VenueBooking booking}) = BookingSuccess;
+  factory BookingResult.success({required VenueBooking booking}) =
+      BookingSuccess;
   factory BookingResult.conflict({
     required List<BookingConflict> conflicts,
     required List<DateTime> suggestedAlternatives,
@@ -592,10 +598,8 @@ class BookingConflictResult extends BookingResult {
 class BookingFailure extends BookingResult {
   final List<DateTime>? suggestedAlternatives;
 
-  BookingFailure({
-    required String error,
-    this.suggestedAlternatives,
-  }) : super._(false, error);
+  BookingFailure({required String error, this.suggestedAlternatives})
+    : super._(false, error);
 }
 
 class ConflictResolutionResult {
@@ -677,10 +681,7 @@ class CancellationCheck {
   final bool allowed;
   final String? reason;
 
-  CancellationCheck({
-    required this.allowed,
-    this.reason,
-  });
+  CancellationCheck({required this.allowed, this.reason});
 }
 
 // Data classes
@@ -815,29 +816,16 @@ class RefundTier {
 }
 
 // Enums
-enum BookingStatus {
-  pending,
-  confirmed,
-  cancelled,
-  completed,
-}
+enum BookingStatus { pending, confirmed, cancelled, completed }
 
-enum ConflictType {
-  exactOverlap,
-  partialOverlap,
-  contains,
-  containedBy,
-}
+enum ConflictType { exactOverlap, partialOverlap, contains, containedBy }
 
 // Placeholder classes
 class PaymentDetails {
   final String cardToken;
   final String? billingAddress;
 
-  PaymentDetails({
-    required this.cardToken,
-    this.billingAddress,
-  });
+  PaymentDetails({required this.cardToken, this.billingAddress});
 }
 
 class PaymentIntent {

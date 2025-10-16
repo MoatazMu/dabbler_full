@@ -109,11 +109,12 @@ class BadgeShowcaseSettings {
       compactView: map['compactView'] ?? false,
       visibleTiers: Set<BadgeTier>.from(
         (map['visibleTiers'] as List<dynamic>?)?.map(
-          (e) => BadgeTier.values.firstWhere(
-            (tier) => tier.name == e,
-            orElse: () => BadgeTier.bronze,
-          ),
-        ) ?? [],
+              (e) => BadgeTier.values.firstWhere(
+                (tier) => tier.name == e,
+                orElse: () => BadgeTier.bronze,
+              ),
+            ) ??
+            [],
       ),
       showUnlockDate: map['showUnlockDate'] ?? true,
       grouping: BadgeGrouping.values.firstWhere(
@@ -124,13 +125,7 @@ class BadgeShowcaseSettings {
   }
 }
 
-enum ShowcaseLayout {
-  grid,
-  list,
-  carousel,
-  masonry,
-  timeline,
-}
+enum ShowcaseLayout { grid, list, carousel, masonry, timeline }
 
 enum BadgeSortPreference {
   recent,
@@ -142,26 +137,15 @@ enum BadgeSortPreference {
   custom,
 }
 
-enum ShowcaseTheme {
-  light,
-  dark,
-  auto,
-  colorful,
-  minimal,
-}
+enum ShowcaseTheme { light, dark, auto, colorful, minimal }
 
-enum BadgeGrouping {
-  none,
-  tier,
-  category,
-  date,
-  rarity,
-}
+enum BadgeGrouping { none, tier, category, date, rarity }
 
 /// Badge showcase provider
-final badgeShowcaseProvider = StateNotifierProvider<BadgeShowcaseNotifier, BadgeShowcaseSettings>((ref) {
-  return BadgeShowcaseNotifier();
-});
+final badgeShowcaseProvider =
+    StateNotifierProvider<BadgeShowcaseNotifier, BadgeShowcaseSettings>((ref) {
+      return BadgeShowcaseNotifier();
+    });
 
 class BadgeShowcaseNotifier extends StateNotifier<BadgeShowcaseSettings> {
   BadgeShowcaseNotifier() : super(const BadgeShowcaseSettings()) {
@@ -174,7 +158,7 @@ class BadgeShowcaseNotifier extends StateNotifier<BadgeShowcaseSettings> {
       final settingsJson = prefs.getString('badge_showcase_settings');
       if (settingsJson != null) {
         final settingsMap = Map<String, dynamic>.from(
-          Uri.splitQueryString(settingsJson)
+          Uri.splitQueryString(settingsJson),
         );
         state = BadgeShowcaseSettings.fromMap(settingsMap);
       }
@@ -187,10 +171,12 @@ class BadgeShowcaseNotifier extends StateNotifier<BadgeShowcaseSettings> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final settingsMap = newSettings.toMap();
-      final settingsJson = Uri(queryParameters: settingsMap.map(
-        (key, value) => MapEntry(key, value.toString())
-      )).query;
-      
+      final settingsJson = Uri(
+        queryParameters: settingsMap.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      ).query;
+
       await prefs.setString('badge_showcase_settings', settingsJson);
       state = newSettings;
     } catch (e) {
@@ -198,19 +184,32 @@ class BadgeShowcaseNotifier extends StateNotifier<BadgeShowcaseSettings> {
     }
   }
 
-  void updateLayout(ShowcaseLayout layout) => updateSettings(state.copyWith(layout: layout));
-  void updateDisplayCount(int count) => updateSettings(state.copyWith(displayCount: count));
-  void updateSortPreference(BadgeSortPreference preference) => updateSettings(state.copyWith(sortPreference: preference));
-  void toggleShowRarity(bool value) => updateSettings(state.copyWith(showRarity: value));
-  void toggleEnableAnimations(bool value) => updateSettings(state.copyWith(enableAnimations: value));
-  void toggleIntegrateWithProfile(bool value) => updateSettings(state.copyWith(integrateWithProfile: value));
-  void toggleShowProgress(bool value) => updateSettings(state.copyWith(showProgress: value));
-  void toggleShowDescription(bool value) => updateSettings(state.copyWith(showDescription: value));
-  void updateTheme(ShowcaseTheme theme) => updateSettings(state.copyWith(theme: theme));
-  void toggleCompactView(bool value) => updateSettings(state.copyWith(compactView: value));
-  void updateVisibleTiers(Set<BadgeTier> tiers) => updateSettings(state.copyWith(visibleTiers: tiers));
-  void toggleShowUnlockDate(bool value) => updateSettings(state.copyWith(showUnlockDate: value));
-  void updateGrouping(BadgeGrouping grouping) => updateSettings(state.copyWith(grouping: grouping));
+  void updateLayout(ShowcaseLayout layout) =>
+      updateSettings(state.copyWith(layout: layout));
+  void updateDisplayCount(int count) =>
+      updateSettings(state.copyWith(displayCount: count));
+  void updateSortPreference(BadgeSortPreference preference) =>
+      updateSettings(state.copyWith(sortPreference: preference));
+  void toggleShowRarity(bool value) =>
+      updateSettings(state.copyWith(showRarity: value));
+  void toggleEnableAnimations(bool value) =>
+      updateSettings(state.copyWith(enableAnimations: value));
+  void toggleIntegrateWithProfile(bool value) =>
+      updateSettings(state.copyWith(integrateWithProfile: value));
+  void toggleShowProgress(bool value) =>
+      updateSettings(state.copyWith(showProgress: value));
+  void toggleShowDescription(bool value) =>
+      updateSettings(state.copyWith(showDescription: value));
+  void updateTheme(ShowcaseTheme theme) =>
+      updateSettings(state.copyWith(theme: theme));
+  void toggleCompactView(bool value) =>
+      updateSettings(state.copyWith(compactView: value));
+  void updateVisibleTiers(Set<BadgeTier> tiers) =>
+      updateSettings(state.copyWith(visibleTiers: tiers));
+  void toggleShowUnlockDate(bool value) =>
+      updateSettings(state.copyWith(showUnlockDate: value));
+  void updateGrouping(BadgeGrouping grouping) =>
+      updateSettings(state.copyWith(grouping: grouping));
 }
 
 /// Badge showcase settings screen
@@ -218,10 +217,12 @@ class BadgeShowcaseSettingsScreen extends ConsumerStatefulWidget {
   const BadgeShowcaseSettingsScreen({super.key});
 
   @override
-  ConsumerState<BadgeShowcaseSettingsScreen> createState() => _BadgeShowcaseSettingsScreenState();
+  ConsumerState<BadgeShowcaseSettingsScreen> createState() =>
+      _BadgeShowcaseSettingsScreenState();
 }
 
-class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSettingsScreen> {
+class _BadgeShowcaseSettingsScreenState
+    extends ConsumerState<BadgeShowcaseSettingsScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -264,7 +265,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
             const SizedBox(height: 24),
             _buildAnimationSection(context, settings, settingsNotifier),
             const SizedBox(height: 24),
-            _buildProfileIntegrationSection(context, settings, settingsNotifier),
+            _buildProfileIntegrationSection(
+              context,
+              settings,
+              settingsNotifier,
+            ),
             const SizedBox(height: 32),
           ],
         ),
@@ -272,7 +277,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
     );
   }
 
-  Widget _buildLayoutSection(BuildContext context, BadgeShowcaseSettings settings, BadgeShowcaseNotifier notifier) {
+  Widget _buildLayoutSection(
+    BuildContext context,
+    BadgeShowcaseSettings settings,
+    BadgeShowcaseNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Showcase Layout',
       icon: Icons.view_comfy,
@@ -301,13 +310,13 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: isSelected 
+                          color: isSelected
                               ? Theme.of(context).primaryColor
                               : Colors.grey.withOpacity(0.3),
                           width: isSelected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
-                        color: isSelected 
+                        color: isSelected
                             ? Theme.of(context).primaryColor.withOpacity(0.1)
                             : null,
                       ),
@@ -316,7 +325,7 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
                         children: [
                           Icon(
                             _getLayoutIcon(layout),
-                            color: isSelected 
+                            color: isSelected
                                 ? Theme.of(context).primaryColor
                                 : Colors.grey[600],
                           ),
@@ -326,7 +335,7 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: isSelected ? FontWeight.bold : null,
-                              color: isSelected 
+                              color: isSelected
                                   ? Theme.of(context).primaryColor
                                   : Colors.grey[600],
                             ),
@@ -344,7 +353,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
     );
   }
 
-  Widget _buildDisplaySection(BuildContext context, BadgeShowcaseSettings settings, BadgeShowcaseNotifier notifier) {
+  Widget _buildDisplaySection(
+    BuildContext context,
+    BadgeShowcaseSettings settings,
+    BadgeShowcaseNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Display Options',
       icon: Icons.display_settings,
@@ -393,7 +406,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
     );
   }
 
-  Widget _buildSortingSection(BuildContext context, BadgeShowcaseSettings settings, BadgeShowcaseNotifier notifier) {
+  Widget _buildSortingSection(
+    BuildContext context,
+    BadgeShowcaseSettings settings,
+    BadgeShowcaseNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Sort Preferences',
       icon: Icons.sort,
@@ -444,7 +461,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
     );
   }
 
-  Widget _buildVisualSection(BuildContext context, BadgeShowcaseSettings settings, BadgeShowcaseNotifier notifier) {
+  Widget _buildVisualSection(
+    BuildContext context,
+    BadgeShowcaseSettings settings,
+    BadgeShowcaseNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Rarity Display',
       icon: Icons.star,
@@ -487,7 +508,9 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
                       ),
                       selected: isSelected,
                       onSelected: (selected) {
-                        final newTiers = Set<BadgeTier>.from(settings.visibleTiers);
+                        final newTiers = Set<BadgeTier>.from(
+                          settings.visibleTiers,
+                        );
                         if (selected) {
                           newTiers.add(tier);
                         } else {
@@ -506,7 +529,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
     );
   }
 
-  Widget _buildAnimationSection(BuildContext context, BadgeShowcaseSettings settings, BadgeShowcaseNotifier notifier) {
+  Widget _buildAnimationSection(
+    BuildContext context,
+    BadgeShowcaseSettings settings,
+    BadgeShowcaseNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Animation Settings',
       icon: Icons.animation,
@@ -536,7 +563,11 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
     );
   }
 
-  Widget _buildProfileIntegrationSection(BuildContext context, BadgeShowcaseSettings settings, BadgeShowcaseNotifier notifier) {
+  Widget _buildProfileIntegrationSection(
+    BuildContext context,
+    BadgeShowcaseSettings settings,
+    BadgeShowcaseNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Profile Integration',
       icon: Icons.person,
@@ -592,7 +623,9 @@ class _BadgeShowcaseSettingsScreenState extends ConsumerState<BadgeShowcaseSetti
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
             ),
             child: Row(
               children: [

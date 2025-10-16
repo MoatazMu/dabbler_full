@@ -56,9 +56,9 @@ class CommunityAnalytics {
     return CommunityAnalytics(
       id: json['id'],
       group_id: json['group_id'],
-    metric_date: json['metric_date'] != null
-      ? DateTime.parse(json['metric_date'] as String)
-      : DateTime.now(),
+      metric_date: json['metric_date'] != null
+          ? DateTime.parse(json['metric_date'] as String)
+          : DateTime.now(),
       total_members: json['total_members'],
       new_members: json['new_members'],
       active_members: json['active_members'],

@@ -1,5 +1,6 @@
 /// Custom slider field with advanced features and accessibility
 library;
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 enum SliderMode {
   /// Single value slider
   single,
+
   /// Range slider with min/max values
   range,
 }
@@ -19,7 +21,7 @@ class StepConfig {
   final bool snapToSteps;
   final Color stepColor;
   final double stepSize;
-  
+
   const StepConfig({
     this.showSteps = false,
     this.customSteps,
@@ -36,7 +38,7 @@ class SliderTooltipConfig {
   final TextStyle? textStyle;
   final Color? backgroundColor;
   final Duration showDuration;
-  
+
   const SliderTooltipConfig({
     this.showTooltip = true,
     this.formatter,
@@ -44,7 +46,7 @@ class SliderTooltipConfig {
     this.backgroundColor,
     this.showDuration = const Duration(seconds: 2),
   });
-  
+
   String formatValue(double value) {
     return formatter?.call(value) ?? value.toStringAsFixed(1);
   }
@@ -58,7 +60,7 @@ class SliderIconConfig {
   final double iconSize;
   final String? minLabel;
   final String? maxLabel;
-  
+
   const SliderIconConfig({
     this.minIcon,
     this.maxIcon,
@@ -100,7 +102,7 @@ class SliderField extends StatefulWidget {
   final bool enableHapticFeedback;
   final List<String>? valueLabels;
   final bool logarithmic;
-  
+
   const SliderField({
     super.key,
     this.mode = SliderMode.single,
@@ -136,7 +138,7 @@ class SliderField extends StatefulWidget {
          mode == SliderMode.single ? value != null : rangeValues != null,
          'Value must be provided for single mode, rangeValues for range mode',
        );
-  
+
   @override
   State<SliderField> createState() => _SliderFieldState();
 }
@@ -147,27 +149,27 @@ class _SliderFieldState extends State<SliderField>
   OverlayEntry? _tooltipOverlay;
   final GlobalKey _sliderKey = GlobalKey();
   bool _isDragging = false;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
   }
-  
+
   void _setupAnimations() {
     _tooltipController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
   }
-  
+
   @override
   void dispose() {
     _tooltipController.dispose();
     _hideTooltip();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,36 +182,37 @@ class _SliderFieldState extends State<SliderField>
           if (widget.label != null) ...[
             Text(
               widget.label!,
-              style: widget.labelStyle ?? 
-                  Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+              style:
+                  widget.labelStyle ??
+                  Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
           ],
-          
+
           _buildSliderRow(),
-          
+
           if (widget.showValueLabels) ...[
             const SizedBox(height: 8),
             _buildValueLabels(),
           ],
-          
+
           if (widget.stepConfig.showSteps) ...[
             const SizedBox(height: 4),
             _buildStepIndicators(),
           ],
-          
+
           if (widget.helperText != null) ...[
             const SizedBox(height: 8),
             Text(
               widget.helperText!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
-          
+
           if (widget.errorText != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -223,7 +226,7 @@ class _SliderFieldState extends State<SliderField>
       ),
     );
   }
-  
+
   Widget _buildSliderRow() {
     return Row(
       children: [
@@ -231,9 +234,9 @@ class _SliderFieldState extends State<SliderField>
           _buildEndpointIcon(true),
           const SizedBox(width: 8),
         ],
-        
+
         Expanded(child: _buildSlider()),
-        
+
         if (widget.iconConfig.maxIcon != null) ...[
           const SizedBox(width: 8),
           _buildEndpointIcon(false),
@@ -241,11 +244,13 @@ class _SliderFieldState extends State<SliderField>
       ],
     );
   }
-  
+
   Widget _buildEndpointIcon(bool isMin) {
     final icon = isMin ? widget.iconConfig.minIcon : widget.iconConfig.maxIcon;
-    final label = isMin ? widget.iconConfig.minLabel : widget.iconConfig.maxLabel;
-    
+    final label = isMin
+        ? widget.iconConfig.minLabel
+        : widget.iconConfig.maxLabel;
+
     return Column(
       children: [
         Icon(
@@ -255,28 +260,26 @@ class _SliderFieldState extends State<SliderField>
         ),
         if (label != null) ...[
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ],
     );
   }
-  
+
   Widget _buildSlider() {
     final theme = Theme.of(context);
     final sliderTheme = SliderTheme.of(context).copyWith(
       activeTrackColor: widget.activeColor ?? theme.primaryColor,
-      inactiveTrackColor: widget.inactiveColor ?? theme.primaryColor.withOpacity(0.3),
+      inactiveTrackColor:
+          widget.inactiveColor ?? theme.primaryColor.withOpacity(0.3),
       thumbColor: widget.thumbColor ?? theme.primaryColor,
       overlayColor: (widget.thumbColor ?? theme.primaryColor).withOpacity(0.2),
       valueIndicatorColor: widget.activeColor ?? theme.primaryColor,
-      showValueIndicator: widget.tooltipConfig.showTooltip 
-          ? ShowValueIndicator.onDrag 
+      showValueIndicator: widget.tooltipConfig.showTooltip
+          ? ShowValueIndicator.onDrag
           : ShowValueIndicator.never,
     );
-    
+
     return SliderTheme(
       data: sliderTheme,
       child: widget.mode == SliderMode.single
@@ -284,27 +287,31 @@ class _SliderFieldState extends State<SliderField>
           : _buildRangeSlider(),
     );
   }
-  
+
   Widget _buildSingleSlider() {
     return Slider(
       value: _normalizeValue(widget.value!),
       min: 0.0,
       max: 1.0,
       divisions: widget.divisions,
-      label: widget.tooltipConfig.formatValue(_denormalizeValue(_normalizeValue(widget.value!))),
-      onChanged: widget.enabled ? (value) {
-        final actualValue = _denormalizeValue(value);
-        _handleValueChange(actualValue);
-        widget.onChanged?.call(actualValue);
-      } : null,
-      onChangeStart: widget.onChangeStart != null 
+      label: widget.tooltipConfig.formatValue(
+        _denormalizeValue(_normalizeValue(widget.value!)),
+      ),
+      onChanged: widget.enabled
+          ? (value) {
+              final actualValue = _denormalizeValue(value);
+              _handleValueChange(actualValue);
+              widget.onChanged?.call(actualValue);
+            }
+          : null,
+      onChangeStart: widget.onChangeStart != null
           ? (value) {
               setState(() => _isDragging = true);
               _showTooltip();
               widget.onChangeStart?.call(_denormalizeValue(value));
             }
           : null,
-      onChangeEnd: widget.onChangeEnd != null 
+      onChangeEnd: widget.onChangeEnd != null
           ? (value) {
               setState(() => _isDragging = false);
               _hideTooltipWithDelay();
@@ -313,31 +320,37 @@ class _SliderFieldState extends State<SliderField>
           : null,
     );
   }
-  
+
   Widget _buildRangeSlider() {
     final normalizedRange = RangeValues(
       _normalizeValue(widget.rangeValues!.start),
       _normalizeValue(widget.rangeValues!.end),
     );
-    
+
     return RangeSlider(
       values: normalizedRange,
       min: 0.0,
       max: 1.0,
       divisions: widget.divisions,
       labels: RangeLabels(
-        widget.tooltipConfig.formatValue(_denormalizeValue(normalizedRange.start)),
-        widget.tooltipConfig.formatValue(_denormalizeValue(normalizedRange.end)),
+        widget.tooltipConfig.formatValue(
+          _denormalizeValue(normalizedRange.start),
+        ),
+        widget.tooltipConfig.formatValue(
+          _denormalizeValue(normalizedRange.end),
+        ),
       ),
-      onChanged: widget.enabled ? (values) {
-        final actualValues = RangeValues(
-          _denormalizeValue(values.start),
-          _denormalizeValue(values.end),
-        );
-        _handleRangeChange(actualValues);
-        widget.onRangeChanged?.call(actualValues);
-      } : null,
-      onChangeStart: widget.onRangeChangeStart != null 
+      onChanged: widget.enabled
+          ? (values) {
+              final actualValues = RangeValues(
+                _denormalizeValue(values.start),
+                _denormalizeValue(values.end),
+              );
+              _handleRangeChange(actualValues);
+              widget.onRangeChanged?.call(actualValues);
+            }
+          : null,
+      onChangeStart: widget.onRangeChangeStart != null
           ? (values) {
               setState(() => _isDragging = true);
               _showTooltip();
@@ -348,7 +361,7 @@ class _SliderFieldState extends State<SliderField>
               widget.onRangeChangeStart?.call(actualValues);
             }
           : null,
-      onChangeEnd: widget.onRangeChangeEnd != null 
+      onChangeEnd: widget.onRangeChangeEnd != null
           ? (values) {
               setState(() => _isDragging = false);
               _hideTooltipWithDelay();
@@ -361,7 +374,7 @@ class _SliderFieldState extends State<SliderField>
           : null,
     );
   }
-  
+
   Widget _buildValueLabels() {
     if (widget.mode == SliderMode.single) {
       return Row(
@@ -389,37 +402,44 @@ class _SliderFieldState extends State<SliderField>
       );
     }
   }
-  
+
   Widget _buildValueText(double value, {bool isCurrentValue = false}) {
     String displayValue;
-    
+
     if (widget.valueLabels != null) {
-      final index = ((value - widget.min) / (widget.max - widget.min) * (widget.valueLabels!.length - 1)).round();
-      displayValue = index < widget.valueLabels!.length ? widget.valueLabels![index] : value.toString();
+      final index =
+          ((value - widget.min) /
+                  (widget.max - widget.min) *
+                  (widget.valueLabels!.length - 1))
+              .round();
+      displayValue = index < widget.valueLabels!.length
+          ? widget.valueLabels![index]
+          : value.toString();
     } else {
       displayValue = widget.tooltipConfig.formatValue(value);
     }
-    
+
     return Text(
       displayValue,
-      style: (widget.valueStyle ?? Theme.of(context).textTheme.bodySmall)?.copyWith(
-        fontWeight: isCurrentValue ? FontWeight.bold : null,
-        color: isCurrentValue 
-            ? widget.activeColor ?? Theme.of(context).primaryColor
-            : null,
-      ),
+      style: (widget.valueStyle ?? Theme.of(context).textTheme.bodySmall)
+          ?.copyWith(
+            fontWeight: isCurrentValue ? FontWeight.bold : null,
+            color: isCurrentValue
+                ? widget.activeColor ?? Theme.of(context).primaryColor
+                : null,
+          ),
     );
   }
-  
+
   Widget _buildStepIndicators() {
     final steps = widget.stepConfig.customSteps ?? _generateSteps();
-    
+
     return SizedBox(
       height: widget.stepConfig.stepSize,
       child: Row(
         children: steps.map((step) {
           _normalizeValue(step); // Calculate normalized step position
-          
+
           return Expanded(
             flex: 1,
             child: Container(
@@ -438,49 +458,52 @@ class _SliderFieldState extends State<SliderField>
       ),
     );
   }
-  
+
   List<double> _generateSteps() {
     if (widget.divisions == null) return [];
-    
+
     final steps = <double>[];
     final stepSize = (widget.max - widget.min) / widget.divisions!;
-    
+
     for (int i = 0; i <= widget.divisions!; i++) {
       steps.add(widget.min + (stepSize * i));
     }
-    
+
     return steps;
   }
-  
+
   double _normalizeValue(double value) {
     if (widget.logarithmic) {
       final logMin = widget.min == 0 ? 0.1 : widget.min;
       final logMax = widget.max;
       final logValue = value == 0 ? 0.1 : value;
-      
-      return (math.log(logValue) - math.log(logMin)) / (math.log(logMax) - math.log(logMin));
+
+      return (math.log(logValue) - math.log(logMin)) /
+          (math.log(logMax) - math.log(logMin));
     }
-    
+
     return (value - widget.min) / (widget.max - widget.min);
   }
-  
+
   double _denormalizeValue(double normalizedValue) {
     if (widget.logarithmic) {
       final logMin = widget.min == 0 ? 0.1 : widget.min;
       final logMax = widget.max;
-      
-      final logValue = math.log(logMin) + normalizedValue * (math.log(logMax) - math.log(logMin));
+
+      final logValue =
+          math.log(logMin) +
+          normalizedValue * (math.log(logMax) - math.log(logMin));
       return math.exp(logValue);
     }
-    
+
     return widget.min + normalizedValue * (widget.max - widget.min);
   }
-  
+
   void _handleValueChange(double value) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     if (widget.stepConfig.snapToSteps && widget.divisions != null) {
       final stepSize = (widget.max - widget.min) / widget.divisions!;
       // Calculate snapped value
@@ -488,26 +511,26 @@ class _SliderFieldState extends State<SliderField>
       // Update with snapped value if different
     }
   }
-  
+
   void _handleRangeChange(RangeValues values) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
   }
-  
+
   void _showTooltip() {
     if (!widget.tooltipConfig.showTooltip || _tooltipOverlay != null) return;
-    
+
     _tooltipController.forward();
   }
-  
+
   void _hideTooltip() {
     _tooltipController.reverse().then((_) {
       _tooltipOverlay?.remove();
       _tooltipOverlay = null;
     });
   }
-  
+
   void _hideTooltipWithDelay() {
     Future.delayed(widget.tooltipConfig.showDuration, () {
       if (!_isDragging) {
@@ -537,7 +560,7 @@ extension SliderFieldExtensions on SliderField {
       divisions: divisions,
     );
   }
-  
+
   /// Create a range slider
   static SliderField range({
     required RangeValues values,
@@ -557,7 +580,7 @@ extension SliderFieldExtensions on SliderField {
       divisions: divisions,
     );
   }
-  
+
   /// Create a slider with custom steps
   static SliderField stepped({
     required double value,
@@ -579,7 +602,7 @@ extension SliderFieldExtensions on SliderField {
       ),
     );
   }
-  
+
   /// Create a labeled slider with custom value labels
   static SliderField labeled({
     required double value,
@@ -631,7 +654,7 @@ class SliderPresets {
       ),
     );
   }
-  
+
   /// Experience level slider (1-10)
   static SliderField experienceLevel({
     required double value,
@@ -646,8 +669,16 @@ class SliderPresets {
       label: label,
       divisions: 9,
       valueLabels: const [
-        'Beginner', 'Novice', 'Learning', 'Developing', 'Intermediate',
-        'Skilled', 'Advanced', 'Expert', 'Master', 'Elite'
+        'Beginner',
+        'Novice',
+        'Learning',
+        'Developing',
+        'Intermediate',
+        'Skilled',
+        'Advanced',
+        'Expert',
+        'Master',
+        'Elite',
       ],
       iconConfig: const SliderIconConfig(
         minIcon: Icons.school,
@@ -658,7 +689,7 @@ class SliderPresets {
       activeColor: Colors.blue,
     );
   }
-  
+
   /// Distance range slider (0-50km)
   static SliderField distanceRange({
     required RangeValues values,
@@ -685,7 +716,7 @@ class SliderPresets {
       activeColor: Colors.green,
     );
   }
-  
+
   /// Price range slider (0-1000)
   static SliderField priceRange({
     required RangeValues values,
@@ -713,7 +744,7 @@ class SliderPresets {
       activeColor: Colors.orange,
     );
   }
-  
+
   /// Time duration slider (15min - 4hrs)
   static SliderField duration({
     required double value,
@@ -741,14 +772,16 @@ class SliderPresets {
           } else {
             final hours = minutes ~/ 60;
             final remainingMinutes = minutes % 60;
-            return remainingMinutes > 0 ? '${hours}h ${remainingMinutes}m' : '${hours}h';
+            return remainingMinutes > 0
+                ? '${hours}h ${remainingMinutes}m'
+                : '${hours}h';
           }
         },
       ),
       activeColor: Colors.purple,
     );
   }
-  
+
   /// Skill level with logarithmic scale
   static SliderField skillLevel({
     required double value,
@@ -765,10 +798,7 @@ class SliderPresets {
       tooltipConfig: SliderTooltipConfig(
         formatter: (value) => 'Level ${value.round()}',
       ),
-      stepConfig: const StepConfig(
-        showSteps: true,
-        snapToSteps: true,
-      ),
+      stepConfig: const StepConfig(showSteps: true, snapToSteps: true),
       activeColor: Colors.indigo,
     );
   }

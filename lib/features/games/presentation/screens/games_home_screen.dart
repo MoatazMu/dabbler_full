@@ -22,7 +22,7 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _checkLocationPermission();
-    
+
     // Initial data load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
@@ -40,27 +40,27 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
     // Simplified - check if Geolocator permissions are enabled
     LocationPermission permission = await Geolocator.checkPermission();
     setState(() {
-      _hasLocationPermission = permission == LocationPermission.always || 
-                                permission == LocationPermission.whileInUse;
+      _hasLocationPermission =
+          permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
     });
   }
 
   Future<void> _requestLocationPermission() async {
     if (_isRequestingLocation) return;
-    
+
     setState(() {
       _isRequestingLocation = true;
     });
 
     try {
       LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.always || 
+      if (permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse) {
         final position = await Geolocator.getCurrentPosition();
-        await ref.read(gamesActionsProvider).setUserLocation(
-          position.latitude,
-          position.longitude,
-        );
+        await ref
+            .read(gamesActionsProvider)
+            .setUserLocation(position.latitude, position.longitude);
         setState(() {
           _hasLocationPermission = true;
         });
@@ -83,15 +83,14 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
     if (_hasLocationPermission) {
       try {
         final position = await Geolocator.getCurrentPosition();
-        await ref.read(gamesActionsProvider).setUserLocation(
-          position.latitude,
-          position.longitude,
-        );
+        await ref
+            .read(gamesActionsProvider)
+            .setUserLocation(position.latitude, position.longitude);
       } catch (e) {
         // Handle silently, user can still browse without location
       }
     }
-    
+
     await ref.read(gamesActionsProvider).loadGames();
   }
 
@@ -105,10 +104,7 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
       appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildDiscoverTab(),
-          _buildMyGamesTab(),
-        ],
+        children: [_buildDiscoverTab(), _buildMyGamesTab()],
       ),
       floatingActionButton: _buildFloatingActionButton(),
     );
@@ -151,32 +147,22 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
       child: CustomScrollView(
         slivers: [
           // Search Bar
-          SliverToBoxAdapter(
-            child: _buildSearchSection(),
-          ),
-          
+          SliverToBoxAdapter(child: _buildSearchSection()),
+
           // Location Permission Banner
           if (!_hasLocationPermission)
-            SliverToBoxAdapter(
-              child: _buildLocationPermissionBanner(),
-            ),
-          
+            SliverToBoxAdapter(child: _buildLocationPermissionBanner()),
+
           // Filter Chips
-          SliverToBoxAdapter(
-            child: _buildFilterChipsSection(),
-          ),
-          
+          SliverToBoxAdapter(child: _buildFilterChipsSection()),
+
           // Nearby Games Section
           if (_hasLocationPermission)
-            SliverToBoxAdapter(
-              child: _buildNearbyGamesSection(),
-            ),
-          
+            SliverToBoxAdapter(child: _buildNearbyGamesSection()),
+
           // Upcoming Games This Week
-          SliverToBoxAdapter(
-            child: _buildSectionHeader('Upcoming This Week'),
-          ),
-          
+          SliverToBoxAdapter(child: _buildSectionHeader('Upcoming This Week')),
+
           _buildUpcomingGamesList(),
         ],
       ),
@@ -185,9 +171,7 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
 
   Widget _buildMyGamesTab() {
     // Placeholder for MyGamesScreen
-    return const Center(
-      child: Text('My Games Tab - To be implemented'),
-    );
+    return const Center(child: Text('My Games Tab - To be implemented'));
   }
 
   Widget _buildSearchSection() {
@@ -266,17 +250,16 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
                 const SizedBox(height: 4),
                 Text(
                   'Enable location to discover nearby games and venues',
-                  style: TextStyle(
-                    color: Colors.blue[600],
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.blue[600], fontSize: 13),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
           ElevatedButton(
-            onPressed: _isRequestingLocation ? null : _requestLocationPermission,
+            onPressed: _isRequestingLocation
+                ? null
+                : _requestLocationPermission,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue[600],
               foregroundColor: Colors.white,
@@ -333,10 +316,22 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
                 padding: EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Icon(Icons.location_searching, size: 48, color: Colors.grey),
+                    Icon(
+                      Icons.location_searching,
+                      size: 48,
+                      color: Colors.grey,
+                    ),
                     SizedBox(height: 8),
-                    Text('No nearby games', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('Try expanding your search radius or check back later'),
+                    Text(
+                      'No nearby games',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Try expanding your search radius or check back later',
+                    ),
                   ],
                 ),
               ),
@@ -367,7 +362,9 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text('${game.sport} • ${game.startTime}'),
-                        Text('${game.currentPlayers}/${game.maxPlayers} players'),
+                        Text(
+                          '${game.currentPlayers}/${game.maxPlayers} players',
+                        ),
                       ],
                     ),
                   ),
@@ -388,10 +385,7 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           TextButton(
             onPressed: () {
@@ -432,7 +426,13 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
                     children: [
                       Icon(Icons.event_busy, size: 48, color: Colors.grey),
                       SizedBox(height: 8),
-                      Text('No upcoming games', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(
+                        'No upcoming games',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       Text('Be the first to create a game in your area!'),
                     ],
                   ),
@@ -469,7 +469,8 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: () => ref.read(gamesActionsProvider).refreshGames(),
+                        onPressed: () =>
+                            ref.read(gamesActionsProvider).refreshGames(),
                         child: const Text('Retry'),
                       ),
                     ],
@@ -481,37 +482,36 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
         }
 
         return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index == upcomingGames.length) {
-                // Load more button or automatic pagination
-                return _buildLoadMoreButton();
-              }
-              
-              final game = upcomingGames[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      child: Text(game.sport.substring(0, 1).toUpperCase()),
-                    ),
-                    title: Text(game.title),
-                    subtitle: Text('${game.startTime} • ${game.currentPlayers}/${game.maxPlayers} players'),
-                    trailing: Text('\$${game.pricePerPlayer.toStringAsFixed(0)}'),
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/games/detail',
-                        arguments: game.id,
-                      );
-                    },
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index == upcomingGames.length) {
+              // Load more button or automatic pagination
+              return _buildLoadMoreButton();
+            }
+
+            final game = upcomingGames[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Card(
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(game.sport.substring(0, 1).toUpperCase()),
                   ),
+                  title: Text(game.title),
+                  subtitle: Text(
+                    '${game.startTime} • ${game.currentPlayers}/${game.maxPlayers} players',
+                  ),
+                  trailing: Text('\$${game.pricePerPlayer.toStringAsFixed(0)}'),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/games/detail',
+                      arguments: game.id,
+                    );
+                  },
                 ),
-              );
-            },
-            childCount: upcomingGames.length + 1,
-          ),
+              ),
+            );
+          }, childCount: upcomingGames.length + 1),
         );
       },
     );
@@ -522,7 +522,7 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
       builder: (context, ref, child) {
         final gamesState = ref.watch(gamesControllerProvider);
         final pagination = gamesState.paginationInfo;
-        
+
         if (pagination?.hasNextPage != true) {
           return const SizedBox.shrink();
         }
@@ -545,7 +545,9 @@ class _GamesHomeScreenState extends ConsumerState<GamesHomeScreen>
       onPressed: () {
         // Navigate to create game screen (placeholder)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Create Game screen - To be implemented')),
+          const SnackBar(
+            content: Text('Create Game screen - To be implemented'),
+          ),
         );
       },
       icon: const Icon(Icons.add),

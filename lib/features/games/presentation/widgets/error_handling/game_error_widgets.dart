@@ -16,7 +16,7 @@ class GameNetworkErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -31,16 +31,14 @@ class GameNetworkErrorWidget extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isOffline 
-                    ? Icons.wifi_off_rounded
-                    : Icons.cloud_off_rounded,
+                isOffline ? Icons.wifi_off_rounded : Icons.cloud_off_rounded,
                 size: 64,
                 color: theme.colorScheme.onErrorContainer,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Error title
             Text(
               isOffline ? 'No internet connection' : 'Connection failed',
@@ -50,9 +48,9 @@ class GameNetworkErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Error message
             Text(
               customMessage ??
@@ -64,9 +62,9 @@ class GameNetworkErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Retry button
             if (onRetry != null)
               SizedBox(
@@ -77,9 +75,9 @@ class GameNetworkErrorWidget extends StatelessWidget {
                   label: const Text('Try Again'),
                 ),
               ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Help text
             Text(
               isOffline
@@ -117,7 +115,7 @@ class GameFullErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -137,9 +135,9 @@ class GameFullErrorWidget extends StatelessWidget {
                 color: theme.colorScheme.tertiary,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'Game is Full',
@@ -149,9 +147,9 @@ class GameFullErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               gameName != null
@@ -162,9 +160,9 @@ class GameFullErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Join waitlist button (primary action if available)
             if (hasWaitlist && onJoinWaitlist != null) ...[
               SizedBox(
@@ -177,23 +175,25 @@ class GameFullErrorWidget extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ],
-            
+
             // View other games
             SizedBox(
               width: double.infinity,
-              child: hasWaitlist ? OutlinedButton.icon(
-                onPressed: onViewOtherGames,
-                icon: const Icon(Icons.search_rounded),
-                label: const Text('Find Similar Games'),
-              ) : FilledButton.icon(
-                onPressed: onViewOtherGames,
-                icon: const Icon(Icons.search_rounded),
-                label: const Text('Find Similar Games'),
-              ),
+              child: hasWaitlist
+                  ? OutlinedButton.icon(
+                      onPressed: onViewOtherGames,
+                      icon: const Icon(Icons.search_rounded),
+                      label: const Text('Find Similar Games'),
+                    )
+                  : FilledButton.icon(
+                      onPressed: onViewOtherGames,
+                      icon: const Icon(Icons.search_rounded),
+                      label: const Text('Find Similar Games'),
+                    ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Create similar game
             SizedBox(
               width: double.infinity,
@@ -203,15 +203,17 @@ class GameFullErrorWidget extends StatelessWidget {
                 label: const Text('Create Similar Game'),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Info box
             if (hasWaitlist)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                    0.5,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -260,7 +262,7 @@ class BookingConflictErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -280,9 +282,9 @@ class BookingConflictErrorWidget extends StatelessWidget {
                 color: theme.colorScheme.error,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'Schedule Conflict',
@@ -292,9 +294,9 @@ class BookingConflictErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               conflictingGames?.isNotEmpty == true
@@ -305,7 +307,7 @@ class BookingConflictErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             // Conflicting games list
             if (conflictingGames?.isNotEmpty == true) ...[
               const SizedBox(height: 16),
@@ -317,33 +319,37 @@ class BookingConflictErrorWidget extends StatelessWidget {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: conflictingGames!.map((game) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.schedule_rounded,
-                          size: 16,
-                          color: theme.colorScheme.onErrorContainer,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            game,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onErrorContainer,
-                            ),
+                  children: conflictingGames!
+                      .map(
+                        (game) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.schedule_rounded,
+                                size: 16,
+                                color: theme.colorScheme.onErrorContainer,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  game,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onErrorContainer,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  )).toList(),
+                      )
+                      .toList(),
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // Primary action - Choose different time
             SizedBox(
               width: double.infinity,
@@ -353,9 +359,9 @@ class BookingConflictErrorWidget extends StatelessWidget {
                 label: const Text('Choose Different Time'),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // View conflicts
             if (onViewConflicts != null)
               SizedBox(
@@ -366,7 +372,7 @@ class BookingConflictErrorWidget extends StatelessWidget {
                   label: const Text('View My Schedule'),
                 ),
               ),
-            
+
             // Continue anyway (if allowed)
             if (canContinue && onContinueAnyway != null) ...[
               const SizedBox(height: 12),
@@ -412,7 +418,7 @@ class PaymentErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -432,9 +438,9 @@ class PaymentErrorWidget extends StatelessWidget {
                 color: theme.colorScheme.error,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'Payment Failed',
@@ -444,20 +450,21 @@ class PaymentErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Error message
             Text(
-              errorMessage ?? 'There was a problem processing your payment. Please try again or contact support.',
+              errorMessage ??
+                  'There was a problem processing your payment. Please try again or contact support.',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Retry payment
             if (canRetry && onRetryPayment != null) ...[
               SizedBox(
@@ -470,7 +477,7 @@ class PaymentErrorWidget extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ],
-            
+
             // Change plan/payment method
             if (onChangePlan != null)
               SizedBox(
@@ -481,9 +488,9 @@ class PaymentErrorWidget extends StatelessWidget {
                   label: const Text('Change Payment Method'),
                 ),
               ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Contact support
             SizedBox(
               width: double.infinity,
@@ -493,14 +500,16 @@ class PaymentErrorWidget extends StatelessWidget {
                 label: const Text('Contact Support'),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Help info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                  0.5,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(

@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 class SocialLoginButtons extends StatelessWidget {
   final bool isLoading;
   final void Function(String provider) onLogin;
-  const SocialLoginButtons({super.key, required this.isLoading, required this.onLogin});
+  const SocialLoginButtons({
+    super.key,
+    required this.isLoading,
+    required this.onLogin,
+  });
 
   @override
   Widget build(BuildContext context) {

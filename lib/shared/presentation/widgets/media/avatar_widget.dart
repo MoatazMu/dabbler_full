@@ -1,5 +1,6 @@
 /// Advanced avatar widget with initials, shapes, and animations
 library;
+
 import 'package:flutter/material.dart';
 
 /// Avatar size presets
@@ -9,24 +10,16 @@ enum AvatarSize {
   large(64.0),
   xlarge(96.0),
   custom(0.0);
-  
+
   const AvatarSize(this.size);
   final double size;
 }
 
 /// Avatar shape options
-enum AvatarShape {
-  circle,
-  roundedSquare,
-  square,
-}
+enum AvatarShape { circle, roundedSquare, square }
 
 /// Gradient type options for avatar backgrounds
-enum GradientType {
-  linear,
-  radial,
-  none,
-}
+enum GradientType { linear, radial, none }
 
 /// Avatar widget that generates initials-based avatars with customizable styling
 class AvatarWidget extends StatefulWidget {
@@ -49,7 +42,7 @@ class AvatarWidget extends StatefulWidget {
   final Duration animationDuration;
   final Widget? placeholder;
   final bool showShimmer;
-  
+
   const AvatarWidget({
     super.key,
     this.imageUrl,
@@ -72,7 +65,7 @@ class AvatarWidget extends StatefulWidget {
     this.placeholder,
     this.showShimmer = true,
   });
-  
+
   @override
   State<AvatarWidget> createState() => _AvatarWidgetState();
 }
@@ -83,29 +76,25 @@ class _AvatarWidgetState extends State<AvatarWidget>
   late Animation<double> _fadeAnimation;
   bool _showImage = false;
   bool _imageError = false;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimation();
     _checkImageAvailability();
   }
-  
+
   void _setupAnimation() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
-  
+
   void _checkImageAvailability() {
     if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
       setState(() {
@@ -113,11 +102,11 @@ class _AvatarWidgetState extends State<AvatarWidget>
       });
     }
   }
-  
+
   @override
   void didUpdateWidget(AvatarWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (oldWidget.imageUrl != widget.imageUrl) {
       _checkImageAvailability();
       if (widget.enableAnimation) {
@@ -125,17 +114,17 @@ class _AvatarWidgetState extends State<AvatarWidget>
       }
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   double get _size {
     return widget.customSize ?? widget.avatarSize.size;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -156,7 +145,7 @@ class _AvatarWidgetState extends State<AvatarWidget>
       ),
     );
   }
-  
+
   BoxDecoration _buildContainerDecoration() {
     return BoxDecoration(
       border: widget.showBorder
@@ -166,17 +155,19 @@ class _AvatarWidgetState extends State<AvatarWidget>
             )
           : null,
       borderRadius: _getBorderRadius(),
-      boxShadow: widget.shadows ?? [
-        if (widget.showBorder)
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-      ],
+      boxShadow:
+          widget.shadows ??
+          [
+            if (widget.showBorder)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+          ],
     );
   }
-  
+
   BorderRadius? _getBorderRadius() {
     switch (widget.shape) {
       case AvatarShape.circle:
@@ -187,7 +178,7 @@ class _AvatarWidgetState extends State<AvatarWidget>
         return BorderRadius.zero;
     }
   }
-  
+
   CustomClipper<Path>? _getClipper() {
     switch (widget.shape) {
       case AvatarShape.circle:
@@ -198,15 +189,15 @@ class _AvatarWidgetState extends State<AvatarWidget>
         return null;
     }
   }
-  
+
   Widget _buildContent() {
     if (_showImage && !_imageError && widget.imageUrl != null) {
       return _buildImageContent();
     }
-    
+
     return _buildInitialsContent();
   }
-  
+
   Widget _buildImageContent() {
     return Image.network(
       widget.imageUrl!,
@@ -218,12 +209,9 @@ class _AvatarWidgetState extends State<AvatarWidget>
           if (widget.enableAnimation) {
             _animationController.forward();
           }
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: child,
-          );
+          return FadeTransition(opacity: _fadeAnimation, child: child);
         }
-        
+
         return widget.showShimmer
             ? _buildShimmerPlaceholder()
             : _buildLoadingPlaceholder();
@@ -235,32 +223,29 @@ class _AvatarWidgetState extends State<AvatarWidget>
             _showImage = false;
           });
         });
-        
+
         return _buildInitialsContent();
       },
     );
   }
-  
+
   Widget _buildInitialsContent() {
     final initials = _getInitials();
     final backgroundColor = _getBackgroundColor();
-    
+
     return Container(
       width: _size,
       height: _size,
       decoration: BoxDecoration(
-        color: widget.gradientType == GradientType.none ? backgroundColor : null,
+        color: widget.gradientType == GradientType.none
+            ? backgroundColor
+            : null,
         gradient: _buildGradient(backgroundColor),
       ),
-      child: Center(
-        child: Text(
-          initials,
-          style: _getTextStyle(),
-        ),
-      ),
+      child: Center(child: Text(initials, style: _getTextStyle())),
     );
   }
-  
+
   Widget _buildShimmerPlaceholder() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -268,11 +253,7 @@ class _AvatarWidgetState extends State<AvatarWidget>
       height: _size,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.grey[300]!,
-            Colors.grey[100]!,
-            Colors.grey[300]!,
-          ],
+          colors: [Colors.grey[300]!, Colors.grey[100]!, Colors.grey[300]!],
           stops: const [0.0, 0.5, 1.0],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -280,7 +261,7 @@ class _AvatarWidgetState extends State<AvatarWidget>
       ),
     );
   }
-  
+
   Widget _buildLoadingPlaceholder() {
     return Container(
       width: _size,
@@ -296,32 +277,37 @@ class _AvatarWidgetState extends State<AvatarWidget>
       ),
     );
   }
-  
+
   String _getInitials() {
     if (widget.name.isEmpty) return '?';
-    
-    final words = widget.name.trim().split(' ').where((word) => word.isNotEmpty);
-    
+
+    final words = widget.name
+        .trim()
+        .split(' ')
+        .where((word) => word.isNotEmpty);
+
     if (words.isEmpty) return '?';
     if (words.length == 1) {
       final word = words.first;
-      return word.length == 1 ? word.toUpperCase() : word.substring(0, 2).toUpperCase();
+      return word.length == 1
+          ? word.toUpperCase()
+          : word.substring(0, 2).toUpperCase();
     }
-    
+
     // Take first letter of first two words
     return words.take(2).map((word) => word[0].toUpperCase()).join('');
   }
-  
+
   Color _getBackgroundColor() {
     if (widget.backgroundColor != null) {
       return widget.backgroundColor!;
     }
-    
+
     // Generate consistent color based on name or userId
     final seed = widget.userId ?? widget.name;
     return _generateColorFromSeed(seed);
   }
-  
+
   Color _generateColorFromSeed(String seed) {
     // Material Design color palette
     final colors = [
@@ -342,30 +328,26 @@ class _AvatarWidgetState extends State<AvatarWidget>
       const Color(0xFF795548), // Brown Alt
       const Color(0xFF607D8B), // Blue Grey Alt
     ];
-    
+
     // Create hash from seed
     int hash = seed.hashCode;
     if (hash < 0) hash = -hash;
-    
+
     return colors[hash % colors.length];
   }
-  
+
   Gradient? _buildGradient(Color baseColor) {
     if (widget.gradientType == GradientType.none) return null;
-    
+
     List<Color> colors;
-    
+
     if (widget.gradientColors != null) {
       colors = widget.gradientColors!;
     } else {
       // Create gradient variants of base color
-      colors = [
-        baseColor,
-        _lightenColor(baseColor, 0.2),
-        baseColor,
-      ];
+      colors = [baseColor, _lightenColor(baseColor, 0.2), baseColor];
     }
-    
+
     switch (widget.gradientType) {
       case GradientType.linear:
         return LinearGradient(
@@ -383,16 +365,16 @@ class _AvatarWidgetState extends State<AvatarWidget>
         return null;
     }
   }
-  
+
   Color _lightenColor(Color color, double amount) {
     return Color.lerp(color, Colors.white, amount) ?? color;
   }
-  
+
   TextStyle _getTextStyle() {
     if (widget.textStyle != null) return widget.textStyle!;
-    
+
     final fontSize = _calculateFontSize();
-    
+
     return TextStyle(
       fontSize: fontSize,
       fontWeight: FontWeight.w600,
@@ -400,11 +382,11 @@ class _AvatarWidgetState extends State<AvatarWidget>
       letterSpacing: 0.5,
     );
   }
-  
+
   double _calculateFontSize() {
     // Dynamic font size based on avatar size
     final baseFontSize = _size * 0.35;
-    
+
     // Adjust based on initials length
     final initials = _getInitials();
     if (initials.length > 2) {
@@ -413,7 +395,7 @@ class _AvatarWidgetState extends State<AvatarWidget>
     if (initials.length == 1) {
       return baseFontSize * 1.2;
     }
-    
+
     return baseFontSize;
   }
 }
@@ -426,7 +408,7 @@ class _CircleClipper extends CustomClipper<Path> {
     path.addOval(Rect.fromLTWH(0, 0, size.width, size.height));
     return path;
   }
-  
+
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
@@ -434,9 +416,9 @@ class _CircleClipper extends CustomClipper<Path> {
 /// Custom clipper for rounded square avatars
 class _RoundedSquareClipper extends CustomClipper<Path> {
   final double borderRadius;
-  
+
   _RoundedSquareClipper(this.borderRadius);
-  
+
   @override
   Path getClip(Size size) {
     final path = Path();
@@ -448,7 +430,7 @@ class _RoundedSquareClipper extends CustomClipper<Path> {
     );
     return path;
   }
-  
+
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) {
     return oldClipper is! _RoundedSquareClipper ||
@@ -477,7 +459,7 @@ extension AvatarWidgetPresets on AvatarWidget {
       showShimmer: false,
     );
   }
-  
+
   /// Medium avatar with standard styling
   static AvatarWidget medium({
     String? imageUrl,
@@ -497,7 +479,7 @@ extension AvatarWidgetPresets on AvatarWidget {
       onTap: onTap,
     );
   }
-  
+
   /// Large avatar with enhanced styling
   static AvatarWidget large({
     String? imageUrl,
@@ -526,7 +508,7 @@ extension AvatarWidgetPresets on AvatarWidget {
       ],
     );
   }
-  
+
   /// Extra large avatar with premium styling
   static AvatarWidget xlarge({
     String? imageUrl,
@@ -560,7 +542,7 @@ extension AvatarWidgetPresets on AvatarWidget {
       ],
     );
   }
-  
+
   /// Notification avatar (small with badge support)
   static Widget notification({
     String? imageUrl,
@@ -587,10 +569,7 @@ extension AvatarWidgetPresets on AvatarWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 1),
               ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 badgeCount > 99 ? '99+' : badgeCount.toString(),
                 style: const TextStyle(
@@ -605,7 +584,7 @@ extension AvatarWidgetPresets on AvatarWidget {
       ],
     );
   }
-  
+
   /// Group avatar with multiple overlapping avatars
   static Widget group({
     required List<String> names,
@@ -614,10 +593,12 @@ extension AvatarWidgetPresets on AvatarWidget {
     AvatarSize size = AvatarSize.medium,
     int maxVisible = 3,
   }) {
-    final visibleCount = names.length > maxVisible ? maxVisible - 1 : names.length;
+    final visibleCount = names.length > maxVisible
+        ? maxVisible - 1
+        : names.length;
     final remainingCount = names.length - visibleCount;
     final avatarSize = size.size * 0.8; // Slightly smaller for overlap
-    
+
     return SizedBox(
       width: avatarSize + (visibleCount - 1) * (avatarSize * 0.3),
       height: avatarSize,
@@ -641,7 +622,7 @@ extension AvatarWidgetPresets on AvatarWidget {
                 ),
               ),
             ),
-          
+
           // Remaining count indicator
           if (remainingCount > 0)
             Positioned(

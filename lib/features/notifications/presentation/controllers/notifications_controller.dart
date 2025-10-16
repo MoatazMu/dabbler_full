@@ -38,10 +38,8 @@ class NotificationsController extends StateNotifier<NotificationsState> {
   final NotificationsRepository repository;
   final String userId;
 
-  NotificationsController({
-    required this.repository,
-    required this.userId,
-  }) : super(const NotificationsState());
+  NotificationsController({required this.repository, required this.userId})
+    : super(const NotificationsState());
 
   /// Load all notifications for the user
   Future<void> loadNotifications() async {
@@ -50,10 +48,8 @@ class NotificationsController extends StateNotifier<NotificationsState> {
     final result = await repository.getNotifications(userId);
 
     result.fold(
-      (failure) => state = state.copyWith(
-        isLoading: false,
-        error: failure.message,
-      ),
+      (failure) =>
+          state = state.copyWith(isLoading: false, error: failure.message),
       (notifications) {
         final unread = notifications.where((n) => !n.isRead).toList();
         state = state.copyWith(
@@ -72,21 +68,18 @@ class NotificationsController extends StateNotifier<NotificationsState> {
 
     result.fold(
       (failure) => state = state.copyWith(error: failure.message),
-      (unread) => state = state.copyWith(
-        unreadNotifications: unread,
-        error: null,
-      ),
+      (unread) =>
+          state = state.copyWith(unreadNotifications: unread, error: null),
     );
   }
 
   /// Get notifications by type
-  Future<List<Notification>> getNotificationsByType(NotificationType type) async {
+  Future<List<Notification>> getNotificationsByType(
+    NotificationType type,
+  ) async {
     final result = await repository.getNotificationsByType(userId, type);
 
-    return result.fold(
-      (failure) => [],
-      (notifications) => notifications,
-    );
+    return result.fold((failure) => [], (notifications) => notifications);
   }
 
   /// Mark a notification as read
@@ -107,7 +100,9 @@ class NotificationsController extends StateNotifier<NotificationsState> {
           return n;
         }).toList();
 
-        final updatedUnread = updatedNotifications.where((n) => !n.isRead).toList();
+        final updatedUnread = updatedNotifications
+            .where((n) => !n.isRead)
+            .toList();
 
         state = state.copyWith(
           notifications: updatedNotifications,
@@ -156,7 +151,9 @@ class NotificationsController extends StateNotifier<NotificationsState> {
         final updatedNotifications = state.notifications
             .where((n) => n.id != notificationId)
             .toList();
-        final updatedUnread = updatedNotifications.where((n) => !n.isRead).toList();
+        final updatedUnread = updatedNotifications
+            .where((n) => !n.isRead)
+            .toList();
 
         state = state.copyWith(
           notifications: updatedNotifications,
@@ -177,10 +174,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
         return false;
       },
       (_) {
-        state = state.copyWith(
-          notifications: [],
-          unreadNotifications: [],
-        );
+        state = state.copyWith(notifications: [], unreadNotifications: []);
         return true;
       },
     );
@@ -197,7 +191,9 @@ class NotificationsController extends StateNotifier<NotificationsState> {
       },
       (newNotification) {
         final updatedNotifications = [newNotification, ...state.notifications];
-        final updatedUnread = updatedNotifications.where((n) => !n.isRead).toList();
+        final updatedUnread = updatedNotifications
+            .where((n) => !n.isRead)
+            .toList();
 
         state = state.copyWith(
           notifications: updatedNotifications,

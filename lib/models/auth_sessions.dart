@@ -36,11 +36,15 @@ class AuthSessions {
       ip_address: json['ip_address'],
       user_agent: json['user_agent'],
       is_active: json['is_active'],
-      last_activity: (json['last_activity'] == null ? null : DateTime.parse(json['last_activity'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-      expires_at: (json['expires_at'] == null ? null : DateTime.parse(json['expires_at'] as String)),
+      last_activity: (json['last_activity'] == null
+          ? null
+          : DateTime.parse(json['last_activity'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      expires_at: (json['expires_at'] == null
+          ? null
+          : DateTime.parse(json['expires_at'] as String)),
     );
   }
 

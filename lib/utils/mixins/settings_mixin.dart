@@ -1,5 +1,6 @@
 /// Mixin for managing user settings with caching and change tracking
 library;
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class UserSettings {
   final bool dataUsageOptimization;
   final bool offlineMode;
   final Map<String, dynamic> preferences;
-  
+
   const UserSettings({
     this.themeMode = 'system',
     this.language = 'en',
@@ -39,7 +40,7 @@ class UserSettings {
     this.offlineMode = false,
     this.preferences = const {},
   });
-  
+
   Map<String, dynamic> toJson() => {
     'themeMode': themeMode,
     'language': language,
@@ -68,7 +69,7 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
   bool _isInitialized = false;
   bool _isSaving = false;
   Duration _autoSaveDelay = const Duration(seconds: 5);
-  
+
   /// Initialize settings management with stream subscription
   void initSettings(
     Stream<UserSettings> settingsStream, {
@@ -76,76 +77,76 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
     bool enableAutoSave = true,
   }) {
     if (_isInitialized) return;
-    
+
     _autoSaveDelay = autoSaveDelay ?? _autoSaveDelay;
     _isInitialized = true;
-    
+
     // Subscribe to settings stream
     _settingsSubscription = settingsStream.listen(
       (settings) => _updateCache(settings.toJson()),
       onError: (error) => _handleStreamError(error),
     );
-    
+
     // Enable auto-save if requested
     if (enableAutoSave) {
       _enableAutoSave();
     }
   }
-  
+
   /// Update cache with new settings data
   void _updateCache(Map<String, dynamic> settings) {
     if (!mounted) return;
-    
+
     setState(() {
       _settingsCache.clear();
       _settingsCache.addAll(settings);
     });
   }
-  
+
   /// Handle stream errors
   void _handleStreamError(dynamic error) {
     print('Settings stream error: $error');
     // Could show error dialog or retry logic here
   }
-  
+
   /// Get setting value with type safety
   T? getSetting<T>(String key) {
     final value = _settingsCache[key];
     if (value is T) return value;
     return null;
   }
-  
+
   /// Get setting value with default fallback
   T getSettingWithDefault<T>(String key, T defaultValue) {
     final value = getSetting<T>(key);
     return value ?? defaultValue;
   }
-  
+
   /// Update setting value with change tracking
   void updateSetting(String key, dynamic value) {
     if (!mounted) return;
-    
+
     final currentValue = _settingsCache[key];
     if (currentValue == value) return; // No change
-    
+
     setState(() {
       _settingsCache[key] = value;
       _dirtySettings.add(key);
     });
-    
+
     // Schedule auto-save
     _scheduleAutoSave();
-    
+
     // Trigger immediate effects for certain settings
     _handleImmediateSettingChange(key, value);
   }
-  
+
   /// Update multiple settings at once
   void updateSettings(Map<String, dynamic> updates) {
     if (!mounted || updates.isEmpty) return;
-    
+
     bool hasChanges = false;
-    
+
     setState(() {
       for (final entry in updates.entries) {
         if (_settingsCache[entry.key] != entry.value) {
@@ -155,12 +156,12 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
         }
       }
     });
-    
+
     if (hasChanges) {
       _scheduleAutoSave();
     }
   }
-  
+
   /// Handle immediate setting changes (like theme)
   void _handleImmediateSettingChange(String key, dynamic value) {
     switch (key) {
@@ -175,25 +176,25 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
         break;
     }
   }
-  
+
   /// Apply theme change immediately
   void _applyThemeChange(String themeMode) {
     // This would typically update the app's theme
     print('Theme changed to: $themeMode');
   }
-  
+
   /// Apply language change immediately
   void _applyLanguageChange(String language) {
     // This would typically trigger a locale change
     print('Language changed to: $language');
   }
-  
+
   /// Apply haptic feedback setting immediately
   void _applyHapticFeedbackChange(bool enabled) {
     // This would configure haptic feedback globally
     print('Haptic feedback: ${enabled ? 'enabled' : 'disabled'}');
   }
-  
+
   /// Schedule auto-save with debouncing
   void _scheduleAutoSave() {
     _autoSaveTimer?.cancel();
@@ -203,54 +204,53 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
       }
     });
   }
-  
+
   /// Enable auto-save functionality
   void _enableAutoSave() {
     // Auto-save is enabled through _scheduleAutoSave calls
     print('Auto-save enabled with ${_autoSaveDelay.inSeconds}s delay');
   }
-  
+
   /// Check if there are unsaved changes
   bool get hasUnsavedChanges => _dirtySettings.isNotEmpty;
-  
+
   /// Get count of unsaved changes
   int get unsavedChangesCount => _dirtySettings.length;
-  
+
   /// Get list of dirty setting keys
   Set<String> get dirtySettings => Set.from(_dirtySettings);
-  
+
   /// Save settings to persistent storage
   Future<bool> saveSettings({bool showProgress = true}) async {
     if (!hasUnsavedChanges || _isSaving) return true;
-    
+
     _isSaving = true;
     bool success = false;
-    
+
     try {
       if (showProgress && mounted) {
         _showSavingDialog();
       }
-      
+
       // Prepare updates for saving
       final updates = Map.fromEntries(
         _dirtySettings.map((key) => MapEntry(key, _settingsCache[key])),
       );
-      
+
       // Simulate API call - replace with actual settings service
       await _saveToService(updates);
-      
+
       // Mark as saved
       _dirtySettings.clear();
       success = true;
-      
+
       if (mounted && showProgress) {
         Navigator.pop(context); // Hide progress dialog
         _showSuccessMessage();
       }
-      
     } catch (e) {
       print('Failed to save settings: $e');
-      
+
       if (mounted && showProgress) {
         Navigator.pop(context); // Hide progress dialog
         _showErrorMessage(e.toString());
@@ -258,24 +258,24 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
     } finally {
       _isSaving = false;
     }
-    
+
     return success;
   }
-  
+
   /// Save settings updates to service
   Future<void> _saveToService(Map<String, dynamic> updates) async {
     // This would call your actual settings service
     print('Saving ${updates.length} settings: ${updates.keys.toList()}');
-    
+
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // Simulate potential failures
     if (updates.containsKey('invalid_setting')) {
       throw Exception('Invalid setting detected');
     }
   }
-  
+
   /// Show saving progress dialog
   void _showSavingDialog() {
     showDialog(
@@ -286,13 +286,13 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(width: 20),
-            Text('Saving settings...')
+            Text('Saving settings...'),
           ],
         ),
       ),
     );
   }
-  
+
   /// Show success message
   void _showSuccessMessage() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -309,7 +309,7 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
       ),
     );
   }
-  
+
   /// Show error message
   void _showErrorMessage(String error) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -331,7 +331,7 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
       ),
     );
   }
-  
+
   /// Reset specific setting to default value
   void resetSetting(String key) {
     final defaultValues = _getDefaultSettings();
@@ -339,76 +339,77 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
       updateSetting(key, defaultValues[key]);
     }
   }
-  
+
   /// Reset all settings to defaults
   void resetAllSettings() {
     final defaultValues = _getDefaultSettings();
     updateSettings(defaultValues);
   }
-  
+
   /// Get default settings values
   Map<String, dynamic> _getDefaultSettings() {
     return const UserSettings().toJson();
   }
-  
+
   /// Discard unsaved changes
   void discardChanges() {
     if (!hasUnsavedChanges) return;
-    
+
     setState(() {
       // Clear dirty settings without restoring values
       // TODO: Implement restoration from last saved state when needed
       _dirtySettings.clear();
     });
-    
+
     _autoSaveTimer?.cancel();
   }
-  
+
   /// Handle back navigation with unsaved changes
   Future<bool> onWillPop() async {
     if (!hasUnsavedChanges) return true;
-    
+
     return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Unsaved Changes'),
-          ],
-        ),
-        content: Text(
-          'You have $unsavedChangesCount unsaved change${unsavedChangesCount > 1 ? 's' : ''}. What would you like to do?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Discard'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.warning, color: Colors.orange),
+                SizedBox(width: 8),
+                Text('Unsaved Changes'),
+              ],
+            ),
+            content: Text(
+              'You have $unsavedChangesCount unsaved change${unsavedChangesCount > 1 ? 's' : ''}. What would you like to do?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Discard'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context, false); // Don't leave yet
+                  final saved = await saveSettings();
+                  if (saved && mounted) {
+                    Navigator.pop(context); // Now we can leave
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context, false); // Don't leave yet
-              final saved = await saveSettings();
-              if (saved && mounted) {
-                Navigator.pop(context); // Now we can leave
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
-  
+
   /// Show settings comparison dialog
   void showSettingsChanges() {
     if (!hasUnsavedChanges) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -429,10 +430,7 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
                     final key = _dirtySettings.elementAt(index);
                     final value = _settingsCache[key];
                     return ListTile(
-                      leading: Icon(
-                        _getSettingIcon(key),
-                        size: 20,
-                      ),
+                      leading: Icon(_getSettingIcon(key), size: 20),
                       title: Text(_humanizeSettingName(key)),
                       subtitle: Text(_formatSettingValue(value)),
                       dense: true,
@@ -459,7 +457,7 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
       ),
     );
   }
-  
+
   /// Get icon for setting type
   IconData _getSettingIcon(String key) {
     switch (key) {
@@ -483,15 +481,19 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
         return Icons.settings;
     }
   }
-  
+
   /// Convert setting key to human readable name
   String _humanizeSettingName(String key) {
     final words = key.replaceAll(RegExp(r'([A-Z])'), ' \$1').split(' ');
     return words
-        .map((word) => word.isEmpty ? '' : '${word[0].toUpperCase()}${word.substring(1)}')
+        .map(
+          (word) => word.isEmpty
+              ? ''
+              : '${word[0].toUpperCase()}${word.substring(1)}',
+        )
         .join(' ');
   }
-  
+
   /// Format setting value for display
   String _formatSettingValue(dynamic value) {
     if (value is bool) {
@@ -503,39 +505,39 @@ mixin SettingsMixin<T extends StatefulWidget> on State<T> {
     }
     return value.toString();
   }
-  
+
   /// Export settings as JSON
   Map<String, dynamic> exportSettings() {
     return Map.from(_settingsCache);
   }
-  
+
   /// Import settings from JSON
   void importSettings(Map<String, dynamic> settings) {
     updateSettings(settings);
   }
-  
+
   /// Get settings synchronously (cached values)
   Map<String, dynamic> get currentSettings => Map.from(_settingsCache);
-  
+
   /// Check if settings are being saved
   bool get isSaving => _isSaving;
-  
+
   /// Force immediate save (bypass auto-save delay)
   Future<bool> saveSettingsImmediate() {
     _autoSaveTimer?.cancel();
     return saveSettings();
   }
-  
+
   @override
   void dispose() {
     _settingsSubscription?.cancel();
     _autoSaveTimer?.cancel();
-    
+
     // Auto-save on dispose if there are unsaved changes
     if (hasUnsavedChanges && !_isSaving) {
       saveSettings(showProgress: false);
     }
-    
+
     super.dispose();
   }
 }

@@ -9,13 +9,17 @@ extension DateTimeExtensions on DateTime {
   /// Returns true if date is yesterday
   bool get isYesterday {
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return year == yesterday.year && month == yesterday.month && day == yesterday.day;
+    return year == yesterday.year &&
+        month == yesterday.month &&
+        day == yesterday.day;
   }
 
   /// Returns true if date is tomorrow
   bool get isTomorrow {
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    return year == tomorrow.year && month == tomorrow.month && day == tomorrow.day;
+    return year == tomorrow.year &&
+        month == tomorrow.month &&
+        day == tomorrow.day;
   }
 
   /// Returns a "time ago" string (e.g. "2 hours ago")
@@ -76,7 +80,8 @@ extension DateTimeExtensions on DateTime {
   }
 
   /// Returns true if the date is a weekend
-  bool get isWeekend => weekday == DateTime.saturday || weekday == DateTime.sunday;
+  bool get isWeekend =>
+      weekday == DateTime.saturday || weekday == DateTime.sunday;
 
   /// Returns true if the date is a weekday
   bool get isWeekday => !isWeekend;
@@ -84,8 +89,18 @@ extension DateTimeExtensions on DateTime {
   /// Returns the date in a readable format (e.g. "Jan 1, 2025")
   String get readableDate {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[month - 1]} $day, $year';
   }
@@ -138,13 +153,15 @@ extension DateTimeExtensions on DateTime {
     // Add your holiday logic here
     // This is just an example with major US holidays
     final holidays = [
-      DateTime(year, 1, 1),   // New Year's Day
-      DateTime(year, 7, 4),   // Independence Day
+      DateTime(year, 1, 1), // New Year's Day
+      DateTime(year, 7, 4), // Independence Day
       DateTime(year, 12, 25), // Christmas
       // Add more holidays as needed
     ];
 
-    return holidays.any((holiday) =>
-      holiday.year == year && holiday.month == month && holiday.day == day);
+    return holidays.any(
+      (holiday) =>
+          holiday.year == year && holiday.month == month && holiday.day == day,
+    );
   }
 }

@@ -52,12 +52,21 @@ class ProfileStatisticsModel extends ProfileStatistics {
   factory ProfileStatisticsModel.fromJson(Map<String, dynamic> json) {
     return ProfileStatisticsModel(
       totalGamesPlayed: _parseIntWithDefault(json['total_games_played'], 0),
-      totalGamesOrganized: _parseIntWithDefault(json['total_games_organized'], 0),
+      totalGamesOrganized: _parseIntWithDefault(
+        json['total_games_organized'],
+        0,
+      ),
       totalWins: _parseIntWithDefault(json['total_games_won'], 0),
       totalLosses: _parseIntWithDefault(json['total_games_lost'], 0),
       totalDraws: _parseIntWithDefault(json['total_draws'], 0),
-      totalHoursPlayed: _parseDoubleWithDefault(json['total_hours_played'], 0.0),
-      averageGameDuration: _parseDoubleWithDefault(json['average_game_duration'], 0.0),
+      totalHoursPlayed: _parseDoubleWithDefault(
+        json['total_hours_played'],
+        0.0,
+      ),
+      averageGameDuration: _parseDoubleWithDefault(
+        json['average_game_duration'],
+        0.0,
+      ),
       currentWinStreak: _parseIntWithDefault(json['current_win_streak'], 0),
       longestWinStreak: _parseIntWithDefault(json['longest_win_streak'], 0),
       currentPlayStreak: _parseIntWithDefault(json['current_play_streak'], 0),
@@ -65,7 +74,10 @@ class ProfileStatisticsModel extends ProfileStatistics {
       uniqueTeammates: _parseIntWithDefault(json['unique_teammates'], 0),
       uniqueVenues: _parseIntWithDefault(json['unique_venues'], 0),
       averageRating: _parseDoubleWithDefault(json['average_rating'], 0.0),
-      totalRatingsReceived: _parseIntWithDefault(json['total_ratings_received'], 0),
+      totalRatingsReceived: _parseIntWithDefault(
+        json['total_ratings_received'],
+        0,
+      ),
       achievements: _parseStringList(json['achievements']),
       badges: _parseStringList(json['badges']),
       lastGameDate: _parseDateTime(json['last_game_date']),
@@ -74,7 +86,9 @@ class ProfileStatisticsModel extends ProfileStatistics {
   }
 
   /// Creates ProfileStatisticsModel from Supabase aggregated query
-  factory ProfileStatisticsModel.fromSupabaseAggregated(Map<String, dynamic> json) {
+  factory ProfileStatisticsModel.fromSupabaseAggregated(
+    Map<String, dynamic> json,
+  ) {
     // Handle aggregated statistics from complex queries
     return ProfileStatisticsModel(
       totalGamesPlayed: _parseIntWithDefault(json['games_count'], 0),
@@ -82,8 +96,13 @@ class ProfileStatisticsModel extends ProfileStatistics {
       totalWins: _parseIntWithDefault(json['wins_count'], 0),
       totalLosses: _parseIntWithDefault(json['losses_count'], 0),
       totalDraws: _parseIntWithDefault(json['draws_count'], 0),
-      totalHoursPlayed: _calculateHoursFromMinutes(json['total_minutes_played']),
-      averageGameDuration: _parseDoubleWithDefault(json['avg_game_duration_minutes'], 0.0),
+      totalHoursPlayed: _calculateHoursFromMinutes(
+        json['total_minutes_played'],
+      ),
+      averageGameDuration: _parseDoubleWithDefault(
+        json['avg_game_duration_minutes'],
+        0.0,
+      ),
       currentWinStreak: _parseIntWithDefault(json['current_win_streak'], 0),
       longestWinStreak: _parseIntWithDefault(json['longest_win_streak'], 0),
       currentPlayStreak: _parseIntWithDefault(json['current_play_streak'], 0),
@@ -191,7 +210,8 @@ class ProfileStatisticsModel extends ProfileStatistics {
       // Handle JSON array strings
       if (value.startsWith('[') && value.endsWith(']')) {
         try {
-          final parsed = value.substring(1, value.length - 1)
+          final parsed = value
+              .substring(1, value.length - 1)
               .split(',')
               .map((e) => e.trim().replaceAll('"', ''))
               .where((e) => e.isNotEmpty)
@@ -202,7 +222,11 @@ class ProfileStatisticsModel extends ProfileStatistics {
         }
       }
       // Handle comma-separated values
-      return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      return value
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
     }
     return [];
   }
@@ -211,7 +235,10 @@ class ProfileStatisticsModel extends ProfileStatistics {
     if (value == null) return {};
     if (value is Map<String, int>) return value;
     if (value is Map) {
-      return value.map((key, value) => MapEntry(key.toString(), _parseIntWithDefault(value, 0)));
+      return value.map(
+        (key, value) =>
+            MapEntry(key.toString(), _parseIntWithDefault(value, 0)),
+      );
     }
     if (value is String) {
       try {
@@ -244,11 +271,14 @@ class ProfileStatisticsModel extends ProfileStatistics {
 
   static Map<String, int> _extractSportGamesCount(Map<String, dynamic> json) {
     // Extract from sport type frequency data
-    if (json.containsKey('sport_type_counts') && json['sport_type_counts'] is Map) {
+    if (json.containsKey('sport_type_counts') &&
+        json['sport_type_counts'] is Map) {
       final counts = json['sport_type_counts'] as Map<String, dynamic>;
-      return counts.map((key, value) => MapEntry(key, _parseIntWithDefault(value, 0)));
+      return counts.map(
+        (key, value) => MapEntry(key, _parseIntWithDefault(value, 0)),
+      );
     }
-    
+
     return _parseSportGamesCount(json['sport_games_count']);
   }
 

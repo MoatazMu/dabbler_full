@@ -44,22 +44,26 @@ class FriendModel extends Friend {
 
   /// Create FriendModel from Supabase JSON response
   /// Handles both directions of friendship and includes profile data
-  factory FriendModel.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
+  factory FriendModel.fromJson(
+    Map<String, dynamic> json, {
+    String? currentUserId,
+  }) {
     // Determine if this is a friendship request or response
     // The JSON might contain friendship data with nested profile info
     Map<String, dynamic> profileData = {};
-    
+
     String friendId = '';
     String friendName = '';
     String friendUsername = '';
-    
+
     // Handle different JSON structures from different API endpoints
     if (json.containsKey('friend_profile') && json['friend_profile'] != null) {
       // Friend request format with nested profile
       profileData = json['friend_profile'] as Map<String, dynamic>;
       friendId = profileData['id'] ?? '';
-    } else if (json.containsKey('user_profile') && json['user_profile'] != null) {
-      // Request received format with nested profile  
+    } else if (json.containsKey('user_profile') &&
+        json['user_profile'] != null) {
+      // Request received format with nested profile
       profileData = json['user_profile'] as Map<String, dynamic>;
       friendId = profileData['id'] ?? '';
     } else if (json.containsKey('profiles')) {
@@ -76,7 +80,7 @@ class FriendModel extends Friend {
     if (currentUserId != null) {
       final userId1 = json['user_id'] ?? '';
       final userId2 = json['friend_id'] ?? '';
-      
+
       if (userId1 == currentUserId) {
         friendId = userId2;
       } else {
@@ -84,14 +88,13 @@ class FriendModel extends Friend {
       }
     }
 
-    friendName = profileData['full_name'] ?? 
-                profileData['display_name'] ?? 
-                profileData['display_name'] ?? 
-                'Unknown User';
-    
-    friendUsername = profileData['username'] ?? 
-                    profileData['handle'] ?? 
-                    '';
+    friendName =
+        profileData['full_name'] ??
+        profileData['display_name'] ??
+        profileData['display_name'] ??
+        'Unknown User';
+
+    friendUsername = profileData['username'] ?? profileData['handle'] ?? '';
 
     // Parse friendship status
     FriendshipStatus status = FriendshipStatus.pending;
@@ -119,7 +122,7 @@ class FriendModel extends Friend {
     final mutualFriendsData = json['mutual_friends'] ?? [];
     List<String> mutualFriendIds = [];
     int mutualFriendsCount = 0;
-    
+
     if (mutualFriendsData is List) {
       mutualFriendIds = mutualFriendsData
           .map((friend) => friend.toString())
@@ -157,36 +160,37 @@ class FriendModel extends Friend {
       status: status,
       createdAt: _parseDateTime(json['created_at']),
       updatedAt: _parseDateTime(json['updated_at']),
-      friendRequestSentAt: json['friend_request_sent_at'] != null 
-          ? _parseDateTime(json['friend_request_sent_at']) 
+      friendRequestSentAt: json['friend_request_sent_at'] != null
+          ? _parseDateTime(json['friend_request_sent_at'])
           : null,
-      friendRequestAcceptedAt: json['friend_request_accepted_at'] != null 
-          ? _parseDateTime(json['friend_request_accepted_at']) 
+      friendRequestAcceptedAt: json['friend_request_accepted_at'] != null
+          ? _parseDateTime(json['friend_request_accepted_at'])
           : null,
-      profilePicture: profileData['avatar_url'] ?? 
-                     profileData['profile_picture'] ?? 
-                     '',
+      profilePicture:
+          profileData['avatar_url'] ?? profileData['profile_picture'] ?? '',
       bio: profileData['bio'] ?? profileData['description'] ?? '',
-      isVerified: profileData['verified'] == true || 
-                 profileData['is_verified'] == true,
-      isOnline: profileData['is_online'] == true || 
-               profileData['online_status'] == 'online',
-      lastSeen: profileData['last_seen'] != null 
-          ? _parseDateTime(profileData['last_seen']) 
+      isVerified:
+          profileData['verified'] == true || profileData['is_verified'] == true,
+      isOnline:
+          profileData['is_online'] == true ||
+          profileData['online_status'] == 'online',
+      lastSeen: profileData['last_seen'] != null
+          ? _parseDateTime(profileData['last_seen'])
           : null,
       mutualFriendsCount: mutualFriendsCount,
       mutualFriendIds: mutualFriendIds,
       gameStats: gameStats,
       favorSports: favorSports,
       location: profileData['location'] ?? profileData['city'],
-      joinedDate: profileData['created_at'] != null 
-          ? _parseDateTime(profileData['created_at']) 
+      joinedDate: profileData['created_at'] != null
+          ? _parseDateTime(profileData['created_at'])
           : null,
-      isBlocked: json['is_blocked'] == true || 
-                json['blocked'] == true ||
-                status == FriendshipStatus.blocked,
-      hasBlockedMe: json['has_blocked_me'] == true || 
-                   json['blocked_by_friend'] == true,
+      isBlocked:
+          json['is_blocked'] == true ||
+          json['blocked'] == true ||
+          status == FriendshipStatus.blocked,
+      hasBlockedMe:
+          json['has_blocked_me'] == true || json['blocked_by_friend'] == true,
     );
   }
 
@@ -202,7 +206,8 @@ class FriendModel extends Friend {
       if (friendRequestSentAt != null)
         'friend_request_sent_at': friendRequestSentAt!.toIso8601String(),
       if (friendRequestAcceptedAt != null)
-        'friend_request_accepted_at': friendRequestAcceptedAt!.toIso8601String(),
+        'friend_request_accepted_at': friendRequestAcceptedAt!
+            .toIso8601String(),
     };
   }
 
@@ -277,7 +282,8 @@ class FriendModel extends Friend {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       friendRequestSentAt: friendRequestSentAt ?? this.friendRequestSentAt,
-      friendRequestAcceptedAt: friendRequestAcceptedAt ?? this.friendRequestAcceptedAt,
+      friendRequestAcceptedAt:
+          friendRequestAcceptedAt ?? this.friendRequestAcceptedAt,
       profilePicture: profilePicture ?? this.profilePicture,
       bio: bio ?? this.bio,
       isVerified: isVerified ?? this.isVerified,
@@ -296,22 +302,20 @@ class FriendModel extends Friend {
 
   /// Check if friend request can be sent
   bool canSendFriendRequest() {
-    return status != FriendshipStatus.accepted && 
-           status != FriendshipStatus.blocked &&
-           !isBlocked && 
-           !hasBlockedMe;
+    return status != FriendshipStatus.accepted &&
+        status != FriendshipStatus.blocked &&
+        !isBlocked &&
+        !hasBlockedMe;
   }
 
   /// Check if this is a pending request sent by current user
   bool isPendingRequestSentByUser(String currentUserId) {
-    return status == FriendshipStatus.pending && 
-           userId == currentUserId;
+    return status == FriendshipStatus.pending && userId == currentUserId;
   }
 
   /// Check if this is a pending request received by current user
   bool isPendingRequestReceived(String currentUserId) {
-    return status == FriendshipStatus.pending && 
-           friendId == currentUserId;
+    return status == FriendshipStatus.pending && friendId == currentUserId;
   }
 
   /// Get display name with fallback

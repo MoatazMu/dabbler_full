@@ -34,18 +34,16 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
   @override
   Widget build(BuildContext context) {
     final userId = _authService.getCurrentUserId();
-    
+
     if (userId == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('My Games')),
-        body: const Center(
-          child: Text('Please sign in to view your games'),
-        ),
+        body: const Center(child: Text('Please sign in to view your games')),
       );
     }
 
     final myGamesState = ref.watch(myGamesControllerProvider(userId));
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Games'),
@@ -77,35 +75,37 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
       body: myGamesState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : myGamesState.error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${myGamesState.error}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref
+                          .read(myGamesControllerProvider(userId).notifier)
+                          .refresh();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : Column(
+              children: [
+                _buildStatsHeader(myGamesState),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
                     children: [
-                      Text('Error: ${myGamesState.error}'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(myGamesControllerProvider(userId).notifier).refresh();
-                        },
-                        child: const Text('Retry'),
-                      ),
+                      _buildUpcomingTab(myGamesState.upcomingGames),
+                      _buildPastTab(myGamesState.pastGames),
                     ],
                   ),
-                )
-              : Column(
-                  children: [
-                    _buildStatsHeader(myGamesState),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildUpcomingTab(myGamesState.upcomingGames),
-                          _buildPastTab(myGamesState.pastGames),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           context.push('/create-game');
@@ -117,18 +117,20 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
   }
 
   Widget _buildStatsHeader(myGamesState) {
-    final totalGames = myGamesState.upcomingGames.length + myGamesState.pastGames.length;
-    final organizerGames = [...myGamesState.upcomingGames, ...myGamesState.pastGames]
-        .where((game) => game.organizerId == _authService.getCurrentUserId())
-        .length;
-    
+    final totalGames =
+        myGamesState.upcomingGames.length + myGamesState.pastGames.length;
+    final organizerGames =
+        [...myGamesState.upcomingGames, ...myGamesState.pastGames]
+            .where(
+              (game) => game.organizerId == _authService.getCurrentUserId(),
+            )
+            .length;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue[50],
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[300]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Row(
         children: [
@@ -141,7 +143,7 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
             ),
           ),
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: _buildStatCard(
               'Organized',
@@ -151,7 +153,7 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
             ),
           ),
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: _buildStatCard(
               'This Month',
@@ -165,7 +167,12 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -178,18 +185,9 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
     );
@@ -207,9 +205,15 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
           children: [
             Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text('No upcoming games', style: TextStyle(fontSize: 18, color: Colors.grey)),
+            Text(
+              'No upcoming games',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
             SizedBox(height: 8),
-            Text('Create or join a game to get started!', style: TextStyle(color: Colors.grey)),
+            Text(
+              'Create or join a game to get started!',
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       );
@@ -233,9 +237,15 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
           children: [
             Icon(Icons.history, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text('No past games', style: TextStyle(fontSize: 18, color: Colors.grey)),
+            Text(
+              'No past games',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
             SizedBox(height: 8),
-            Text('Your completed games will appear here', style: TextStyle(color: Colors.grey)),
+            Text(
+              'Your completed games will appear here',
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       );
@@ -253,18 +263,18 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
 
   Widget _buildCalendarView(List games) {
     // TODO: Implement calendar view with real Game entities
-    return const Center(
-      child: Text('Calendar view coming soon'),
-    );
+    return const Center(child: Text('Calendar view coming soon'));
   }
-  
+
   Widget _buildUpcomingGameCard(dynamic game) {
     // Simple card for now - TODO: Full implementation with Game entity
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         title: Text(game.title),
-        subtitle: Text('${game.scheduledDate.toString().split(' ')[0]} • ${game.startTime}'),
+        subtitle: Text(
+          '${game.scheduledDate.toString().split(' ')[0]} • ${game.startTime}',
+        ),
         trailing: Text('${game.currentPlayers}/${game.maxPlayers}'),
         onTap: () {
           // Navigate to game details
@@ -277,19 +287,21 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
       ),
     );
   }
-  
+
   Widget _buildPastGameCard(dynamic game) {
     // Simple card for now - TODO: Full implementation with Game entity
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         title: Text(game.title),
-        subtitle: Text('${game.scheduledDate.toString().split(' ')[0]} • Completed'),
+        subtitle: Text(
+          '${game.scheduledDate.toString().split(' ')[0]} • Completed',
+        ),
         trailing: const Icon(Icons.check_circle, color: Colors.green),
       ),
     );
   }
-  
+
   /* ====================================================================
      OLD IMPLEMENTATION - Commented out for update to use Game entities
      ================================================================= */
@@ -351,8 +363,8 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
       ),
     );
   }
-  */  // End of old calendar view implementation
-  
+  */ // End of old calendar view implementation
+
   /* OLD CARD IMPLEMENTATIONS - TODO: Update for Game entities
   Widget _buildUpcomingGameCard(dynamic game) {
     final isToday = _isToday(game.scheduledDate);
@@ -874,5 +886,5 @@ class _MyGamesScreenState extends ConsumerState<MyGamesScreen>
       SnackBar(content: Text('Managing game: ${game['title']}')),
     );
   }
-  */  // End of commented out old implementation
+  */ // End of commented out old implementation
 }

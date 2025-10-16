@@ -30,7 +30,7 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
   late AnimationController _pulseController;
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  
+
   late Animation<double> _pulseAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -38,50 +38,40 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     // Start animations
     _fadeController.forward();
     _slideController.forward();
-    
+
     if (widget.showPulseAnimation) {
       _pulseController.repeat(reverse: true);
     }
@@ -99,7 +89,7 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = widget.accentColor ?? theme.colorScheme.primary;
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Container(
@@ -143,10 +133,14 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
                                       scale: _pulseAnimation.value,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(28),
+                                          borderRadius: BorderRadius.circular(
+                                            28,
+                                          ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: primaryColor.withOpacity(0.15),
+                                              color: primaryColor.withOpacity(
+                                                0.15,
+                                              ),
                                               blurRadius: 32,
                                               offset: const Offset(0, 12),
                                               spreadRadius: 2,
@@ -154,7 +148,9 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
                                           ],
                                         ),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(28),
+                                          borderRadius: BorderRadius.circular(
+                                            28,
+                                          ),
                                           child: Image.asset(
                                             widget.logoPath!,
                                             width: 120,
@@ -168,22 +164,23 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
                                 ),
                                 const SizedBox(height: 48),
                               ],
-                              
+
                               // Title with fade animation
                               if (widget.title != null) ...[
                                 Text(
                                   widget.title!,
-                                  style: theme.textTheme.headlineMedium?.copyWith(
-                                    color: theme.colorScheme.onSurface,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.8,
-                                    height: 1.2,
-                                  ),
+                                  style: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                        color: theme.colorScheme.onSurface,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: -0.8,
+                                        height: 1.2,
+                                      ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 20),
                               ],
-                              
+
                               // Subtitle with fade animation
                               if (widget.subtitle != null) ...[
                                 Text(
@@ -197,7 +194,7 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
                                 ),
                                 const SizedBox(height: 56),
                               ],
-                              
+
                               // Elegant loading indicator
                               if (widget.showProgress) ...[
                                 Container(
@@ -216,12 +213,16 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
                                   ),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 3,
-                                    backgroundColor: primaryColor.withOpacity(0.1),
-                                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                                    backgroundColor: primaryColor.withOpacity(
+                                      0.1,
+                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      primaryColor,
+                                    ),
                                   ),
                                 ),
                               ],
-                              
+
                               // Decorative animated dots
                               const SizedBox(height: 72),
                               _buildAnimatedDots(primaryColor),
@@ -253,7 +254,7 @@ class _ElegantLoadingScreenState extends State<ElegantLoadingScreen>
               final animationValue = (_pulseController.value + delay) % 1.0;
               final opacity = 0.3 + (0.7 * animationValue);
               final scale = 0.8 + (0.4 * animationValue);
-              
+
               return Transform.scale(
                 scale: scale,
                 child: Container(
@@ -289,7 +290,7 @@ class MinimalLoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaryColor = color ?? Theme.of(context).colorScheme.primary;
-    
+
     return SizedBox(
       width: size,
       height: size,
@@ -319,7 +320,7 @@ class SimpleLoadingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = accentColor ?? theme.colorScheme.primary;
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Center(
@@ -342,7 +343,7 @@ class SimpleLoadingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
             ],
-            
+
             SizedBox(
               width: 40,
               height: 40,
@@ -352,7 +353,7 @@ class SimpleLoadingScreen extends StatelessWidget {
                 backgroundColor: primaryColor.withOpacity(0.1),
               ),
             ),
-            
+
             if (message != null) ...[
               const SizedBox(height: 24),
               Text(

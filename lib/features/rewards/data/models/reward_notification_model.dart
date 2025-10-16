@@ -2,18 +2,25 @@
 enum CelebrationType {
   /// Simple badge unlock notification
   badgeUnlock,
+
   /// Achievement completion celebration
   achievementComplete,
+
   /// Tier promotion celebration
   tierPromotion,
+
   /// Leaderboard position milestone
   leaderboardMilestone,
+
   /// Special event reward
   specialEvent,
+
   /// Streak milestone celebration
   streakMilestone,
+
   /// Points milestone reached
   pointsMilestone,
+
   /// Rare badge collection
   rareBadge,
 }
@@ -22,18 +29,25 @@ enum CelebrationType {
 enum NotificationAnimation {
   /// No animation
   none,
+
   /// Simple slide in/out
   slide,
+
   /// Fade in/out
   fade,
+
   /// Bounce effect
   bounce,
+
   /// Scale animation
   scale,
+
   /// Confetti celebration
   confetti,
+
   /// Fireworks animation
   fireworks,
+
   /// Particles effect
   particles,
 }
@@ -42,12 +56,16 @@ enum NotificationAnimation {
 enum DisplayDuration {
   /// 2 seconds
   short,
+
   /// 5 seconds
   medium,
+
   /// 10 seconds
   long,
+
   /// Manual dismissal required
   persistent,
+
   /// Auto-dismiss based on content
   adaptive,
 }
@@ -56,14 +74,19 @@ enum DisplayDuration {
 enum ShareOption {
   /// Share via social media
   social,
+
   /// Share to game feed
   gameFeed,
+
   /// Share to friends
   friends,
+
   /// Generate shareable link
   link,
+
   /// Save achievement image
   saveImage,
+
   /// Copy achievement text
   copyText,
 }
@@ -72,18 +95,25 @@ enum ShareOption {
 enum NotificationSound {
   /// No sound
   none,
+
   /// Simple notification beep
   beep,
+
   /// Success chime
   success,
+
   /// Achievement fanfare
   fanfare,
+
   /// Level up sound
   levelUp,
+
   /// Rare item sound
   rare,
+
   /// Epic achievement sound
   epic,
+
   /// Victory celebration
   victory,
 }
@@ -210,7 +240,7 @@ class RewardNotificationModel {
 
   static CelebrationType _parseCelebrationType(dynamic value) {
     if (value == null) return CelebrationType.badgeUnlock;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'badge_unlock':
@@ -241,13 +271,13 @@ class RewardNotificationModel {
           return CelebrationType.badgeUnlock;
       }
     }
-    
+
     return CelebrationType.badgeUnlock;
   }
 
   static NotificationAnimation _parseNotificationAnimation(dynamic value) {
     if (value == null) return NotificationAnimation.slide;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'none':
@@ -270,13 +300,13 @@ class RewardNotificationModel {
           return NotificationAnimation.slide;
       }
     }
-    
+
     return NotificationAnimation.slide;
   }
 
   static DisplayDuration _parseDisplayDuration(dynamic value) {
     if (value == null) return DisplayDuration.medium;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'short':
@@ -293,13 +323,13 @@ class RewardNotificationModel {
           return DisplayDuration.medium;
       }
     }
-    
+
     return DisplayDuration.medium;
   }
 
   static NotificationSound _parseNotificationSound(dynamic value) {
     if (value == null) return NotificationSound.success;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'none':
@@ -323,13 +353,13 @@ class RewardNotificationModel {
           return NotificationSound.success;
       }
     }
-    
+
     return NotificationSound.success;
   }
 
   static List<ShareOption> _parseShareOptions(dynamic value) {
     if (value == null) return [];
-    
+
     if (value is List) {
       return value
           .map((item) => _parseShareOption(item))
@@ -337,7 +367,7 @@ class RewardNotificationModel {
           .cast<ShareOption>()
           .toList();
     }
-    
+
     return [];
   }
 
@@ -452,7 +482,8 @@ class RewardNotificationModel {
       'icon_url': data['icon_url'] ?? data['iconUrl'],
       'image_url': data['image_url'] ?? data['imageUrl'],
       'celebration_data': data['celebration_data'] ?? data['celebrationData'],
-      'animation_settings': data['animation_settings'] ?? data['animationSettings'],
+      'animation_settings':
+          data['animation_settings'] ?? data['animationSettings'],
       'display_settings': data['display_settings'] ?? data['displaySettings'],
       'is_read': data['is_read'] ?? data['isRead'],
       'is_shared': data['is_shared'] ?? data['isShared'],
@@ -468,7 +499,7 @@ class RewardNotificationModel {
   Map<String, dynamic> toSupabase() {
     final json = toJson();
     json.removeWhere((key, value) => value == null);
-    
+
     return {
       ...json,
       'user_id': json['user_id'],
@@ -529,11 +560,12 @@ class RewardNotificationModel {
   int _calculateAdaptiveDuration() {
     // Base duration on content length and type
     int baseDuration = 3000; // 3 seconds base
-    
+
     // Add time based on content length
-    final contentLength = title.length + message.length + (subtitle?.length ?? 0);
+    final contentLength =
+        title.length + message.length + (subtitle?.length ?? 0);
     baseDuration += (contentLength / 10).round() * 100;
-    
+
     // Adjust based on celebration type
     switch (type) {
       case CelebrationType.tierPromotion:
@@ -549,7 +581,7 @@ class RewardNotificationModel {
       default:
         break;
     }
-    
+
     // Cap at reasonable limits
     return baseDuration.clamp(2000, 15000);
   }
@@ -594,7 +626,7 @@ class RewardNotificationModel {
       'duration': _getAnimationDuration(),
       'easing': _getAnimationEasing(),
     };
-    
+
     // Merge with custom animation settings
     return {...baseConfig, ...animationSettings};
   }
@@ -662,7 +694,7 @@ class RewardNotificationModel {
 
   List<String> _getShareHashtags() {
     final hashtags = ['#Dabbler', '#Gaming'];
-    
+
     switch (type) {
       case CelebrationType.tierPromotion:
         hashtags.addAll(['#LevelUp', '#Achievement']);
@@ -679,28 +711,22 @@ class RewardNotificationModel {
       default:
         hashtags.add('#Achievement');
     }
-    
+
     return hashtags;
   }
 
   /// Marks the notification as read
   RewardNotificationModel markAsRead() {
     if (isRead) return this;
-    
-    return copyWith(
-      isRead: true,
-      readAt: DateTime.now(),
-    );
+
+    return copyWith(isRead: true, readAt: DateTime.now());
   }
 
   /// Marks the notification as shared
   RewardNotificationModel markAsShared() {
     if (isShared) return this;
-    
-    return copyWith(
-      isShared: true,
-      sharedAt: DateTime.now(),
-    );
+
+    return copyWith(isShared: true, sharedAt: DateTime.now());
   }
 
   /// Gets notification summary for display
@@ -726,6 +752,6 @@ class RewardNotificationModel {
   @override
   String toString() {
     return 'RewardNotificationModel(id: $id, type: $type, title: $title, '
-           'isRead: $isRead, priority: ${getCelebrationPriority()})';
+        'isRead: $isRead, priority: ${getCelebrationPriority()})';
   }
 }

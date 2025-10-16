@@ -7,7 +7,8 @@ class ContactSupportScreen extends ConsumerStatefulWidget {
   const ContactSupportScreen({super.key});
 
   @override
-  ConsumerState<ContactSupportScreen> createState() => _ContactSupportScreenState();
+  ConsumerState<ContactSupportScreen> createState() =>
+      _ContactSupportScreenState();
 }
 
 class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
@@ -20,10 +21,10 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
   final _emailController = TextEditingController();
-  
+
   String _selectedCategory = 'General';
   bool _isSubmitting = false;
-  
+
   final List<String> _categories = [
     'General',
     'Account Issues',
@@ -51,13 +52,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -128,17 +129,17 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
             const SizedBox(height: 16),
             Text(
               'How can we help you?',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'We\'re here to help! Send us a message and we\'ll get back to you as soon as possible.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -156,12 +157,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
           children: [
             Text(
               'Contact Information',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             // Email
             TextFormField(
               controller: _emailController,
@@ -181,9 +182,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Category
             DropdownButtonFormField<String>(
               initialValue: _selectedCategory,
@@ -193,10 +194,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
                 prefixIcon: Icon(Icons.category),
               ),
               items: _categories.map((category) {
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(category),
-                );
+                return DropdownMenuItem(value: category, child: Text(category));
               }).toList(),
               onChanged: (value) {
                 setState(() {
@@ -204,9 +202,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
                 });
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Subject
             TextFormField(
               controller: _subjectController,
@@ -222,9 +220,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Message
             TextFormField(
               controller: _messageController,
@@ -260,12 +258,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
           children: [
             Text(
               'Quick Actions',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             ListTile(
               leading: const Icon(Icons.help_outline),
               title: const Text('Browse FAQ'),
@@ -278,9 +276,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
                 );
               },
             ),
-            
+
             const Divider(),
-            
+
             ListTile(
               leading: const Icon(Icons.chat),
               title: const Text('Live Chat'),
@@ -293,9 +291,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
                 );
               },
             ),
-            
+
             const Divider(),
-            
+
             ListTile(
               leading: const Icon(Icons.phone),
               title: const Text('Call Support'),
@@ -304,7 +302,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
               onTap: () {
                 // TODO: Make phone call
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Phone call functionality coming soon')),
+                  const SnackBar(
+                    content: Text('Phone call functionality coming soon'),
+                  ),
                 );
               },
             ),
@@ -345,11 +345,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen>
     try {
       // TODO: Implement actual form submission
       await Future.delayed(const Duration(seconds: 2));
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Message sent successfully! We\'ll get back to you soon.'),
+            content: Text(
+              'Message sent successfully! We\'ll get back to you soon.',
+            ),
             backgroundColor: Colors.green,
           ),
         );

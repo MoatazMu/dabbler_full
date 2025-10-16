@@ -36,7 +36,9 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
 
   Future<void> _loadExportHistory() async {
     try {
-      final history = await _dataExportService.getUserExportHistory(widget.userId);
+      final history = await _dataExportService.getUserExportHistory(
+        widget.userId,
+      );
       setState(() {
         _exportHistory = history;
       });
@@ -80,7 +82,8 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
       context: context,
       builder: (context) => InfoDialog(
         title: 'Export Request Submitted',
-        message: 'Your data export request has been submitted successfully.\n\n'
+        message:
+            'Your data export request has been submitted successfully.\n\n'
             'Export ID: ${request.id}\n'
             'Format: ${request.format.name.toUpperCase()}\n'
             'Expected completion: Within 24 hours\n\n'
@@ -95,7 +98,8 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
       context: context,
       builder: (context) => InfoDialog(
         title: 'Export Request Failed',
-        message: 'We encountered an error while processing your request:\n\n$error\n\n'
+        message:
+            'We encountered an error while processing your request:\n\n$error\n\n'
             'Please try again later or contact support if the problem persists.',
         type: InfoType.error,
       ),
@@ -108,8 +112,11 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
         _isLoading = true;
       });
 
-      final file = await _dataExportService.downloadExportedData(request.id, widget.userId);
-      
+      final file = await _dataExportService.downloadExportedData(
+        request.id,
+        widget.userId,
+      );
+
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +148,7 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
     try {
       await _dataExportService.cancelExportRequest(request.id);
       await _loadExportHistory();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -166,9 +173,9 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
             padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
             child: Text(
               'GDPR Compliance',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ),
         ),
@@ -212,30 +219,37 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
               'Your data will be packaged securely and made available for download.',
             ),
             const SizedBox(height: 16),
-            
+
             // Format selection
-            const Text('Export Format:', style: TextStyle(fontWeight: FontWeight.w500)),
+            const Text(
+              'Export Format:',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
             const SizedBox(height: 8),
-            ...DataExportFormat.values.map((format) => RadioListTile<DataExportFormat>(
-              title: Text(_getFormatDescription(format)),
-              subtitle: Text(_getFormatSubtitle(format)),
-              value: format,
-              groupValue: _selectedFormat,
-              onChanged: (value) => setState(() => _selectedFormat = value!),
-            )),
-            
+            ...DataExportFormat.values.map(
+              (format) => RadioListTile<DataExportFormat>(
+                title: Text(_getFormatDescription(format)),
+                subtitle: Text(_getFormatSubtitle(format)),
+                value: format,
+                groupValue: _selectedFormat,
+                onChanged: (value) => setState(() => _selectedFormat = value!),
+              ),
+            ),
+
             const SizedBox(height: 16),
-            
+
             // Email notification option
             CheckboxListTile(
               title: const Text('Email notification when ready'),
-              subtitle: const Text('Receive an email when your export is ready for download'),
+              subtitle: const Text(
+                'Receive an email when your export is ready for download',
+              ),
               value: _emailNotification,
               onChanged: (value) => setState(() => _emailNotification = value!),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Request button
             SizedBox(
               width: double.infinity,
@@ -245,7 +259,7 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
                 child: const Text('Request Data Export'),
               ),
             ),
-            
+
             const SizedBox(height: 8),
             Text(
               '⚠️ Export requests are processed within 24 hours and remain available for 30 days.',
@@ -279,7 +293,7 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             if (_exportHistory.isEmpty) ...[
               const Center(
                 child: Padding(
@@ -297,7 +311,9 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
                 ),
               ),
             ] else ...[
-              ..._exportHistory.map((request) => _buildExportHistoryItem(request)),
+              ..._exportHistory.map(
+                (request) => _buildExportHistoryItem(request),
+              ),
             ],
           ],
         ),
@@ -324,7 +340,9 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Requested: ${DateFormat('MMM dd, yyyy HH:mm').format(request.requestedAt)}'),
+            Text(
+              'Requested: ${DateFormat('MMM dd, yyyy HH:mm').format(request.requestedAt)}',
+            ),
             Text('Status: ${_getStatusText(request)}'),
             if (request.isCompleted && request.filePath != null)
               Text('Downloads: ${request.downloadCount}'),
@@ -349,14 +367,11 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
           }
         },
         itemBuilder: (context) => [
-          const PopupMenuItem(
-            value: 'cancel',
-            child: Text('Cancel Request'),
-          ),
+          const PopupMenuItem(value: 'cancel', child: Text('Cancel Request')),
         ],
       );
     }
-    
+
     if (request.isCompleted && !request.isExpired) {
       return ElevatedButton.icon(
         onPressed: () => _downloadExport(request),
@@ -368,7 +383,7 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
         ),
       );
     }
-    
+
     return null;
   }
 
@@ -394,7 +409,7 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
               'Under the General Data Protection Regulation (GDPR), you have the following rights:',
             ),
             const SizedBox(height: 12),
-            
+
             ...[
               'Right to Access - Request copies of your personal data',
               'Right to Rectification - Request correction of inaccurate data',
@@ -402,18 +417,24 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
               'Right to Restrict Processing - Limit how we use your data',
               'Right to Data Portability - Transfer your data to another service',
               'Right to Object - Object to certain data processing activities',
-            ].map((right) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.check_circle_outline, size: 16, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(right)),
-                ],
+            ].map(
+              (right) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline,
+                      size: 16,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(right)),
+                  ],
+                ),
               ),
-            )),
-            
+            ),
+
             const SizedBox(height: 16),
             Row(
               children: [
@@ -518,7 +539,9 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Privacy Policy'),
-        content: const Text('This would open the privacy policy at:\nhttps://dabbler.app/privacy-policy'),
+        content: const Text(
+          'This would open the privacy policy at:\nhttps://dabbler.app/privacy-policy',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -535,7 +558,9 @@ class _DataExportScreenState extends ConsumerState<DataExportScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Contact Support'),
-        content: const Text('For data protection questions, contact:\nprivacy@dabbler.app'),
+        content: const Text(
+          'For data protection questions, contact:\nprivacy@dabbler.app',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

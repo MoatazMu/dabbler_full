@@ -22,30 +22,28 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: CustomAppBar(
-        actionIcon: Iconsax.calendar_copy,
-      ),
+      appBar: CustomAppBar(actionIcon: Iconsax.calendar_copy),
       body: Column(
         children: [
           const SizedBox(height: 100),
           _buildFilterSection(context),
-                     Expanded(
-             child: RefreshIndicator(
-               onRefresh: () => _refreshHistoryData(context),
-               child: SingleChildScrollView(
-                 padding: const EdgeInsets.all(20),
-                 physics: const AlwaysScrollableScrollPhysics(),
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     _buildHistoryStats(context),
-                     const SizedBox(height: 24),
-                     _buildHistoryList(context),
-                   ],
-                 ),
-               ),
-             ),
-           ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => _refreshHistoryData(context),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHistoryStats(context),
+                    const SizedBox(height: 24),
+                    _buildHistoryList(context),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -53,7 +51,7 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
 
   Widget _buildFilterSection(BuildContext context) {
     final filters = ['All', 'Games', 'Bookings'];
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -73,14 +71,14 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
               margin: const EdgeInsets.only(right: 12),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected 
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.white,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isSelected 
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey.shade300,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.grey.shade300,
                 ),
               ),
               child: Text(
@@ -158,7 +156,13 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -191,7 +195,7 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
 
   Widget _buildHistoryList(BuildContext context) {
     final allHistory = _getFilteredHistory();
-    
+
     if (allHistory.isEmpty) {
       return _buildEmptyState(context);
     }
@@ -237,7 +241,9 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
 
     if (bookingsState.pastBookings.isEmpty && !bookingsState.isLoading) {
       Future.microtask(() {
-        ref.read(bookingsControllerProvider(user.id).notifier).loadPastBookings(user.id);
+        ref
+            .read(bookingsControllerProvider(user.id).notifier)
+            .loadPastBookings(user.id);
       });
     }
 
@@ -248,7 +254,7 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
     for (final game in myGamesState.pastGames) {
       final dateFormat = DateFormat('MMM d');
       final timeFormat = DateFormat('h:mm a');
-      
+
       allHistory.add({
         'type': 'game',
         'id': game.id,
@@ -267,7 +273,7 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
     // Add past bookings
     for (final booking in bookingsState.pastBookings) {
       final dateFormat = DateFormat('MMM d');
-      
+
       allHistory.add({
         'type': 'booking',
         'id': booking.id,
@@ -276,8 +282,11 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
         'date': booking.bookingDate.toIso8601String(),
         'displayDate': dateFormat.format(booking.bookingDate),
         'time': '${booking.startTime} - ${booking.endTime}',
-        'price': '${booking.totalAmount.toStringAsFixed(0)} ${booking.currency}',
-        'sport': booking.courtNumber != null ? 'Court ${booking.courtNumber}' : '',
+        'price':
+            '${booking.totalAmount.toStringAsFixed(0)} ${booking.currency}',
+        'sport': booking.courtNumber != null
+            ? 'Court ${booking.courtNumber}'
+            : '',
         'status': booking.status.toString().split('.').last,
       });
     }
@@ -294,13 +303,16 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
 
     // Sort by date (most recent first)
     filtered.sort((a, b) => b['date'].compareTo(a['date']));
-    
+
     return filtered;
   }
 
-  Widget _buildHistoryCard(BuildContext context, Map<String, dynamic> activity) {
+  Widget _buildHistoryCard(
+    BuildContext context,
+    Map<String, dynamic> activity,
+  ) {
     final isGame = activity['type'] == 'game';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Card(
@@ -313,16 +325,19 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
                 children: [
                   // Activity type tag
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: isGame 
-                        ? Colors.green.shade50 
-                        : Colors.blue.shade50,
+                      color: isGame
+                          ? Colors.green.shade50
+                          : Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: isGame 
-                          ? Colors.green.shade200 
-                          : Colors.blue.shade200,
+                        color: isGame
+                            ? Colors.green.shade200
+                            : Colors.blue.shade200,
                       ),
                     ),
                     child: Row(
@@ -331,20 +346,21 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
                         Icon(
                           isGame ? LucideIcons.users : LucideIcons.mapPin,
                           size: 12,
-                          color: isGame 
-                            ? Colors.green.shade700 
-                            : Colors.blue.shade700,
+                          color: isGame
+                              ? Colors.green.shade700
+                              : Colors.blue.shade700,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           isGame ? 'Game' : 'Booking',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: isGame 
-                              ? Colors.green.shade700 
-                              : Colors.blue.shade700,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: isGame
+                                    ? Colors.green.shade700
+                                    : Colors.blue.shade700,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
                         ),
                       ],
                     ),
@@ -368,20 +384,22 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
                       children: [
                         Text(
                           activity['title'],
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(LucideIcons.mapPin, size: 14, color: Colors.grey[500]),
+                            Icon(
+                              LucideIcons.mapPin,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               activity['venue'],
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
                             ),
                           ],
                         ),
@@ -393,23 +411,27 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
                     children: [
                       Text(
                         activity['price'],
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                       if (isGame && activity['rating'] != null) ...[
                         const SizedBox(height: 4),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(LucideIcons.star, size: 12, color: Colors.amber[600]),
+                            Icon(
+                              LucideIcons.star,
+                              size: 12,
+                              color: Colors.amber[600],
+                            ),
                             const SizedBox(width: 2),
                             Text(
                               activity['rating'],
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -424,10 +446,18 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
                   _buildInfoChip(context, LucideIcons.clock, activity['time']),
                   if (isGame) ...[
                     const SizedBox(width: 8),
-                    _buildInfoChip(context, LucideIcons.users, activity['players']),
+                    _buildInfoChip(
+                      context,
+                      LucideIcons.users,
+                      activity['players'],
+                    ),
                   ] else ...[
                     const SizedBox(width: 8),
-                    _buildInfoChip(context, LucideIcons.target, activity['sport']),
+                    _buildInfoChip(
+                      context,
+                      LucideIcons.target,
+                      activity['sport'],
+                    ),
                   ],
                 ],
               ),
@@ -439,9 +469,11 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(isGame 
-                            ? '🔄 Book similar game - Coming soon!'
-                            : '🔄 Book venue again - Coming soon!'),
+                          content: Text(
+                            isGame
+                                ? '🔄 Book similar game - Coming soon!'
+                                : '🔄 Book venue again - Coming soon!',
+                          ),
                           backgroundColor: Colors.purple,
                         ),
                       );
@@ -492,11 +524,7 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              LucideIcons.history,
-              size: 40,
-              color: Colors.grey[400],
-            ),
+            child: Icon(LucideIcons.history, size: 40, color: Colors.grey[400]),
           ),
           const SizedBox(height: 16),
           Text(
@@ -509,9 +537,9 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
           const SizedBox(height: 8),
           Text(
             'Your ${selectedFilter.toLowerCase()} activities will appear here',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey[500],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -522,13 +550,15 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
   Future<void> _refreshHistoryData(BuildContext context) async {
     final user = _authService.getCurrentUser();
     if (user == null) return;
-    
+
     // Refresh both games and bookings
     await Future.wait([
       ref.read(myGamesControllerProvider(user.id).notifier).refresh(),
-      ref.read(bookingsControllerProvider(user.id).notifier).loadPastBookings(user.id),
+      ref
+          .read(bookingsControllerProvider(user.id).notifier)
+          .loadPastBookings(user.id),
     ]);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -539,4 +569,4 @@ class _AllHistoryScreenState extends ConsumerState<AllHistoryScreen> {
       );
     }
   }
-} 
+}

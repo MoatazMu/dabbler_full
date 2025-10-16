@@ -59,37 +59,46 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     debugPrint('📧 [DEBUG] EmailInputScreen: _handleSubmit started');
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _successMessage = null;
     });
-    
+
     final email = _emailController.text.trim();
     debugPrint('📧 [DEBUG] EmailInputScreen: Email: $email');
-    
+
     try {
       debugPrint('📧 [DEBUG] EmailInputScreen: Processing email: $email');
-      
+
       // Check if user exists in database
-      debugPrint('🔍 [DEBUG] EmailInputScreen: Checking if user exists in database: $email');
+      debugPrint(
+        '🔍 [DEBUG] EmailInputScreen: Checking if user exists in database: $email',
+      );
       final authService = AuthService();
       final userExists = await authService.checkUserExistsByEmail(email);
-      
+
       if (userExists) {
-        debugPrint('✅ [DEBUG] EmailInputScreen: User exists in database: $email');
+        debugPrint(
+          '✅ [DEBUG] EmailInputScreen: User exists in database: $email',
+        );
         // User exists - redirect to enter password screen
         if (mounted) {
           context.push(RoutePaths.enterPassword, extra: {'email': email});
         }
       } else {
-        debugPrint('🆕 [DEBUG] EmailInputScreen: New user, redirecting to profile creation: $email');
+        debugPrint(
+          '🆕 [DEBUG] EmailInputScreen: New user, redirecting to profile creation: $email',
+        );
         // User doesn't exist - redirect to profile creation (account will be created there)
         if (mounted) {
-          context.push(RoutePaths.createUserInfo, extra: {'email': email, 'forceNew': true});
+          context.push(
+            RoutePaths.createUserInfo,
+            extra: {'email': email, 'forceNew': true},
+          );
         }
       }
     } catch (e) {
@@ -112,7 +121,7 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
   @override
   Widget build(BuildContext context) {
     debugPrint('📧 [DEBUG] EmailInputScreen: build called');
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
@@ -123,7 +132,9 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
           IconButton(
             icon: const Icon(Icons.language),
             onPressed: () {
-              debugPrint('🌐 [DEBUG] EmailInputScreen: Language button pressed');
+              debugPrint(
+                '🌐 [DEBUG] EmailInputScreen: Language button pressed',
+              );
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Language button pressed!')),
               );
@@ -156,7 +167,7 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              
+
               // Simple email input
               Form(
                 key: _formKey,
@@ -172,43 +183,63 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                   validator: _validateEmail,
                 ),
               ),
-              
+
               const SizedBox(height: 36),
-              
+
               // Simple continue button
               ElevatedButton(
-                onPressed: _isLoading ? null : () {
-                  debugPrint('📧 [DEBUG] EmailInputScreen: Continue button pressed');
-                  debugPrint('📧 [DEBUG] EmailInputScreen: Button state - mounted: $mounted, isLoading: $_isLoading');
-                  
-                  _handleSubmit();
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        debugPrint(
+                          '📧 [DEBUG] EmailInputScreen: Continue button pressed',
+                        );
+                        debugPrint(
+                          '📧 [DEBUG] EmailInputScreen: Button state - mounted: $mounted, isLoading: $_isLoading',
+                        );
+
+                        _handleSubmit();
+                      },
                 child: Text(_isLoading ? 'Sending...' : 'Continue'),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Continue as Guest button
               OutlinedButton(
                 onPressed: () async {
-                  debugPrint('👤 [DEBUG] EmailInputScreen: Guest button pressed');
-                  debugPrint('👤 [DEBUG] EmailInputScreen: Button state - mounted: $mounted');
-                  
+                  debugPrint(
+                    '👤 [DEBUG] EmailInputScreen: Guest button pressed',
+                  );
+                  debugPrint(
+                    '👤 [DEBUG] EmailInputScreen: Button state - mounted: $mounted',
+                  );
+
                   // Sign in as guest first
                   try {
-                    debugPrint('👤 [DEBUG] EmailInputScreen: Signing in as guest...');
+                    debugPrint(
+                      '👤 [DEBUG] EmailInputScreen: Signing in as guest...',
+                    );
                     final guestSignIn = ref.read(guestSignInProvider);
                     await guestSignIn();
-                    debugPrint('👤 [DEBUG] EmailInputScreen: Guest sign in successful');
-                    
+                    debugPrint(
+                      '👤 [DEBUG] EmailInputScreen: Guest sign in successful',
+                    );
+
                     // Then navigate to home
                     if (mounted) {
-                      debugPrint('👤 [DEBUG] EmailInputScreen: Navigating to home...');
+                      debugPrint(
+                        '👤 [DEBUG] EmailInputScreen: Navigating to home...',
+                      );
                       context.go(RoutePaths.home);
-                      debugPrint('📧 [DEBUG] EmailInputScreen: Navigation successful');
+                      debugPrint(
+                        '📧 [DEBUG] EmailInputScreen: Navigation successful',
+                      );
                     }
                   } catch (e) {
-                    debugPrint('❌ [DEBUG] EmailInputScreen: Guest sign in or navigation error: $e');
+                    debugPrint(
+                      '❌ [DEBUG] EmailInputScreen: Guest sign in or navigation error: $e',
+                    );
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Guest sign in failed: $e')),
@@ -218,22 +249,32 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                 },
                 child: const Text('Continue as Guest'),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Continue with Phone button
               OutlinedButton(
                 onPressed: () {
-                  debugPrint('📱 [DEBUG] EmailInputScreen: Phone button pressed');
-                  debugPrint('📱 [DEBUG] EmailInputScreen: Button state - mounted: $mounted');
-                  
+                  debugPrint(
+                    '📱 [DEBUG] EmailInputScreen: Phone button pressed',
+                  );
+                  debugPrint(
+                    '📱 [DEBUG] EmailInputScreen: Button state - mounted: $mounted',
+                  );
+
                   // Navigate to phone input
                   try {
-                    debugPrint('📱 [DEBUG] EmailInputScreen: Navigating to phone input...');
+                    debugPrint(
+                      '📱 [DEBUG] EmailInputScreen: Navigating to phone input...',
+                    );
                     context.go(RoutePaths.phoneInput);
-                    debugPrint('📱 [DEBUG] EmailInputScreen: Navigation successful');
+                    debugPrint(
+                      '📱 [DEBUG] EmailInputScreen: Navigation successful',
+                    );
                   } catch (e) {
-                    debugPrint('❌ [DEBUG] EmailInputScreen: Navigation error: $e');
+                    debugPrint(
+                      '❌ [DEBUG] EmailInputScreen: Navigation error: $e',
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Navigation failed: $e')),
                     );
@@ -241,22 +282,28 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                 },
                 child: const Text('Continue with Phone'),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Debug info
               if (_errorMessage != null)
                 Container(
                   padding: const EdgeInsets.all(12),
                   color: Colors.red.withOpacity(0.1),
-                  child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-              
+
               if (_successMessage != null)
                 Container(
                   padding: const EdgeInsets.all(12),
                   color: Colors.green.withOpacity(0.1),
-                  child: Text(_successMessage!, style: const TextStyle(color: Colors.green)),
+                  child: Text(
+                    _successMessage!,
+                    style: const TextStyle(color: Colors.green),
+                  ),
                 ),
             ],
           ),

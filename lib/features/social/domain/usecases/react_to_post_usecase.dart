@@ -100,7 +100,9 @@ class ReactToPostUseCase {
 
   ReactToPostUseCase(this._postsRepository);
 
-  Future<Either<Failure, ReactToPostResult>> call(ReactToPostParams params) async {
+  Future<Either<Failure, ReactToPostResult>> call(
+    ReactToPostParams params,
+  ) async {
     try {
       // Validate input parameters
       final validationResult = await _validateParams(params);
@@ -119,16 +121,13 @@ class ReactToPostUseCase {
       if (postAndReactionResult.isLeft) {
         return Left(postAndReactionResult.leftOrNull()!);
       }
-      
+
       final postData = postAndReactionResult.rightOrNull()!;
       final currentPost = postData.post;
       final existingReaction = postData.existingReaction;
 
       // Determine the action to take
-      final actionResult = _determineReactionAction(
-        params,
-        existingReaction,
-      );
+      final actionResult = _determineReactionAction(params, existingReaction);
 
       ReactionModel? newReaction;
       ReactionAction action;
@@ -173,7 +172,7 @@ class ReactToPostUseCase {
 
       // Get updated post with new reaction counts
       final updatedPostResult = await _postsRepository.getPost(params.postId);
-      
+
       final updatedPost = updatedPostResult.fold(
         (failure) => throw Exception(failure.message),
         (post) => post,
@@ -184,7 +183,7 @@ class ReactToPostUseCase {
 
       // Send notification to post owner if enabled
       bool notificationSent = false;
-      if (params.sendNotification && 
+      if (params.sendNotification &&
           action != ReactionAction.removed &&
           params.userId != currentPost.authorId) {
         notificationSent = await _sendReactionNotification(
@@ -209,20 +208,21 @@ class ReactToPostUseCase {
       // Log reaction for analytics
       await _logReactionActivity(params, action, previousReaction);
 
-      return Right(ReactToPostResult(
-        reaction: newReaction,
-        updatedPost: updatedPost,
-        action: action,
-        previousReaction: previousReaction,
-        notificationSent: notificationSent,
-        animationTriggered: animationTriggered,
-        updatedCounts: updatedCounts,
-      ));
-
+      return Right(
+        ReactToPostResult(
+          reaction: newReaction,
+          updatedPost: updatedPost,
+          action: action,
+          previousReaction: previousReaction,
+          notificationSent: notificationSent,
+          animationTriggered: animationTriggered,
+          updatedCounts: updatedCounts,
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to react to post: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(message: 'Failed to react to post: ${e.toString()}'),
+      );
     }
   }
 
@@ -233,15 +233,17 @@ class ReactToPostUseCase {
     try {
       // Validate batch parameters
       if (params.reactions.isEmpty) {
-        return Left(ValidationFailure(
-          message: 'No reactions provided in batch request',
-        ));
+        return Left(
+          ValidationFailure(message: 'No reactions provided in batch request'),
+        );
       }
 
       if (params.reactions.length > params.maxBatchSize) {
-        return Left(ValidationFailure(
-          message: 'Batch size exceeds maximum of ${params.maxBatchSize}',
-        ));
+        return Left(
+          ValidationFailure(
+            message: 'Batch size exceeds maximum of ${params.maxBatchSize}',
+          ),
+        );
       }
 
       final results = <ReactToPostResult>[];
@@ -261,71 +263,76 @@ class ReactToPostUseCase {
           );
 
           final result = await call(reactionParams);
-          
+
           if (result.isRight) {
             results.add(result.rightOrNull()!);
             successCount++;
           } else {
-            errors.add('Failed to react to post ${reactionRequest.postId}: ${result.leftOrNull()!.message}');
+            errors.add(
+              'Failed to react to post ${reactionRequest.postId}: ${result.leftOrNull()!.message}',
+            );
             failureCount++;
           }
         } catch (e) {
-          errors.add('Error processing reaction for post ${reactionRequest.postId}: ${e.toString()}');
+          errors.add(
+            'Error processing reaction for post ${reactionRequest.postId}: ${e.toString()}',
+          );
           failureCount++;
         }
       }
 
-      return Right(BatchReactToPostsResult(
-        results: results,
-        errors: errors,
-        successCount: successCount,
-        failureCount: failureCount,
-        batchMetadata: {
-          'processed_at': DateTime.now().toIso8601String(),
-          'total_requests': params.reactions.length,
-          'success_rate': successCount / params.reactions.length,
-        },
-      ));
-
+      return Right(
+        BatchReactToPostsResult(
+          results: results,
+          errors: errors,
+          successCount: successCount,
+          failureCount: failureCount,
+          batchMetadata: {
+            'processed_at': DateTime.now().toIso8601String(),
+            'total_requests': params.reactions.length,
+            'success_rate': successCount / params.reactions.length,
+          },
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to process batch reactions: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to process batch reactions: ${e.toString()}',
+        ),
+      );
     }
   }
 
   /// Validates input parameters
-  Future<Either<Failure, void>> _validateParams(ReactToPostParams params) async {
+  Future<Either<Failure, void>> _validateParams(
+    ReactToPostParams params,
+  ) async {
     // Validate user ID format
     if (!_isValidId(params.userId)) {
-      return Left(ValidationFailure(
-        message: 'Invalid user ID format',
-      ));
+      return Left(ValidationFailure(message: 'Invalid user ID format'));
     }
 
     // Validate post ID format
     if (!_isValidId(params.postId)) {
-      return Left(ValidationFailure(
-        message: 'Invalid post ID format',
-      ));
+      return Left(ValidationFailure(message: 'Invalid post ID format'));
     }
 
     // Validate reaction type
     if (!ReactionType.values.contains(params.reactionType)) {
-      return Left(ValidationFailure(
-        message: 'Invalid reaction type',
-      ));
+      return Left(ValidationFailure(message: 'Invalid reaction type'));
     }
 
     return const Right(null);
   }
 
   /// Checks if user can react to the post
-  Future<Either<Failure, void>> _checkReactionPermissions(ReactToPostParams params) async {
+  Future<Either<Failure, void>> _checkReactionPermissions(
+    ReactToPostParams params,
+  ) async {
     try {
       // Check if post exists and is accessible to user
       final postResult = await _postsRepository.getPost(params.postId);
-      
+
       final post = postResult.fold(
         (failure) => throw Exception(failure.message),
         (post) => post,
@@ -337,33 +344,39 @@ class ReactToPostUseCase {
           params.userId,
           post.authorId,
         );
-        
+
         final isBlocked = isBlockedResult.fold(
           (failure) => false,
           (blocked) => blocked,
         );
-        
+
         if (isBlocked) {
-          return Left(AuthorizationFailure(
-            message: 'Cannot react to posts from users who have blocked you',
-          ));
+          return Left(
+            AuthorizationFailure(
+              message: 'Cannot react to posts from users who have blocked you',
+            ),
+          );
         }
       }
 
       // Check rate limiting for reactions
       final rateLimitResult = await _checkReactionRateLimit(params.userId);
       if (rateLimitResult.isLeft) {
-        return Left(rateLimitResult.fold(
-          (failure) => failure,
-          (_) => throw Exception('Unexpected success'),
-        ));
+        return Left(
+          rateLimitResult.fold(
+            (failure) => failure,
+            (_) => throw Exception('Unexpected success'),
+          ),
+        );
       }
 
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to check reaction permissions: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to check reaction permissions: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -393,14 +406,15 @@ class ReactToPostUseCase {
         );
       }
 
-      return Right(PostAndReactionData(
-        post: post,
-        existingReaction: existingReaction,
-      ));
+      return Right(
+        PostAndReactionData(post: post, existingReaction: existingReaction),
+      );
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to get post and reaction data: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to get post and reaction data: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -430,7 +444,9 @@ class ReactToPostUseCase {
   }
 
   /// Adds a new reaction
-  Future<Either<Failure, ReactionModel>> _addReaction(ReactToPostParams params) async {
+  Future<Either<Failure, ReactionModel>> _addReaction(
+    ReactToPostParams params,
+  ) async {
     try {
       final reactionData = {
         'post_id': params.postId,
@@ -442,9 +458,9 @@ class ReactToPostUseCase {
 
       return await _postsRepository.addReaction(reactionData);
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to add reaction: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(message: 'Failed to add reaction: ${e.toString()}'),
+      );
     }
   }
 
@@ -453,9 +469,9 @@ class ReactToPostUseCase {
     try {
       return await _postsRepository.removeReaction(reactionId);
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to remove reaction: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(message: 'Failed to remove reaction: ${e.toString()}'),
+      );
     }
   }
 
@@ -470,9 +486,9 @@ class ReactToPostUseCase {
         'updated_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to change reaction: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(message: 'Failed to change reaction: ${e.toString()}'),
+      );
     }
   }
 
@@ -485,30 +501,34 @@ class ReactToPostUseCase {
       );
 
       if (recentReactions.isRight) {
-        final count = recentReactions.fold(
-          (failure) => 0,
-          (count) => count,
-        );
-        
+        final count = recentReactions.fold((failure) => 0, (count) => count);
+
         if (count > 60) {
-          return Left(ServerFailure(
-            message: 'Reaction rate limit exceeded. Please slow down.',
-          ));
+          return Left(
+            ServerFailure(
+              message: 'Reaction rate limit exceeded. Please slow down.',
+            ),
+          );
         }
       }
 
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(
-        message: 'Failed to check reaction rate limit: ${e.toString()}',
-      ));
+      return Left(
+        ServerFailure(
+          message: 'Failed to check reaction rate limit: ${e.toString()}',
+        ),
+      );
     }
   }
 
   /// Calculates updated reaction counts
-  Map<String, int> _calculateReactionCounts(PostModel oldPost, PostModel newPost) {
+  Map<String, int> _calculateReactionCounts(
+    PostModel oldPost,
+    PostModel newPost,
+  ) {
     final counts = <String, int>{};
-    
+
     // Compare like counts
     if (oldPost.likesCount != newPost.likesCount) {
       counts['likes'] = newPost.likesCount;
@@ -516,7 +536,7 @@ class ReactToPostUseCase {
 
     // Add other reaction types if they exist
     // This would depend on how reactions are stored in the post model
-    
+
     return counts;
   }
 
@@ -543,7 +563,7 @@ class ReactToPostUseCase {
       //   'created_at': DateTime.now().toIso8601String(),
       // };
       // await _notificationService.sendNotification(notificationData);
-      
+
       return true;
     } catch (e) {
       print('Failed to send reaction notification: $e');
@@ -552,7 +572,10 @@ class ReactToPostUseCase {
   }
 
   /// Triggers reaction animation
-  Future<bool> _triggerReactionAnimation(String postId, ReactionType reactionType) async {
+  Future<bool> _triggerReactionAnimation(
+    String postId,
+    ReactionType reactionType,
+  ) async {
     try {
       // This would typically trigger UI animation
       // For now, just simulate success
@@ -612,54 +635,56 @@ class ReactToPostUseCase {
   /// Validates ID format (assuming UUID)
   bool _isValidId(String id) {
     final uuidRegex = RegExp(
-      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
     );
     return uuidRegex.hasMatch(id);
   }
 }
 
 /// Reaction action types
-enum ReactionAction {
-  added,
-  removed,
-  changed,
-}
+enum ReactionAction { added, removed, changed }
 
 /// Data class for post and existing reaction
 class PostAndReactionData {
   final PostModel post;
   final ReactionModel? existingReaction;
 
-  const PostAndReactionData({
-    required this.post,
-    this.existingReaction,
-  });
+  const PostAndReactionData({required this.post, this.existingReaction});
 }
 
 /// Reaction action determination result
 class ReactionActionResult {
   final ReactionAction action;
 
-  const ReactionActionResult({
-    required this.action,
-  });
+  const ReactionActionResult({required this.action});
 }
 
 /// Extended methods for PostsRepository
 extension ReactToPostRepositoryMethods on PostsRepository {
-  Future<Either<Failure, bool>> isUserBlockedByAuthor(String userId, String authorId) {
+  Future<Either<Failure, bool>> isUserBlockedByAuthor(
+    String userId,
+    String authorId,
+  ) {
     throw UnimplementedError('isUserBlockedByAuthor not implemented');
   }
 
-  Future<Either<Failure, ReactionModel?>> getUserReactionToPost(String postId, String userId) {
+  Future<Either<Failure, ReactionModel?>> getUserReactionToPost(
+    String postId,
+    String userId,
+  ) {
     throw UnimplementedError('getUserReactionToPost not implemented');
   }
 
-  Future<Either<Failure, int>> getRecentReactionsCount(String userId, Duration timeWindow) {
+  Future<Either<Failure, int>> getRecentReactionsCount(
+    String userId,
+    Duration timeWindow,
+  ) {
     throw UnimplementedError('getRecentReactionsCount not implemented');
   }
 
-  Future<Either<Failure, ReactionModel>> addReaction(Map<String, dynamic> reactionData) {
+  Future<Either<Failure, ReactionModel>> addReaction(
+    Map<String, dynamic> reactionData,
+  ) {
     throw UnimplementedError('addReaction not implemented');
   }
 

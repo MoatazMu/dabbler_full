@@ -54,14 +54,10 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -80,18 +76,19 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
           const SizedBox(height: 8),
           _buildExpandedForecast(),
         ],
-        if (widget.alerts != null && widget.alerts!.isNotEmpty && widget.showAlerts)
-          ...[
-            const SizedBox(height: 8),
-            _buildWeatherAlerts(),
-          ],
+        if (widget.alerts != null &&
+            widget.alerts!.isNotEmpty &&
+            widget.showAlerts) ...[
+          const SizedBox(height: 8),
+          _buildWeatherAlerts(),
+        ],
       ],
     );
   }
 
   Widget _buildMainWeatherCard() {
     final weatherData = _getWeatherData();
-    
+
     return GestureDetector(
       onTap: () {
         if (widget.isExpandable) {
@@ -137,7 +134,9 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
                   if (widget.isExpandable) ...[
                     const SizedBox(width: 8),
                     Icon(
-                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      _isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
                       color: Colors.white,
                       size: 20,
                     ),
@@ -166,11 +165,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
               color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              weatherData.icon,
-              color: Colors.white,
-              size: 28,
-            ),
+            child: Icon(weatherData.icon, color: Colors.white, size: 28),
           ),
         );
       },
@@ -195,10 +190,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
             const SizedBox(width: 8),
             Text(
               '${_fahrenheitFromCelsius(widget.temperature).round()}°F',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
@@ -215,10 +207,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
           const SizedBox(height: 2),
           Text(
             widget.location!,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
           ),
         ],
       ],
@@ -267,10 +256,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
         children: [
           const Text(
             '7-Day Forecast',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           ...widget.forecast!.take(7).map((day) => _buildForecastDay(day)),
@@ -282,7 +268,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
   Widget _buildForecastDay(Map<String, dynamic> day) {
     final condition = day['condition'] as WeatherCondition;
     final weatherData = _getWeatherDataForCondition(condition);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -308,10 +294,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
           ),
           Text(
             '${(day['high'] as double).round()}°/${(day['low'] as double).round()}°',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -320,35 +303,35 @@ class _WeatherIndicatorState extends State<WeatherIndicator>
 
   Widget _buildWeatherAlerts() {
     return Column(
-      children: widget.alerts!.map((alert) => Container(
-        margin: const EdgeInsets.only(bottom: 4),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.red[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.red[200]!),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.warning,
-              color: Colors.red[700],
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                alert,
-                style: TextStyle(
-                  color: Colors.red[700],
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+      children: widget.alerts!
+          .map(
+            (alert) => Container(
+              margin: const EdgeInsets.only(bottom: 4),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red[200]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning, color: Colors.red[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      alert,
+                      style: TextStyle(
+                        color: Colors.red[700],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      )).toList(),
+          )
+          .toList(),
     );
   }
 

@@ -11,9 +11,7 @@ extension StringExtensions on String {
   /// Capitalizes the first letter of each word
   String capitalizeEachWord() {
     if (isEmpty) return this;
-    return split(' ')
-        .map((word) => word.capitalizeFirst())
-        .join(' ');
+    return split(' ').map((word) => word.capitalizeFirst()).join(' ');
   }
 
   /// Checks if string is a valid email
@@ -48,7 +46,7 @@ extension StringExtensions on String {
   String toCamelCase() {
     final words = split(RegExp(r'[_\s-]'));
     if (words.isEmpty) return this;
-    
+
     return words.first.toLowerCase() +
         words.skip(1).map((word) => word.capitalizeFirst()).join('');
   }
@@ -101,9 +99,9 @@ extension StringExtensions on String {
 
   /// Converts markdown-style bold to plain text
   String stripMarkdown() {
-    return replaceAll(RegExp(r'\*\*(.*?)\*\*'), r'$1')  // Bold
-        .replaceAll(RegExp(r'_(.*?)_'), r'$1')         // Italic
-        .replaceAll(RegExp(r'`(.*?)`'), r'$1')         // Code
+    return replaceAll(RegExp(r'\*\*(.*?)\*\*'), r'$1') // Bold
+        .replaceAll(RegExp(r'_(.*?)_'), r'$1') // Italic
+        .replaceAll(RegExp(r'`(.*?)`'), r'$1') // Code
         .replaceAll(RegExp(r'\[(.*?)\]\((.*?)\)'), r'$1'); // Links
   }
 
@@ -114,15 +112,15 @@ extension StringExtensions on String {
     String maskChar = '*',
   }) {
     if (isEmpty) return this;
-    
+
     final start = visibleChars ?? 4;
     final end = visibleEndChars ?? 4;
-    
+
     if (length <= start + end) return this;
-    
+
     final maskedLength = length - start - end;
     final masked = maskChar * maskedLength;
-    
+
     return '${substring(0, start)}$masked${substring(length - end)}';
   }
 }

@@ -2,22 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Hashtag popularity level
-enum HashtagPopularity {
-  trending,
-  popular,
-  moderate,
-  low,
-}
+enum HashtagPopularity { trending, popular, moderate, low }
 
 /// Hashtag click action type
-enum HashtagAction {
-  viewFeed,
-  copy,
-  share,
-  follow,
-  mute,
-  report,
-}
+enum HashtagAction { viewFeed, copy, share, follow, mute, report }
 
 /// Related hashtag suggestion
 class RelatedHashtag {
@@ -57,61 +45,61 @@ class HashtagStats {
 class HashtagWidget extends StatefulWidget {
   /// The hashtag text (with or without #)
   final String hashtag;
-  
+
   /// Hashtag statistics
   final HashtagStats? stats;
-  
+
   /// Show usage count
   final bool showCount;
-  
+
   /// Show trending indicator
   final bool showTrendingIndicator;
-  
+
   /// Enable click animation
   final bool enableAnimation;
-  
+
   /// Custom text style
   final TextStyle? textStyle;
-  
+
   /// Custom background color
   final Color? backgroundColor;
-  
+
   /// Custom border radius
   final BorderRadius? borderRadius;
-  
+
   /// Padding around the hashtag
   final EdgeInsetsGeometry? padding;
-  
+
   /// Size variant
   final HashtagSize size;
-  
+
   /// Enable long press menu
   final bool enableLongPress;
-  
+
   /// Available actions for long press
   final Set<HashtagAction> availableActions;
-  
+
   /// Callback when hashtag is tapped
   final VoidCallback? onTap;
-  
+
   /// Callback for specific actions
   final void Function(HashtagAction action)? onAction;
-  
+
   /// Callback when hashtag click is tracked
   final VoidCallback? onClickTracked;
-  
+
   /// Enable haptic feedback
   final bool enableHaptics;
-  
+
   /// Show as chip style
   final bool chipStyle;
-  
+
   /// Enable delete functionality (for chip style)
   final bool enableDelete;
-  
+
   /// Delete callback
   final VoidCallback? onDeleted;
-  
+
   /// Custom tooltip message
   final String? tooltip;
 
@@ -148,11 +136,7 @@ class HashtagWidget extends StatefulWidget {
 }
 
 /// Hashtag size variants
-enum HashtagSize {
-  small,
-  medium,
-  large,
-}
+enum HashtagSize { small, medium, large }
 
 class _HashtagWidgetState extends State<HashtagWidget>
     with SingleTickerProviderStateMixin {
@@ -173,21 +157,20 @@ class _HashtagWidgetState extends State<HashtagWidget>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
-    _colorAnimation = ColorTween(
-      begin: _getHashtagColor(),
-      end: _getHashtagColor().withOpacity(0.7),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _colorAnimation =
+        ColorTween(
+          begin: _getHashtagColor(),
+          end: _getHashtagColor().withOpacity(0.7),
+        ).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
   }
 
   @override
@@ -206,10 +189,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
       hashtagWidget = AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: hashtagWidget,
       );
@@ -249,8 +229,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
           if (widget.showTrendingIndicator && _isTrending())
             _buildTrendingIndicator(),
           _buildHashtagText(),
-          if (widget.showCount && widget.stats != null)
-            _buildCountBadge(),
+          if (widget.showCount && widget.stats != null) _buildCountBadge(),
         ],
       ),
     );
@@ -260,15 +239,14 @@ class _HashtagWidgetState extends State<HashtagWidget>
     return Chip(
       label: _buildChipContent(),
       backgroundColor: widget.backgroundColor ?? _getBackgroundColor(),
-      deleteIcon: widget.enableDelete ? const Icon(Icons.close, size: 18) : null,
+      deleteIcon: widget.enableDelete
+          ? const Icon(Icons.close, size: 18)
+          : null,
       onDeleted: widget.enableDelete ? widget.onDeleted : null,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       padding: widget.padding ?? EdgeInsets.zero,
       labelStyle: widget.textStyle ?? _getDefaultTextStyle(),
-      side: BorderSide(
-        color: _getHashtagColor().withOpacity(0.3),
-        width: 1,
-      ),
+      side: BorderSide(color: _getHashtagColor().withOpacity(0.3), width: 1),
     );
   }
 
@@ -279,8 +257,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
         if (widget.showTrendingIndicator && _isTrending())
           _buildTrendingIndicator(),
         _buildHashtagText(),
-        if (widget.showCount && widget.stats != null)
-          _buildCountBadge(),
+        if (widget.showCount && widget.stats != null) _buildCountBadge(),
       ],
     );
   }
@@ -307,9 +284,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
         return Text(
           cleanHashtag,
           style: (widget.textStyle ?? _getDefaultTextStyle()).copyWith(
-            color: _isPressed
-                ? _colorAnimation.value
-                : _getHashtagColor(),
+            color: _isPressed ? _colorAnimation.value : _getHashtagColor(),
           ),
         );
       },
@@ -431,7 +406,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
 
   Widget _buildStatsPreview() {
     final stats = widget.stats!;
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -450,18 +425,9 @@ class _HashtagWidgetState extends State<HashtagWidget>
       children: [
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -485,9 +451,9 @@ class _HashtagWidgetState extends State<HashtagWidget>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
             'Related Hashtags',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Container(
@@ -536,9 +502,9 @@ class _HashtagWidgetState extends State<HashtagWidget>
     final hashtag = widget.hashtag.startsWith('#')
         ? widget.hashtag
         : '#${widget.hashtag}';
-    
+
     Clipboard.setData(ClipboardData(text: hashtag));
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Copied $hashtag to clipboard'),
@@ -588,10 +554,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
         break;
     }
 
-    return TextStyle(
-      fontSize: fontSize,
-      fontWeight: FontWeight.w600,
-    );
+    return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
   }
 
   EdgeInsetsGeometry _getDefaultPadding() {
@@ -685,7 +648,7 @@ class _HashtagWidgetState extends State<HashtagWidget>
 
   String _getDefaultTooltip() {
     if (widget.stats == null) return '';
-    
+
     final stats = widget.stats!;
     return 'Used ${_formatCount(stats.usageCount)} times • '
         '${stats.popularity.name.toUpperCase()}';

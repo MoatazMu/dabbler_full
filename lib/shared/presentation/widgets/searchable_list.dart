@@ -5,55 +5,55 @@ import 'dart:async';
 class SearchableList<T> extends StatefulWidget {
   /// All items to search through
   final List<T> allItems;
-  
+
   /// Function to build each list item
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
-  
+
   /// Function to extract searchable text from item
   final String Function(T item) searchTextExtractor;
-  
+
   /// Function called when search query changes
   final Function(String query)? onSearchChanged;
-  
+
   /// Placeholder text for search bar
   final String searchHint;
-  
+
   /// Whether to show search suggestions
   final bool showSuggestions;
-  
+
   /// Search suggestions
   final List<String> suggestions;
-  
+
   /// Function called when suggestion is tapped
   final Function(String suggestion)? onSuggestionTapped;
-  
+
   /// Whether to show recent searches
   final bool showRecentSearches;
-  
+
   /// Recent search queries
   final List<String> recentSearches;
-  
+
   /// Function called when recent search is tapped
   final Function(String recentSearch)? onRecentSearchTapped;
-  
+
   /// Function called to clear recent searches
   final VoidCallback? onClearRecentSearches;
-  
+
   /// Widget to show when no search results
   final Widget? noResultsWidget;
-  
+
   /// Widget to show when search is empty
   final Widget? emptySearchWidget;
-  
+
   /// Debounce duration for search
   final Duration debounceDuration;
-  
+
   /// Minimum characters to trigger search
   final int minSearchLength;
-  
+
   /// Whether to show loading indicator during search
   final bool isSearching;
-  
+
   /// Custom search filter function
   final bool Function(T item, String query)? customSearchFilter;
 
@@ -116,12 +116,13 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
 
   void _onSearchTextChanged() {
     final query = _searchController.text;
-    
+
     setState(() {
-      _showSearchSuggestions = query.isNotEmpty && 
+      _showSearchSuggestions =
+          query.isNotEmpty &&
           (widget.showSuggestions && widget.suggestions.isNotEmpty);
     });
-    
+
     _debounceTimer?.cancel();
     _debounceTimer = Timer(widget.debounceDuration, () {
       _filterItems(query);
@@ -132,7 +133,7 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
   void _filterItems(String query) {
     setState(() {
       _currentQuery = query;
-      
+
       if (query.length < widget.minSearchLength) {
         _filteredItems = widget.allItems;
         return;
@@ -145,9 +146,12 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
       } else {
         final lowercaseQuery = query.toLowerCase();
         _filteredItems = widget.allItems
-            .where((item) => widget.searchTextExtractor(item)
-                .toLowerCase()
-                .contains(lowercaseQuery))
+            .where(
+              (item) => widget
+                  .searchTextExtractor(item)
+                  .toLowerCase()
+                  .contains(lowercaseQuery),
+            )
             .toList();
       }
     });
@@ -186,16 +190,14 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
     return Column(
       children: [
         _buildSearchBar(),
-        Expanded(
-          child: _buildContent(),
-        ),
+        Expanded(child: _buildContent()),
       ],
     );
   }
 
   Widget _buildSearchBar() {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: TextField(
@@ -223,10 +225,7 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: theme.colorScheme.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
           ),
         ),
       ),
@@ -240,16 +239,15 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
     }
 
     // Show recent searches when search is empty
-    if (_currentQuery.isEmpty && widget.showRecentSearches && 
+    if (_currentQuery.isEmpty &&
+        widget.showRecentSearches &&
         widget.recentSearches.isNotEmpty) {
       return _buildRecentSearches();
     }
 
     // Show loading indicator
     if (widget.isSearching) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     // Show no results
@@ -273,7 +271,7 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
 
   Widget _buildSuggestions() {
     final theme = Theme.of(context);
-    
+
     return ListView.builder(
       itemCount: widget.suggestions.length,
       itemBuilder: (context, index) {
@@ -292,7 +290,7 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
 
   Widget _buildRecentSearches() {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -342,7 +340,7 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
 
   Widget _buildNoResultsWidget() {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -376,7 +374,7 @@ class _SearchableListState<T> extends State<SearchableList<T>> {
 
   Widget _buildEmptySearchWidget() {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -460,7 +458,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return TextField(
       controller: _controller,
       decoration: InputDecoration(
@@ -495,10 +493,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: theme.colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
         ),
       ),
     );

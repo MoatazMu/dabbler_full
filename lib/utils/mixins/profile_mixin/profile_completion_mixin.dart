@@ -9,31 +9,32 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
   Timer? _updateTimer;
   UserProfile? _currentProfile;
   bool _isLoading = false;
-  
+
   /// Initialize profile completion tracking with periodic updates
   void initProfileCompletion(UserProfile profile) {
     _currentProfile = profile;
     _updateCompletion(profile);
-    
+
     // Update periodically while on screen to catch external changes
     _updateTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => _updateCompletion(profile),
     );
   }
-  
+
   /// Update completion percentage and missing fields
   void _updateCompletion(UserProfile profile) {
     if (!mounted) return;
-    
+
     setState(() {
-      _completionPercentage = ProfileCompletionHelper
-          .calculateCompletion(profile).toDouble();
+      _completionPercentage = ProfileCompletionHelper.calculateCompletion(
+        profile,
+      ).toDouble();
       _missingFields = ProfileCompletionHelper.getMissingFields(profile);
       _isLoading = false;
     });
   }
-  
+
   /// Manually trigger completion recalculation
   void refreshCompletion() {
     if (_currentProfile != null) {
@@ -43,7 +44,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       _updateCompletion(_currentProfile!);
     }
   }
-  
+
   /// Build circular progress indicator for completion percentage
   Widget buildCompletionIndicator({
     double size = 60,
@@ -52,7 +53,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
     TextStyle? textStyle,
   }) {
     final textSize = textStyle?.fontSize ?? size * 0.25;
-    
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -76,22 +77,20 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
         if (showPercentage && !_isLoading)
           Text(
             '${_completionPercentage.round()}%',
-            style: textStyle ?? TextStyle(
-              fontSize: textSize,
-              fontWeight: FontWeight.bold,
-              color: _getCompletionColor(),
-            ),
+            style:
+                textStyle ??
+                TextStyle(
+                  fontSize: textSize,
+                  fontWeight: FontWeight.bold,
+                  color: _getCompletionColor(),
+                ),
           ),
         if (_isLoading)
-          Icon(
-            Icons.refresh,
-            size: size * 0.3,
-            color: Colors.grey[600],
-          ),
+          Icon(Icons.refresh, size: size * 0.3, color: Colors.grey[600]),
       ],
     );
   }
-  
+
   /// Build linear progress indicator
   Widget buildLinearCompletionIndicator({
     double height = 8,
@@ -136,16 +135,17 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       ),
     );
   }
-  
+
   /// Get color based on completion percentage
   Color _getCompletionColor() {
     if (_completionPercentage >= 85) return const Color(0xFF4CAF50); // Green
     if (_completionPercentage >= 70) return const Color(0xFF2196F3); // Blue
     if (_completionPercentage >= 50) return const Color(0xFFFF9800); // Orange
-    if (_completionPercentage >= 25) return const Color(0xFFFF5722); // Deep Orange
+    if (_completionPercentage >= 25)
+      return const Color(0xFFFF5722); // Deep Orange
     return const Color(0xFFF44336); // Red
   }
-  
+
   /// Get completion status text
   String get completionStatusText {
     if (_completionPercentage >= 95) return 'Profile Complete!';
@@ -155,7 +155,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
     if (_completionPercentage >= 25) return 'Getting Started';
     return 'Just Started';
   }
-  
+
   /// Get completion status icon
   IconData get completionStatusIcon {
     if (_completionPercentage >= 95) return Icons.check_circle;
@@ -165,7 +165,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
     if (_completionPercentage >= 25) return Icons.play_arrow;
     return Icons.info_outline;
   }
-  
+
   /// Show completion tips modal bottom sheet
   void showCompletionTips({
     bool showImmediateActions = true,
@@ -200,7 +200,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Header
             Row(
               children: [
@@ -233,11 +233,11 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
               ],
             ),
             const SizedBox(height: 20),
-            
+
             // Progress indicator
             buildLinearCompletionIndicator(showPercentage: true),
             const SizedBox(height: 20),
-            
+
             // Missing fields or completion message
             if (_missingFields.isEmpty)
               Container(
@@ -269,15 +269,19 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
-                  ..._missingFields.take(5).map((field) => _buildMissingFieldTile(
-                    field,
-                    onTap: () {
-                      Navigator.pop(context);
-                      onFieldTapped?.call();
-                      _navigateToField(field);
-                    },
-                  )),
-                  
+                  ..._missingFields
+                      .take(5)
+                      .map(
+                        (field) => _buildMissingFieldTile(
+                          field,
+                          onTap: () {
+                            Navigator.pop(context);
+                            onFieldTapped?.call();
+                            _navigateToField(field);
+                          },
+                        ),
+                      ),
+
                   if (_missingFields.length > 5)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -290,9 +294,9 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
                     ),
                 ],
               ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Action buttons
             if (showImmediateActions && _missingFields.isNotEmpty)
               Row(
@@ -320,7 +324,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       ),
     );
   }
-  
+
   /// Build tile for missing field
   Widget _buildMissingFieldTile(String field, {VoidCallback? onTap}) {
     return ListTile(
@@ -332,11 +336,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
           color: Colors.orange[50],
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          _getFieldIcon(field),
-          color: Colors.orange[600],
-          size: 20,
-        ),
+        child: Icon(_getFieldIcon(field), color: Colors.orange[600], size: 20),
       ),
       title: Text(_getFieldDisplayName(field)),
       subtitle: Text(_getFieldDescription(field)),
@@ -344,7 +344,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       onTap: onTap,
     );
   }
-  
+
   /// Get icon for field type
   IconData _getFieldIcon(String field) {
     switch (field.toLowerCase()) {
@@ -371,7 +371,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
         return Icons.edit;
     }
   }
-  
+
   /// Get display name for field
   String _getFieldDisplayName(String field) {
     switch (field.toLowerCase()) {
@@ -382,12 +382,18 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       case 'phone_number':
         return 'Phone Number';
       default:
-        return field.replaceAll('_', ' ').split(' ')
-            .map((word) => word.isEmpty ? '' : '${word[0].toUpperCase()}${word.substring(1)}')
+        return field
+            .replaceAll('_', ' ')
+            .split(' ')
+            .map(
+              (word) => word.isEmpty
+                  ? ''
+                  : '${word[0].toUpperCase()}${word.substring(1)}',
+            )
             .join(' ');
     }
   }
-  
+
   /// Get description for field
   String _getFieldDescription(String field) {
     switch (field.toLowerCase()) {
@@ -407,12 +413,12 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
         return 'Complete this field to improve your profile';
     }
   }
-  
+
   /// Navigate to appropriate field editing screen
   void _navigateToField(String field) {
     // This should be overridden by the implementing widget or use a router
     // TODO: Implement navigation logic
-    
+
     // Example navigation (would be customized per app)
     switch (field.toLowerCase()) {
       case 'profile_picture':
@@ -429,7 +435,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
         break;
     }
   }
-  
+
   /// Show completion celebration when profile reaches 100%
   void showCompletionCelebration() {
     if (_completionPercentage >= 95) {
@@ -456,7 +462,7 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       );
     }
   }
-  
+
   /// Get completion rewards/benefits text
   List<String> get completionBenefits {
     if (_completionPercentage >= 95) {
@@ -480,24 +486,24 @@ mixin ProfileCompletionMixin<T extends StatefulWidget> on State<T> {
       ];
     }
   }
-  
+
   /// Check if specific field is missing
   bool isFieldMissing(String field) {
     return _missingFields.contains(field);
   }
-  
+
   /// Get completion percentage
   double get completionPercentage => _completionPercentage;
-  
+
   /// Get missing fields list
   List<String> get missingFields => List.from(_missingFields);
-  
+
   /// Check if profile is substantially complete (>= 70%)
   bool get isProfileSubstantiallyComplete => _completionPercentage >= 70;
-  
+
   /// Check if profile is fully complete (>= 95%)
   bool get isProfileFullyComplete => _completionPercentage >= 95;
-  
+
   @override
   void dispose() {
     _updateTimer?.cancel();

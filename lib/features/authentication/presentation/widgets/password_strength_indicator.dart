@@ -17,8 +17,20 @@ class PasswordStrengthIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final score = _score;
-    final color = [Colors.red, Colors.orange, Colors.yellow, Colors.lightGreen, Colors.green][score.clamp(0, 4)];
-    final label = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'][score.clamp(0, 4)];
+    final color = [
+      Colors.red,
+      Colors.orange,
+      Colors.yellow,
+      Colors.lightGreen,
+      Colors.green,
+    ][score.clamp(0, 4)];
+    final label = [
+      'Very Weak',
+      'Weak',
+      'Fair',
+      'Good',
+      'Strong',
+    ][score.clamp(0, 4)];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -26,9 +26,9 @@ class MemberActivityLog {
       activity_type: json['activity_type'],
       activity_id: json['activity_id'],
       points_earned: json['points_earned'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

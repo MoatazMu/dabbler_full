@@ -27,7 +27,8 @@ class ReactionModel extends Reaction {
   factory ReactionModel.fromJson(Map<String, dynamic> json) {
     // Parse target type
     ReactionTargetType targetType = ReactionTargetType.post;
-    final targetTypeStr = json['target_type']?.toString().toLowerCase() ?? 'post';
+    final targetTypeStr =
+        json['target_type']?.toString().toLowerCase() ?? 'post';
     switch (targetTypeStr) {
       case 'post':
         targetType = ReactionTargetType.post;
@@ -47,8 +48,10 @@ class ReactionModel extends Reaction {
 
     // Parse reaction type
     ReactionType reactionType = ReactionType.like;
-    final reactionTypeStr = json['reaction_type']?.toString().toLowerCase() ?? 
-                           json['type']?.toString().toLowerCase() ?? 'like';
+    final reactionTypeStr =
+        json['reaction_type']?.toString().toLowerCase() ??
+        json['type']?.toString().toLowerCase() ??
+        'like';
     switch (reactionTypeStr) {
       case 'like':
       case '👍':
@@ -105,7 +108,8 @@ class ReactionModel extends Reaction {
 
     // Parse grouped reactions if available
     List<GroupedReaction> groupedReactions = [];
-    if (json['grouped_reactions'] != null && json['grouped_reactions'] is List) {
+    if (json['grouped_reactions'] != null &&
+        json['grouped_reactions'] is List) {
       groupedReactions = (json['grouped_reactions'] as List)
           .map((group) => GroupedReaction.fromJson(group))
           .toList();
@@ -114,7 +118,9 @@ class ReactionModel extends Reaction {
       final counts = json['reaction_counts'] as Map<String, dynamic>;
       groupedReactions = counts.entries.map((entry) {
         final type = _stringToReactionType(entry.key);
-        final count = entry.value is int ? entry.value : int.tryParse(entry.value.toString()) ?? 0;
+        final count = entry.value is int
+            ? entry.value
+            : int.tryParse(entry.value.toString()) ?? 0;
         return GroupedReaction(
           reactionType: type,
           count: count,
@@ -126,19 +132,19 @@ class ReactionModel extends Reaction {
     return ReactionModel(
       id: json['id'] ?? '',
       userId: json['user_id'] ?? '',
-      targetId: json['target_id'] ?? json['post_id'] ?? json['comment_id'] ?? '',
+      targetId:
+          json['target_id'] ?? json['post_id'] ?? json['comment_id'] ?? '',
       targetType: targetType,
       reactionType: reactionType,
       createdAt: _parseDateTime(json['created_at']),
-      userName: userData['full_name'] ?? 
-                userData['display_name'] ?? 
-                userData['username'] ?? 
-                'Unknown User',
-      userAvatar: userData['avatar_url'] ?? 
-                  userData['profile_picture'] ?? 
-                  '',
-      userIsVerified: userData['verified'] == true || 
-                     userData['is_verified'] == true,
+      userName:
+          userData['full_name'] ??
+          userData['display_name'] ??
+          userData['username'] ??
+          'Unknown User',
+      userAvatar: userData['avatar_url'] ?? userData['profile_picture'] ?? '',
+      userIsVerified:
+          userData['verified'] == true || userData['is_verified'] == true,
       groupedReactions: groupedReactions,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -174,9 +180,7 @@ class ReactionModel extends Reaction {
 
   /// Create JSON for updating reaction type
   Map<String, dynamic> toUpdateJson() {
-    return {
-      'reaction_type': _reactionTypeToString(reactionType),
-    };
+    return {'reaction_type': _reactionTypeToString(reactionType)};
   }
 
   /// Create a copy with updated fields
@@ -255,10 +259,10 @@ class ReactionModel extends Reaction {
   /// Get most popular reaction type
   ReactionType? get mostPopularReaction {
     if (groupedReactions.isEmpty) return null;
-    
+
     final sorted = List<GroupedReaction>.from(groupedReactions)
       ..sort((a, b) => b.count.compareTo(a.count));
-    
+
     return sorted.first.reactionType;
   }
 
@@ -443,8 +447,10 @@ class GroupedReaction {
   factory GroupedReaction.fromJson(Map<String, dynamic> json) {
     // Parse reaction type
     ReactionType reactionType = ReactionType.like;
-    final typeStr = json['reaction_type']?.toString().toLowerCase() ?? 
-                   json['type']?.toString().toLowerCase() ?? 'like';
+    final typeStr =
+        json['reaction_type']?.toString().toLowerCase() ??
+        json['type']?.toString().toLowerCase() ??
+        'like';
     reactionType = ReactionModel._stringToReactionType(typeStr);
 
     // Parse users array
@@ -474,7 +480,8 @@ class GroupedReaction {
   String get emoji => ReactionModel._reactionTypeToEmoji(reactionType);
 
   /// Get reaction display name
-  String get displayName => ReactionModel._reactionTypeToDisplayName(reactionType);
+  String get displayName =>
+      ReactionModel._reactionTypeToDisplayName(reactionType);
 
   /// Check if specific user is in this group
   bool containsUser(String userId) {
@@ -484,14 +491,17 @@ class GroupedReaction {
   /// Get user names for display (e.g., "John, Jane and 3 others")
   String getDisplayText({int maxNames = 2}) {
     if (users.isEmpty) return '';
-    
+
     if (users.length <= maxNames) {
       if (users.length == 1) {
         return users.first.displayName;
       } else if (users.length == 2) {
         return '${users[0].displayName} and ${users[1].displayName}';
       } else {
-        final names = users.take(maxNames - 1).map((u) => u.displayName).join(', ');
+        final names = users
+            .take(maxNames - 1)
+            .map((u) => u.displayName)
+            .join(', ');
         return '$names and ${users.last.displayName}';
       }
     } else {
@@ -522,26 +532,19 @@ class ReactionUser {
   factory ReactionUser.fromJson(Map<String, dynamic> json) {
     return ReactionUser(
       id: json['id'] ?? json['user_id'] ?? '',
-      name: json['display_name'] ?? 
-            json['name'] ?? 
-            json['full_name'] ?? 
-            json['username'] ?? 
-            'Unknown User',
-      avatar: json['avatar'] ?? 
-              json['avatar_url'] ?? 
-              json['profile_picture'] ?? 
-              '',
-      verified: json['verified'] == true || 
-               json['is_verified'] == true,
+      name:
+          json['display_name'] ??
+          json['name'] ??
+          json['full_name'] ??
+          json['username'] ??
+          'Unknown User',
+      avatar:
+          json['avatar'] ?? json['avatar_url'] ?? json['profile_picture'] ?? '',
+      verified: json['verified'] == true || json['is_verified'] == true,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'avatar': avatar,
-      'verified': verified,
-    };
+    return {'id': id, 'name': name, 'avatar': avatar, 'verified': verified};
   }
 }

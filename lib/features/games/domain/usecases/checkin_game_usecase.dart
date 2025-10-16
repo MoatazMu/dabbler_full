@@ -9,13 +9,10 @@ class GameFailure extends Failure {
   const GameFailure(super.message);
 }
 
-enum CheckInMethod {
-  qrCode,
-  manual,
-  location,
-}
+enum CheckInMethod { qrCode, manual, location }
 
-class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckInGameParams> {
+class CheckInGameUseCase
+    extends UseCase<Either<Failure, CheckInResult>, CheckInGameParams> {
   final GamesRepository gamesRepository;
 
   CheckInGameUseCase({required this.gamesRepository});
@@ -30,59 +27,61 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
 
     // Get game details
     final gameResult = await gamesRepository.getGame(params.gameId);
-    
-    return gameResult.fold(
-      (failure) => Left(failure),
-      (game) async {
-        // Validate check-in eligibility
-        final eligibilityResult = await _validateCheckInEligibility(game, params);
-        if (eligibilityResult != null) {
-          return Left(eligibilityResult);
-        }
 
-        // Verify player is registered for this game
-        final registrationResult = await _verifyPlayerRegistration(game, params.playerId);
-        if (registrationResult != null) {
-          return Left(registrationResult);
-        }
+    return gameResult.fold((failure) => Left(failure), (game) async {
+      // Validate check-in eligibility
+      final eligibilityResult = await _validateCheckInEligibility(game, params);
+      if (eligibilityResult != null) {
+        return Left(eligibilityResult);
+      }
 
-        // Validate check-in time window
-        final timeWindowResult = _validateCheckInTimeWindow(game);
-        if (timeWindowResult != null) {
-          return Left(timeWindowResult);
-        }
+      // Verify player is registered for this game
+      final registrationResult = await _verifyPlayerRegistration(
+        game,
+        params.playerId,
+      );
+      if (registrationResult != null) {
+        return Left(registrationResult);
+      }
 
-        // Process check-in based on method
-        final checkInResult = await _processCheckIn(game, params);
-        if (checkInResult.isLeft()) {
-          return Left(checkInResult.fold((l) => l, (r) => throw Exception()));
-        }
+      // Validate check-in time window
+      final timeWindowResult = _validateCheckInTimeWindow(game);
+      if (timeWindowResult != null) {
+        return Left(timeWindowResult);
+      }
 
-        // Update game and player check-in status
-        final updateResult = await _updateCheckInStatus(game, params);
-        if (updateResult != null) {
-          return Left(updateResult);
-        }
+      // Process check-in based on method
+      final checkInResult = await _processCheckIn(game, params);
+      if (checkInResult.isLeft()) {
+        return Left(checkInResult.fold((l) => l, (r) => throw Exception()));
+      }
 
-        // Notify organizer of check-in
-        await _notifyGameOrganizer(game, params);
+      // Update game and player check-in status
+      final updateResult = await _updateCheckInStatus(game, params);
+      if (updateResult != null) {
+        return Left(updateResult);
+      }
 
-        // Check if minimum players requirement is met
-        final updatedGameResult = await gamesRepository.getGame(params.gameId);
-        final canStartGame = updatedGameResult.fold(
-          (failure) => false,
-          (updatedGame) => _canGameStart(updatedGame),
-        );
+      // Notify organizer of check-in
+      await _notifyGameOrganizer(game, params);
 
-        return Right(CheckInResult(
+      // Check if minimum players requirement is met
+      final updatedGameResult = await gamesRepository.getGame(params.gameId);
+      final canStartGame = updatedGameResult.fold(
+        (failure) => false,
+        (updatedGame) => _canGameStart(updatedGame),
+      );
+
+      return Right(
+        CheckInResult(
           success: true,
           checkInTime: DateTime.now(),
           method: params.method,
           gameCanStart: canStartGame,
           message: _getCheckInMessage(game, canStartGame),
-        ));
-      },
-    );
+        ),
+      );
+    });
   }
 
   /// Validates check-in parameters
@@ -105,7 +104,9 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
     // Validate location if method is location-based
     if (params.method == CheckInMethod.location) {
       if (params.playerLatitude == null || params.playerLongitude == null) {
-        return const GameFailure('Location coordinates are required for location-based check-in');
+        return const GameFailure(
+          'Location coordinates are required for location-based check-in',
+        );
       }
     }
 
@@ -113,7 +114,10 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
   }
 
   /// Validates if check-in is allowed for this game and player
-  Future<Failure?> _validateCheckInEligibility(Game game, CheckInGameParams params) async {
+  Future<Failure?> _validateCheckInEligibility(
+    Game game,
+    CheckInGameParams params,
+  ) async {
     // Check if game allows check-in
     if (!game.checkInEnabled) {
       return const GameFailure('Check-in is not enabled for this game');
@@ -125,7 +129,9 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
         case GameStatus.draft:
           return const GameFailure('Cannot check in to a draft game');
         case GameStatus.inProgress:
-          return const GameFailure('Game is already in progress. Check-in is no longer available');
+          return const GameFailure(
+            'Game is already in progress. Check-in is no longer available',
+          );
         case GameStatus.completed:
           return const GameFailure('Game has been completed');
         case GameStatus.cancelled:
@@ -148,7 +154,8 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
     );
 
     return myGamesResult.fold(
-      (failure) => GameFailure('Unable to verify game registration: ${failure.message}'),
+      (failure) =>
+          GameFailure('Unable to verify game registration: ${failure.message}'),
       (myGames) {
         final isRegistered = myGames.any((userGame) => userGame.id == game.id);
         if (!isRegistered) {
@@ -163,25 +170,34 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
   Failure? _validateCheckInTimeWindow(Game game) {
     final now = DateTime.now();
     final gameStartTime = game.getScheduledStartDateTime();
-    
+
     // Check if game has passed
     if (now.isAfter(gameStartTime)) {
-      return const GameFailure('Check-in period has ended. Game start time has passed');
+      return const GameFailure(
+        'Check-in period has ended. Game start time has passed',
+      );
     }
-    
+
     // Check if check-in window is open (typically 30 minutes before)
-    final checkInWindowStart = gameStartTime.subtract(const Duration(minutes: 30));
-    
+    final checkInWindowStart = gameStartTime.subtract(
+      const Duration(minutes: 30),
+    );
+
     if (now.isBefore(checkInWindowStart)) {
       final minutesUntilCheckIn = checkInWindowStart.difference(now).inMinutes;
-      return GameFailure('Check-in opens in $minutesUntilCheckIn minutes (30 minutes before game start)');
+      return GameFailure(
+        'Check-in opens in $minutesUntilCheckIn minutes (30 minutes before game start)',
+      );
     }
-    
+
     return null;
   }
 
   /// Processes check-in based on the specified method
-  Future<Either<Failure, bool>> _processCheckIn(Game game, CheckInGameParams params) async {
+  Future<Either<Failure, bool>> _processCheckIn(
+    Game game,
+    CheckInGameParams params,
+  ) async {
     switch (params.method) {
       case CheckInMethod.qrCode:
         return _processQrCodeCheckIn(game, params);
@@ -193,11 +209,14 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
   }
 
   /// Processes QR code check-in
-  Future<Either<Failure, bool>> _processQrCodeCheckIn(Game game, CheckInGameParams params) async {
+  Future<Either<Failure, bool>> _processQrCodeCheckIn(
+    Game game,
+    CheckInGameParams params,
+  ) async {
     try {
       // Validate QR code format and content
       final qrData = params.qrCodeData!;
-      
+
       // Expected format: "DABBLER_CHECKIN:{gameId}:{timestamp}:{hash}"
       if (!qrData.startsWith('DABBLER_CHECKIN:')) {
         return const Left(GameFailure('Invalid QR code format'));
@@ -225,14 +244,16 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
 
       final qrTime = DateTime.fromMillisecondsSinceEpoch(qrTimestamp);
       final now = DateTime.now();
-      
+
       if (now.difference(qrTime).inMinutes > 5) {
-        return const Left(GameFailure('QR code has expired. Please request a new one'));
+        return const Left(
+          GameFailure('QR code has expired. Please request a new one'),
+        );
       }
 
       // In a real implementation, you would verify the hash for security
       // This prevents tampering with QR codes
-      
+
       return const Right(true);
     } catch (e) {
       return Left(GameFailure('QR code processing error: ${e.toString()}'));
@@ -240,39 +261,53 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
   }
 
   /// Processes manual check-in (by organizer or admin)
-  Future<Either<Failure, bool>> _processManualCheckIn(Game game, CheckInGameParams params) async {
+  Future<Either<Failure, bool>> _processManualCheckIn(
+    Game game,
+    CheckInGameParams params,
+  ) async {
     // Verify that the person doing manual check-in has authority
     if (params.checkedInBy == null) {
-      return const Left(GameFailure('Manual check-in requires operator identification'));
+      return const Left(
+        GameFailure('Manual check-in requires operator identification'),
+      );
     }
 
     // Verify operator is game organizer or has admin privileges
     if (params.checkedInBy != game.organizerId) {
       // In a real implementation, you would check for admin privileges
       // For now, only allow game organizer
-      return const Left(GameFailure('Only the game organizer can perform manual check-in'));
+      return const Left(
+        GameFailure('Only the game organizer can perform manual check-in'),
+      );
     }
 
     return const Right(true);
   }
 
   /// Processes location-based check-in
-  Future<Either<Failure, bool>> _processLocationCheckIn(Game game, CheckInGameParams params) async {
+  Future<Either<Failure, bool>> _processLocationCheckIn(
+    Game game,
+    CheckInGameParams params,
+  ) async {
     // This would require venue location data
     // For now, this is a simplified implementation
-    
+
     if (game.venueId == null) {
-      return const Left(GameFailure('Location-based check-in requires a venue'));
+      return const Left(
+        GameFailure('Location-based check-in requires a venue'),
+      );
     }
 
     // In a real implementation, you would:
     // 1. Get venue coordinates from VenuesRepository
     // 2. Calculate distance between player and venue
     // 3. Allow check-in if within acceptable range (e.g., 100 meters)
-    
+
     // Simplified validation - just check coordinates are provided
     if (params.playerLatitude == null || params.playerLongitude == null) {
-      return const Left(GameFailure('Player location is required for location-based check-in'));
+      return const Left(
+        GameFailure('Player location is required for location-based check-in'),
+      );
     }
 
     // TODO: Implement actual distance calculation with venue coordinates
@@ -280,15 +315,20 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
   }
 
   /// Updates check-in status for the player in the game
-  Future<Failure?> _updateCheckInStatus(Game game, CheckInGameParams params) async {
+  Future<Failure?> _updateCheckInStatus(
+    Game game,
+    CheckInGameParams params,
+  ) async {
     // This would typically call a repository method to update check-in status
     // Since this specific method doesn't exist in our current repository,
     // we'll simulate the update
-    
+
     try {
       // In a real implementation, you would update the game_players table
       // with check-in timestamp and method
-      print('Updated check-in status for player ${params.playerId} in game ${game.id}');
+      print(
+        'Updated check-in status for player ${params.playerId} in game ${game.id}',
+      );
       return null;
     } catch (e) {
       return GameFailure('Failed to update check-in status: ${e.toString()}');
@@ -299,7 +339,9 @@ class CheckInGameUseCase extends UseCase<Either<Failure, CheckInResult>, CheckIn
   Future<void> _notifyGameOrganizer(Game game, CheckInGameParams params) async {
     try {
       // This would integrate with notification service
-      print('Notifying organizer ${game.organizerId}: Player ${params.playerId} checked in to ${game.title}');
+      print(
+        'Notifying organizer ${game.organizerId}: Player ${params.playerId} checked in to ${game.title}',
+      );
     } catch (e) {
       // Notification failure shouldn't prevent check-in
       print('Failed to notify organizer: $e');
@@ -360,6 +402,7 @@ class CheckInResult {
   });
 
   // Convenience getters
-  String get formattedTime => '${checkInTime.hour.toString().padLeft(2, '0')}:${checkInTime.minute.toString().padLeft(2, '0')}';
+  String get formattedTime =>
+      '${checkInTime.hour.toString().padLeft(2, '0')}:${checkInTime.minute.toString().padLeft(2, '0')}';
   String get methodDisplay => method.name.toUpperCase().replaceAll('_', ' ');
 }

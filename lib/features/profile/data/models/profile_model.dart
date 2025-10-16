@@ -65,10 +65,11 @@ class ProfileModel extends UserProfile {
   /// Creates ProfileModel from JSON (Supabase response)
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     // Prefer coalesced display name if present (from a view), then common fallbacks
-    final coalescedName = (json['display_name_coalesced'] as String?)
-        ?? (json['display_name'] as String?)
-        ?? (json['username'] as String?)
-        ?? (json['full_name'] as String?);
+    final coalescedName =
+        (json['display_name_coalesced'] as String?) ??
+        (json['display_name'] as String?) ??
+        (json['username'] as String?) ??
+        (json['full_name'] as String?);
     return ProfileModel(
       id: json['id'] as String,
       email: json['email'] as String,
@@ -77,7 +78,7 @@ class ProfileModel extends UserProfile {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       bio: json['bio'] as String?,
-      dateOfBirth: json['date_of_birth'] != null 
+      dateOfBirth: json['date_of_birth'] != null
           ? DateTime.parse(json['date_of_birth'] as String)
           : null,
       location: json['location'] as String?,
@@ -85,9 +86,10 @@ class ProfileModel extends UserProfile {
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       gender: json['gender'] as String?,
-      profileCompletionPercentage: (json['profile_completion_percentage'] as num?)?.toDouble() ?? 0.0,
+      profileCompletionPercentage:
+          (json['profile_completion_percentage'] as num?)?.toDouble() ?? 0.0,
       isVerified: json['is_verified'] as bool? ?? false,
-      lastActiveAt: json['last_active_at'] != null 
+      lastActiveAt: json['last_active_at'] != null
           ? DateTime.parse(json['last_active_at'] as String)
           : null,
       sportsProfiles: _parseSportsProfiles(json['sports_profiles']),
@@ -101,10 +103,11 @@ class ProfileModel extends UserProfile {
   /// Creates ProfileModel from comprehensive Supabase profile query
   factory ProfileModel.fromSupabaseProfile(Map<String, dynamic> json) {
     // Handle nested relationships from complex JOIN queries
-    final coalescedName = (json['display_name_coalesced'] as String?)
-        ?? (json['display_name'] as String?)
-        ?? (json['username'] as String?)
-        ?? (json['full_name'] as String?);
+    final coalescedName =
+        (json['display_name_coalesced'] as String?) ??
+        (json['display_name'] as String?) ??
+        (json['username'] as String?) ??
+        (json['full_name'] as String?);
     return ProfileModel(
       id: json['id'] as String,
       email: json['email'] as String,
@@ -113,7 +116,7 @@ class ProfileModel extends UserProfile {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       bio: json['bio'] as String?,
-      dateOfBirth: json['date_of_birth'] != null 
+      dateOfBirth: json['date_of_birth'] != null
           ? DateTime.parse(json['date_of_birth'] as String)
           : null,
       location: json['location'] as String?,
@@ -123,7 +126,7 @@ class ProfileModel extends UserProfile {
       gender: json['gender'] as String?,
       profileCompletionPercentage: _calculateCompletionFromData(json),
       isVerified: json['is_verified'] as bool? ?? false,
-      lastActiveAt: json['last_active_at'] != null 
+      lastActiveAt: json['last_active_at'] != null
           ? DateTime.parse(json['last_active_at'] as String)
           : null,
       sportsProfiles: _parseSportsProfilesFromSupabase(json),
@@ -140,9 +143,10 @@ class ProfileModel extends UserProfile {
     return ProfileModel(
       id: authUser['id'] as String,
       email: authUser['email'] as String,
-      displayName: authUser['user_metadata']?['display_name'] as String? ?? 
-                   authUser['user_metadata']?['full_name'] as String? ?? 
-                   authUser['email'] as String,
+      displayName:
+          authUser['user_metadata']?['display_name'] as String? ??
+          authUser['user_metadata']?['full_name'] as String? ??
+          authUser['email'] as String,
       avatarUrl: authUser['user_metadata']?['avatar_url'] as String?,
       createdAt: DateTime.parse(authUser['created_at'] as String),
       updatedAt: now,
@@ -174,7 +178,8 @@ class ProfileModel extends UserProfile {
       'sports_profiles': sportsProfiles.map((e) {
         // Create a temporary SportProfileModel with required parameters
         final now = DateTime.now();
-        return SportProfileModel.fromEntity(e, 
+        return SportProfileModel.fromEntity(
+          e,
           id: 'temp_${DateTime.now().millisecondsSinceEpoch}', // Temporary ID
           userId: id,
           createdAt: now,
@@ -182,7 +187,9 @@ class ProfileModel extends UserProfile {
         ).toJson();
       }).toList(),
       'statistics': ProfileStatisticsModel.fromEntity(statistics).toJson(),
-      'privacy_settings': PrivacySettingsModel.fromEntity(privacySettings).toJson(),
+      'privacy_settings': PrivacySettingsModel.fromEntity(
+        privacySettings,
+      ).toJson(),
       'preferences': UserPreferencesModel.fromEntity(preferences).toJson(),
       'settings': UserSettingsModel.fromEntity(settings).toJson(),
     };
@@ -233,23 +240,32 @@ class ProfileModel extends UserProfile {
   Map<String, List<Map<String, dynamic>>> getRelatedDataForInsert() {
     final now = DateTime.now();
     return {
-      'sports_profiles': sportsProfiles
-          .map((e) {
-            // Create a temporary SportProfileModel with required parameters
-            return SportProfileModel.fromEntity(e, 
-              id: 'temp_${DateTime.now().millisecondsSinceEpoch}', // Temporary ID
-              userId: id,
-              createdAt: now,
-              updatedAt: now,
-            ).toInsertJson();
-          })
-          .toList(),
-      'statistics': [ProfileStatisticsModel.fromEntity(statistics).toUpdateJson()],
-      'privacy_settings': [PrivacySettingsModel.fromEntity(privacySettings).toUpdateJson()],
-      'preferences': [UserPreferencesModel.fromEntity(preferences).toUpdateJson()],
+      'sports_profiles': sportsProfiles.map((e) {
+        // Create a temporary SportProfileModel with required parameters
+        return SportProfileModel.fromEntity(
+          e,
+          id: 'temp_${DateTime.now().millisecondsSinceEpoch}', // Temporary ID
+          userId: id,
+          createdAt: now,
+          updatedAt: now,
+        ).toInsertJson();
+      }).toList(),
+      'statistics': [
+        ProfileStatisticsModel.fromEntity(statistics).toUpdateJson(),
+      ],
+      'privacy_settings': [
+        PrivacySettingsModel.fromEntity(privacySettings).toUpdateJson(),
+      ],
+      'preferences': [
+        UserPreferencesModel.fromEntity(preferences).toUpdateJson(),
+      ],
       'settings': [UserSettingsModel.fromEntity(settings).toUpdateJson()],
-      'availability': UserPreferencesModel.fromEntity(preferences).toAvailabilityRecords(id),
-      'notifications': UserPreferencesModel.fromEntity(preferences).toNotificationRecords(id),
+      'availability': UserPreferencesModel.fromEntity(
+        preferences,
+      ).toAvailabilityRecords(id),
+      'notifications': UserPreferencesModel.fromEntity(
+        preferences,
+      ).toNotificationRecords(id),
     };
   }
 
@@ -281,7 +297,11 @@ class ProfileModel extends UserProfile {
     if (value == null) return [];
     if (value is List) {
       return value
-          .map((e) => SportProfileModel.fromJson(e as Map<String, dynamic>).toEntity())
+          .map(
+            (e) => SportProfileModel.fromJson(
+              e as Map<String, dynamic>,
+            ).toEntity(),
+          )
           .toList();
     }
     return [];
@@ -321,24 +341,37 @@ class ProfileModel extends UserProfile {
 
   // Supabase-specific parsing methods
 
-  static List<SportProfile> _parseSportsProfilesFromSupabase(Map<String, dynamic> json) {
-    if (json.containsKey('sports_profiles') && json['sports_profiles'] is List) {
+  static List<SportProfile> _parseSportsProfilesFromSupabase(
+    Map<String, dynamic> json,
+  ) {
+    if (json.containsKey('sports_profiles') &&
+        json['sports_profiles'] is List) {
       return (json['sports_profiles'] as List)
-          .map((e) => SportProfileModel.fromSupabaseResponse(e as Map<String, dynamic>).toEntity())
+          .map(
+            (e) => SportProfileModel.fromSupabaseResponse(
+              e as Map<String, dynamic>,
+            ).toEntity(),
+          )
           .toList();
     }
     if (json.containsKey('user_sports') && json['user_sports'] is List) {
       return (json['user_sports'] as List)
-          .map((e) => SportProfileModel.fromSupabaseResponse(e as Map<String, dynamic>).toEntity())
+          .map(
+            (e) => SportProfileModel.fromSupabaseResponse(
+              e as Map<String, dynamic>,
+            ).toEntity(),
+          )
           .toList();
     }
     return [];
   }
 
-  static ProfileStatistics _parseStatisticsFromSupabase(Map<String, dynamic> json) {
+  static ProfileStatistics _parseStatisticsFromSupabase(
+    Map<String, dynamic> json,
+  ) {
     if (json.containsKey('profile_statistics')) {
       return ProfileStatisticsModel.fromSupabaseAggregated(
-        json['profile_statistics'] as Map<String, dynamic>
+        json['profile_statistics'] as Map<String, dynamic>,
       ).toEntity();
     }
     // Parse from aggregated fields in main query
@@ -348,13 +381,15 @@ class ProfileModel extends UserProfile {
   static PrivacySettings _parsePrivacyFromSupabase(Map<String, dynamic> json) {
     if (json.containsKey('privacy_settings')) {
       return PrivacySettingsModel.fromJson(
-        json['privacy_settings'] as Map<String, dynamic>
+        json['privacy_settings'] as Map<String, dynamic>,
       ).toEntity();
     }
     // Try to parse from flattened fields
     final flattened = <String, dynamic>{};
     json.forEach((key, value) {
-      if (key.startsWith('privacy_') || key.startsWith('allow_') || key.startsWith('show_')) {
+      if (key.startsWith('privacy_') ||
+          key.startsWith('allow_') ||
+          key.startsWith('show_')) {
         flattened[key] = value;
       }
     });
@@ -364,10 +399,12 @@ class ProfileModel extends UserProfile {
     return const PrivacySettings();
   }
 
-  static UserPreferences _parsePreferencesFromSupabase(Map<String, dynamic> json) {
+  static UserPreferences _parsePreferencesFromSupabase(
+    Map<String, dynamic> json,
+  ) {
     if (json.containsKey('user_preferences')) {
       return UserPreferencesModel.fromSupabaseResponse(
-        json['user_preferences'] as Map<String, dynamic>
+        json['user_preferences'] as Map<String, dynamic>,
       ).toEntity();
     }
     return UserPreferencesModel.fromSupabaseResponse(json).toEntity();
@@ -376,15 +413,15 @@ class ProfileModel extends UserProfile {
   static UserSettings _parseSettingsFromSupabase(Map<String, dynamic> json) {
     if (json.containsKey('user_settings')) {
       return UserSettingsModel.fromJson(
-        json['user_settings'] as Map<String, dynamic>
+        json['user_settings'] as Map<String, dynamic>,
       ).toEntity();
     }
     // Try to parse from flattened fields
     final flattened = <String, dynamic>{};
     json.forEach((key, value) {
-      if (key.startsWith('settings_') || 
-          key.contains('language') || 
-          key.contains('theme') || 
+      if (key.startsWith('settings_') ||
+          key.contains('language') ||
+          key.contains('theme') ||
           key.contains('unit')) {
         flattened[key] = value;
       }
@@ -400,30 +437,38 @@ class ProfileModel extends UserProfile {
 
     // Basic info (40%)
     completion += 20.0; // Account exists
-    if ((json['display_name'] as String?)?.isNotEmpty == true) completion += 10.0;
+    if ((json['display_name'] as String?)?.isNotEmpty == true)
+      completion += 10.0;
     if (json['avatar_url'] != null) completion += 10.0;
 
     // Personal details (30%)
     if ((json['bio'] as String?)?.isNotEmpty == true) completion += 10.0;
     if (json['date_of_birth'] != null) completion += 5.0;
     if ((json['location'] as String?)?.isNotEmpty == true) completion += 5.0;
-    if (json['first_name'] != null && json['last_name'] != null) completion += 10.0;
+    if (json['first_name'] != null && json['last_name'] != null)
+      completion += 10.0;
 
     // Sports profiles (20%)
     final sportsProfiles = json['sports_profiles'] ?? json['user_sports'];
     if (sportsProfiles is List && sportsProfiles.isNotEmpty) {
       completion += 10.0;
       // Check for primary sport
-      if (sportsProfiles.any((s) => s['is_primary_sport'] == true)) completion += 5.0;
+      if (sportsProfiles.any((s) => s['is_primary_sport'] == true))
+        completion += 5.0;
       // Check for skill levels
-      if (sportsProfiles.any((s) => s['skill_level'] != null && s['skill_level'] > 0)) completion += 5.0;
+      if (sportsProfiles.any(
+        (s) => s['skill_level'] != null && s['skill_level'] > 0,
+      ))
+        completion += 5.0;
     }
 
     // Preferences (10%)
     final preferences = json['user_preferences'] ?? json['preferences'];
     if (preferences is Map) {
-      if ((preferences['preferred_game_types'] as List?)?.isNotEmpty == true) completion += 5.0;
-      if ((preferences['weekly_availability'] as Map?)?.isNotEmpty == true) completion += 5.0;
+      if ((preferences['preferred_game_types'] as List?)?.isNotEmpty == true)
+        completion += 5.0;
+      if ((preferences['weekly_availability'] as Map?)?.isNotEmpty == true)
+        completion += 5.0;
     }
 
     return completion.clamp(0.0, 100.0);
@@ -468,7 +513,8 @@ class ProfileModel extends UserProfile {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       gender: gender ?? this.gender,
-      profileCompletionPercentage: profileCompletionPercentage ?? this.profileCompletionPercentage,
+      profileCompletionPercentage:
+          profileCompletionPercentage ?? this.profileCompletionPercentage,
       isVerified: isVerified ?? this.isVerified,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
       sportsProfiles: sportsProfiles ?? this.sportsProfiles,

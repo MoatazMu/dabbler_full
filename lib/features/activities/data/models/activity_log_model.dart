@@ -47,16 +47,18 @@ class ActivityLogModel extends ActivityLog {
       targetUserAvatar: json['target_user_avatar'] as String?,
       venue: json['venue'] as String?,
       location: json['location'] as String?,
-      amount: json['amount'] != null ? (json['amount'] as num).toDouble() : null,
+      amount: json['amount'] != null
+          ? (json['amount'] as num).toDouble()
+          : null,
       currency: json['currency'] as String?,
       points: json['points'] as int?,
       count: json['count'] as int?,
       createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at'] as String) 
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
           : null,
-      scheduledDate: json['scheduled_date'] != null 
-          ? DateTime.parse(json['scheduled_date'] as String) 
+      scheduledDate: json['scheduled_date'] != null
+          ? DateTime.parse(json['scheduled_date'] as String)
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
       iconUrl: json['icon_url'] as String?,

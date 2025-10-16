@@ -3,11 +3,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 /// Action Cards Widget - Create Game and Join Game cards
 class ActionCards extends StatelessWidget {
-  const ActionCards({
-    super.key,
-    this.onCreateGameTap,
-    this.onJoinGameTap,
-  });
+  const ActionCards({super.key, this.onCreateGameTap, this.onJoinGameTap});
 
   final VoidCallback? onCreateGameTap;
   final VoidCallback? onJoinGameTap;
@@ -28,7 +24,7 @@ class ActionCards extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        
+
         // Join Game Card
         Expanded(
           child: _ActionCard(
@@ -84,14 +80,10 @@ class _ActionCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 color: iconBackgroundColor,
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 28,
-              ),
+              child: Icon(icon, color: Colors.white, size: 28),
             ),
             const SizedBox(height: 16),
-            
+
             // Title
             Text(
               title,
@@ -104,7 +96,7 @@ class _ActionCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            
+
             // Subtitle
             Text(
               subtitle,

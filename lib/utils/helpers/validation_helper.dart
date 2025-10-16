@@ -114,14 +114,14 @@ class ValidationHelper {
   static bool isValidCreditCard(String cardNumber) {
     // Remove any spaces or dashes
     cardNumber = cardNumber.replaceAll(RegExp(r'[\s-]'), '');
-    
+
     if (!RegExp(r'^[0-9]{13,19}$').hasMatch(cardNumber)) {
       return false;
     }
 
     int sum = 0;
     bool alternate = false;
-    
+
     // Loop through values starting from the rightmost digit
     for (int i = cardNumber.length - 1; i >= 0; i--) {
       int digit = int.parse(cardNumber[i]);

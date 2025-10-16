@@ -5,9 +5,14 @@ import '../../../../../core/widgets/error_widget.dart' as core_error;
 import '../../../../../core/widgets/custom_button.dart';
 
 // Stub providers - these should be implemented in the actual social_providers.dart
-final userSearchControllerProvider = StateNotifierProvider<UserSearchController, UserSearchState>((ref) => UserSearchController());
+final userSearchControllerProvider =
+    StateNotifierProvider<UserSearchController, UserSearchState>(
+      (ref) => UserSearchController(),
+    );
 final nearbyUsersProvider = FutureProvider<List<dynamic>>((ref) async => []);
-final contactSuggestionsProvider = FutureProvider<List<dynamic>>((ref) async => []);
+final contactSuggestionsProvider = FutureProvider<List<dynamic>>(
+  (ref) async => [],
+);
 final currentUserIdProvider = Provider<String>((ref) => 'stub-user-id');
 
 // Stub state class
@@ -15,13 +20,13 @@ class UserSearchState {
   final List<dynamic> suggestedFriends;
   final bool isLoading;
   final Map<String, dynamic> filters;
-  
+
   UserSearchState({
     this.suggestedFriends = const [],
     this.isLoading = false,
     this.filters = const {},
   });
-  
+
   UserSearchState copyWith({
     List<dynamic>? suggestedFriends,
     bool? isLoading,
@@ -38,43 +43,40 @@ class UserSearchState {
 // Stub controller
 class UserSearchController extends StateNotifier<UserSearchState> {
   UserSearchController() : super(UserSearchState());
-  
+
   void loadSuggestedFriends() {
     state = state.copyWith(isLoading: true);
     // Simulate loading
     Future.delayed(const Duration(seconds: 1), () {
-      state = state.copyWith(
-        isLoading: false,
-        suggestedFriends: [],
-      );
+      state = state.copyWith(isLoading: false, suggestedFriends: []);
     });
   }
-  
+
   void searchUsers(String query) {
     // Stub implementation
   }
-  
+
   void clearSearch() {
     // Stub implementation
   }
-  
+
   void refreshSuggestedFriends() {
     loadSuggestedFriends();
   }
-  
+
   void sendFriendRequest(String userId) {
     // Stub implementation
   }
-  
+
   void dismissSuggestion(String userId) {
     // Stub implementation
   }
-  
+
   Future<bool> importContacts() async {
     // Stub implementation
     return true;
   }
-  
+
   void updateFilters(Map<String, dynamic> filters) {
     state = state.copyWith(filters: filters);
   }
@@ -87,7 +89,7 @@ class SuggestedFriendsWidget extends StatelessWidget {
   final Function(dynamic) onUserTap;
   final Function(String) onSendRequest;
   final Function(String) onDismiss;
-  
+
   const SuggestedFriendsWidget({
     super.key,
     required this.suggestions,
@@ -96,19 +98,17 @@ class SuggestedFriendsWidget extends StatelessWidget {
     required this.onSendRequest,
     required this.onDismiss,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (suggestions.isEmpty) {
-      return const Center(
-        child: Text('No suggestions available'),
-      );
+      return const Center(child: Text('No suggestions available'));
     }
-    
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -128,7 +128,7 @@ class NearbyPlayersWidget extends StatelessWidget {
   final Function(dynamic) onUserTap;
   final Function(String) onSendRequest;
   final VoidCallback onViewMap;
-  
+
   const NearbyPlayersWidget({
     super.key,
     required this.nearbyUsers,
@@ -136,15 +136,13 @@ class NearbyPlayersWidget extends StatelessWidget {
     required this.onSendRequest,
     required this.onViewMap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     if (nearbyUsers.isEmpty) {
-      return const Center(
-        child: Text('No nearby players found'),
-      );
+      return const Center(child: Text('No nearby players found'));
     }
-    
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -163,23 +161,21 @@ class SearchResultsWidget extends StatelessWidget {
   final UserSearchState searchState;
   final Function(dynamic) onUserTap;
   final Function(String) onSendRequest;
-  
+
   const SearchResultsWidget({
     super.key,
     required this.searchState,
     required this.onUserTap,
     required this.onSendRequest,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     if (searchState.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
-    return const Center(
-      child: Text('Search results will appear here'),
-    );
+
+    return const Center(child: Text('Search results will appear here'));
   }
 }
 
@@ -188,7 +184,7 @@ class ImportContactsWidget extends StatelessWidget {
   final VoidCallback onImportContacts;
   final Function(String) onSendRequest;
   final Function(dynamic) onInvite;
-  
+
   const ImportContactsWidget({
     super.key,
     required this.contacts,
@@ -196,7 +192,7 @@ class ImportContactsWidget extends StatelessWidget {
     required this.onSendRequest,
     required this.onInvite,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -219,14 +215,14 @@ class SocialConnectionsWidget extends StatelessWidget {
   final VoidCallback onConnectFacebook;
   final VoidCallback onConnectTwitter;
   final VoidCallback onConnectInstagram;
-  
+
   const SocialConnectionsWidget({
     super.key,
     required this.onConnectFacebook,
     required this.onConnectTwitter,
     required this.onConnectInstagram,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -276,7 +272,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   String _searchQuery = '';
 
   @override
@@ -284,7 +280,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _searchController.addListener(_onSearchChanged);
-    
+
     // Load initial data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(userSearchControllerProvider.notifier).loadSuggestedFriends();
@@ -304,7 +300,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
     setState(() {
       _searchQuery = _searchController.text;
     });
-    
+
     if (_searchQuery.isNotEmpty) {
       ref.read(userSearchControllerProvider.notifier).searchUsers(_searchQuery);
     }
@@ -322,7 +318,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
         children: [
           // Search bar
           _buildSearchBar(theme),
-          
+
           // Show search results if searching
           if (_searchQuery.isNotEmpty)
             _buildSearchResults(context, theme, searchState)
@@ -338,7 +334,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
                 Tab(text: 'Connect'),
               ],
             ),
-            
+
             // Tab content
             Expanded(
               child: TabBarView(
@@ -416,19 +412,24 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
           hintText: 'Search by name, username, or email',
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchQuery.isNotEmpty
-            ? IconButton(
-                onPressed: () {
-                  _searchController.clear();
-                  ref.read(userSearchControllerProvider.notifier).clearSearch();
-                },
-                icon: const Icon(Icons.clear),
-              )
-            : IconButton(
-                onPressed: _showSearchFilters,
-                icon: const Icon(Icons.tune),
-              ),
+              ? IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    ref
+                        .read(userSearchControllerProvider.notifier)
+                        .clearSearch();
+                  },
+                  icon: const Icon(Icons.clear),
+                )
+              : IconButton(
+                  onPressed: _showSearchFilters,
+                  icon: const Icon(Icons.tune),
+                ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
     );
@@ -462,10 +463,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
           // Header
           Row(
             children: [
-              Icon(
-                Icons.recommend,
-                color: theme.colorScheme.primary,
-              ),
+              Icon(Icons.recommend, color: theme.colorScheme.primary),
               const SizedBox(width: 8),
               Text(
                 'People you may know',
@@ -475,15 +473,16 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
               ),
               const Spacer(),
               TextButton(
-                onPressed: () => ref.read(userSearchControllerProvider.notifier)
-                  .refreshSuggestedFriends(),
+                onPressed: () => ref
+                    .read(userSearchControllerProvider.notifier)
+                    .refreshSuggestedFriends(),
                 child: const Text('Refresh'),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Suggested friends
           SuggestedFriendsWidget(
             suggestions: searchState.suggestedFriends,
@@ -501,13 +500,14 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
     return Consumer(
       builder: (context, ref, child) {
         final nearbyUsersAsync = ref.watch(nearbyUsersProvider);
-        
+
         return nearbyUsersAsync.when(
           data: (users) => NearbyPlayersWidget(
             nearbyUsers: users,
             onUserTap: (user) => _viewUserProfile(user.id),
             onSendRequest: (userId) => _sendFriendRequest(userId),
-            onViewMap: () => Navigator.pushNamed(context, '/social/nearby-players'),
+            onViewMap: () =>
+                Navigator.pushNamed(context, '/social/nearby-players'),
           ),
           loading: () => const Center(child: LoadingWidget()),
           error: (error, stack) => Center(
@@ -525,7 +525,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
     return Consumer(
       builder: (context, ref, child) {
         final contactsAsync = ref.watch(contactSuggestionsProvider);
-        
+
         return contactsAsync.when(
           data: (contacts) => ImportContactsWidget(
             contacts: contacts,
@@ -557,9 +557,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
             onConnectTwitter: () => _connectSocialMedia('twitter'),
             onConnectInstagram: () => _connectSocialMedia('instagram'),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // QR Code section
           Card(
             child: Padding(
@@ -568,10 +568,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.qr_code,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.qr_code, color: theme.colorScheme.primary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -595,9 +592,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   Row(
                     children: [
                       Expanded(
@@ -619,9 +616,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
               ),
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Invite friends section
           Card(
             child: Padding(
@@ -630,10 +627,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.share,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.share, color: theme.colorScheme.primary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -657,13 +651,10 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
-                  CustomButton(
-                    text: 'Send Invites',
-                    onPressed: _inviteFriends,
-                  ),
+
+                  CustomButton(text: 'Send Invites', onPressed: _inviteFriends),
                 ],
               ),
             ),
@@ -680,7 +671,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
       builder: (context) => SearchFiltersSheet(
         currentFilters: ref.read(userSearchControllerProvider).filters,
         onFiltersChanged: (filters) {
-          ref.read(userSearchControllerProvider.notifier).updateFilters(filters);
+          ref
+              .read(userSearchControllerProvider.notifier)
+              .updateFilters(filters);
         },
       ),
     );
@@ -688,7 +681,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
 
   void _showQRCodeDialog() {
     final currentUserId = ref.read(currentUserIdProvider);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -700,11 +693,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.qr_code,
-                  size: 100,
-                  color: Colors.grey,
-                ),
+                Icon(Icons.qr_code, size: 100, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text('QR Code for user: $currentUserId'),
                 const Text('(QR functionality not implemented)'),
@@ -734,7 +723,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('QR Scanner'),
-        content: const Text('QR scanning functionality is not implemented yet.'),
+        content: const Text(
+          'QR scanning functionality is not implemented yet.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -745,13 +736,11 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
     );
   }
 
-
-
   void _sendFriendRequest(String userId) {
     ref.read(userSearchControllerProvider.notifier).sendFriendRequest(userId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Friend request sent!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
   }
 
   void _viewUserProfile(String userId) {
@@ -767,8 +756,10 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
   }
 
   void _importContacts() async {
-    final success = await ref.read(userSearchControllerProvider.notifier).importContacts();
-    
+    final success = await ref
+        .read(userSearchControllerProvider.notifier)
+        .importContacts();
+
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -798,9 +789,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen>
 
   void _inviteFriends() {
     // Implement friend invitation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sharing app invite...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Sharing app invite...')));
   }
 
   void _handleMenuAction(String action) {
@@ -842,7 +833,7 @@ class _SearchFiltersSheetState extends State<SearchFiltersSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       padding: const EdgeInsets.all(20),
@@ -864,107 +855,102 @@ class _SearchFiltersSheetState extends State<SearchFiltersSheet> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Location filter
-                  _buildFilterSection(
-                    'Location',
-                    Icons.location_on,
-                    [
-                      CheckboxListTile(
-                        title: const Text('Near me'),
-                        value: _filters['nearMe'] ?? false,
-                        onChanged: (value) => setState(() => _filters['nearMe'] = value),
-                      ),
-                      // Add distance slider if "Near me" is selected
-                      if (_filters['nearMe'] == true) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Distance: ${_filters['distance'] ?? 10} km'),
-                              Slider(
-                                value: (_filters['distance'] ?? 10).toDouble(),
-                                min: 1,
-                                max: 100,
-                                divisions: 99,
-                                onChanged: (value) => setState(() => 
-                                  _filters['distance'] = value.round()),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  
-                  // Sports filter
-                  _buildFilterSection(
-                    'Sports',
-                    Icons.sports,
-                    [
-                      CheckboxListTile(
-                        title: const Text('Basketball'),
-                        value: _filters['sports']?.contains('basketball') ?? false,
-                        onChanged: (value) => _toggleSportFilter('basketball', value),
-                      ),
-                      CheckboxListTile(
-                        title: const Text('Football'),
-                        value: _filters['sports']?.contains('football') ?? false,
-                        onChanged: (value) => _toggleSportFilter('football', value),
-                      ),
-                      CheckboxListTile(
-                        title: const Text('Soccer'),
-                        value: _filters['sports']?.contains('soccer') ?? false,
-                        onChanged: (value) => _toggleSportFilter('soccer', value),
-                      ),
-                      // Add more sports...
-                    ],
-                  ),
-                  
-                  // Age range filter
-                  _buildFilterSection(
-                    'Age Range',
-                    Icons.cake,
-                    [
+                  _buildFilterSection('Location', Icons.location_on, [
+                    CheckboxListTile(
+                      title: const Text('Near me'),
+                      value: _filters['nearMe'] ?? false,
+                      onChanged: (value) =>
+                          setState(() => _filters['nearMe'] = value),
+                    ),
+                    // Add distance slider if "Near me" is selected
+                    if (_filters['nearMe'] == true) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Age: ${_filters['minAge'] ?? 18} - ${_filters['maxAge'] ?? 65}'),
-                            RangeSlider(
-                              values: RangeValues(
-                                (_filters['minAge'] ?? 18).toDouble(),
-                                (_filters['maxAge'] ?? 65).toDouble(),
+                            Text('Distance: ${_filters['distance'] ?? 10} km'),
+                            Slider(
+                              value: (_filters['distance'] ?? 10).toDouble(),
+                              min: 1,
+                              max: 100,
+                              divisions: 99,
+                              onChanged: (value) => setState(
+                                () => _filters['distance'] = value.round(),
                               ),
-                              min: 18,
-                              max: 65,
-                              divisions: 47,
-                              onChanged: (values) => setState(() {
-                                _filters['minAge'] = values.start.round();
-                                _filters['maxAge'] = values.end.round();
-                              }),
                             ),
                           ],
                         ),
                       ),
                     ],
-                  ),
+                  ]),
+
+                  // Sports filter
+                  _buildFilterSection('Sports', Icons.sports, [
+                    CheckboxListTile(
+                      title: const Text('Basketball'),
+                      value:
+                          _filters['sports']?.contains('basketball') ?? false,
+                      onChanged: (value) =>
+                          _toggleSportFilter('basketball', value),
+                    ),
+                    CheckboxListTile(
+                      title: const Text('Football'),
+                      value: _filters['sports']?.contains('football') ?? false,
+                      onChanged: (value) =>
+                          _toggleSportFilter('football', value),
+                    ),
+                    CheckboxListTile(
+                      title: const Text('Soccer'),
+                      value: _filters['sports']?.contains('soccer') ?? false,
+                      onChanged: (value) => _toggleSportFilter('soccer', value),
+                    ),
+                    // Add more sports...
+                  ]),
+
+                  // Age range filter
+                  _buildFilterSection('Age Range', Icons.cake, [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Age: ${_filters['minAge'] ?? 18} - ${_filters['maxAge'] ?? 65}',
+                          ),
+                          RangeSlider(
+                            values: RangeValues(
+                              (_filters['minAge'] ?? 18).toDouble(),
+                              (_filters['maxAge'] ?? 65).toDouble(),
+                            ),
+                            min: 18,
+                            max: 65,
+                            divisions: 47,
+                            onChanged: (values) => setState(() {
+                              _filters['minAge'] = values.start.round();
+                              _filters['maxAge'] = values.end.round();
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
                 ],
               ),
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Action buttons
           Row(
             children: [

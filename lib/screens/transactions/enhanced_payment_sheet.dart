@@ -4,7 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../themes/app_theme.dart';
 
 /// Enhanced Payment Sheet with professional UI/UX
-/// 
+///
 /// Features:
 /// - Multiple payment method support
 /// - Real-time validation
@@ -34,7 +34,7 @@ class EnhancedPaymentSheet extends StatefulWidget {
   State<EnhancedPaymentSheet> createState() => _EnhancedPaymentSheetState();
 }
 
-class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet> 
+class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
     with SingleTickerProviderStateMixin {
   String? _selectedPaymentMethod;
   bool _isProcessing = false;
@@ -42,7 +42,7 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
   String? _errorMessage;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  
+
   // Mock payment methods - Replace with real data
   final List<Map<String, dynamic>> _paymentMethods = [
     {
@@ -87,12 +87,12 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
     if (_paymentMethods.isNotEmpty) {
       _selectedPaymentMethod = _paymentMethods.first['id'];
     }
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
+
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
@@ -111,8 +111,8 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
         color: context.colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: _isSuccess 
-          ? _buildSuccessState(context) 
+      child: _isSuccess
+          ? _buildSuccessState(context)
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -180,10 +180,7 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
           ),
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(
-              LucideIcons.x,
-              color: context.colors.onSurfaceVariant,
-            ),
+            icon: Icon(LucideIcons.x, color: context.colors.onSurfaceVariant),
           ),
         ],
       ),
@@ -239,11 +236,7 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  LucideIcons.building,
-                  color: Colors.white,
-                  size: 14,
-                ),
+                Icon(LucideIcons.building, color: Colors.white, size: 14),
                 const SizedBox(width: 6),
                 Text(
                   widget.recipientName,
@@ -271,11 +264,7 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
       ),
       child: Row(
         children: [
-          Icon(
-            LucideIcons.alertCircle,
-            color: Colors.red,
-            size: 20,
-          ),
+          Icon(LucideIcons.alertCircle, color: Colors.red, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -317,20 +306,21 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
           itemBuilder: (context, index) {
             final method = _paymentMethods[index];
             final isSelected = _selectedPaymentMethod == method['id'];
-            
+
             return GestureDetector(
-              onTap: () => setState(() => _selectedPaymentMethod = method['id']),
+              onTap: () =>
+                  setState(() => _selectedPaymentMethod = method['id']),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isSelected 
-                      ? context.colors.primary.withValues(alpha: 0.1) 
+                  color: isSelected
+                      ? context.colors.primary.withValues(alpha: 0.1)
                       : context.violetCardBg,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected 
-                        ? context.colors.primary 
+                    color: isSelected
+                        ? context.colors.primary
                         : context.colors.outline.withValues(alpha: 0.1),
                     width: isSelected ? 2 : 1,
                   ),
@@ -340,7 +330,9 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: (method['color'] as Color).withValues(alpha: 0.1),
+                        color: (method['color'] as Color).withValues(
+                          alpha: 0.1,
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -412,8 +404,8 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
           _buildDetailRow(context, 'Transaction Fee', 'Free'),
           const Divider(height: 24),
           _buildDetailRow(
-            context, 
-            'Total', 
+            context,
+            'Total',
             '${widget.currency} ${widget.amount.toStringAsFixed(2)}',
             isTotal: true,
           ),
@@ -422,7 +414,12 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, {bool isTotal = false}) {
+  Widget _buildDetailRow(
+    BuildContext context,
+    String label,
+    String value, {
+    bool isTotal = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -439,7 +436,9 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
             value,
             style: context.textTheme.bodyMedium?.copyWith(
               fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
-              color: isTotal ? context.colors.primary : context.colors.onSurface,
+              color: isTotal
+                  ? context.colors.primary
+                  : context.colors.onSurface,
             ),
           ),
         ],
@@ -492,15 +491,15 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
           ),
           const SizedBox(height: 12),
           TextButton(
-            onPressed: _isProcessing ? null : () {
-              widget.onCancel?.call();
-              Navigator.of(context).pop();
-            },
+            onPressed: _isProcessing
+                ? null
+                : () {
+                    widget.onCancel?.call();
+                    Navigator.of(context).pop();
+                  },
             child: Text(
               'Cancel',
-              style: TextStyle(
-                color: context.colors.onSurfaceVariant,
-              ),
+              style: TextStyle(color: context.colors.onSurfaceVariant),
             ),
           ),
         ],
@@ -595,14 +594,14 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
       // TODO: Save transaction to database
       final transactionId = 'TXN${DateTime.now().millisecondsSinceEpoch}';
       print('Transaction successful: $transactionId');
-      
+
       setState(() {
         _isProcessing = false;
         _isSuccess = true;
       });
-      
+
       _animationController.forward();
-      
+
       // Auto-close after 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
@@ -613,9 +612,10 @@ class _EnhancedPaymentSheetState extends State<EnhancedPaymentSheet>
     } else {
       setState(() {
         _isProcessing = false;
-        _errorMessage = 'Payment failed. Please try again or use a different payment method.';
+        _errorMessage =
+            'Payment failed. Please try again or use a different payment method.';
       });
-      
+
       // Vibrate for error
       HapticFeedback.heavyImpact();
     }

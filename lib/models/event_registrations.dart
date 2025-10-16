@@ -43,13 +43,19 @@ class EventRegistrations {
       notes: json['notes'],
       payment_status: json['payment_status'],
       payment_amount: json['payment_amount'],
-      payment_date: (json['payment_date'] == null ? null : DateTime.parse(json['payment_date'] as String)),
+      payment_date: (json['payment_date'] == null
+          ? null
+          : DateTime.parse(json['payment_date'] as String)),
       checked_in: json['checked_in'],
-      checked_in_at: (json['checked_in_at'] == null ? null : DateTime.parse(json['checked_in_at'] as String)),
-    registered_at: json['registered_at'] != null
-      ? DateTime.parse(json['registered_at'] as String)
-      : DateTime.now(),
-      cancelled_at: (json['cancelled_at'] == null ? null : DateTime.parse(json['cancelled_at'] as String)),
+      checked_in_at: (json['checked_in_at'] == null
+          ? null
+          : DateTime.parse(json['checked_in_at'] as String)),
+      registered_at: json['registered_at'] != null
+          ? DateTime.parse(json['registered_at'] as String)
+          : DateTime.now(),
+      cancelled_at: (json['cancelled_at'] == null
+          ? null
+          : DateTime.parse(json['cancelled_at'] as String)),
     );
   }
 

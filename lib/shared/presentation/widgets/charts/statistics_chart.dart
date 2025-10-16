@@ -1,16 +1,13 @@
 /// Statistics chart widget with bar, line, and pie chart support
 library;
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 /// Chart types
-enum ChartType {
-  bar,
-  line,
-  pie,
-}
+enum ChartType { bar, line, pie }
 
 /// Data point for charts
 class ChartDataPoint {
@@ -18,7 +15,7 @@ class ChartDataPoint {
   final double value;
   final Color? color;
   final Map<String, dynamic>? metadata;
-  
+
   const ChartDataPoint({
     required this.label,
     required this.value,
@@ -35,7 +32,7 @@ class ChartSeries {
   final bool isVisible;
   final double strokeWidth;
   final bool showPoints;
-  
+
   const ChartSeries({
     required this.name,
     required this.data,
@@ -44,7 +41,7 @@ class ChartSeries {
     this.strokeWidth = 2.0,
     this.showPoints = true,
   });
-  
+
   ChartSeries copyWith({
     String? name,
     List<ChartDataPoint>? data,
@@ -70,7 +67,7 @@ class TooltipData {
   final ChartDataPoint dataPoint;
   final String seriesName;
   final Color seriesColor;
-  
+
   const TooltipData({
     required this.position,
     required this.dataPoint,
@@ -87,7 +84,7 @@ class LegendConfig {
   final TextStyle? textStyle;
   final double iconSize;
   final EdgeInsets padding;
-  
+
   const LegendConfig({
     this.show = true,
     this.position = LegendPosition.bottom,
@@ -98,12 +95,7 @@ class LegendConfig {
   });
 }
 
-enum LegendPosition {
-  top,
-  bottom,
-  left,
-  right,
-}
+enum LegendPosition { top, bottom, left, right }
 
 /// Advanced statistics chart widget
 class StatisticsChart extends StatefulWidget {
@@ -131,7 +123,7 @@ class StatisticsChart extends StatefulWidget {
   final String? xAxisLabel;
   final String? yAxisLabel;
   final GlobalKey? chartKey;
-  
+
   const StatisticsChart({
     super.key,
     required this.chartType,
@@ -159,7 +151,7 @@ class StatisticsChart extends StatefulWidget {
     this.yAxisLabel,
     this.chartKey,
   });
-  
+
   @override
   State<StatisticsChart> createState() => _StatisticsChartState();
 }
@@ -168,13 +160,12 @@ class _StatisticsChartState extends State<StatisticsChart>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
-  
+
   List<ChartSeries> _visibleSeries = [];
   TooltipData? _tooltipData;
   Offset? _tapPosition;
   final GlobalKey _repaintBoundaryKey = GlobalKey();
-  
-  
+
   @override
   void initState() {
     super.initState();
@@ -182,36 +173,36 @@ class _StatisticsChartState extends State<StatisticsChart>
     _setupAnimation();
     _animationController.forward();
   }
-  
+
   void _setupAnimation() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _animation = CurvedAnimation(
       parent: _animationController,
       curve: widget.animationCurve,
     );
   }
-  
+
   @override
   void didUpdateWidget(StatisticsChart oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.series != oldWidget.series) {
       _visibleSeries = List.from(widget.series);
       _animationController.reset();
       _animationController.forward();
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -223,37 +214,39 @@ class _StatisticsChartState extends State<StatisticsChart>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.title != null || widget.subtitle != null || widget.onExport != null)
+          if (widget.title != null ||
+              widget.subtitle != null ||
+              widget.onExport != null)
             _buildHeader(),
-          
-          if (widget.legendConfig?.show == true && 
+
+          if (widget.legendConfig?.show == true &&
               widget.legendConfig?.position == LegendPosition.top)
             _buildLegend(),
-          
+
           Expanded(
             child: Row(
               children: [
-                if (widget.legendConfig?.show == true && 
+                if (widget.legendConfig?.show == true &&
                     widget.legendConfig?.position == LegendPosition.left)
                   _buildLegend(),
-                
+
                 Expanded(child: _buildChart()),
-                
-                if (widget.legendConfig?.show == true && 
+
+                if (widget.legendConfig?.show == true &&
                     widget.legendConfig?.position == LegendPosition.right)
                   _buildLegend(),
               ],
             ),
           ),
-          
-          if (widget.legendConfig?.show == true && 
+
+          if (widget.legendConfig?.show == true &&
               widget.legendConfig?.position == LegendPosition.bottom)
             _buildLegend(),
         ],
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -266,17 +259,19 @@ class _StatisticsChartState extends State<StatisticsChart>
                 if (widget.title != null)
                   Text(
                     widget.title!,
-                    style: widget.titleStyle ?? 
+                    style:
+                        widget.titleStyle ??
                         Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                
+
                 if (widget.subtitle != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     widget.subtitle!,
-                    style: widget.subtitleStyle ?? 
+                    style:
+                        widget.subtitleStyle ??
                         Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -285,7 +280,7 @@ class _StatisticsChartState extends State<StatisticsChart>
               ],
             ),
           ),
-          
+
           if (widget.onExport != null)
             IconButton(
               onPressed: _exportChart,
@@ -296,12 +291,13 @@ class _StatisticsChartState extends State<StatisticsChart>
       ),
     );
   }
-  
+
   Widget _buildLegend() {
     final config = widget.legendConfig!;
-    final isHorizontal = config.position == LegendPosition.top || 
-                        config.position == LegendPosition.bottom;
-    
+    final isHorizontal =
+        config.position == LegendPosition.top ||
+        config.position == LegendPosition.bottom;
+
     return Container(
       padding: config.padding,
       child: Wrap(
@@ -310,7 +306,7 @@ class _StatisticsChartState extends State<StatisticsChart>
         runSpacing: 4,
         children: widget.series.map((series) {
           final isVisible = _visibleSeries.any((s) => s.name == series.name);
-          
+
           return GestureDetector(
             onTap: config.toggleable ? () => _toggleSeries(series) : null,
             child: Container(
@@ -331,10 +327,11 @@ class _StatisticsChartState extends State<StatisticsChart>
                     ),
                   ),
                   const SizedBox(width: 6),
-                  
+
                   Text(
                     series.name,
-                    style: config.textStyle ?? 
+                    style:
+                        config.textStyle ??
                         Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: isVisible ? null : Colors.grey,
                         ),
@@ -347,7 +344,7 @@ class _StatisticsChartState extends State<StatisticsChart>
       ),
     );
   }
-  
+
   Widget _buildChart() {
     Widget chart = RepaintBoundary(
       key: widget.chartKey ?? _repaintBoundaryKey,
@@ -357,15 +354,12 @@ class _StatisticsChartState extends State<StatisticsChart>
         child: AnimatedBuilder(
           animation: _animation,
           builder: (context, child) {
-            return CustomPaint(
-              painter: _getChartPainter(),
-              child: Container(),
-            );
+            return CustomPaint(painter: _getChartPainter(), child: Container());
           },
         ),
       ),
     );
-    
+
     if (widget.enableZoom || widget.enablePan) {
       chart = InteractiveViewer(
         panEnabled: widget.enablePan,
@@ -375,15 +369,10 @@ class _StatisticsChartState extends State<StatisticsChart>
         child: chart,
       );
     }
-    
-    return Stack(
-      children: [
-        chart,
-        if (_tooltipData != null) _buildTooltip(),
-      ],
-    );
+
+    return Stack(children: [chart, if (_tooltipData != null) _buildTooltip()]);
   }
-  
+
   CustomPainter _getChartPainter() {
     switch (widget.chartType) {
       case ChartType.bar:
@@ -405,13 +394,10 @@ class _StatisticsChartState extends State<StatisticsChart>
           gridColor: widget.gridColor,
         );
       case ChartType.pie:
-        return _PieChartPainter(
-          series: _visibleSeries,
-          animation: _animation,
-        );
+        return _PieChartPainter(series: _visibleSeries, animation: _animation);
     }
   }
-  
+
   Widget _buildTooltip() {
     return Positioned(
       left: _tooltipData!.position.dx,
@@ -436,34 +422,31 @@ class _StatisticsChartState extends State<StatisticsChart>
             ),
             Text(
               '${_tooltipData!.dataPoint.label}: ${_tooltipData!.dataPoint.value.toStringAsFixed(1)}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ],
         ),
       ),
     );
   }
-  
+
   void _handleTapDown(TapDownDetails details) {
     _tapPosition = details.localPosition;
   }
-  
+
   void _handleTap() {
     if (_tapPosition == null) return;
-    
+
     // Find data point at tap position
     final tooltipData = _findDataPointAt(_tapPosition!);
-    
+
     setState(() {
       _tooltipData = tooltipData;
     });
-    
+
     if (tooltipData != null) {
       widget.onTooltip?.call(tooltipData);
-      
+
       // Hide tooltip after delay
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
@@ -474,13 +457,13 @@ class _StatisticsChartState extends State<StatisticsChart>
       });
     }
   }
-  
+
   TooltipData? _findDataPointAt(Offset position) {
     // This would need to be implemented based on chart type and layout
     // For now, return null
     return null;
   }
-  
+
   void _toggleSeries(ChartSeries series) {
     setState(() {
       final index = _visibleSeries.indexWhere((s) => s.name == series.name);
@@ -492,27 +475,28 @@ class _StatisticsChartState extends State<StatisticsChart>
         widget.onSeriesToggle?.call(series, true);
       }
     });
-    
+
     _animationController.reset();
     _animationController.forward();
   }
-  
+
   Future<void> _exportChart() async {
     try {
-      final boundary = (widget.chartKey ?? _repaintBoundaryKey).currentContext!
-          .findRenderObject() as RenderRepaintBoundary;
-      
+      final boundary =
+          (widget.chartKey ?? _repaintBoundaryKey).currentContext!
+                  .findRenderObject()
+              as RenderRepaintBoundary;
+
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
-      
+
       // Use the bytes to avoid unused variable warnings and aid debugging
       debugPrint('Exported chart size: \'${pngBytes.length}\' bytes');
-      
+
       // In a real app, you would save the file or share it
       // For now, just call the callback
       widget.onExport?.call();
-      
     } catch (e) {
       // Handle export error
       debugPrint('Failed to export chart: $e');
@@ -528,7 +512,7 @@ class _BarChartPainter extends CustomPainter {
   final double? maxValue;
   final bool showGrid;
   final Color gridColor;
-  
+
   _BarChartPainter({
     required this.series,
     required this.animation,
@@ -537,11 +521,11 @@ class _BarChartPainter extends CustomPainter {
     required this.showGrid,
     required this.gridColor,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     if (series.isEmpty) return;
-    
+
     final padding = 40.0;
     final chartArea = Rect.fromLTWH(
       padding,
@@ -549,74 +533,75 @@ class _BarChartPainter extends CustomPainter {
       size.width - padding * 2,
       size.height - padding * 2,
     );
-    
+
     // Calculate value range
     double minVal = minValue ?? 0;
     double maxVal = maxValue ?? _getMaxValue();
-    
+
     if (minVal == maxVal) maxVal = minVal + 1;
-    
+
     // Draw grid
     if (showGrid) {
       _drawGrid(canvas, chartArea, minVal, maxVal);
     }
-    
+
     // Draw bars
     _drawBars(canvas, chartArea, minVal, maxVal);
-    
+
     // Draw axes
     _drawAxes(canvas, chartArea);
   }
-  
+
   void _drawGrid(Canvas canvas, Rect area, double minVal, double maxVal) {
     final gridPaint = Paint()
       ..color = gridColor.withOpacity(0.3)
       ..strokeWidth = 1;
-    
+
     const gridLines = 5;
     for (int i = 0; i <= gridLines; i++) {
       final y = area.bottom - (area.height * i / gridLines);
-      canvas.drawLine(
-        Offset(area.left, y),
-        Offset(area.right, y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(area.left, y), Offset(area.right, y), gridPaint);
     }
   }
-  
+
   void _drawBars(Canvas canvas, Rect area, double minVal, double maxVal) {
     if (series.isEmpty || series.first.data.isEmpty) return;
-    
+
     final barCount = series.first.data.length;
     final seriesCount = series.length;
     final barGroupWidth = area.width / barCount;
     final barWidth = barGroupWidth / seriesCount * 0.8;
     final spacing = barGroupWidth / seriesCount * 0.2;
-    
+
     for (int seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
       final currentSeries = series[seriesIndex];
-      
-      for (int dataIndex = 0; dataIndex < currentSeries.data.length; dataIndex++) {
+
+      for (
+        int dataIndex = 0;
+        dataIndex < currentSeries.data.length;
+        dataIndex++
+      ) {
         final dataPoint = currentSeries.data[dataIndex];
         final normalizedValue = (dataPoint.value - minVal) / (maxVal - minVal);
         final barHeight = area.height * normalizedValue * animation.value;
-        
-        final x = area.left + 
-                 dataIndex * barGroupWidth + 
-                 seriesIndex * (barWidth + spacing) + 
-                 spacing / 2;
-        
+
+        final x =
+            area.left +
+            dataIndex * barGroupWidth +
+            seriesIndex * (barWidth + spacing) +
+            spacing / 2;
+
         final barRect = Rect.fromLTWH(
           x,
           area.bottom - barHeight,
           barWidth,
           barHeight,
         );
-        
+
         final barPaint = Paint()
           ..color = dataPoint.color ?? currentSeries.color
           ..style = PaintingStyle.fill;
-        
+
         canvas.drawRRect(
           RRect.fromRectAndRadius(barRect, const Radius.circular(4)),
           barPaint,
@@ -624,19 +609,19 @@ class _BarChartPainter extends CustomPainter {
       }
     }
   }
-  
+
   void _drawAxes(Canvas canvas, Rect area) {
     final axisPaint = Paint()
       ..color = Colors.black
       ..strokeWidth = 2;
-    
+
     // X-axis
     canvas.drawLine(
       Offset(area.left, area.bottom),
       Offset(area.right, area.bottom),
       axisPaint,
     );
-    
+
     // Y-axis
     canvas.drawLine(
       Offset(area.left, area.top),
@@ -644,7 +629,7 @@ class _BarChartPainter extends CustomPainter {
       axisPaint,
     );
   }
-  
+
   double _getMaxValue() {
     double max = 0;
     for (final series in series) {
@@ -654,7 +639,7 @@ class _BarChartPainter extends CustomPainter {
     }
     return max;
   }
-  
+
   @override
   bool shouldRepaint(covariant _BarChartPainter oldDelegate) {
     return series != oldDelegate.series || animation != oldDelegate.animation;
@@ -669,7 +654,7 @@ class _LineChartPainter extends CustomPainter {
   final double? maxValue;
   final bool showGrid;
   final Color gridColor;
-  
+
   _LineChartPainter({
     required this.series,
     required this.animation,
@@ -678,11 +663,11 @@ class _LineChartPainter extends CustomPainter {
     required this.showGrid,
     required this.gridColor,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     if (series.isEmpty) return;
-    
+
     final padding = 40.0;
     final chartArea = Rect.fromLTWH(
       padding,
@@ -690,91 +675,88 @@ class _LineChartPainter extends CustomPainter {
       size.width - padding * 2,
       size.height - padding * 2,
     );
-    
+
     // Calculate value range
     double minVal = minValue ?? _getMinValue();
     double maxVal = maxValue ?? _getMaxValue();
-    
+
     if (minVal == maxVal) maxVal = minVal + 1;
-    
+
     // Draw grid
     if (showGrid) {
       _drawGrid(canvas, chartArea, minVal, maxVal);
     }
-    
+
     // Draw lines
     _drawLines(canvas, chartArea, minVal, maxVal);
-    
+
     // Draw axes
     _drawAxes(canvas, chartArea);
   }
-  
+
   void _drawGrid(Canvas canvas, Rect area, double minVal, double maxVal) {
     final gridPaint = Paint()
       ..color = gridColor.withOpacity(0.3)
       ..strokeWidth = 1;
-    
+
     const gridLines = 5;
     for (int i = 0; i <= gridLines; i++) {
       final y = area.bottom - (area.height * i / gridLines);
-      canvas.drawLine(
-        Offset(area.left, y),
-        Offset(area.right, y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(area.left, y), Offset(area.right, y), gridPaint);
     }
   }
-  
+
   void _drawLines(Canvas canvas, Rect area, double minVal, double maxVal) {
     for (final currentSeries in series) {
       if (currentSeries.data.isEmpty) continue;
-      
+
       final linePaint = Paint()
         ..color = currentSeries.color
         ..strokeWidth = currentSeries.strokeWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
-      
+
       final path = Path();
       final points = <Offset>[];
-      
+
       for (int i = 0; i < currentSeries.data.length; i++) {
         final dataPoint = currentSeries.data[i];
-        final x = area.left + (area.width * i / (currentSeries.data.length - 1));
+        final x =
+            area.left + (area.width * i / (currentSeries.data.length - 1));
         final normalizedValue = (dataPoint.value - minVal) / (maxVal - minVal);
         final y = area.bottom - (area.height * normalizedValue);
-        
+
         final point = Offset(x, y);
         points.add(point);
-        
+
         if (i == 0) {
           path.moveTo(point.dx, point.dy);
         } else {
           path.lineTo(point.dx, point.dy);
         }
       }
-      
+
       // Animate path drawing
       final animatedPath = _createAnimatedPath(path, animation.value);
       canvas.drawPath(animatedPath, linePaint);
-      
+
       // Draw points if enabled
       if (currentSeries.showPoints) {
         final pointPaint = Paint()
           ..color = currentSeries.color
           ..style = PaintingStyle.fill;
-        
+
         for (int i = 0; i < (points.length * animation.value).round(); i++) {
           canvas.drawCircle(points[i], 4, pointPaint);
         }
       }
     }
   }
-  
+
   Path _createAnimatedPath(Path originalPath, double progress) {
     final pathMetrics = originalPath.computeMetrics().toList();
     final animatedPath = Path();
-    
+
     for (final pathMetric in pathMetrics) {
       final extractPath = pathMetric.extractPath(
         0,
@@ -782,22 +764,22 @@ class _LineChartPainter extends CustomPainter {
       );
       animatedPath.addPath(extractPath, Offset.zero);
     }
-    
+
     return animatedPath;
   }
-  
+
   void _drawAxes(Canvas canvas, Rect area) {
     final axisPaint = Paint()
       ..color = Colors.black
       ..strokeWidth = 2;
-    
+
     // X-axis
     canvas.drawLine(
       Offset(area.left, area.bottom),
       Offset(area.right, area.bottom),
       axisPaint,
     );
-    
+
     // Y-axis
     canvas.drawLine(
       Offset(area.left, area.top),
@@ -805,7 +787,7 @@ class _LineChartPainter extends CustomPainter {
       axisPaint,
     );
   }
-  
+
   double _getMinValue() {
     double min = double.infinity;
     for (final series in series) {
@@ -815,7 +797,7 @@ class _LineChartPainter extends CustomPainter {
     }
     return min == double.infinity ? 0 : min;
   }
-  
+
   double _getMaxValue() {
     double max = double.negativeInfinity;
     for (final series in series) {
@@ -825,7 +807,7 @@ class _LineChartPainter extends CustomPainter {
     }
     return max == double.negativeInfinity ? 1 : max;
   }
-  
+
   @override
   bool shouldRepaint(covariant _LineChartPainter oldDelegate) {
     return series != oldDelegate.series || animation != oldDelegate.animation;
@@ -836,19 +818,16 @@ class _LineChartPainter extends CustomPainter {
 class _PieChartPainter extends CustomPainter {
   final List<ChartSeries> series;
   final Animation<double> animation;
-  
-  _PieChartPainter({
-    required this.series,
-    required this.animation,
-  });
-  
+
+  _PieChartPainter({required this.series, required this.animation});
+
   @override
   void paint(Canvas canvas, Size size) {
     if (series.isEmpty) return;
-    
+
     final center = Offset(size.width / 2, size.height / 2);
     final radius = math.min(size.width, size.height) / 2 - 40;
-    
+
     // Calculate total value
     double totalValue = 0;
     for (final series in series) {
@@ -856,19 +835,20 @@ class _PieChartPainter extends CustomPainter {
         totalValue += point.value;
       }
     }
-    
+
     if (totalValue == 0) return;
-    
+
     double startAngle = -math.pi / 2; // Start from top
-    
+
     for (final currentSeries in series) {
       for (final dataPoint in currentSeries.data) {
-        final sweepAngle = (2 * math.pi * dataPoint.value / totalValue) * animation.value;
-        
+        final sweepAngle =
+            (2 * math.pi * dataPoint.value / totalValue) * animation.value;
+
         final paint = Paint()
           ..color = dataPoint.color ?? currentSeries.color
           ..style = PaintingStyle.fill;
-        
+
         canvas.drawArc(
           Rect.fromCircle(center: center, radius: radius),
           startAngle,
@@ -876,12 +856,12 @@ class _PieChartPainter extends CustomPainter {
           true,
           paint,
         );
-        
+
         startAngle += sweepAngle;
       }
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant _PieChartPainter oldDelegate) {
     return series != oldDelegate.series || animation != oldDelegate.animation;
@@ -896,21 +876,19 @@ class StatisticsChartPresets {
     String title = 'Sports Performance',
   }) {
     final dataPoints = sportsData.entries
-        .map((entry) => ChartDataPoint(
-              label: entry.key,
-              value: entry.value,
-              color: _getRandomColor(entry.key.hashCode),
-            ))
+        .map(
+          (entry) => ChartDataPoint(
+            label: entry.key,
+            value: entry.value,
+            color: _getRandomColor(entry.key.hashCode),
+          ),
+        )
         .toList();
-    
+
     return StatisticsChart(
       chartType: ChartType.bar,
       series: [
-        ChartSeries(
-          name: 'Performance',
-          data: dataPoints,
-          color: Colors.blue,
-        ),
+        ChartSeries(name: 'Performance', data: dataPoints, color: Colors.blue),
       ],
       title: title,
       showGrid: true,
@@ -918,7 +896,7 @@ class StatisticsChartPresets {
       xAxisLabel: 'Sports',
     );
   }
-  
+
   /// Progress over time line chart
   static StatisticsChart progressOverTime({
     required List<ChartDataPoint> progressData,
@@ -940,28 +918,26 @@ class StatisticsChartPresets {
       enablePan: true,
     );
   }
-  
+
   /// Game distribution pie chart
   static StatisticsChart gameDistribution({
     required Map<String, double> gameData,
     String title = 'Game Distribution',
   }) {
     final dataPoints = gameData.entries
-        .map((entry) => ChartDataPoint(
-              label: entry.key,
-              value: entry.value,
-              color: _getRandomColor(entry.key.hashCode),
-            ))
+        .map(
+          (entry) => ChartDataPoint(
+            label: entry.key,
+            value: entry.value,
+            color: _getRandomColor(entry.key.hashCode),
+          ),
+        )
         .toList();
-    
+
     return StatisticsChart(
       chartType: ChartType.pie,
       series: [
-        ChartSeries(
-          name: 'Games',
-          data: dataPoints,
-          color: Colors.blue,
-        ),
+        ChartSeries(name: 'Games', data: dataPoints, color: Colors.blue),
       ],
       title: title,
       legendConfig: const LegendConfig(
@@ -970,7 +946,7 @@ class StatisticsChartPresets {
       ),
     );
   }
-  
+
   static Color _getRandomColor(int seed) {
     final random = math.Random(seed);
     return Color.fromRGBO(

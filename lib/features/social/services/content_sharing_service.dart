@@ -19,7 +19,7 @@ class ContentSharingService {
       if (imageUrl != null) {
         shareText += '\n\nCheck out this image: $imageUrl';
       }
-      
+
       await Share.share(shareText);
       debugPrint('Shared post: $postId');
       return true;
@@ -38,7 +38,7 @@ class ContentSharingService {
   }) async {
     try {
       String shareText = 'Check out $username\'s profile on Dabbler!';
-      
+
       await Share.share(shareText);
       debugPrint('Shared user profile: $userId');
       return true;
@@ -61,7 +61,7 @@ class ContentSharingService {
       if (imageUrl != null) {
         shareText += '\n\nSee my achievement: $imageUrl';
       }
-      
+
       await Share.share(shareText);
       debugPrint('Shared achievement: $achievementId');
       return true;

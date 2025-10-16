@@ -8,7 +8,6 @@ import '../themes/app_theme.dart';
 /// Enhanced UI Utilities for Beautiful, Minimal Design
 /// Integrates with your existing Violet Fusion Color System
 class EnhancedUIUtils {
-  
   /// Beautiful animated card with violet theme
   static Widget animatedVioletCard({
     required Widget child,
@@ -18,13 +17,21 @@ class EnhancedUIUtils {
     Curve? animationCurve,
   }) {
     return Card(
-      child: Padding(
-        padding: padding as EdgeInsets? ?? const EdgeInsets.all(16),
-        child: child,
-      ),
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 600.ms, curve: animationCurve ?? Curves.easeOut)
-      .slideY(begin: 0.2, duration: animationDuration ?? 600.ms, curve: animationCurve ?? Curves.easeOut);
+          child: Padding(
+            padding: padding as EdgeInsets? ?? const EdgeInsets.all(16),
+            child: child,
+          ),
+        )
+        .animate()
+        .fadeIn(
+          duration: animationDuration ?? 600.ms,
+          curve: animationCurve ?? Curves.easeOut,
+        )
+        .slideY(
+          begin: 0.2,
+          duration: animationDuration ?? 600.ms,
+          curve: animationCurve ?? Curves.easeOut,
+        );
   }
 
   /// Beautiful cached image with violet theme placeholder
@@ -44,27 +51,27 @@ class EnhancedUIUtils {
         width: width,
         height: height,
         fit: fit ?? BoxFit.cover,
-        placeholder: (context, url) => placeholder ?? 
-          Container(
-            color: Colors.grey[200],
-            child: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8),
+        placeholder: (context, url) =>
+            placeholder ??
+            Container(
+              color: Colors.grey[200],
+              child: Center(
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ),
-          ),
-        errorWidget: (context, url, error) => errorWidget ?? 
-          Container(
-            color: Colors.grey[200],
-            child: Center(
-              child: Icon(Icons.image, size: 24),
+        errorWidget: (context, url, error) =>
+            errorWidget ??
+            Container(
+              color: Colors.grey[200],
+              child: Center(child: Icon(Icons.image, size: 24)),
             ),
-          ),
       ),
     );
   }
@@ -85,9 +92,9 @@ class EnhancedUIUtils {
         crossAxisSpacing: crossAxisSpacing,
         itemCount: children.length,
         itemBuilder: (context, index) => children[index]
-          .animate(delay: (index * 100).ms)
-          .fadeIn(duration: 600.ms)
-          .slideY(begin: 0.3, duration: 600.ms),
+            .animate(delay: (index * 100).ms)
+            .fadeIn(duration: 600.ms)
+            .slideY(begin: 0.3, duration: 600.ms),
       ),
     );
   }
@@ -100,12 +107,16 @@ class EnhancedUIUtils {
     Duration? animationDuration,
   }) {
     return Icon(
-      Icons.image, // Fallback icon since SVG is not available
-      size: size,
-      color: color,
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 400.ms)
-      .scale(begin: const Offset(0.8, 0.8), duration: animationDuration ?? 400.ms);
+          Icons.image, // Fallback icon since SVG is not available
+          size: size,
+          color: color,
+        )
+        .animate()
+        .fadeIn(duration: animationDuration ?? 400.ms)
+        .scale(
+          begin: const Offset(0.8, 0.8),
+          duration: animationDuration ?? 400.ms,
+        );
   }
 
   /// Beautiful animated button with violet theme
@@ -116,20 +127,18 @@ class EnhancedUIUtils {
     Duration? animationDuration,
   }) {
     return ElevatedButton(
-      onPressed: onPressed,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            icon,
-            const SizedBox(width: 8),
-          ],
-          Text(text),
-        ],
-      ),
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 500.ms)
-      .slideX(begin: -0.2, duration: animationDuration ?? 500.ms);
+          onPressed: onPressed,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[icon, const SizedBox(width: 8)],
+              Text(text),
+            ],
+          ),
+        )
+        .animate()
+        .fadeIn(duration: animationDuration ?? 500.ms)
+        .slideX(begin: -0.2, duration: animationDuration ?? 500.ms);
   }
 
   /// Beautiful loading skeleton with violet theme
@@ -158,16 +167,17 @@ class EnhancedUIUtils {
     int index = 0,
   }) {
     return Card(
-      child: ListTile(
-        leading: leading,
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle) : null,
-        trailing: trailing,
-        onTap: onTap,
-      ),
-    ).animate(delay: (index * 100).ms)
-      .fadeIn(duration: 600.ms)
-      .slideX(begin: -0.2, duration: 600.ms);
+          child: ListTile(
+            leading: leading,
+            title: Text(title),
+            subtitle: subtitle != null ? Text(subtitle) : null,
+            trailing: trailing,
+            onTap: onTap,
+          ),
+        )
+        .animate(delay: (index * 100).ms)
+        .fadeIn(duration: 600.ms)
+        .slideX(begin: -0.2, duration: 600.ms);
   }
 
   /// Beautiful status badge with violet theme
@@ -178,7 +188,7 @@ class EnhancedUIUtils {
   }) {
     Color backgroundColor;
     Color textColor;
-    
+
     switch (status.toLowerCase()) {
       case 'success':
         backgroundColor = SemanticColors.successBackground;
@@ -198,22 +208,26 @@ class EnhancedUIUtils {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 400.ms)
-      .scale(begin: const Offset(0.8, 0.8), duration: animationDuration ?? 400.ms);
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        )
+        .animate()
+        .fadeIn(duration: animationDuration ?? 400.ms)
+        .scale(
+          begin: const Offset(0.8, 0.8),
+          duration: animationDuration ?? 400.ms,
+        );
   }
 
   /// Beautiful animated container with violet theme
@@ -227,16 +241,24 @@ class EnhancedUIUtils {
     Curve? animationCurve,
   }) {
     return Container(
-      padding: padding,
-      margin: margin,
-      decoration: BoxDecoration(
-        color: backgroundColor ?? VioletShades.lightCardBackground,
-        borderRadius: borderRadius ?? BorderRadius.circular(12),
-      ),
-      child: child,
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 600.ms, curve: animationCurve ?? Curves.easeOut)
-      .slideY(begin: 0.3, duration: animationDuration ?? 600.ms, curve: animationCurve ?? Curves.easeOut);
+          padding: padding,
+          margin: margin,
+          decoration: BoxDecoration(
+            color: backgroundColor ?? VioletShades.lightCardBackground,
+            borderRadius: borderRadius ?? BorderRadius.circular(12),
+          ),
+          child: child,
+        )
+        .animate()
+        .fadeIn(
+          duration: animationDuration ?? 600.ms,
+          curve: animationCurve ?? Curves.easeOut,
+        )
+        .slideY(
+          begin: 0.3,
+          duration: animationDuration ?? 600.ms,
+          curve: animationCurve ?? Curves.easeOut,
+        );
   }
 
   /// Beautiful shimmer loading effect
@@ -263,13 +285,17 @@ class EnhancedUIUtils {
     Duration? animationDuration,
     Curve? animationCurve,
   }) {
-    return Text(
-      text,
-      style: style,
-      textAlign: textAlign,
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 800.ms, curve: animationCurve ?? Curves.easeOut)
-      .slideY(begin: 0.2, duration: animationDuration ?? 800.ms, curve: animationCurve ?? Curves.easeOut);
+    return Text(text, style: style, textAlign: textAlign)
+        .animate()
+        .fadeIn(
+          duration: animationDuration ?? 800.ms,
+          curve: animationCurve ?? Curves.easeOut,
+        )
+        .slideY(
+          begin: 0.2,
+          duration: animationDuration ?? 800.ms,
+          curve: animationCurve ?? Curves.easeOut,
+        );
   }
 
   /// Beautiful animated icon with violet theme
@@ -279,19 +305,18 @@ class EnhancedUIUtils {
     Color? color,
     Duration? animationDuration,
   }) {
-    return Icon(
-      icon,
-      size: size,
-      color: color,
-    ).animate()
-      .fadeIn(duration: animationDuration ?? 400.ms)
-      .scale(begin: const Offset(0.5, 0.5), duration: animationDuration ?? 400.ms);
+    return Icon(icon, size: size, color: color)
+        .animate()
+        .fadeIn(duration: animationDuration ?? 400.ms)
+        .scale(
+          begin: const Offset(0.5, 0.5),
+          duration: animationDuration ?? 400.ms,
+        );
   }
 }
 
 /// Hook-based utilities for minimal state management
 class VioletHooks {
-  
   /// Hook for animated counter with violet theme
   static Widget animatedCounter({
     required int initialValue,
@@ -299,7 +324,7 @@ class VioletHooks {
     required VoidCallback onDecrement,
   }) {
     final counter = useState(initialValue);
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -312,12 +337,13 @@ class VioletHooks {
         ),
         const SizedBox(width: 16),
         Text(
-          '${counter.value}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ).animate()
-          .scale(begin: const Offset(1.2, 1.2), duration: 200.ms)
-          .then()
-          .scale(begin: const Offset(1.0, 1.0), duration: 200.ms),
+              '${counter.value}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            )
+            .animate()
+            .scale(begin: const Offset(1.2, 1.2), duration: 200.ms)
+            .then()
+            .scale(begin: const Offset(1.0, 1.0), duration: 200.ms),
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
@@ -337,13 +363,10 @@ class VioletHooks {
     String? label,
   }) {
     final isEnabled = useState(initialValue);
-    
+
     return Row(
       children: [
-        if (label != null) ...[
-          Text(label),
-          const SizedBox(width: 8),
-        ],
+        if (label != null) ...[Text(label), const SizedBox(width: 8)],
         GestureDetector(
           onTap: () {
             isEnabled.value = !isEnabled.value;
@@ -354,12 +377,16 @@ class VioletHooks {
             width: 50,
             height: 30,
             decoration: BoxDecoration(
-              color: isEnabled.value ? VioletShades.lightAccent : Colors.grey[300],
+              color: isEnabled.value
+                  ? VioletShades.lightAccent
+                  : Colors.grey[300],
               borderRadius: BorderRadius.circular(15),
             ),
             child: AnimatedAlign(
               duration: const Duration(milliseconds: 300),
-              alignment: isEnabled.value ? Alignment.centerRight : Alignment.centerLeft,
+              alignment: isEnabled.value
+                  ? Alignment.centerRight
+                  : Alignment.centerLeft,
               child: Container(
                 width: 24,
                 height: 24,
@@ -379,7 +406,6 @@ class VioletHooks {
 
 /// Extension for easy access to enhanced UI utilities
 extension EnhancedUIExtension on BuildContext {
-  
   /// Quick access to animated violet card
   Widget animatedVioletCard({
     required Widget child,
@@ -439,4 +465,4 @@ extension EnhancedUIExtension on BuildContext {
     animationDuration: animationDuration,
     animationCurve: animationCurve,
   );
-} 
+}

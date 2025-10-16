@@ -64,7 +64,9 @@ class TournamentParticipants {
       registered_at: json['registered_at'] != null
           ? DateTime.parse(json['registered_at'] as String)
           : DateTime.now(),
-      eliminated_at: (json['eliminated_at'] == null ? null : DateTime.parse(json['eliminated_at'] as String)),
+      eliminated_at: (json['eliminated_at'] == null
+          ? null
+          : DateTime.parse(json['eliminated_at'] as String)),
     );
   }
 

@@ -1,18 +1,12 @@
 /// Full screen photo viewer with editing capabilities
 library;
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Photo editing action
-enum PhotoEditAction {
-  crop,
-  rotate,
-  filter,
-  brightness,
-  contrast,
-  saturation,
-}
+enum PhotoEditAction { crop, rotate, filter, brightness, contrast, saturation }
 
 /// Photo filter type
 enum PhotoFilter {
@@ -38,7 +32,7 @@ class PhotoData {
   final bool isEditable;
   final bool isDeletable;
   final Map<String, dynamic> metadata;
-  
+
   const PhotoData({
     required this.id,
     this.file,
@@ -51,9 +45,9 @@ class PhotoData {
     this.isDeletable = true,
     this.metadata = const {},
   });
-  
+
   bool get hasImage => file != null || bytes != null || url != null;
-  
+
   PhotoData copyWith({
     String? id,
     File? file,
@@ -89,7 +83,7 @@ class PhotoEditConfig {
   final PhotoFilter filter;
   final double rotation; // in radians
   final Rect? cropRect;
-  
+
   const PhotoEditConfig({
     this.brightness = 0.0, // -1.0 to 1.0
     this.contrast = 0.0, // -1.0 to 1.0
@@ -98,7 +92,7 @@ class PhotoEditConfig {
     this.rotation = 0.0,
     this.cropRect,
   });
-  
+
   PhotoEditConfig copyWith({
     double? brightness,
     double? contrast,
@@ -116,8 +110,8 @@ class PhotoEditConfig {
       cropRect: cropRect ?? this.cropRect,
     );
   }
-  
-  bool get hasChanges => 
+
+  bool get hasChanges =>
       brightness != 0.0 ||
       contrast != 0.0 ||
       saturation != 0.0 ||
@@ -139,7 +133,7 @@ class ProfilePhotoDialog extends StatefulWidget {
   final List<PhotoFilter> availableFilters;
   final Duration animationDuration;
   final bool enableHapticFeedback;
-  
+
   const ProfilePhotoDialog({
     super.key,
     required this.photo,
@@ -163,7 +157,7 @@ class ProfilePhotoDialog extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 300),
     this.enableHapticFeedback = true,
   });
-  
+
   static Future<T?> show<T>({
     required BuildContext context,
     required PhotoData photo,
@@ -190,7 +184,7 @@ class ProfilePhotoDialog extends StatefulWidget {
       ),
     );
   }
-  
+
   @override
   State<ProfilePhotoDialog> createState() => _ProfilePhotoDialogState();
 }
@@ -202,61 +196,54 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
   late Animation<Offset> _editPanelAnimation;
-  
-  final TransformationController _transformationController = TransformationController();
-  
+
+  final TransformationController _transformationController =
+      TransformationController();
+
   PhotoEditConfig _editConfig = const PhotoEditConfig();
   bool _isEditMode = false;
   bool _isProcessing = false;
   PhotoEditAction? _activeEditAction;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _startEntranceAnimation();
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _editPanelController = AnimationController(
       duration: const Duration(milliseconds: 250),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    ));
-    
-    _opacityAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
-    
-    _editPanelAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _editPanelController,
-      curve: Curves.easeOutCubic,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _editPanelAnimation =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _editPanelController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
   }
-  
+
   void _startEntranceAnimation() {
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -264,7 +251,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
     _transformationController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -283,31 +270,28 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       },
     );
   }
-  
+
   Widget _buildDialogContent() {
     return Stack(
       children: [
         // Photo viewer
         _buildPhotoViewer(),
-        
+
         // Top bar
         _buildTopBar(),
-        
+
         // Bottom bar
-        if (!_isEditMode)
-          _buildBottomBar(),
-        
+        if (!_isEditMode) _buildBottomBar(),
+
         // Edit panel
-        if (_isEditMode)
-          _buildEditPanel(),
-        
+        if (_isEditMode) _buildEditPanel(),
+
         // Loading overlay
-        if (_isProcessing)
-          _buildLoadingOverlay(),
+        if (_isProcessing) _buildLoadingOverlay(),
       ],
     );
   }
-  
+
   Widget _buildPhotoViewer() {
     return Center(
       child: InteractiveViewer(
@@ -318,20 +302,14 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildPhotoWidget() {
     Widget imageWidget;
-    
+
     if (widget.photo.file != null) {
-      imageWidget = Image.file(
-        widget.photo.file!,
-        fit: BoxFit.contain,
-      );
+      imageWidget = Image.file(widget.photo.file!, fit: BoxFit.contain);
     } else if (widget.photo.bytes != null) {
-      imageWidget = Image.memory(
-        widget.photo.bytes!,
-        fit: BoxFit.contain,
-      );
+      imageWidget = Image.memory(widget.photo.bytes!, fit: BoxFit.contain);
     } else if (widget.photo.url != null) {
       imageWidget = Image.network(
         widget.photo.url!,
@@ -342,7 +320,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
             child: CircularProgressIndicator(
               value: loadingProgress.expectedTotalBytes != null
                   ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
+                        loadingProgress.expectedTotalBytes!
                   : null,
             ),
           );
@@ -352,14 +330,14 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
     } else {
       imageWidget = _buildErrorWidget();
     }
-    
+
     // Apply edit effects
     return _applyPhotoEffects(imageWidget);
   }
-  
+
   Widget _applyPhotoEffects(Widget imageWidget) {
     Widget effectsWidget = imageWidget;
-    
+
     // Apply rotation
     if (_editConfig.rotation != 0.0) {
       effectsWidget = Transform.rotate(
@@ -367,7 +345,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         child: effectsWidget,
       );
     }
-    
+
     // Apply color filters
     if (_editConfig.hasChanges) {
       effectsWidget = ColorFiltered(
@@ -375,34 +353,49 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         child: effectsWidget,
       );
     }
-    
+
     return effectsWidget;
   }
-  
+
   ColorFilter _getColorFilter() {
     // This is a simplified implementation
     // In a real app, you'd use more sophisticated image processing
-    
+
     switch (_editConfig.filter) {
       case PhotoFilter.blackWhite:
         return const ColorFilter.mode(Colors.grey, BlendMode.saturation);
       case PhotoFilter.sepia:
-        return ColorFilter.mode(Colors.brown.withOpacity(0.3), BlendMode.overlay);
+        return ColorFilter.mode(
+          Colors.brown.withOpacity(0.3),
+          BlendMode.overlay,
+        );
       case PhotoFilter.cool:
-        return ColorFilter.mode(Colors.blue.withOpacity(0.2), BlendMode.overlay);
+        return ColorFilter.mode(
+          Colors.blue.withOpacity(0.2),
+          BlendMode.overlay,
+        );
       case PhotoFilter.warm:
-        return ColorFilter.mode(Colors.orange.withOpacity(0.2), BlendMode.overlay);
+        return ColorFilter.mode(
+          Colors.orange.withOpacity(0.2),
+          BlendMode.overlay,
+        );
       case PhotoFilter.dramatic:
         return const ColorFilter.mode(Colors.black, BlendMode.multiply);
       case PhotoFilter.vibrant:
-        return ColorFilter.mode(Colors.purple.withOpacity(0.1), BlendMode.overlay);
+        return ColorFilter.mode(
+          Colors.purple.withOpacity(0.1),
+          BlendMode.overlay,
+        );
       case PhotoFilter.vintage:
-        return ColorFilter.mode(Colors.amber.withOpacity(0.3), BlendMode.overlay);
+        return ColorFilter.mode(
+          Colors.amber.withOpacity(0.3),
+          BlendMode.overlay,
+        );
       default:
         return const ColorFilter.mode(Colors.transparent, BlendMode.multiply);
     }
   }
-  
+
   Widget _buildErrorWidget() {
     return Container(
       width: 200,
@@ -414,24 +407,17 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.broken_image,
-            size: 48,
-            color: Colors.grey,
-          ),
+          Icon(Icons.broken_image, size: 48, color: Colors.grey),
           SizedBox(height: 8),
           Text(
             'Image not available',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildTopBar() {
     return Positioned(
       top: 0,
@@ -448,10 +434,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.7),
-              Colors.transparent,
-            ],
+            colors: [Colors.black.withOpacity(0.7), Colors.transparent],
           ),
         ),
         child: Row(
@@ -459,15 +442,11 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
             // Close button
             IconButton(
               onPressed: _handleClose,
-              icon: const Icon(
-                Icons.close,
-                color: Colors.white,
-                size: 28,
-              ),
+              icon: const Icon(Icons.close, color: Colors.white, size: 28),
             ),
-            
+
             const Spacer(),
-            
+
             // Photo info
             if (widget.photo.title != null) ...[
               Expanded(
@@ -484,7 +463,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    
+
                     if (widget.photo.dateTaken != null) ...[
                       const SizedBox(height: 4),
                       Text(
@@ -499,24 +478,20 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
                 ),
               ),
             ],
-            
+
             const Spacer(),
-            
+
             // More options
             IconButton(
               onPressed: _showMoreOptions,
-              icon: const Icon(
-                Icons.more_vert,
-                color: Colors.white,
-                size: 28,
-              ),
+              icon: const Icon(Icons.more_vert, color: Colors.white, size: 28),
             ),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildBottomBar() {
     return Positioned(
       bottom: 0,
@@ -533,10 +508,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [
-              Colors.black.withOpacity(0.7),
-              Colors.transparent,
-            ],
+            colors: [Colors.black.withOpacity(0.7), Colors.transparent],
           ),
         ),
         child: Row(
@@ -549,7 +521,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
                 label: 'Edit',
                 onTap: _enterEditMode,
               ),
-            
+
             // Share button
             if (widget.enableSharing)
               _buildActionButton(
@@ -557,7 +529,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
                 label: 'Share',
                 onTap: _handleShare,
               ),
-            
+
             // Delete button
             if (widget.enableDeletion && widget.photo.isDeletable)
               _buildActionButton(
@@ -571,7 +543,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -579,7 +551,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
     Color? color,
   }) {
     final buttonColor = color ?? Colors.white;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -587,18 +559,12 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.3),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: buttonColor.withOpacity(0.3),
-          ),
+          border: Border.all(color: buttonColor.withOpacity(0.3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: buttonColor,
-              size: 24,
-            ),
+            Icon(icon, color: buttonColor, size: 24),
             const SizedBox(height: 4),
             Text(
               label,
@@ -613,7 +579,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildEditPanel() {
     return AnimatedBuilder(
       animation: _editPanelAnimation,
@@ -627,20 +593,16 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
             ),
             decoration: const BoxDecoration(
               color: Colors.black87,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Column(
               children: [
                 // Edit panel header
                 _buildEditPanelHeader(),
-                
+
                 // Edit options
-                Expanded(
-                  child: _buildEditOptions(),
-                ),
-                
+                Expanded(child: _buildEditOptions()),
+
                 // Edit panel footer
                 _buildEditPanelFooter(),
               ],
@@ -650,7 +612,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       },
     );
   }
-  
+
   Widget _buildEditPanelHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -658,12 +620,9 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         children: [
           IconButton(
             onPressed: _exitEditMode,
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
-          
+
           const SizedBox(width: 8),
           const Text(
             'Edit Photo',
@@ -673,41 +632,38 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
               fontWeight: FontWeight.w600,
             ),
           ),
-          
+
           const Spacer(),
-          
+
           if (_editConfig.hasChanges)
             TextButton(
               onPressed: _resetEdits,
               child: const Text(
                 'Reset',
-                style: TextStyle(
-                  color: Colors.white70,
-                ),
+                style: TextStyle(color: Colors.white70),
               ),
             ),
         ],
       ),
     );
   }
-  
+
   Widget _buildEditOptions() {
     return SingleChildScrollView(
       child: Column(
         children: [
           // Edit action buttons
           _buildEditActionButtons(),
-          
+
           const SizedBox(height: 16),
-          
+
           // Active edit controls
-          if (_activeEditAction != null)
-            _buildActiveEditControls(),
+          if (_activeEditAction != null) _buildActiveEditControls(),
         ],
       ),
     );
   }
-  
+
   Widget _buildEditActionButtons() {
     return SizedBox(
       height: 80,
@@ -749,33 +705,27 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildEditActionButton({
     required PhotoEditAction action,
     required IconData icon,
     required String label,
   }) {
     final isActive = _activeEditAction == action;
-    
+
     return GestureDetector(
       onTap: () => _setActiveEditAction(action),
       child: Container(
         width: 70,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: isActive 
-              ? Theme.of(context).primaryColor 
-              : Colors.grey[800],
+          color: isActive ? Theme.of(context).primaryColor : Colors.grey[800],
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
+            Icon(icon, color: Colors.white, size: 24),
             const SizedBox(height: 4),
             Text(
               label,
@@ -791,7 +741,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildActiveEditControls() {
     switch (_activeEditAction!) {
       case PhotoEditAction.filter:
@@ -820,7 +770,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         return _buildCropControls();
     }
   }
-  
+
   Widget _buildFilterControls() {
     return SizedBox(
       height: 120,
@@ -833,10 +783,10 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildFilterPreview(PhotoFilter filter) {
     final isSelected = _editConfig.filter == filter;
-    
+
     return GestureDetector(
       onTap: () => _updateEditConfig(filter: filter),
       child: Container(
@@ -845,8 +795,8 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected 
-                ? Theme.of(context).primaryColor 
+            color: isSelected
+                ? Theme.of(context).primaryColor
                 : Colors.grey[600]!,
             width: 2,
           ),
@@ -865,23 +815,20 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
                 child: Center(
                   child: Text(
                     _getFilterName(filter),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-            
+
             Container(
               padding: const EdgeInsets.all(4),
               child: Text(
                 _getFilterName(filter),
                 style: TextStyle(
-                  color: isSelected 
-                      ? Theme.of(context).primaryColor 
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
                       : Colors.white70,
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
@@ -894,7 +841,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildSliderControl({
     required String label,
     required double value,
@@ -912,15 +859,12 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
               fontWeight: FontWeight.w500,
             ),
           ),
-          
+
           const SizedBox(height: 8),
           Row(
             children: [
-              const Text(
-                '-',
-                style: TextStyle(color: Colors.white70),
-              ),
-              
+              const Text('-', style: TextStyle(color: Colors.white70)),
+
               Expanded(
                 child: Slider(
                   value: value,
@@ -932,26 +876,20 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
                   inactiveColor: Colors.grey[600],
                 ),
               ),
-              
-              const Text(
-                '+',
-                style: TextStyle(color: Colors.white70),
-              ),
+
+              const Text('+', style: TextStyle(color: Colors.white70)),
             ],
           ),
-          
+
           Text(
             '${(value * 100).round()}%',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildRotateControls() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -977,7 +915,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildRotateButton({
     required IconData icon,
     required String label,
@@ -994,25 +932,18 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
+            Icon(icon, color: Colors.white, size: 24),
             const SizedBox(height: 4),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildCropControls() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1026,21 +957,18 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
               fontWeight: FontWeight.w500,
             ),
           ),
-          
+
           const SizedBox(height: 16),
           Text(
             'Pinch and drag to adjust crop area',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildEditPanelFooter() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1058,14 +986,11 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
               ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
           ),
-          
+
           const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton(
@@ -1079,10 +1004,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
               ),
               child: const Text(
                 'Save',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -1090,7 +1012,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   Widget _buildLoadingOverlay() {
     return Container(
       color: Colors.black54,
@@ -1104,17 +1026,14 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
             SizedBox(height: 16),
             Text(
               'Processing image...',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),
       ),
     );
   }
-  
+
   String _getFilterName(PhotoFilter filter) {
     switch (filter) {
       case PhotoFilter.none:
@@ -1135,11 +1054,11 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         return 'Vibrant';
     }
   }
-  
+
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'Today';
     } else if (difference.inDays == 1) {
@@ -1150,33 +1069,33 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       return '${date.day}/${date.month}/${date.year}';
     }
   }
-  
+
   void _handleClose() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     _animationController.reverse().then((_) {
       widget.onClose?.call();
     });
   }
-  
+
   void _handleShare() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     widget.onShare?.call(widget.photo);
   }
-  
+
   void _handleDelete() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.mediumImpact();
     }
-    
+
     _showDeleteConfirmation();
   }
-  
+
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
@@ -1196,16 +1115,14 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
               widget.onDelete?.call(widget.photo);
               _handleClose();
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
       ),
     );
   }
-  
+
   void _showMoreOptions() {
     showModalBottomSheet(
       context: context,
@@ -1214,9 +1131,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
           color: Colors.black87,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1259,7 +1174,7 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   void _showPhotoInfo() {
     showDialog(
       context: context,
@@ -1298,38 +1213,38 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       ),
     );
   }
-  
+
   void _downloadPhoto() {
     // Implement photo download
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Photo download started')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Photo download started')));
   }
-  
+
   void _reportPhoto() {
     // Implement photo reporting
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Photo reported')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Photo reported')));
   }
-  
+
   void _enterEditMode() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     setState(() {
       _isEditMode = true;
     });
-    
+
     _editPanelController.forward();
   }
-  
+
   void _exitEditMode() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     _editPanelController.reverse().then((_) {
       setState(() {
         _isEditMode = false;
@@ -1337,17 +1252,17 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       });
     });
   }
-  
+
   void _setActiveEditAction(PhotoEditAction action) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     setState(() {
       _activeEditAction = _activeEditAction == action ? null : action;
     });
   }
-  
+
   void _updateEditConfig({
     double? brightness,
     double? contrast,
@@ -1367,51 +1282,50 @@ class _ProfilePhotoDialogState extends State<ProfilePhotoDialog>
       );
     });
   }
-  
+
   void _rotatePhoto(double degrees) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     final radians = degrees * (3.14159 / 180);
     _updateEditConfig(rotation: _editConfig.rotation + radians);
   }
-  
+
   void _resetEdits() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.mediumImpact();
     }
-    
+
     setState(() {
       _editConfig = const PhotoEditConfig();
     });
   }
-  
+
   Future<void> _savePhoto() async {
     if (widget.enableHapticFeedback) {
       HapticFeedback.heavyImpact();
     }
-    
+
     setState(() {
       _isProcessing = true;
     });
-    
+
     try {
       // Simulate processing time
       await Future.delayed(const Duration(seconds: 2));
-      
+
       widget.onSave?.call(widget.photo, _editConfig);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Photo saved successfully')),
-      );
-      
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Photo saved successfully')));
+
       _exitEditMode();
-      
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save photo: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save photo: $e')));
     } finally {
       setState(() {
         _isProcessing = false;

@@ -33,7 +33,7 @@ class ExploreViewModel extends ChangeNotifier {
   ExploreFilters createFiltersFromUserData({String? preferredSport}) {
     final userLocation = _locationService.currentArea;
     final position = _locationService.currentPosition;
-    
+
     return ExploreFilters.quickFind(
       userLocation: userLocation,
       latitude: position?.latitude,
@@ -69,14 +69,13 @@ class ExploreViewModel extends ChangeNotifier {
       // TODO: Replace with real Supabase API implementation
       // For now, return empty list - use GamesHomeScreen for real data
       await Future.delayed(const Duration(seconds: 1));
-      
+
       // No demo data - integrate with GamesRepository from features/games
       _matches = [];
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
-
     } catch (e) {
       _error = 'Failed to fetch matches: $e';
       _matches = [];
@@ -143,5 +142,6 @@ class ExploreViewModel extends ChangeNotifier {
   }
 
   // Check if current error requires location permission
-  bool get requiresLocationPermission => _error == 'location_permission_required';
-} 
+  bool get requiresLocationPermission =>
+      _error == 'location_permission_required';
+}

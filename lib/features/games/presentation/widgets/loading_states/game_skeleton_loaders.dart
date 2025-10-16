@@ -15,7 +15,7 @@ class GameListSkeletonLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (isGrid) {
       return GridView.builder(
         padding: const EdgeInsets.all(16),
@@ -29,7 +29,7 @@ class GameListSkeletonLoader extends StatelessWidget {
         itemBuilder: (context, index) => _buildGridSkeletonItem(theme),
       );
     }
-    
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: itemCount,
@@ -43,15 +43,15 @@ class GameListSkeletonLoader extends StatelessWidget {
   Widget _buildListSkeletonItem(ThemeData theme) {
     return Shimmer.fromColors(
       baseColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.1),
+      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(
+        0.1,
+      ),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.1),
-          ),
+          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,9 +105,9 @@ class GameListSkeletonLoader extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Info row
             Row(
               children: [
@@ -151,14 +151,14 @@ class GameListSkeletonLoader extends StatelessWidget {
   Widget _buildGridSkeletonItem(ThemeData theme) {
     return Shimmer.fromColors(
       baseColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.1),
+      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(
+        0.1,
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.1),
-          ),
+          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +188,7 @@ class GameListSkeletonLoader extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -201,9 +201,9 @@ class GameListSkeletonLoader extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Subtitle
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -216,9 +216,9 @@ class GameListSkeletonLoader extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const Spacer(),
-            
+
             // Footer info
             Padding(
               padding: const EdgeInsets.all(12),
@@ -258,10 +258,12 @@ class GameDetailSkeletonLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Shimmer.fromColors(
       baseColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.1),
+      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(
+        0.1,
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -276,9 +278,9 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title and organizer
             Container(
               width: double.infinity,
@@ -288,9 +290,9 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             Container(
               width: 150,
               height: 16,
@@ -299,9 +301,9 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Info cards
             Row(
               children: [
@@ -326,9 +328,9 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -352,9 +354,9 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Description
             Container(
               width: 100,
@@ -364,23 +366,26 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
-            ...List.generate(3, (index) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Container(
-                width: double.infinity,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(4),
+
+            ...List.generate(
+              3,
+              (index) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  width: double.infinity,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            )),
-            
+            ),
+
             const SizedBox(height: 24),
-            
+
             // Players section
             Container(
               width: 120,
@@ -390,44 +395,47 @@ class GameDetailSkeletonLoader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Player list
-            ...List.generate(4, (index) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      shape: BoxShape.circle,
+            ...List.generate(
+              4,
+              (index) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 120,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 120,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 60,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4),
+                    const Spacer(),
+                    Container(
+                      width: 60,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )),
-            
+            ),
+
             const SizedBox(height: 100), // Space for bottom button
           ],
         ),
@@ -440,18 +448,17 @@ class GameDetailSkeletonLoader extends StatelessWidget {
 class VenueListSkeletonLoader extends StatelessWidget {
   final int itemCount;
 
-  const VenueListSkeletonLoader({
-    super.key,
-    this.itemCount = 8,
-  });
+  const VenueListSkeletonLoader({super.key, this.itemCount = 8});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Shimmer.fromColors(
       baseColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.1),
+      highlightColor: theme.colorScheme.surfaceContainerHighest.withOpacity(
+        0.1,
+      ),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: itemCount,
@@ -477,9 +484,9 @@ class VenueListSkeletonLoader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                
+
                 const SizedBox(width: 16),
-                
+
                 // Venue info
                 Expanded(
                   child: Column(
@@ -494,9 +501,9 @@ class VenueListSkeletonLoader extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 8),
-                      
+
                       // Address
                       Container(
                         width: 180,
@@ -506,9 +513,9 @@ class VenueListSkeletonLoader extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 8),
-                      
+
                       // Distance and rating
                       Row(
                         children: [
@@ -534,7 +541,7 @@ class VenueListSkeletonLoader extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // Price
                 Container(
                   width: 50,
@@ -569,7 +576,7 @@ class GameActionLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -595,9 +602,9 @@ class GameActionLoader extends StatelessWidget {
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
               ),
             ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Loading message
           Text(
             message,
@@ -607,9 +614,9 @@ class GameActionLoader extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Additional context
           Text(
             'Please wait...',

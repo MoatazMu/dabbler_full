@@ -33,29 +33,27 @@ class _AchievementNotificationWidgetState
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
+      ),
+    );
 
-    _opacityAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
-    ));
+    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+          ),
+        );
 
     _controller.forward().then((_) {
       if (widget.onDismiss != null) {
@@ -86,10 +84,7 @@ class _AchievementNotificationWidgetState
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.purple.shade600,
-                      Colors.blue.shade600,
-                    ],
+                    colors: [Colors.purple.shade600, Colors.blue.shade600],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -175,7 +170,10 @@ class _AchievementNotificationWidgetState
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            widget.achievement.category.toString().split('.').last,
+                            widget.achievement.category
+                                .toString()
+                                .split('.')
+                                .last,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,

@@ -31,13 +31,19 @@ class ConversationParticipants {
       user_id: json['user_id'],
       role: json['role'],
       last_read_message_id: json['last_read_message_id'],
-      last_read_at: (json['last_read_at'] == null ? null : DateTime.parse(json['last_read_at'] as String)),
+      last_read_at: (json['last_read_at'] == null
+          ? null
+          : DateTime.parse(json['last_read_at'] as String)),
       is_muted: json['is_muted'],
-      muted_until: (json['muted_until'] == null ? null : DateTime.parse(json['muted_until'] as String)),
-    joined_at: json['joined_at'] != null
-      ? DateTime.parse(json['joined_at'] as String)
-      : DateTime.now(),
-      left_at: (json['left_at'] == null ? null : DateTime.parse(json['left_at'] as String)),
+      muted_until: (json['muted_until'] == null
+          ? null
+          : DateTime.parse(json['muted_until'] as String)),
+      joined_at: json['joined_at'] != null
+          ? DateTime.parse(json['joined_at'] as String)
+          : DateTime.now(),
+      left_at: (json['left_at'] == null
+          ? null
+          : DateTime.parse(json['left_at'] as String)),
     );
   }
 

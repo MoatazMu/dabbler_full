@@ -20,7 +20,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
   late AnimationController _tierAnimationController;
   late Animation<double> _progressAnimation;
   late Animation<double> _tierAnimation;
-  
+
   int _selectedTabIndex = 0;
   bool _showAllTiers = false;
 
@@ -28,7 +28,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
   void initState() {
     super.initState();
     _setupAnimations();
-    
+
     // Initialize tier data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(tierControllerProvider.notifier).initialize();
@@ -44,7 +44,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _progressAnimation = CurvedAnimation(
       parent: _progressAnimationController,
       curve: Curves.easeOutCubic,
@@ -53,7 +53,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
       parent: _tierAnimationController,
       curve: Curves.elasticOut,
     );
-    
+
     _tierAnimationController.forward();
   }
 
@@ -67,7 +67,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
   @override
   Widget build(BuildContext context) {
     final tierState = ref.watch(tierControllerProvider);
-    
+
     // Start progress animation when data loads
     if (!tierState.isLoading && tierState.currentTier != null) {
       _progressAnimationController.forward();
@@ -127,7 +127,10 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: Colors.white, width: 2),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
                                 ),
                                 child: Icon(
                                   _getTierIcon(state.currentTier?.level),
@@ -135,9 +138,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                                   size: 40,
                                 ),
                               ),
-                              
+
                               const SizedBox(width: 20),
-                              
+
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +154,8 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      state.currentTier?.level.displayName ?? 'Loading...',
+                                      state.currentTier?.level.displayName ??
+                                          'Loading...',
                                       style: const TextStyle(
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
@@ -182,10 +186,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
         ),
         title: const Text(
           'Tier Progress',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       actions: [
@@ -261,9 +262,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             ),
           ],
         ),
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -298,7 +297,8 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.read(tierControllerProvider.notifier).refresh(),
+              onPressed: () =>
+                  ref.read(tierControllerProvider.notifier).refresh(),
               child: const Text('Retry'),
             ),
           ],
@@ -332,38 +332,35 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
               const SizedBox(width: 8),
               const Text(
                 'Progress to Next Tier',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Progress visualization
           _buildProgressVisualization(state, progressSummary),
-          
+
           const SizedBox(height: 20),
-          
+
           // Progress stats
           Row(
             children: [
               Expanded(
                 child: _buildProgressStat(
-                  'Current Points', 
-                  progressSummary.currentPoints.toStringAsFixed(0), 
-                  Icons.stars, 
+                  'Current Points',
+                  progressSummary.currentPoints.toStringAsFixed(0),
+                  Icons.stars,
                   Colors.amber,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildProgressStat(
-                  'Points Needed', 
-                  progressSummary.pointsNeeded.toStringAsFixed(0), 
-                  Icons.flag, 
+                  'Points Needed',
+                  progressSummary.pointsNeeded.toStringAsFixed(0),
+                  Icons.flag,
                   Colors.red,
                 ),
               ),
@@ -371,35 +368,35 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildProgressStat(
-                    'Est. Days', 
-                    '${progressSummary.estimatedDaysToNext}', 
-                    Icons.schedule, 
+                    'Est. Days',
+                    '${progressSummary.estimatedDaysToNext}',
+                    Icons.schedule,
                     Colors.blue,
                   ),
                 ),
               ],
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Benefits and privileges count
           Row(
             children: [
               Expanded(
                 child: _buildProgressStat(
-                  'Benefits', 
-                  '${progressSummary.benefitsCount}', 
-                  Icons.card_giftcard, 
+                  'Benefits',
+                  '${progressSummary.benefitsCount}',
+                  Icons.card_giftcard,
                   Colors.purple,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildProgressStat(
-                  'Privileges', 
-                  '${progressSummary.privilegesCount}', 
-                  Icons.verified_user, 
+                  'Privileges',
+                  '${progressSummary.privilegesCount}',
+                  Icons.verified_user,
                   Colors.teal,
                 ),
               ),
@@ -407,12 +404,13 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
           ),
         ],
       ),
-    ).animate()
-      .fadeIn(duration: 500.ms)
-      .slideY(begin: 0.3, end: 0);
+    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3, end: 0);
   }
 
-  Widget _buildProgressVisualization(TierState state, TierProgressSummary summary) {
+  Widget _buildProgressVisualization(
+    TierState state,
+    TierProgressSummary summary,
+  ) {
     return Column(
       children: [
         // Next tier info
@@ -456,9 +454,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Animated progress bar
         AnimatedBuilder(
           animation: _progressAnimation,
@@ -468,7 +466,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: _progressAnimation.value * (summary.progressPercentage / 100),
+                    value:
+                        _progressAnimation.value *
+                        (summary.progressPercentage / 100),
                     backgroundColor: Colors.grey[200],
                     valueColor: AlwaysStoppedAnimation<Color>(
                       _getTierColor(state.nextTier),
@@ -476,9 +476,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                     minHeight: 12,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Progress milestones
                 _buildProgressMilestones(state, summary),
               ],
@@ -489,24 +489,27 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
     );
   }
 
-  Widget _buildProgressMilestones(TierState state, TierProgressSummary summary) {
+  Widget _buildProgressMilestones(
+    TierState state,
+    TierProgressSummary summary,
+  ) {
     final milestones = [0.0, 25.0, 50.0, 75.0, 100.0];
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: milestones.map((milestone) {
         final isReached = summary.progressPercentage >= milestone;
         final isNext = milestone == 100.0;
-        
+
         return Container(
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isReached 
+            color: isReached
                 ? _getTierColor(state.currentTier?.level)
-                : isNext 
-                    ? _getTierColor(state.nextTier)
-                    : Colors.grey[300],
+                : isNext
+                ? _getTierColor(state.nextTier)
+                : Colors.grey[300],
             shape: BoxShape.circle,
           ),
         );
@@ -514,7 +517,12 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
     );
   }
 
-  Widget _buildProgressStat(String label, String value, IconData icon, Color color) {
+  Widget _buildProgressStat(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -536,10 +544,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
           ),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -552,16 +557,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Expanded(
-            child: _buildTabButton('Benefits', 0),
-          ),
-          Expanded(
-            child: _buildTabButton('Comparison', 1),
-          ),
-          if (_showAllTiers)
-            Expanded(
-              child: _buildTabButton('All Tiers', 2),
-            ),
+          Expanded(child: _buildTabButton('Benefits', 0)),
+          Expanded(child: _buildTabButton('Comparison', 1)),
+          if (_showAllTiers) Expanded(child: _buildTabButton('All Tiers', 2)),
         ],
       ),
     );
@@ -569,7 +567,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
 
   Widget _buildTabButton(String title, int index) {
     final isSelected = _selectedTabIndex == index;
-    
+
     return GestureDetector(
       onTap: () => setState(() => _selectedTabIndex = index),
       child: Container(
@@ -577,8 +575,8 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: isSelected 
-                  ? Theme.of(context).primaryColor 
+              color: isSelected
+                  ? Theme.of(context).primaryColor
                   : Colors.transparent,
               width: 2,
             ),
@@ -590,8 +588,8 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             style: TextStyle(
               fontSize: 16,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected 
-                  ? Theme.of(context).primaryColor 
+              color: isSelected
+                  ? Theme.of(context).primaryColor
                   : Colors.grey[600],
             ),
           ),
@@ -617,124 +615,126 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final benefit = state.currentBenefits[index];
-            return _buildBenefitCard(benefit, index);
-          },
-          childCount: state.currentBenefits.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final benefit = state.currentBenefits[index];
+          return _buildBenefitCard(benefit, index);
+        }, childCount: state.currentBenefits.length),
       ),
     );
   }
 
   Widget _buildBenefitCard(TierBenefit benefit, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _getBenefitColor(benefit.type).withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: _getBenefitColor(benefit.type).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _getBenefitColor(benefit.type).withOpacity(0.3),
             ),
-            child: Icon(
-              _getBenefitIcon(benefit.type),
-              color: _getBenefitColor(benefit.type),
-              size: 24,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          
-          const SizedBox(width: 16),
-          
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _getBenefitColor(benefit.type).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  _getBenefitIcon(benefit.type),
+                  color: _getBenefitColor(benefit.type),
+                  size: 24,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        benefit.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            benefit.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: benefit.isActive
+                                ? Colors.green
+                                : Colors.grey,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            benefit.isActive ? 'ACTIVE' : 'INACTIVE',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: benefit.isActive ? Colors.green : Colors.grey,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        benefit.isActive ? 'ACTIVE' : 'INACTIVE',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      benefit.description,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      _getBenefitTypeLabel(benefit.type),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _getBenefitColor(benefit.type),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-                
-                const SizedBox(height: 4),
-                
-                Text(
-                  benefit.description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                
-                const SizedBox(height: 4),
-                
-                Text(
-                  _getBenefitTypeLabel(benefit.type),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _getBenefitColor(benefit.type),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ).animate()
-      .fadeIn(
-        duration: 300.ms,
-        delay: Duration(milliseconds: index * 100),
-      )
-      .slideX(
-        begin: 0.3,
-        duration: 300.ms,
-        delay: Duration(milliseconds: index * 100),
-      );
+        )
+        .animate()
+        .fadeIn(
+          duration: 300.ms,
+          delay: Duration(milliseconds: index * 100),
+        )
+        .slideX(
+          begin: 0.3,
+          duration: 300.ms,
+          delay: Duration(milliseconds: index * 100),
+        );
   }
 
   Widget _buildComparisonTab(TierState state) {
     final comparison = state.tierComparison;
-    
+
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverList(
@@ -746,9 +746,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             _getTierColor(state.currentTier?.level),
             Icons.check_circle,
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Benefits to unlock section
           if (comparison.benefitsToUnlock.isNotEmpty) ...[
             _buildComparisonSection(
@@ -757,10 +757,10 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
               _getTierColor(state.nextTier),
               Icons.lock_outline,
             ),
-            
+
             const SizedBox(height: 24),
           ],
-          
+
           // Privileges to unlock
           if (comparison.privilegesToUnlock.isNotEmpty) ...[
             _buildPrivilegesSection(
@@ -797,64 +797,65 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         ...benefits.asMap().entries.map((entry) {
           final index = entry.key;
           final benefit = entry.value;
           return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withOpacity(0.3)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        benefit.name,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                child: Row(
+                  children: [
+                    Icon(icon, color: color, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            benefit.name,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            benefit.description,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        benefit.description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ).animate()
-            .fadeIn(
-              duration: 300.ms,
-              delay: Duration(milliseconds: index * 100),
-            )
-            .slideX(
-              begin: 0.2,
-              duration: 300.ms,
-              delay: Duration(milliseconds: index * 100),
-            );
+              )
+              .animate()
+              .fadeIn(
+                duration: 300.ms,
+                delay: Duration(milliseconds: index * 100),
+              )
+              .slideX(
+                begin: 0.2,
+                duration: 300.ms,
+                delay: Duration(milliseconds: index * 100),
+              );
         }),
       ],
     );
@@ -882,26 +883,26 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         ...privileges.entries.toList().asMap().entries.map((entry) {
           final index = entry.key;
           final privilegeEntry = entry.value;
           final privilegeName = privilegeEntry.key;
           final isAvailable = privilegeEntry.value;
-          
+
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isAvailable 
-                  ? color.withOpacity(0.1) 
+              color: isAvailable
+                  ? color.withOpacity(0.1)
                   : Colors.grey.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isAvailable 
-                    ? color.withOpacity(0.3) 
+                color: isAvailable
+                    ? color.withOpacity(0.3)
                     : Colors.grey.withOpacity(0.3),
               ),
             ),
@@ -925,11 +926,10 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                 ),
               ],
             ),
-          ).animate()
-            .fadeIn(
-              duration: 200.ms,
-              delay: Duration(milliseconds: index * 50),
-            );
+          ).animate().fadeIn(
+            duration: 200.ms,
+            delay: Duration(milliseconds: index * 50),
+          );
         }),
       ],
     );
@@ -937,158 +937,174 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
 
   Widget _buildAllTiersTab(TierState state) {
     final allTiers = TierLevel.values;
-    
+
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final tier = allTiers[index];
-            final isCurrentTier = state.currentTier?.level == tier;
-            final isPastTier = (state.currentTier?.level.level ?? 0) > tier.level;
-            final isNextTier = state.nextTier == tier;
-            
-            return _buildTierCard(tier, isCurrentTier, isPastTier, isNextTier, index);
-          },
-          childCount: allTiers.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final tier = allTiers[index];
+          final isCurrentTier = state.currentTier?.level == tier;
+          final isPastTier = (state.currentTier?.level.level ?? 0) > tier.level;
+          final isNextTier = state.nextTier == tier;
+
+          return _buildTierCard(
+            tier,
+            isCurrentTier,
+            isPastTier,
+            isNextTier,
+            index,
+          );
+        }, childCount: allTiers.length),
       ),
     );
   }
 
-  Widget _buildTierCard(TierLevel tier, bool isCurrent, bool isPast, bool isNext, int index) {
+  Widget _buildTierCard(
+    TierLevel tier,
+    bool isCurrent,
+    bool isPast,
+    bool isNext,
+    int index,
+  ) {
     Color cardColor = Colors.grey;
     if (isCurrent) cardColor = _getTierColor(tier);
     if (isPast) cardColor = Colors.green;
     if (isNext) cardColor = Colors.orange;
-    
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cardColor.withOpacity(0.3), width: isCurrent ? 2 : 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: cardColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: cardColor),
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: cardColor.withOpacity(0.3),
+              width: isCurrent ? 2 : 1,
             ),
-            child: Icon(
-              _getTierIcon(tier),
-              color: cardColor,
-              size: 28,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          
-          const SizedBox(width: 16),
-          
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: cardColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardColor),
+                ),
+                child: Icon(_getTierIcon(tier), color: cardColor, size: 28),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        tier.displayName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            tier.displayName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
+                        if (isCurrent)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'CURRENT',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (isNext)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'NEXT',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (isPast)
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 20,
+                          ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      'Level ${tier.level}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: cardColor,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    if (isCurrent)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'CURRENT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    if (isNext)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'NEXT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    if (isPast)
-                      const Icon(Icons.check_circle, color: Colors.green, size: 20),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      '${tier.minPoints.toStringAsFixed(0)}+ points - ${tier.maxPoints.toStringAsFixed(0)}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
                   ],
                 ),
-                
-                const SizedBox(height: 4),
-                
-                Text(
-                  'Level ${tier.level}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: cardColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                
-                const SizedBox(height: 4),
-                
-                Text(
-                  '${tier.minPoints.toStringAsFixed(0)}+ points - ${tier.maxPoints.toStringAsFixed(0)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+              ),
+
+              IconButton(
+                icon: const Icon(Icons.info_outline),
+                onPressed: () => _showTierDetails(tier),
+                color: cardColor,
+              ),
+            ],
           ),
-          
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () => _showTierDetails(tier),
-            color: cardColor,
-          ),
-        ],
-      ),
-    ).animate()
-      .fadeIn(
-        duration: 300.ms,
-        delay: Duration(milliseconds: index * 100),
-      )
-      .slideX(
-        begin: 0.3,
-        duration: 300.ms,
-        delay: Duration(milliseconds: index * 100),
-      );
+        )
+        .animate()
+        .fadeIn(
+          duration: 300.ms,
+          delay: Duration(milliseconds: index * 100),
+        )
+        .slideX(
+          begin: 0.3,
+          duration: 300.ms,
+          delay: Duration(milliseconds: index * 100),
+        );
   }
 
   Widget _buildFloatingActions(TierState state) {
@@ -1101,9 +1117,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
           backgroundColor: Colors.blue,
           child: const Icon(Icons.refresh),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         FloatingActionButton.extended(
           heroTag: "share",
           onPressed: () => _shareTierProgress(state),
@@ -1118,46 +1134,76 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
   // Helper methods
   Color _getTierColor(TierLevel? tier) {
     if (tier == null) return Colors.grey;
-    
+
     switch (tier.level) {
-      case 1: return Colors.brown;
-      case 2: return Colors.grey;
-      case 3: return Colors.green;
-      case 4: return Colors.blue;
-      case 5: return Colors.purple;
-      case 6: return Colors.orange;
-      case 7: return Colors.red;
-      case 8: return Colors.pink;
-      case 9: return Colors.teal;
-      case 10: return Colors.indigo;
-      case 11: return Colors.amber;
-      case 12: return Colors.deepOrange;
-      case 13: return Colors.deepPurple;
-      case 14: return Colors.cyan;
-      case 15: return Colors.black;
+      case 1:
+        return Colors.brown;
+      case 2:
+        return Colors.grey;
+      case 3:
+        return Colors.green;
+      case 4:
+        return Colors.blue;
+      case 5:
+        return Colors.purple;
+      case 6:
+        return Colors.orange;
+      case 7:
+        return Colors.red;
+      case 8:
+        return Colors.pink;
+      case 9:
+        return Colors.teal;
+      case 10:
+        return Colors.indigo;
+      case 11:
+        return Colors.amber;
+      case 12:
+        return Colors.deepOrange;
+      case 13:
+        return Colors.deepPurple;
+      case 14:
+        return Colors.cyan;
+      case 15:
+        return Colors.black;
     }
     return Colors.grey;
   }
 
   IconData _getTierIcon(TierLevel? tier) {
     if (tier == null) return Icons.emoji_nature;
-    
+
     switch (tier.level) {
-      case 1: return Icons.emoji_nature;
-      case 2: return Icons.local_florist;
-      case 3: return Icons.park;
-      case 4: return Icons.nature;
-      case 5: return Icons.forest;
-      case 6: return Icons.landscape;
-      case 7: return Icons.terrain;
-      case 8: return Icons.hiking;
-      case 9: return Icons.explore;
-      case 10: return Icons.psychology;
-      case 11: return Icons.auto_awesome;
-      case 12: return Icons.star;
-      case 13: return Icons.military_tech;
-      case 14: return Icons.workspace_premium;
-      case 15: return Icons.diamond;
+      case 1:
+        return Icons.emoji_nature;
+      case 2:
+        return Icons.local_florist;
+      case 3:
+        return Icons.park;
+      case 4:
+        return Icons.nature;
+      case 5:
+        return Icons.forest;
+      case 6:
+        return Icons.landscape;
+      case 7:
+        return Icons.terrain;
+      case 8:
+        return Icons.hiking;
+      case 9:
+        return Icons.explore;
+      case 10:
+        return Icons.psychology;
+      case 11:
+        return Icons.auto_awesome;
+      case 12:
+        return Icons.star;
+      case 13:
+        return Icons.military_tech;
+      case 14:
+        return Icons.workspace_premium;
+      case 15:
+        return Icons.diamond;
     }
     return Icons.help;
   }
@@ -1208,9 +1254,13 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
   }
 
   String _formatPrivilegeName(String privilegeName) {
-    return privilegeName.replaceAll('_', ' ').split(' ').map((word) {
-      return word[0].toUpperCase() + word.substring(1);
-    }).join(' ');
+    return privilegeName
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) {
+          return word[0].toUpperCase() + word.substring(1);
+        })
+        .join(' ');
   }
 
   // Action methods
@@ -1218,7 +1268,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
     final tierName = state.currentTier?.level.displayName ?? 'Unknown';
     final level = state.currentTier?.level.level ?? 1;
     final progress = state.progressToNext;
-    
+
     Share.share(
       'I\'m currently at $tierName (Level $level) in Dabbler! ${progress.toStringAsFixed(1)}% progress to the next tier! 🚀',
     );
@@ -1255,7 +1305,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Title
           Padding(
             padding: const EdgeInsets.all(20),
@@ -1265,15 +1315,12 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                 const SizedBox(width: 8),
                 const Text(
                   'Tier History',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-          
+
           // History list
           Expanded(
             child: ListView.builder(
@@ -1295,7 +1342,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isLatest ? _getTierColor(entry.tierLevel).withOpacity(0.1) : Colors.grey[50],
+        color: isLatest
+            ? _getTierColor(entry.tierLevel).withOpacity(0.1)
+            : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isLatest ? _getTierColor(entry.tierLevel) : Colors.grey[300]!,
@@ -1316,9 +1365,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
               size: 24,
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1336,7 +1385,10 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                     ),
                     if (isLatest)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: _getTierColor(entry.tierLevel),
                           borderRadius: BorderRadius.circular(8),
@@ -1352,17 +1404,14 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
                       ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 4),
-                
+
                 Text(
                   'Achieved on ${_formatHistoryDate(entry.achievedAt)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
-                
+
                 Text(
                   '${entry.pointsAtAchievement.toStringAsFixed(0)} points • ${entry.benefitsUnlocked} benefits unlocked',
                   style: TextStyle(
@@ -1403,7 +1452,9 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
             const SizedBox(height: 8),
             Text('Points Required: ${tier.minPoints.toStringAsFixed(0)}+'),
             const SizedBox(height: 4),
-            Text('Points Range: ${tier.minPoints.toStringAsFixed(0)} - ${tier.maxPoints.toStringAsFixed(0)}'),
+            Text(
+              'Points Range: ${tier.minPoints.toStringAsFixed(0)} - ${tier.maxPoints.toStringAsFixed(0)}',
+            ),
           ],
         ),
         actions: [
@@ -1450,7 +1501,7 @@ class _TierProgressScreenState extends ConsumerState<TierProgressScreen>
   String _formatHistoryDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'Today';
     } else if (difference.inDays == 1) {

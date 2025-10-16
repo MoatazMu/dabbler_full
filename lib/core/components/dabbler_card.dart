@@ -24,7 +24,7 @@ class DabblerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: margin ?? DabblerSpacing.all16,
       elevation: elevation ?? 1,
@@ -32,10 +32,7 @@ class DabblerCard extends StatelessWidget {
         borderRadius: borderRadius ?? BorderRadius.circular(12),
       ),
       color: backgroundColor ?? theme.cardColor,
-      child: Padding(
-        padding: padding ?? DabblerSpacing.all16,
-        child: child,
-      ),
+      child: Padding(padding: padding ?? DabblerSpacing.all16, child: child),
     );
   }
 }
@@ -58,16 +55,13 @@ class DabblerContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return DabblerCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            style: DabblerTypography.headline5(),
-          ),
+          Text(title, style: DabblerTypography.headline5()),
           if (subtitle != null) ...[
             SizedBox(height: DabblerSpacing.spacing8),
             Text(
@@ -81,10 +75,7 @@ class DabblerContentCard extends StatelessWidget {
           content,
           if (actions != null) ...[
             SizedBox(height: DabblerSpacing.spacing16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: actions!,
-            ),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: actions!),
           ],
         ],
       ),

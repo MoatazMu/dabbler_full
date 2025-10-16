@@ -13,18 +13,18 @@ import '../widgets/trending/top_contributors_widget.dart';
 import '../widgets/trending/engagement_metrics_widget.dart';
 
 /// Provider for the social feed controller
-final socialFeedControllerProvider = StateNotifierProvider<SocialFeedController, SocialFeedState>(
-  (ref) => SocialFeedController(),
-);
+final socialFeedControllerProvider =
+    StateNotifierProvider<SocialFeedController, SocialFeedState>(
+      (ref) => SocialFeedController(),
+    );
 
 /// Provider for the posts controller (post creation)
-final postsControllerProvider = StateNotifierProvider<PostsController, PostsState>(
-  (ref) {
-    // For now, create a mock use case to avoid dependency issues
-    final mockUseCase = _MockCreatePostUseCase();
-    return PostsController(mockUseCase);
-  },
-);
+final postsControllerProvider =
+    StateNotifierProvider<PostsController, PostsState>((ref) {
+      // For now, create a mock use case to avoid dependency issues
+      final mockUseCase = _MockCreatePostUseCase();
+      return PostsController(mockUseCase);
+    });
 
 // Mock implementation to avoid dependency issues
 class _MockCreatePostUseCase {
@@ -45,7 +45,9 @@ final hasPendingPostsProvider = Provider<bool>((ref) {
 });
 
 /// Provider for recent chat contacts
-final recentChatContactsProvider = FutureProvider<List<UserProfile>>((ref) async {
+final recentChatContactsProvider = FutureProvider<List<UserProfile>>((
+  ref,
+) async {
   // TODO: Implement actual recent contacts logic
   return [];
 });
@@ -70,7 +72,10 @@ final currentUserIdProvider = Provider<String>((ref) {
 });
 
 /// Provider for post details by ID
-final postDetailsProvider = FutureProvider.family<PostModel, String>((ref, postId) async {
+final postDetailsProvider = FutureProvider.family<PostModel, String>((
+  ref,
+  postId,
+) async {
   // TODO: Implement actual post details fetching logic
   await Future.delayed(const Duration(milliseconds: 500));
   final allPosts = ref.read(postsProvider);
@@ -94,20 +99,29 @@ final postDetailsProvider = FutureProvider.family<PostModel, String>((ref, postI
 });
 
 /// Provider for post comments by post ID
-final postCommentsProvider = FutureProvider.family<List<CommentModel>, String>((ref, postId) async {
+final postCommentsProvider = FutureProvider.family<List<CommentModel>, String>((
+  ref,
+  postId,
+) async {
   // TODO: Implement actual comments fetching logic
   await Future.delayed(const Duration(milliseconds: 300));
   return [];
 });
 
 /// Provider for post comments count by post ID
-final postCommentsCountProvider = FutureProvider.family<int, String>((ref, postId) async {
+final postCommentsCountProvider = FutureProvider.family<int, String>((
+  ref,
+  postId,
+) async {
   final comments = await ref.watch(postCommentsProvider(postId).future);
   return comments.length;
 });
 
 /// Provider for post likes by post ID
-final postLikesProvider = FutureProvider.family<List<UserProfile>, String>((ref, postId) async {
+final postLikesProvider = FutureProvider.family<List<UserProfile>, String>((
+  ref,
+  postId,
+) async {
   // TODO: Implement actual likes fetching logic
   await Future.delayed(const Duration(milliseconds: 300));
   return [];
@@ -155,33 +169,44 @@ final archivedChatsCountProvider = Provider<int>((ref) {
 });
 
 /// Provider for recent conversation media
-final recentConversationMediaProvider = FutureProvider.family<List<String>, ({String conversationId, int limit})>((ref, params) async {
-  // TODO: Implement actual conversation media logic
-  await Future.delayed(const Duration(milliseconds: 500));
-  return [];
-});
+final recentConversationMediaProvider =
+    FutureProvider.family<List<String>, ({String conversationId, int limit})>((
+      ref,
+      params,
+    ) async {
+      // TODO: Implement actual conversation media logic
+      await Future.delayed(const Duration(milliseconds: 500));
+      return [];
+    });
 
 /// Provider for conversation stats
-final conversationStatsProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, conversationId) async {
-  // TODO: Implement actual conversation stats logic
-  await Future.delayed(const Duration(milliseconds: 500));
-  return {
-    'totalMessages': 0,
-    'mediaCount': 0,
-    'participantCount': 0,
-    'createdDate': DateTime.now().toIso8601String(),
-  };
-});
+final conversationStatsProvider =
+    FutureProvider.family<Map<String, dynamic>, String>((
+      ref,
+      conversationId,
+    ) async {
+      // TODO: Implement actual conversation stats logic
+      await Future.delayed(const Duration(milliseconds: 500));
+      return {
+        'totalMessages': 0,
+        'mediaCount': 0,
+        'participantCount': 0,
+        'createdDate': DateTime.now().toIso8601String(),
+      };
+    });
 
 // =============================================================================
 // FRIEND REQUESTS PROVIDERS
 // =============================================================================
 
 /// Provider for friend requests controller
-final friendRequestsControllerProvider = StateNotifierProvider<FriendRequestsController, FriendRequestsState>((ref) {
-  // TODO: Implement proper dependency injection
-  throw UnimplementedError('FriendRequestsController dependencies not implemented');
-});
+final friendRequestsControllerProvider =
+    StateNotifierProvider<FriendRequestsController, FriendRequestsState>((ref) {
+      // TODO: Implement proper dependency injection
+      throw UnimplementedError(
+        'FriendRequestsController dependencies not implemented',
+      );
+    });
 
 /// Provider for incoming requests count
 final incomingRequestsCountProvider = Provider<int>((ref) {
@@ -196,36 +221,48 @@ final outgoingRequestsCountProvider = Provider<int>((ref) {
 });
 
 /// Provider for trending hashtags
-final trendingHashtagsProvider = FutureProvider.family<List<TrendingHashtag>, TrendingTimeRange>((ref, timeRange) async {
-  // TODO: Implement actual trending hashtags logic
-  await Future.delayed(const Duration(milliseconds: 500));
-  return [];
-});
+final trendingHashtagsProvider =
+    FutureProvider.family<List<TrendingHashtag>, TrendingTimeRange>((
+      ref,
+      timeRange,
+    ) async {
+      // TODO: Implement actual trending hashtags logic
+      await Future.delayed(const Duration(milliseconds: 500));
+      return [];
+    });
 
 /// Provider for top contributors
-final topContributorsProvider = FutureProvider.family<List<TopContributor>, TrendingTimeRange>((ref, timeRange) async {
-  // TODO: Implement actual top contributors logic
-  await Future.delayed(const Duration(milliseconds: 500));
-  return [];
-});
+final topContributorsProvider =
+    FutureProvider.family<List<TopContributor>, TrendingTimeRange>((
+      ref,
+      timeRange,
+    ) async {
+      // TODO: Implement actual top contributors logic
+      await Future.delayed(const Duration(milliseconds: 500));
+      return [];
+    });
 
 /// Provider for engagement metrics
-final engagementMetricsProvider = FutureProvider.family<EngagementMetrics, TrendingTimeRange>((ref, timeRange) async {
-  // TODO: Implement actual engagement metrics logic
-  await Future.delayed(const Duration(milliseconds: 500));
-  return const EngagementMetrics(
-    totalPosts: 0,
-    totalEngagement: 0,
-    averageEngagementRate: 0.0,
-    activeUsers: 0,
-    totalLikes: 0,
-    totalComments: 0,
-    totalShares: 0,
-    postsGrowth: 0.0,
-    engagementGrowth: 0.0,
-    userGrowth: 0.0,
-  );
-});
+final engagementMetricsProvider =
+    FutureProvider.family<EngagementMetrics, TrendingTimeRange>((
+      ref,
+      timeRange,
+    ) async {
+      // TODO: Implement actual engagement metrics logic
+      await Future.delayed(const Duration(milliseconds: 500));
+      return const EngagementMetrics(
+        totalPosts: 0,
+        totalEngagement: 0,
+        averageEngagementRate: 0.0,
+        activeUsers: 0,
+        totalLikes: 0,
+        totalComments: 0,
+        totalShares: 0,
+        postsGrowth: 0.0,
+        engagementGrowth: 0.0,
+        userGrowth: 0.0,
+      );
+    });
 
 /// Simple media item model for recent media
 class MediaItem {

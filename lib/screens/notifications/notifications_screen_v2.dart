@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:go_router/go_router.dart';
 import '../../features/notifications/data/notifications_repository.dart';
 import '../../features/notifications/presentation/providers/notifications_providers.dart';
 import '../../core/services/auth_service.dart';
+import '../../navigation/notification_navigator.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../themes/app_theme.dart';
 
@@ -12,7 +13,8 @@ class NotificationsScreenV2 extends ConsumerStatefulWidget {
   const NotificationsScreenV2({super.key});
 
   @override
-  ConsumerState<NotificationsScreenV2> createState() => _NotificationsScreenV2State();
+  ConsumerState<NotificationsScreenV2> createState() =>
+      _NotificationsScreenV2State();
 }
 
 class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
@@ -52,9 +54,7 @@ class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
           actionIcon: LucideIcons.bell,
           onActionPressed: () {},
         ),
-        body: const Center(
-          child: Text('Please sign in to view notifications'),
-        ),
+        body: const Center(child: Text('Please sign in to view notifications')),
       );
     }
 
@@ -113,7 +113,10 @@ class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
               },
               child: Container(
                 margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? context.colors.primary
@@ -163,11 +166,7 @@ class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
       ),
       child: Row(
         children: [
-          Icon(
-            LucideIcons.bellDot,
-            size: 16,
-            color: context.colors.primary,
-          ),
+          Icon(LucideIcons.bellDot, size: 16, color: context.colors.primary),
           const SizedBox(width: 8),
           Text(
             '${state.unreadCount} unread',
@@ -264,11 +263,16 @@ class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
         ),
         child: ListTile(
           contentPadding: const EdgeInsets.all(16),
-          leading: _getNotificationIcon(notification.type, notification.priority),
+          leading: _getNotificationIcon(
+            notification.type,
+            notification.priority,
+          ),
           title: Text(
             notification.title,
             style: context.textTheme.titleMedium?.copyWith(
-              fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+              fontWeight: notification.isRead
+                  ? FontWeight.normal
+                  : FontWeight.bold,
               color: context.colors.onSurface,
             ),
           ),
@@ -307,7 +311,10 @@ class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
     );
   }
 
-  Widget _getNotificationIcon(NotificationType type, NotificationPriority priority) {
+  Widget _getNotificationIcon(
+    NotificationType type,
+    NotificationPriority priority,
+  ) {
     IconData icon;
     Color color;
 
@@ -388,17 +395,34 @@ class _NotificationsScreenV2State extends ConsumerState<NotificationsScreenV2> {
     );
   }
 
-  Future<void> _handleNotificationTap(String userId, NotificationItem notification) async {
-    // Mark as read
+  Future<void> _handleNotificationTap(
+    String userId,
+    NotificationItem notification,
+  ) async {
+    // Mark as read with error handling
     if (!notification.isRead) {
-      await ref
-          .read(notificationsControllerProvider(userId).notifier)
-          .markAsRead(notification.id);
+      try {
+        await ref
+            .read(notificationsControllerProvider(userId).notifier)
+            .markAsRead(notification.id);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to mark as read: $e'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        // Don't return - still allow navigation even if mark as read failed
+      }
     }
 
-    // Navigate if action route exists
-    if (notification.actionRoute != null && mounted) {
-      context.push(notification.actionRoute!);
+    // Navigate using NotificationNavigator
+    if (mounted) {
+      await NotificationNavigator.open(context, notification);
     }
   }
 

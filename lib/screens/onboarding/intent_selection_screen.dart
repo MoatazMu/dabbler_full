@@ -9,11 +9,8 @@ import 'create_user_information.dart' show RegistrationData;
 
 class IntentSelectionScreen extends StatefulWidget {
   final RegistrationData? registrationData;
-  
-  const IntentSelectionScreen({
-    super.key,
-    this.registrationData,
-  });
+
+  const IntentSelectionScreen({super.key, this.registrationData});
 
   @override
   State<IntentSelectionScreen> createState() => _IntentSelectionScreenState();
@@ -33,15 +30,20 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
   Future<void> _loadExistingUserData() async {
     try {
       print('🎯 [DEBUG] IntentSelectionScreen: Loading existing user data');
-      
+
       // Check if we have registration data from previous step
-      if (widget.registrationData?.intent != null && widget.registrationData!.intent!.isNotEmpty) {
-        print('✅ [DEBUG] IntentSelectionScreen: Found intent in registration data: ${widget.registrationData!.intent}');
+      if (widget.registrationData?.intent != null &&
+          widget.registrationData!.intent!.isNotEmpty) {
+        print(
+          '✅ [DEBUG] IntentSelectionScreen: Found intent in registration data: ${widget.registrationData!.intent}',
+        );
         setState(() {
           _selectedIntent = widget.registrationData!.intent;
         });
       } else {
-        print('🆕 [DEBUG] IntentSelectionScreen: No existing intent data, starting fresh');
+        print(
+          '🆕 [DEBUG] IntentSelectionScreen: No existing intent data, starting fresh',
+        );
       }
     } catch (e) {
       print('❌ [DEBUG] IntentSelectionScreen: Error loading existing data: $e');
@@ -75,26 +77,33 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
 
     try {
       print('🎯 [DEBUG] IntentSelectionScreen: Collecting intent preferences');
-      print('📋 [DEBUG] IntentSelectionScreen: Selected intent: $_selectedIntent');
+      print(
+        '📋 [DEBUG] IntentSelectionScreen: Selected intent: $_selectedIntent',
+      );
 
       // Get registration data from previous step and add intent
-      final registrationData = widget.registrationData?.copyWith(intent: _selectedIntent);
-      
-      print('✅ [DEBUG] IntentSelectionScreen: Intent preferences collected successfully');
-      print('📧 [DEBUG] IntentSelectionScreen: Email for password creation: ${registrationData?.email}');
+      final registrationData = widget.registrationData?.copyWith(
+        intent: _selectedIntent,
+      );
+
+      print(
+        '✅ [DEBUG] IntentSelectionScreen: Intent preferences collected successfully',
+      );
+      print(
+        '📧 [DEBUG] IntentSelectionScreen: Email for password creation: ${registrationData?.email}',
+      );
 
       if (mounted) {
         // Navigate to password creation screen with complete registration data
         context.go(RoutePaths.setPassword, extra: registrationData?.toMap());
       }
     } catch (e) {
-      print('❌ [DEBUG] IntentSelectionScreen: Error collecting intent preferences: $e');
+      print(
+        '❌ [DEBUG] IntentSelectionScreen: Error collecting intent preferences: $e',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -108,14 +117,20 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
     setState(() => _isLoading = true);
 
     try {
-      print('🎯 [DEBUG] IntentSelectionScreen: Skipping intent selection, using default');
-      
+      print(
+        '🎯 [DEBUG] IntentSelectionScreen: Skipping intent selection, using default',
+      );
+
       // Use default intent (casual) and get registration data from previous step
-      final registrationData = widget.registrationData?.copyWith(intent: 'casual');
-      
+      final registrationData = widget.registrationData?.copyWith(
+        intent: 'casual',
+      );
+
       print('✅ [DEBUG] IntentSelectionScreen: Using default intent: casual');
-      print('📧 [DEBUG] IntentSelectionScreen: Email for password creation: ${registrationData?.email}');
-      
+      print(
+        '📧 [DEBUG] IntentSelectionScreen: Email for password creation: ${registrationData?.email}',
+      );
+
       if (mounted) {
         // Navigate to password creation screen with complete registration data
         context.go(RoutePaths.setPassword, extra: registrationData?.toMap());
@@ -124,10 +139,7 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
       print('❌ [DEBUG] IntentSelectionScreen: Error in skip: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -150,43 +162,43 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
           children: [
             // Onboarding Progress
             OnboardingProgress(),
-            
+
             // Main Content
             Expanded(
               child: _isLoadingData
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                      padding: const EdgeInsets.all(
+                        AppConstants.defaultPadding,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: 32),
-                          
+
                           // Header
                           Text(
                             'What\'s your main goal?',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.headlineMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           Text(
                             'Help us find the right matches for you',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: Colors.grey[600]),
                             textAlign: TextAlign.center,
                           ),
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // Intent Options
                           ...AppConstants.availableIntents.map((intent) {
                             final isSelected = _selectedIntent == intent;
-                            
+
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               child: GestureDetector(
@@ -194,38 +206,59 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: isSelected ? Colors.blue[50] : Colors.grey[50],
+                                    color: isSelected
+                                        ? Colors.blue[50]
+                                        : Colors.grey[50],
                                     border: Border.all(
-                                      color: isSelected ? Colors.blue : Colors.grey[300]!,
+                                      color: isSelected
+                                          ? Colors.blue
+                                          : Colors.grey[300]!,
                                       width: isSelected ? 2 : 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                                    borderRadius: BorderRadius.circular(
+                                      AppConstants.borderRadius,
+                                    ),
                                   ),
                                   child: Row(
                                     children: [
                                       Icon(
                                         _getIntentIcon(intent),
                                         size: 24,
-                                        color: isSelected ? Colors.blue[700] : Colors.grey[600],
+                                        color: isSelected
+                                            ? Colors.blue[700]
+                                            : Colors.grey[600],
                                       ),
                                       const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              AppHelpers.getIntentDisplayName(intent),
-                                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                                color: isSelected ? Colors.blue[700] : Colors.grey[700],
+                                              AppHelpers.getIntentDisplayName(
+                                                intent,
                                               ),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge
+                                                  ?.copyWith(
+                                                    fontWeight: isSelected
+                                                        ? FontWeight.w600
+                                                        : FontWeight.normal,
+                                                    color: isSelected
+                                                        ? Colors.blue[700]
+                                                        : Colors.grey[700],
+                                                  ),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               _getIntentDescription(intent),
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Colors.grey[600],
-                                              ),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall
+                                                  ?.copyWith(
+                                                    color: Colors.grey[600],
+                                                  ),
                                             ),
                                           ],
                                         ),
@@ -242,17 +275,19 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
                               ),
                             );
                           }),
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // Continue Button
                           CustomButton(
                             onPressed: _isLoading ? null : _handleSubmit,
-                            text: _isLoading ? 'Continuing...' : 'Continue to Password',
+                            text: _isLoading
+                                ? 'Continuing...'
+                                : 'Continue to Password',
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
                           // Skip Button
                           TextButton(
                             onPressed: _isLoading ? null : _handleSkip,
@@ -261,7 +296,7 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 32),
                         ],
                       ),

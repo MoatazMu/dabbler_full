@@ -6,14 +6,15 @@ class AvailableGamesScreen extends ConsumerStatefulWidget {
   const AvailableGamesScreen({super.key});
 
   @override
-  ConsumerState<AvailableGamesScreen> createState() => _AvailableGamesScreenState();
+  ConsumerState<AvailableGamesScreen> createState() =>
+      _AvailableGamesScreenState();
 }
 
 class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
   bool _isMapView = false;
   final _searchController = TextEditingController();
   String _sortBy = 'distance'; // distance, date, price
-  
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -27,9 +28,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
       body: Column(
         children: [
           _buildSearchAndSort(),
-          Expanded(
-            child: _isMapView ? _buildMapView() : _buildListView(),
-          ),
+          Expanded(child: _isMapView ? _buildMapView() : _buildListView()),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -87,7 +86,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
             onChanged: _performSearch,
           ),
           const SizedBox(height: 12),
-          
+
           // Sort Options
           Row(
             children: [
@@ -185,13 +184,10 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                       color: _getSportColor(game.sport),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      _getSportIcon(game.sport),
-                      color: Colors.white,
-                    ),
+                    child: Icon(_getSportIcon(game.sport), color: Colors.white),
                   ),
                   const SizedBox(width: 12),
-                  
+
                   // Game Info
                   Expanded(
                     child: Column(
@@ -215,7 +211,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Price
                   if (game.pricePerPlayer > 0)
                     Container(
@@ -258,7 +254,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               // Date, Time, Location
               Row(
                 children: [
@@ -278,7 +274,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                 ],
               ),
               const SizedBox(height: 8),
-              
+
               if (game.venueId != null)
                 Row(
                   children: [
@@ -291,7 +287,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                   ],
                 ),
               const SizedBox(height: 12),
-              
+
               // Players and Join Status
               Row(
                 children: [
@@ -309,7 +305,10 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.blue[300],
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
                               child: Icon(
                                 Icons.person,
@@ -348,12 +347,14 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Join Button
                   ElevatedButton(
                     onPressed: () => _joinGame(game),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _canJoinGame(game) ? Colors.blue : Colors.grey,
+                      backgroundColor: _canJoinGame(game)
+                          ? Colors.blue
+                          : Colors.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -426,7 +427,7 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              
+
               // Header
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -447,76 +448,58 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
                   ],
                 ),
               ),
-              
+
               Expanded(
                 child: ListView(
                   controller: scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
                     // Date Range
-                    _buildFilterSection(
-                      'Date Range',
-                      Icons.calendar_today,
-                      [
-                        ListTile(
-                          title: const Text('Select Date Range'),
-                          subtitle: const Text('Tap to choose start and end dates'),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                          onTap: () => _showDateRangePicker(),
+                    _buildFilterSection('Date Range', Icons.calendar_today, [
+                      ListTile(
+                        title: const Text('Select Date Range'),
+                        subtitle: const Text(
+                          'Tap to choose start and end dates',
                         ),
-                      ],
-                    ),
-                    
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () => _showDateRangePicker(),
+                      ),
+                    ]),
+
                     // Distance
-                    _buildFilterSection(
-                      'Distance',
-                      Icons.location_on,
-                      [
-                        const ListTile(
-                          title: Text('Radius: 10 km'),
-                          subtitle: Text('Adjust search radius'),
-                        ),
-                        // TODO: Add slider for distance
-                      ],
-                    ),
-                    
+                    _buildFilterSection('Distance', Icons.location_on, [
+                      const ListTile(
+                        title: Text('Radius: 10 km'),
+                        subtitle: Text('Adjust search radius'),
+                      ),
+                      // TODO: Add slider for distance
+                    ]),
+
                     // Sports
-                    _buildFilterSection(
-                      'Sports',
-                      Icons.sports,
-                      [
-                        _buildSportChip('Basketball'),
-                        _buildSportChip('Football'),
-                        _buildSportChip('Tennis'),
-                        _buildSportChip('Soccer'),
-                      ],
-                    ),
-                    
+                    _buildFilterSection('Sports', Icons.sports, [
+                      _buildSportChip('Basketball'),
+                      _buildSportChip('Football'),
+                      _buildSportChip('Tennis'),
+                      _buildSportChip('Soccer'),
+                    ]),
+
                     // Skill Level
-                    _buildFilterSection(
-                      'Skill Level',
-                      Icons.star,
-                      [
-                        _buildSkillChip('Beginner'),
-                        _buildSkillChip('Intermediate'),
-                        _buildSkillChip('Advanced'),
-                        _buildSkillChip('Mixed'),
-                      ],
-                    ),
-                    
+                    _buildFilterSection('Skill Level', Icons.star, [
+                      _buildSkillChip('Beginner'),
+                      _buildSkillChip('Intermediate'),
+                      _buildSkillChip('Advanced'),
+                      _buildSkillChip('Mixed'),
+                    ]),
+
                     // Price Range
-                    _buildFilterSection(
-                      'Price Range',
-                      Icons.monetization_on,
-                      [
-                        const ListTile(
-                          title: Text('Free - \$50'),
-                          subtitle: Text('Adjust price range'),
-                        ),
-                        // TODO: Add price range slider
-                      ],
-                    ),
-                    
+                    _buildFilterSection('Price Range', Icons.monetization_on, [
+                      const ListTile(
+                        title: Text('Free - \$50'),
+                        subtitle: Text('Adjust price range'),
+                      ),
+                      // TODO: Add price range slider
+                    ]),
+
                     // Apply Button
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -548,7 +531,11 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
     );
   }
 
-  Widget _buildFilterSection(String title, IconData icon, List<Widget> children) {
+  Widget _buildFilterSection(
+    String title,
+    IconData icon,
+    List<Widget> children,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -631,18 +618,14 @@ class _AvailableGamesScreenState extends ConsumerState<AvailableGamesScreen> {
   }
 
   void _navigateToGameDetail(String gameId) {
-    Navigator.pushNamed(
-      context,
-      '/games/detail',
-      arguments: gameId,
-    );
+    Navigator.pushNamed(context, '/games/detail', arguments: gameId);
   }
 
   void _joinGame(game) {
     // TODO: Implement join game functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Joining game: ${game.title}')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Joining game: ${game.title}')));
   }
 
   bool _canJoinGame(game) {

@@ -1,24 +1,12 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/achievement.dart';
 import '../../../domain/entities/user_progress.dart';
 import 'achievement_card.dart';
 
-enum GridLayout {
-  compact,
-  comfortable,
-  detailed,
-}
+enum GridLayout { compact, comfortable, detailed }
 
-enum SortBy {
-  name,
-  points,
-  progress,
-  tier,
-  category,
-  dateUnlocked,
-}
+enum SortBy { name, points, progress, tier, category, dateUnlocked }
 
 class AchievementGrid extends StatefulWidget {
   final List<Achievement> achievements;
@@ -81,7 +69,7 @@ class _AchievementGridState extends State<AchievementGrid>
   @override
   void initState() {
     super.initState();
-    
+
     _scrollController = widget.scrollController ?? ScrollController();
     if (widget.enableInfiniteScroll) {
       _scrollController.addListener(_onScroll);
@@ -92,13 +80,9 @@ class _AchievementGridState extends State<AchievementGrid>
       vsync: this,
     );
 
-    _loadingAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _loadingController,
-      curve: Curves.easeInOut,
-    ));
+    _loadingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _loadingController, curve: Curves.easeInOut),
+    );
 
     _filterAndSortAchievements();
   }
@@ -106,7 +90,7 @@ class _AchievementGridState extends State<AchievementGrid>
   @override
   void didUpdateWidget(AchievementGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (oldWidget.achievements != widget.achievements ||
         oldWidget.searchQuery != widget.searchQuery ||
         oldWidget.selectedCategory != widget.selectedCategory ||
@@ -136,7 +120,7 @@ class _AchievementGridState extends State<AchievementGrid>
         setState(() {
           _currentPage++;
           _isLoading = false;
-          
+
           // Check if there are more items to load
           final totalItems = widget.achievements.length;
           final loadedItems = _currentPage * widget.itemsPerPage;
@@ -157,8 +141,8 @@ class _AchievementGridState extends State<AchievementGrid>
       filtered = filtered.where((achievement) {
         final query = widget.searchQuery.toLowerCase();
         return achievement.name.toLowerCase().contains(query) ||
-               achievement.description.toLowerCase().contains(query) ||
-               achievement.code.toLowerCase().contains(query);
+            achievement.description.toLowerCase().contains(query) ||
+            achievement.code.toLowerCase().contains(query);
       }).toList();
     }
 
@@ -172,7 +156,7 @@ class _AchievementGridState extends State<AchievementGrid>
     // Apply sorting
     filtered.sort((a, b) {
       int comparison = 0;
-      
+
       switch (widget.sortBy) {
         case SortBy.name:
           comparison = a.name.compareTo(b.name);
@@ -181,8 +165,10 @@ class _AchievementGridState extends State<AchievementGrid>
           comparison = a.points.compareTo(b.points);
           break;
         case SortBy.progress:
-          final progressA = widget.userProgressMap[a.id]?.calculateProgress() ?? 0;
-          final progressB = widget.userProgressMap[b.id]?.calculateProgress() ?? 0;
+          final progressA =
+              widget.userProgressMap[a.id]?.calculateProgress() ?? 0;
+          final progressB =
+              widget.userProgressMap[b.id]?.calculateProgress() ?? 0;
           comparison = progressA.compareTo(progressB);
           break;
         case SortBy.tier:
@@ -196,12 +182,15 @@ class _AchievementGridState extends State<AchievementGrid>
           final progressB = widget.userProgressMap[b.id];
           final completedA = progressA?.completedAt;
           final completedB = progressB?.completedAt;
-          
+
           if (completedA == null && completedB == null) {
             comparison = 0;
-          } else if (completedA == null) comparison = 1;
-          else if (completedB == null) comparison = -1;
-          else comparison = completedA.compareTo(completedB);
+          } else if (completedA == null)
+            comparison = 1;
+          else if (completedB == null)
+            comparison = -1;
+          else
+            comparison = completedA.compareTo(completedB);
           break;
       }
 
@@ -216,7 +205,7 @@ class _AchievementGridState extends State<AchievementGrid>
 
     setState(() {
       _filteredAchievements = filtered;
-      
+
       if (widget.showCategories) {
         _groupedAchievements = _groupByCategory(filtered);
       }
@@ -227,7 +216,7 @@ class _AchievementGridState extends State<AchievementGrid>
     List<Achievement> achievements,
   ) {
     final Map<AchievementCategory, List<Achievement>> grouped = {};
-    
+
     for (final achievement in achievements) {
       if (!grouped.containsKey(achievement.category)) {
         grouped[achievement.category] = [];
@@ -260,13 +249,12 @@ class _AchievementGridState extends State<AchievementGrid>
           child: _filteredAchievements.isEmpty
               ? _buildEmptyState()
               : widget.showCategories
-                  ? _buildCategorizedGrid()
-                  : _buildSimpleGrid(),
+              ? _buildCategorizedGrid()
+              : _buildSimpleGrid(),
         ),
 
         // Loading indicator for infinite scroll
-        if (widget.enableInfiniteScroll && _isLoading)
-          _buildLoadingIndicator(),
+        if (widget.enableInfiniteScroll && _isLoading) _buildLoadingIndicator(),
       ],
     );
   }
@@ -310,7 +298,10 @@ class _AchievementGridState extends State<AchievementGrid>
                     initialValue: widget.sortBy,
                     onChanged: (sortBy) {
                       if (sortBy != null) {
-                        widget.onSortChanged?.call(sortBy, widget.sortAscending);
+                        widget.onSortChanged?.call(
+                          sortBy,
+                          widget.sortAscending,
+                        );
                       }
                     },
                     decoration: InputDecoration(
@@ -318,7 +309,10 @@ class _AchievementGridState extends State<AchievementGrid>
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     items: SortBy.values.map((sortBy) {
                       return DropdownMenuItem(
@@ -334,10 +328,15 @@ class _AchievementGridState extends State<AchievementGrid>
                 // Sort direction
                 IconButton(
                   onPressed: () {
-                    widget.onSortChanged?.call(widget.sortBy, !widget.sortAscending);
+                    widget.onSortChanged?.call(
+                      widget.sortBy,
+                      !widget.sortAscending,
+                    );
                   },
                   icon: Icon(
-                    widget.sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                    widget.sortAscending
+                        ? Icons.arrow_upward
+                        : Icons.arrow_downward,
                   ),
                 ),
 
@@ -374,28 +373,24 @@ class _AchievementGridState extends State<AchievementGrid>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.emoji_events_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.emoji_events_outlined, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             widget.searchQuery.isNotEmpty
                 ? 'No achievements found'
                 : 'No achievements yet',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           Text(
             widget.searchQuery.isNotEmpty
                 ? 'Try adjusting your search or filters'
                 : 'Start playing games to earn your first achievements!',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[500],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -452,7 +447,10 @@ class _AchievementGridState extends State<AchievementGrid>
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),

@@ -6,7 +6,8 @@ class RewardsOnboardingFlow extends ConsumerStatefulWidget {
   const RewardsOnboardingFlow({super.key});
 
   @override
-  ConsumerState<RewardsOnboardingFlow> createState() => _RewardsOnboardingFlowState();
+  ConsumerState<RewardsOnboardingFlow> createState() =>
+      _RewardsOnboardingFlowState();
 }
 
 class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
@@ -14,7 +15,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
   late PageController _pageController;
   late AnimationController _animationController;
   late AnimationController _confettiController;
-  
+
   int _currentPage = 0;
   final int _totalPages = 6;
 
@@ -30,7 +31,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     // Start the animation
     _animationController.forward();
   }
@@ -75,7 +76,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                 ],
               ),
             ),
-            
+
             // Page Content
             Expanded(
               child: PageView(
@@ -97,7 +98,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                 ],
               ),
             ),
-            
+
             // Navigation
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -111,18 +112,25 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     )
                   else
                     const SizedBox(width: 48),
-                  
+
                   ElevatedButton(
-                    onPressed: _currentPage < _totalPages - 1 ? _nextPage : _finishOnboarding,
+                    onPressed: _currentPage < _totalPages - 1
+                        ? _nextPage
+                        : _finishOnboarding,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    child: Text(_currentPage < _totalPages - 1 ? 'Next' : 'Get Started'),
+                    child: Text(
+                      _currentPage < _totalPages - 1 ? 'Next' : 'Get Started',
+                    ),
                   ),
                 ],
               ),
@@ -149,7 +157,10 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                   // Animated trophy icon
                   ScaleTransition(
                     scale: Tween(begin: 0.0, end: 1.0).animate(
-                      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+                      CurvedAnimation(
+                        parent: _animationController,
+                        curve: Curves.elasticOut,
+                      ),
                     ),
                     child: Container(
                       width: 120,
@@ -177,7 +188,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   const Text(
                     'Welcome to Rewards!',
                     style: TextStyle(
@@ -188,7 +199,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   Text(
                     'Earn points, unlock achievements, and climb the leaderboard as you explore and engage with Dabbler.',
                     style: TextStyle(
@@ -199,15 +210,33 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Feature preview cards
                   Row(
                     children: [
-                      Expanded(child: _buildPreviewCard(Icons.stars, 'Achievements', Colors.blue)),
+                      Expanded(
+                        child: _buildPreviewCard(
+                          Icons.stars,
+                          'Achievements',
+                          Colors.blue,
+                        ),
+                      ),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildPreviewCard(Icons.trending_up, 'Points', Colors.green)),
+                      Expanded(
+                        child: _buildPreviewCard(
+                          Icons.trending_up,
+                          'Points',
+                          Colors.green,
+                        ),
+                      ),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildPreviewCard(Icons.military_tech, 'Tiers', Colors.purple)),
+                      Expanded(
+                        child: _buildPreviewCard(
+                          Icons.military_tech,
+                          'Tiers',
+                          Colors.purple,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -277,7 +306,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     ],
                   ),
                   const SizedBox(height: 40),
-                  
+
                   const Text(
                     'Your First Achievement!',
                     style: TextStyle(
@@ -288,7 +317,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Achievement details card
                   Card(
                     elevation: 8,
@@ -321,7 +350,11 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.stars, color: Colors.amber, size: 20),
+                              const Icon(
+                                Icons.stars,
+                                color: Colors.amber,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               const Text(
                                 '+100 Points',
@@ -337,7 +370,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   Text(
                     'Achievements are special milestones you unlock by completing various activities in Dabbler.',
                     style: TextStyle(
@@ -399,16 +432,13 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                         ),
                         Text(
                           'POINTS',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.white),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   const Text(
                     'How Points Work',
                     style: TextStyle(
@@ -419,16 +449,36 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Points sources
                   ..._buildPointsSourceCards([
-                    {'icon': Icons.sports_esports, 'title': 'Playing Games', 'points': '+50', 'color': Colors.green},
-                    {'icon': Icons.people, 'title': 'Social Actions', 'points': '+25', 'color': Colors.orange},
-                    {'icon': Icons.emoji_events, 'title': 'Achievements', 'points': '+100', 'color': Colors.purple},
-                    {'icon': Icons.calendar_today, 'title': 'Daily Login', 'points': '+20', 'color': Colors.blue},
+                    {
+                      'icon': Icons.sports_esports,
+                      'title': 'Playing Games',
+                      'points': '+50',
+                      'color': Colors.green,
+                    },
+                    {
+                      'icon': Icons.people,
+                      'title': 'Social Actions',
+                      'points': '+25',
+                      'color': Colors.orange,
+                    },
+                    {
+                      'icon': Icons.emoji_events,
+                      'title': 'Achievements',
+                      'points': '+100',
+                      'color': Colors.purple,
+                    },
+                    {
+                      'icon': Icons.calendar_today,
+                      'title': 'Daily Login',
+                      'points': '+20',
+                      'color': Colors.blue,
+                    },
                   ]),
                   const SizedBox(height: 24),
-                  
+
                   Text(
                     'Points unlock new tiers, achievements, and special rewards. Keep earning to climb higher!',
                     style: TextStyle(
@@ -470,7 +520,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   Text(
                     'Advance through tiers to unlock multipliers and exclusive features',
                     style: TextStyle(
@@ -481,7 +531,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Tier progression visualization
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -498,16 +548,51 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     ),
                     child: Column(
                       children: [
-                        _buildTierRow('Diamond', Icons.diamond, Colors.cyan, '50,000+', '2.0x', false),
-                        _buildTierRow('Platinum', Icons.military_tech, Colors.blue[200]!, '15,000', '1.8x', false),
-                        _buildTierRow('Gold', Icons.star, Colors.amber, '5,000', '1.5x', false),
-                        _buildTierRow('Silver', Icons.stars, Colors.grey, '1,000', '1.2x', false),
-                        _buildTierRow('Bronze', Icons.emoji_events, Colors.brown, '0', '1.0x', true),
+                        _buildTierRow(
+                          'Diamond',
+                          Icons.diamond,
+                          Colors.cyan,
+                          '50,000+',
+                          '2.0x',
+                          false,
+                        ),
+                        _buildTierRow(
+                          'Platinum',
+                          Icons.military_tech,
+                          Colors.blue[200]!,
+                          '15,000',
+                          '1.8x',
+                          false,
+                        ),
+                        _buildTierRow(
+                          'Gold',
+                          Icons.star,
+                          Colors.amber,
+                          '5,000',
+                          '1.5x',
+                          false,
+                        ),
+                        _buildTierRow(
+                          'Silver',
+                          Icons.stars,
+                          Colors.grey,
+                          '1,000',
+                          '1.2x',
+                          false,
+                        ),
+                        _buildTierRow(
+                          'Bronze',
+                          Icons.emoji_events,
+                          Colors.brown,
+                          '0',
+                          '1.0x',
+                          true,
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -563,17 +648,14 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   Text(
                     'Collect beautiful badges for your achievements',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Badge showcase
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -598,7 +680,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Badge grid
                         GridView.count(
                           shrinkWrap: true,
@@ -608,16 +690,32 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                           children: [
                             _buildBadgeItem(Icons.star, Colors.amber, true),
                             _buildBadgeItem(Icons.favorite, Colors.red, false),
-                            _buildBadgeItem(Icons.sports_esports, Colors.blue, false),
+                            _buildBadgeItem(
+                              Icons.sports_esports,
+                              Colors.blue,
+                              false,
+                            ),
                             _buildBadgeItem(Icons.explore, Colors.green, false),
                             _buildBadgeItem(Icons.people, Colors.orange, false),
-                            _buildBadgeItem(Icons.flash_on, Colors.yellow, false),
-                            _buildBadgeItem(Icons.trending_up, Colors.purple, false),
-                            _buildBadgeItem(Icons.emoji_events, Colors.cyan, false),
+                            _buildBadgeItem(
+                              Icons.flash_on,
+                              Colors.yellow,
+                              false,
+                            ),
+                            _buildBadgeItem(
+                              Icons.trending_up,
+                              Colors.purple,
+                              false,
+                            ),
+                            _buildBadgeItem(
+                              Icons.emoji_events,
+                              Colors.cyan,
+                              false,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        
+
                         Text(
                           '1/8 Badges Earned',
                           style: TextStyle(
@@ -629,7 +727,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -712,7 +810,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   const Text(
                     'Daily Engagement Tips',
                     style: TextStyle(
@@ -723,40 +821,40 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   Text(
                     'Build streaks and maximize your rewards!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Daily tips
                   ..._buildDailyTipCards([
                     {
                       'icon': Icons.calendar_today,
                       'title': 'Daily Login',
-                      'description': 'Log in every day for bonus points and streak rewards',
+                      'description':
+                          'Log in every day for bonus points and streak rewards',
                       'color': Colors.blue,
                     },
                     {
                       'icon': Icons.local_fire_department,
                       'title': 'Maintain Streaks',
-                      'description': 'Consecutive actions unlock multiplier bonuses',
+                      'description':
+                          'Consecutive actions unlock multiplier bonuses',
                       'color': Colors.red,
                     },
                     {
                       'icon': Icons.explore,
                       'title': 'Explore Features',
-                      'description': 'Try different parts of the app for variety bonuses',
+                      'description':
+                          'Try different parts of the app for variety bonuses',
                       'color': Colors.green,
                     },
                   ]),
                   const SizedBox(height: 24),
-                  
+
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -810,10 +908,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
           const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: color),
             textAlign: TextAlign.center,
           ),
         ],
@@ -822,57 +917,62 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
   }
 
   List<Widget> _buildPointsSourceCards(List<Map<String, dynamic>> sources) {
-    return sources.map((source) => Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
+    return sources
+        .map(
+          (source) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: source['color'].withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 5,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-            child: Icon(
-              source['icon'],
-              color: source['color'],
-              size: 20,
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: source['color'].withOpacity(0.1),
+                  ),
+                  child: Icon(source['icon'], color: source['color'], size: 20),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    source['title'],
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Text(
+                  source['points'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: source['color'],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              source['title'],
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Text(
-            source['points'],
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: source['color'],
-            ),
-          ),
-        ],
-      ),
-    )).toList();
+        )
+        .toList();
   }
 
-  Widget _buildTierRow(String name, IconData icon, Color color, String requirement, String multiplier, bool current) {
+  Widget _buildTierRow(
+    String name,
+    IconData icon,
+    Color color,
+    String requirement,
+    String multiplier,
+    bool current,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -886,10 +986,7 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
           Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
-            ),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
             child: Icon(icon, color: Colors.white, size: 18),
           ),
           const SizedBox(width: 12),
@@ -903,18 +1000,12 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
           ),
           Text(
             requirement,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
           ),
           const SizedBox(width: 16),
           Text(
             multiplier,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: color),
           ),
           if (current) ...[
             const SizedBox(width: 8),
@@ -930,13 +1021,15 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: earned ? color : Colors.grey[300],
-        boxShadow: earned ? [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 8,
-            spreadRadius: 2,
-          ),
-        ] : null,
+        boxShadow: earned
+            ? [
+                BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ]
+            : null,
       ),
       child: Icon(
         icon,
@@ -947,61 +1040,58 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
   }
 
   List<Widget> _buildDailyTipCards(List<Map<String, dynamic>> tips) {
-    return tips.map((tip) => Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
+    return tips
+        .map(
+          (tip) => Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: tip['color'].withOpacity(0.1),
-            ),
-            child: Icon(
-              tip['icon'],
-              color: tip['color'],
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tip['title'],
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 5,
+                  spreadRadius: 1,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  tip['description'],
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: tip['color'].withOpacity(0.1),
+                  ),
+                  child: Icon(tip['icon'], color: tip['color'], size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tip['title'],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        tip['description'],
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    )).toList();
+        )
+        .toList();
   }
 
   void _nextPage() {
@@ -1031,10 +1121,10 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
   void _finishOnboarding() {
     // Trigger confetti animation
     _confettiController.forward();
-    
+
     // Award first achievement
     ref.read(rewardsProvider.notifier).awardFirstAchievement();
-    
+
     // Show completion dialog
     showDialog(
       context: context,
@@ -1065,7 +1155,9 @@ class _RewardsOnboardingFlowState extends ConsumerState<RewardsOnboardingFlow>
 }
 
 // Providers
-final onboardingProvider = StateNotifierProvider<OnboardingNotifier, bool>((ref) {
+final onboardingProvider = StateNotifierProvider<OnboardingNotifier, bool>((
+  ref,
+) {
   return OnboardingNotifier();
 });
 
@@ -1078,7 +1170,9 @@ class OnboardingNotifier extends StateNotifier<bool> {
   }
 }
 
-final rewardsProvider = StateNotifierProvider<RewardsNotifier, RewardsState>((ref) {
+final rewardsProvider = StateNotifierProvider<RewardsNotifier, RewardsState>((
+  ref,
+) {
   return RewardsNotifier();
 });
 

@@ -25,7 +25,7 @@ class FriendsService {
         message: message,
         createdAt: DateTime.now(),
       );
-      
+
       return Right(request);
     } catch (e) {
       debugPrint('Error sending friend request: $e');
@@ -89,7 +89,9 @@ class FriendsService {
   }
 
   /// Get mutual friends
-  Future<Either<String, List<UserProfile>>> getMutualFriends(String userId) async {
+  Future<Either<String, List<UserProfile>>> getMutualFriends(
+    String userId,
+  ) async {
     try {
       // Return empty list for stub
       return const Right([]);

@@ -18,36 +18,42 @@ class QuickStatsRow extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: _StatCard(
-            icon: Icons.military_tech,
-            label: 'Badges',
-            value: badgeCount.toString(),
-            color: Colors.amber,
-          ).animate()
-            .fadeIn(duration: 600.ms, delay: 100.ms)
-            .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 100.ms),
+          child:
+              _StatCard(
+                    icon: Icons.military_tech,
+                    label: 'Badges',
+                    value: badgeCount.toString(),
+                    color: Colors.amber,
+                  )
+                  .animate()
+                  .fadeIn(duration: 600.ms, delay: 100.ms)
+                  .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 100.ms),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _StatCard(
-            icon: Icons.leaderboard,
-            label: 'Rank',
-            value: NumberFormatter.formatRank(rank),
-            color: Colors.green,
-          ).animate()
-            .fadeIn(duration: 600.ms, delay: 200.ms)
-            .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 200.ms),
+          child:
+              _StatCard(
+                    icon: Icons.leaderboard,
+                    label: 'Rank',
+                    value: NumberFormatter.formatRank(rank),
+                    color: Colors.green,
+                  )
+                  .animate()
+                  .fadeIn(duration: 600.ms, delay: 200.ms)
+                  .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 200.ms),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _StatCard(
-            icon: Icons.local_fire_department,
-            label: 'Streak',
-            value: '$streak days',
-            color: Colors.orange,
-          ).animate()
-            .fadeIn(duration: 600.ms, delay: 300.ms)
-            .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 300.ms),
+          child:
+              _StatCard(
+                    icon: Icons.local_fire_department,
+                    label: 'Streak',
+                    value: '$streak days',
+                    color: Colors.orange,
+                  )
+                  .animate()
+                  .fadeIn(duration: 600.ms, delay: 300.ms)
+                  .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 300.ms),
         ),
       ],
     );
@@ -84,24 +90,16 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
-            style: AppTextStyles.title.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.title.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: AppTextStyles.caption.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
           ),
         ],
       ),

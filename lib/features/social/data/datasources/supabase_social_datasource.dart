@@ -14,106 +14,108 @@ import '../models/conversation_model.dart';
 import '../../domain/entities/friend.dart';
 import '../../domain/entities/post.dart';
 // Import the missing enums from the correct sources
-import '../../../../utils/enums/social_enums.dart' show PostVisibility, ReactionType, MessageType;
+import '../../../../utils/enums/social_enums.dart'
+    show PostVisibility, ReactionType, MessageType;
 import '../../domain/entities/post.dart' show ConversationType;
 
 // Missing exception classes
 class RateLimitException implements Exception {
   final String message;
   final int retryAfterSeconds;
-  
+
   const RateLimitException({
     required this.message,
     required this.retryAfterSeconds,
   });
-  
+
   @override
   String toString() => 'RateLimitException: $message';
 }
 
 class DataNotFoundException implements Exception {
   final String message;
-  
+
   const DataNotFoundException({required this.message});
-  
+
   @override
   String toString() => 'DataNotFoundException: $message';
 }
 
 class ConversationNotExistsException implements Exception {
   final String message;
-  
+
   const ConversationNotExistsException({required this.message});
-  
+
   @override
   String toString() => 'ConversationNotExistsException: $message';
 }
 
 class UserAccessException implements Exception {
   final String message;
-  
+
   const UserAccessException({required this.message});
-  
+
   @override
   String toString() => 'UserAccessException: $message';
 }
 
 class RateLimitExceededException implements Exception {
   final String message;
-  
+
   const RateLimitExceededException({required this.message});
-  
+
   @override
   String toString() => 'RateLimitExceededException: $message';
 }
 
 class DuplicatePostException implements Exception {
   final String message;
-  
+
   const DuplicatePostException({required this.message});
-  
+
   @override
   String toString() => 'DuplicatePostException: $message';
 }
 
 class DuplicateChatMessageException implements Exception {
   final String message;
-  
+
   const DuplicateChatMessageException({required this.message});
-  
+
   @override
   String toString() => 'DuplicateChatMessageException: $message';
 }
 
 class UserNotFoundException implements Exception {
   final String message;
-  
+
   const UserNotFoundException({required this.message});
-  
+
   @override
   String toString() => 'UserNotFoundException: $message';
 }
 
 class SocialDataException implements Exception {
   final String message;
-  
+
   const SocialDataException({required this.message});
-  
+
   @override
   String toString() => 'SocialDataException: $message';
 }
 
 class PostMediaUploadException implements Exception {
   final String message;
-  
+
   const PostMediaUploadException({required this.message});
-  
+
   @override
   String toString() => 'PostMediaUploadException: $message';
 }
 
 /// Comprehensive Supabase implementation for all social operations
-class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, ChatDataSource {
+class SupabaseSocialDataSource
+    implements FriendsDataSource, PostsDataSource, ChatDataSource {
   // ignore: unused_field
   final SupabaseClient _client;
 
@@ -740,10 +742,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
   }
 
   @override
-  Future<bool> pinPost({
-    required String postId,
-    required String userId,
-  }) async {
+  Future<bool> pinPost({required String postId, required String userId}) async {
     throw UnimplementedError('pinPost not implemented');
   }
 
@@ -997,30 +996,29 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
   }) async {
     try {
       final List<String> uploadedUrls = [];
-      
+
       for (int i = 0; i < files.length; i++) {
         final file = files[i];
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+        final fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
         final filePath = 'chat_media/$userId/$fileName';
-        
+
         // Upload file to Supabase Storage
-        await _client.storage
-            .from('chat_media')
-            .upload(filePath, file);
-        
+        await _client.storage.from('chat_media').upload(filePath, file);
+
         // Get public URL
         final publicUrl = _client.storage
             .from('chat_media')
             .getPublicUrl(filePath);
-        
+
         uploadedUrls.add(publicUrl);
-        
+
         // Report progress
         if (onProgress != null) {
           onProgress((i + 1) / files.length);
         }
       }
-      
+
       return uploadedUrls;
     } catch (e) {
       throw ChatMediaUploadException(
@@ -1045,16 +1043,13 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
   }) async {
     try {
       // Verify user has access to conversation
-      await getConversation(
-        conversationId: conversationId,
-        userId: userId,
-      );
+      await getConversation(conversationId: conversationId, userId: userId);
 
-    // Build base filter query first (apply all filters), then apply transforms (order/range)
-    var query = _client
-      .from('chat_messages')
-      .select('*, profiles!chat_messages_sender_id_fkey(*)')
-      .eq('conversation_id', conversationId);
+      // Build base filter query first (apply all filters), then apply transforms (order/range)
+      var query = _client
+          .from('chat_messages')
+          .select('*, profiles!chat_messages_sender_id_fkey(*)')
+          .eq('conversation_id', conversationId);
 
       if (beforeMessageId != null) {
         final beforeMessage = await _client
@@ -1062,7 +1057,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
             .select('created_at')
             .eq('id', beforeMessageId)
             .single();
-  query = query.lt('created_at', beforeMessage['created_at']);
+        query = query.lt('created_at', beforeMessage['created_at']);
       }
 
       if (afterMessageId != null) {
@@ -1071,15 +1066,15 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
             .select('created_at')
             .eq('id', afterMessageId)
             .single();
-  query = query.gt('created_at', afterMessage['created_at']);
+        query = query.gt('created_at', afterMessage['created_at']);
       }
 
       if (fromDate != null) {
-  query = query.gte('created_at', fromDate.toIso8601String());
+        query = query.gte('created_at', fromDate.toIso8601String());
       }
 
       if (toDate != null) {
-  query = query.lte('created_at', toDate.toIso8601String());
+        query = query.lte('created_at', toDate.toIso8601String());
       }
 
       if (messageType != null) {
@@ -1089,9 +1084,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
       final response = await query
           .order('created_at', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
-      return response
-          .map((json) => ChatMessageModel.fromJson(json))
-          .toList();
+      return response.map((json) => ChatMessageModel.fromJson(json)).toList();
     } catch (e) {
       if (e is ChatDataSourceException) rethrow;
       throw ChatDataSourceException(
@@ -1161,12 +1154,14 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
       }
 
       // Handle media updates
-  // Adapt to model: transform attachments to URL list for storage write
-  List<String> mediaUrls = currentMessage.mediaAttachments.map((a) => a.url).toList();
+      // Adapt to model: transform attachments to URL list for storage write
+      List<String> mediaUrls = currentMessage.mediaAttachments
+          .map((a) => a.url)
+          .toList();
       if (removeMediaUrls != null) {
         mediaUrls.removeWhere((url) => removeMediaUrls.contains(url));
       }
-      
+
       if (newMediaFiles != null && newMediaFiles.isNotEmpty) {
         final newUrls = await uploadMessageMedia(
           files: newMediaFiles,
@@ -1179,8 +1174,11 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
       final updateData = {
         'content': content,
         'media_urls': mediaUrls,
-  // Store mentioned users in metadata to align with model
-  'mentioned_users': mentionedUsers ?? (currentMessage.metadata?['mentioned_users'] as List<String>?) ?? [],
+        // Store mentioned users in metadata to align with model
+        'mentioned_users':
+            mentionedUsers ??
+            (currentMessage.metadata?['mentioned_users'] as List<String>?) ??
+            [],
         'is_edited': true,
         'edited_at': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
@@ -1211,10 +1209,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
     bool deleteForEveryone = false,
   }) async {
     try {
-      final message = await getMessage(
-        messageId: messageId,
-        userId: userId,
-      );
+      final message = await getMessage(messageId: messageId, userId: userId);
 
       // Check permissions
       if (message.senderId != userId && !deleteForEveryone) {
@@ -1236,10 +1231,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
             .eq('id', messageId);
       } else {
         // Hard delete for sender only
-        await _client
-            .from('chat_messages')
-            .delete()
-            .eq('id', messageId);
+        await _client.from('chat_messages').delete().eq('id', messageId);
       }
 
       return true;
@@ -1261,19 +1253,14 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
   }) async {
     try {
       // Verify user has access to conversation (throws if not allowed)
-      await getConversation(
-        conversationId: conversationId,
-        userId: userId,
-      );
+      await getConversation(conversationId: conversationId, userId: userId);
 
       // Mark message as read
-      await _client
-          .from('chat_message_reads')
-          .upsert({
-            'message_id': messageId,
-            'user_id': userId,
-            'read_at': DateTime.now().toIso8601String(),
-          });
+      await _client.from('chat_message_reads').upsert({
+        'message_id': messageId,
+        'user_id': userId,
+        'read_at': DateTime.now().toIso8601String(),
+      });
 
       return true;
     } catch (e) {
@@ -1396,9 +1383,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
   }
 
   @override
-  Future<int> getTotalUnreadCount({
-    required String userId,
-  }) async {
+  Future<int> getTotalUnreadCount({required String userId}) async {
     throw UnimplementedError('getTotalUnreadCount not implemented');
   }
 
@@ -1493,9 +1478,7 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
   }
 
   @override
-  Future<List<String>> getBlockedUsersInChat({
-    required String userId,
-  }) async {
+  Future<List<String>> getBlockedUsersInChat({required String userId}) async {
     throw UnimplementedError('getBlockedUsersInChat not implemented');
   }
 
@@ -1740,4 +1723,3 @@ class SupabaseSocialDataSource implements FriendsDataSource, PostsDataSource, Ch
     throw UnimplementedError('subscribeToUnreadCounts not implemented');
   }
 }
-

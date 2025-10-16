@@ -35,11 +35,14 @@ class SocialMonitoringDashboardData {
           .map((r) => MonitoringRecommendation.fromJson(r))
           .toList(),
       healthMetrics: HealthMetrics.fromJson(json['healthMetrics'] ?? {}),
-      performanceMetrics: PerformanceMetrics.fromJson(json['performanceMetrics'] ?? {}),
+      performanceMetrics: PerformanceMetrics.fromJson(
+        json['performanceMetrics'] ?? {},
+      ),
       errorMetrics: ErrorMetrics.fromJson(json['errorMetrics'] ?? {}),
       abuseMetrics: AbuseMetrics.fromJson(json['abuseMetrics'] ?? {}),
       summary: DashboardSummary.fromJson(json['summary'] ?? {}),
-      lastUpdated: DateTime.tryParse(json['lastUpdated'] ?? '') ?? DateTime.now(),
+      lastUpdated:
+          DateTime.tryParse(json['lastUpdated'] ?? '') ?? DateTime.now(),
     );
   }
 
@@ -272,9 +275,13 @@ class HealthMetrics {
   factory HealthMetrics.fromJson(Map<String, dynamic> json) {
     return HealthMetrics(
       healthScores: HealthScores.fromJson(json['healthScores'] ?? {}),
-      activeUserMetrics: ActiveUserMetrics.fromJson(json['activeUserMetrics'] ?? {}),
+      activeUserMetrics: ActiveUserMetrics.fromJson(
+        json['activeUserMetrics'] ?? {},
+      ),
       contentMetrics: ContentMetrics.fromJson(json['contentMetrics'] ?? {}),
-      engagementMetrics: EngagementMetrics.fromJson(json['engagementMetrics'] ?? {}),
+      engagementMetrics: EngagementMetrics.fromJson(
+        json['engagementMetrics'] ?? {},
+      ),
     );
   }
 
@@ -458,8 +465,12 @@ class PerformanceMetrics {
 
   factory PerformanceMetrics.fromJson(Map<String, dynamic> json) {
     return PerformanceMetrics(
-      feedPerformance: FeedPerformanceMetrics.fromJson(json['feedPerformance'] ?? {}),
-      messagingPerformance: MessagingPerformanceMetrics.fromJson(json['messagingPerformance'] ?? {}),
+      feedPerformance: FeedPerformanceMetrics.fromJson(
+        json['feedPerformance'] ?? {},
+      ),
+      messagingPerformance: MessagingPerformanceMetrics.fromJson(
+        json['messagingPerformance'] ?? {},
+      ),
       systemHealth: SystemHealthMetrics.fromJson(json['systemHealth'] ?? {}),
     );
   }
@@ -765,7 +776,9 @@ class AbuseMetrics {
   factory AbuseMetrics.fromJson(Map<String, dynamic> json) {
     return AbuseMetrics(
       spamDetection: SpamDetectionMetrics.fromJson(json['spamDetection'] ?? {}),
-      harassmentDetection: HarassmentDetectionMetrics.fromJson(json['harassmentDetection'] ?? {}),
+      harassmentDetection: HarassmentDetectionMetrics.fromJson(
+        json['harassmentDetection'] ?? {},
+      ),
       botDetection: BotDetectionMetrics.fromJson(json['botDetection'] ?? {}),
       moderation: ModerationMetrics.fromJson(json['moderation'] ?? {}),
     );
@@ -917,7 +930,9 @@ class ModerationMetrics {
       contentRemoved: json['contentRemoved'] ?? 0,
       accountsSuspended: json['accountsSuspended'] ?? 0,
       averageResponseTime: (json['averageResponseTime'] ?? 0.0).toDouble(),
-      moderationActionsByType: Map<String, int>.from(json['moderationActionsByType'] ?? {}),
+      moderationActionsByType: Map<String, int>.from(
+        json['moderationActionsByType'] ?? {},
+      ),
     );
   }
 

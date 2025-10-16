@@ -30,29 +30,27 @@ class _PointsEarnedAnimationState extends State<PointsEarnedAnimation>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
+      ),
+    );
 
-    _opacityAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
-    ));
+    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.0, -2.0),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(0.0, -2.0)).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+          ),
+        );
 
     _controller.forward().then((_) {
       if (widget.onComplete != null) {
@@ -85,10 +83,7 @@ class _PointsEarnedAnimationState extends State<PointsEarnedAnimation>
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.amber.shade300,
-                      Colors.orange.shade400,
-                    ],
+                    colors: [Colors.amber.shade300, Colors.orange.shade400],
                   ),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
@@ -102,11 +97,7 @@ class _PointsEarnedAnimationState extends State<PointsEarnedAnimation>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.stars,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    const Icon(Icons.stars, color: Colors.white, size: 20),
                     const SizedBox(width: 4),
                     Text(
                       '+${widget.points}',

@@ -8,15 +8,15 @@ import '../../../core/utils/either.dart';
 /// Comprehensive analytics service for social features
 class SocialAnalyticsService {
   // final StorageService _storageService; // TODO: Implement proper storage integration
-  
+
   // Event tracking
   final Map<String, List<SocialEvent>> _eventBuffer = {};
   final Map<String, SocialMetrics> _metricsCache = {};
-  
+
   // Timers for periodic operations
   Timer? _flushTimer;
   Timer? _metricsCalculationTimer;
-  
+
   // Configuration
   static const Duration _flushInterval = Duration(minutes: 5);
   static const Duration _metricsCalculationInterval = Duration(hours: 1);
@@ -31,10 +31,13 @@ class SocialAnalyticsService {
   void _initializeService() {
     // Start periodic event flushing
     _flushTimer = Timer.periodic(_flushInterval, (_) => _flushEvents());
-    
+
     // Start periodic metrics calculation
-    _metricsCalculationTimer = Timer.periodic(_metricsCalculationInterval, (_) => _calculateMetrics());
-    
+    _metricsCalculationTimer = Timer.periodic(
+      _metricsCalculationInterval,
+      (_) => _calculateMetrics(),
+    );
+
     // Load cached metrics
     _loadCachedMetrics();
   }
@@ -44,12 +47,12 @@ class SocialAnalyticsService {
     try {
       final userId = event.userId;
       _eventBuffer.putIfAbsent(userId, () => []).add(event);
-      
+
       // Flush if buffer is getting too large
       if (_eventBuffer[userId]!.length >= _maxEventBufferSize) {
         await _flushUserEvents(userId);
       }
-      
+
       // Update real-time metrics for critical events
       if (_isCriticalEvent(event)) {
         await _updateRealTimeMetrics(event);
@@ -61,7 +64,10 @@ class SocialAnalyticsService {
   }
 
   /// Track post creation
-  Future<void> trackPostCreated(String userId, String postId, String postType, {
+  Future<void> trackPostCreated(
+    String userId,
+    String postId,
+    String postType, {
     int? characterCount,
     int? mediaCount,
     List<String>? hashtags,
@@ -83,12 +89,15 @@ class SocialAnalyticsService {
         'mentions': mentions ?? [],
       },
     );
-    
+
     await trackEvent(event);
   }
 
   /// Track post interaction
-  Future<void> trackPostInteraction(String userId, String postId, String interactionType, {
+  Future<void> trackPostInteraction(
+    String userId,
+    String postId,
+    String interactionType, {
     String? authorId,
     String? commentText,
   }) async {
@@ -104,12 +113,15 @@ class SocialAnalyticsService {
         'commentText': commentText,
       },
     );
-    
+
     await trackEvent(event);
   }
 
   /// Track friend activity
-  Future<void> trackFriendActivity(String userId, String targetUserId, String activityType, {
+  Future<void> trackFriendActivity(
+    String userId,
+    String targetUserId,
+    String activityType, {
     Map<String, dynamic>? additionalData,
   }) async {
     final event = SocialEvent(
@@ -123,12 +135,15 @@ class SocialAnalyticsService {
         ...?additionalData,
       },
     );
-    
+
     await trackEvent(event);
   }
 
   /// Track messaging activity
-  Future<void> trackMessageActivity(String userId, String conversationId, String activityType, {
+  Future<void> trackMessageActivity(
+    String userId,
+    String conversationId,
+    String activityType, {
     String? messageType,
     int? messageLength,
     bool? hasAttachments,
@@ -146,12 +161,15 @@ class SocialAnalyticsService {
         'hasAttachments': hasAttachments ?? false,
       },
     );
-    
+
     await trackEvent(event);
   }
 
   /// Track profile interactions
-  Future<void> trackProfileActivity(String viewerId, String profileOwnerId, String activityType, {
+  Future<void> trackProfileActivity(
+    String viewerId,
+    String profileOwnerId,
+    String activityType, {
     String? section,
     Duration? viewDuration,
   }) async {
@@ -167,7 +185,7 @@ class SocialAnalyticsService {
         'viewDuration': viewDuration?.inSeconds,
       },
     );
-    
+
     await trackEvent(event);
   }
 
@@ -178,29 +196,31 @@ class SocialAnalyticsService {
   }) async {
     try {
       final events = await _getUserEvents(userId, period);
-      
+
       if (events.isEmpty) {
         return Right(UserEngagementMetrics.empty(userId));
       }
-      
+
       // Calculate post metrics
       final postEvents = events.where((e) => _isPostEvent(e.type)).toList();
       final postMetrics = await _calculatePostMetrics(postEvents);
-      
+
       // Calculate friend metrics
       final friendEvents = events.where((e) => _isFriendEvent(e.type)).toList();
       final friendMetrics = await _calculateFriendMetrics(friendEvents);
-      
+
       // Calculate message metrics
-      final messageEvents = events.where((e) => _isMessageEvent(e.type)).toList();
+      final messageEvents = events
+          .where((e) => _isMessageEvent(e.type))
+          .toList();
       final messageMetrics = await _calculateMessageMetrics(messageEvents);
-      
+
       // Calculate interaction patterns
       final interactionPatterns = await _calculateInteractionPatterns(events);
-      
+
       // Calculate activity timeline
       final activityTimeline = await _calculateActivityTimeline(events, period);
-      
+
       final metrics = UserEngagementMetrics(
         userId: userId,
         period: period,
@@ -213,10 +233,10 @@ class SocialAnalyticsService {
         totalEvents: events.length,
         averageEventsPerDay: events.length / period.inDays,
       );
-      
+
       // Cache the metrics
       _metricsCache[userId] = SocialMetrics.fromEngagement(metrics);
-      
+
       return Right(metrics);
     } catch (e) {
       return Left('Failed to calculate user engagement: $e');
@@ -230,24 +250,40 @@ class SocialAnalyticsService {
   }) async {
     try {
       final events = await _getPostEvents(postId, period);
-      
-      final likes = events.where((e) => e.type == SocialEventType.postLiked).length;
-      final comments = events.where((e) => e.type == SocialEventType.postCommented).length;
-      final shares = events.where((e) => e.type == SocialEventType.postShared).length;
-      final views = events.where((e) => e.type == SocialEventType.postViewed).length;
-      
+
+      final likes = events
+          .where((e) => e.type == SocialEventType.postLiked)
+          .length;
+      final comments = events
+          .where((e) => e.type == SocialEventType.postCommented)
+          .length;
+      final shares = events
+          .where((e) => e.type == SocialEventType.postShared)
+          .length;
+      final views = events
+          .where((e) => e.type == SocialEventType.postViewed)
+          .length;
+
       // Calculate engagement rate
-      final engagementRate = views > 0 ? ((likes + comments + shares) / views) * 100 : 0.0;
-      
+      final engagementRate = views > 0
+          ? ((likes + comments + shares) / views) * 100
+          : 0.0;
+
       // Calculate viral score
-      final viralScore = _calculateViralScore(likes, comments, shares, views, period);
-      
+      final viralScore = _calculateViralScore(
+        likes,
+        comments,
+        shares,
+        views,
+        period,
+      );
+
       // Get interaction timeline
       final interactionTimeline = _getInteractionTimeline(events, period);
-      
+
       // Get demographic breakdown
       final demographics = await _getPostDemographics(events);
-      
+
       final analytics = PostAnalytics(
         postId: postId,
         period: period,
@@ -263,7 +299,7 @@ class SocialAnalyticsService {
         peakInteractionHour: _getPeakInteractionHour(events),
         averageEngagementVelocity: _calculateEngagementVelocity(events, period),
       );
-      
+
       return Right(analytics);
     } catch (e) {
       return Left('Failed to get post analytics: $e');
@@ -278,21 +314,34 @@ class SocialAnalyticsService {
     try {
       final events = await _getUserEvents(userId, period);
       final friendEvents = events.where((e) => _isFriendEvent(e.type)).toList();
-      
-      final friendRequestsSent = friendEvents.where((e) => e.type == SocialEventType.friendRequestSent).length;
-      final friendRequestsReceived = friendEvents.where((e) => e.type == SocialEventType.friendRequestReceived).length;
-      final friendsAdded = friendEvents.where((e) => e.type == SocialEventType.friendAdded).length;
-      final friendsRemoved = friendEvents.where((e) => e.type == SocialEventType.friendRemoved).length;
-      
+
+      final friendRequestsSent = friendEvents
+          .where((e) => e.type == SocialEventType.friendRequestSent)
+          .length;
+      final friendRequestsReceived = friendEvents
+          .where((e) => e.type == SocialEventType.friendRequestReceived)
+          .length;
+      final friendsAdded = friendEvents
+          .where((e) => e.type == SocialEventType.friendAdded)
+          .length;
+      final friendsRemoved = friendEvents
+          .where((e) => e.type == SocialEventType.friendRemoved)
+          .length;
+
       // Calculate acceptance rate
-      final acceptanceRate = friendRequestsSent > 0 ? (friendsAdded / friendRequestsSent) * 100 : 0.0;
-      
+      final acceptanceRate = friendRequestsSent > 0
+          ? (friendsAdded / friendRequestsSent) * 100
+          : 0.0;
+
       // Get friendship growth timeline
       final growthTimeline = _getFriendshipGrowthTimeline(friendEvents, period);
-      
+
       // Calculate mutual connections impact
-      final mutualConnectionsImpact = await _calculateMutualConnectionsImpact(userId, friendEvents);
-      
+      final mutualConnectionsImpact = await _calculateMutualConnectionsImpact(
+        userId,
+        friendEvents,
+      );
+
       final analytics = FriendshipAnalytics(
         userId: userId,
         period: period,
@@ -307,7 +356,7 @@ class SocialAnalyticsService {
         mutualConnectionsImpact: mutualConnectionsImpact,
         mostActiveFriendshipDay: _getMostActiveFriendshipDay(friendEvents),
       );
-      
+
       return Right(analytics);
     } catch (e) {
       return Left('Failed to get friendship analytics: $e');
@@ -321,22 +370,38 @@ class SocialAnalyticsService {
   }) async {
     try {
       final events = await _getUserEvents(userId, period);
-      final messageEvents = events.where((e) => _isMessageEvent(e.type)).toList();
-      
-      final messagesSent = messageEvents.where((e) => e.type == SocialEventType.messageSent).length;
-      final messagesReceived = messageEvents.where((e) => e.type == SocialEventType.messageReceived).length;
-      final messagesRead = messageEvents.where((e) => e.type == SocialEventType.messageRead).length;
-      
+      final messageEvents = events
+          .where((e) => _isMessageEvent(e.type))
+          .toList();
+
+      final messagesSent = messageEvents
+          .where((e) => e.type == SocialEventType.messageSent)
+          .length;
+      final messagesReceived = messageEvents
+          .where((e) => e.type == SocialEventType.messageReceived)
+          .length;
+      final messagesRead = messageEvents
+          .where((e) => e.type == SocialEventType.messageRead)
+          .length;
+
       // Calculate response metrics
-      final responseTime = await _calculateAverageResponseTime(userId, messageEvents);
-      final responseRate = messagesReceived > 0 ? (messagesSent / messagesReceived) * 100 : 0.0;
-      
+      final responseTime = await _calculateAverageResponseTime(
+        userId,
+        messageEvents,
+      );
+      final responseRate = messagesReceived > 0
+          ? (messagesSent / messagesReceived) * 100
+          : 0.0;
+
       // Get messaging patterns
       final messagingPatterns = _getMessagingPatterns(messageEvents);
-      
+
       // Calculate conversation metrics
-      final conversationMetrics = await _calculateConversationMetrics(userId, messageEvents);
-      
+      final conversationMetrics = await _calculateConversationMetrics(
+        userId,
+        messageEvents,
+      );
+
       final analytics = MessagingAnalytics(
         userId: userId,
         period: period,
@@ -351,7 +416,7 @@ class SocialAnalyticsService {
         mostActiveMessagingHour: _getMostActiveMessagingHour(messageEvents),
         averageMessageLength: _calculateAverageMessageLength(messageEvents),
       );
-      
+
       return Right(analytics);
     } catch (e) {
       return Left('Failed to get messaging analytics: $e');
@@ -370,32 +435,38 @@ class SocialAnalyticsService {
         getFriendshipAnalytics(userId, period: period),
         getMessagingAnalytics(userId, period: period),
       ]);
-      
-      final engagementResult = results[0] as Either<String, UserEngagementMetrics>;
-      final friendshipResult = results[1] as Either<String, FriendshipAnalytics>;
+
+      final engagementResult =
+          results[0] as Either<String, UserEngagementMetrics>;
+      final friendshipResult =
+          results[1] as Either<String, FriendshipAnalytics>;
       final messagingResult = results[2] as Either<String, MessagingAnalytics>;
-      
+
       // Check for errors
       if (engagementResult.isLeft) return Left(engagementResult.leftOrNull()!);
       if (friendshipResult.isLeft) return Left(friendshipResult.leftOrNull()!);
       if (messagingResult.isLeft) return Left(messagingResult.leftOrNull()!);
-      
+
       final engagement = engagementResult.rightOrNull()!;
       final friendship = friendshipResult.rightOrNull()!;
       final messaging = messagingResult.rightOrNull()!;
-      
+
       // Get top performing content
       final topPosts = await _getTopPerformingPosts(userId, period);
-      
+
       // Calculate overall social score
-      final socialScore = _calculateOverallSocialScore(engagement, friendship, messaging);
-      
+      final socialScore = _calculateOverallSocialScore(
+        engagement,
+        friendship,
+        messaging,
+      );
+
       // Get activity trends
       final activityTrends = await _getActivityTrends(userId, period);
-      
+
       // Get reach statistics
       final reachStats = await _getReachStatistics(userId, period);
-      
+
       final summary = SocialDashboardSummary(
         userId: userId,
         period: period,
@@ -408,9 +479,13 @@ class SocialAnalyticsService {
         activityTrends: activityTrends,
         reachStatistics: reachStats,
         keyInsights: _generateKeyInsights(engagement, friendship, messaging),
-        recommendations: _generateRecommendations(engagement, friendship, messaging),
+        recommendations: _generateRecommendations(
+          engagement,
+          friendship,
+          messaging,
+        ),
       );
-      
+
       return Right(summary);
     } catch (e) {
       return Left('Failed to generate dashboard summary: $e');
@@ -425,7 +500,7 @@ class SocialAnalyticsService {
     try {
       final allEvents = await _getAllEvents(period);
       final postEvents = allEvents.where((e) => _isPostEvent(e.type)).toList();
-      
+
       // Group events by post
       final postGroups = <String, List<SocialEvent>>{};
       for (final event in postEvents) {
@@ -434,13 +509,13 @@ class SocialAnalyticsService {
           postGroups.putIfAbsent(postId, () => []).add(event);
         }
       }
-      
+
       final viralPosts = <ViralContent>[];
-      
+
       for (final entry in postGroups.entries) {
         final postId = entry.key;
         final events = entry.value;
-        
+
         final viralScore = _calculateViralScore(
           events.where((e) => e.type == SocialEventType.postLiked).length,
           events.where((e) => e.type == SocialEventType.postCommented).length,
@@ -448,20 +523,22 @@ class SocialAnalyticsService {
           events.where((e) => e.type == SocialEventType.postViewed).length,
           period,
         );
-        
+
         if (viralScore >= viralThreshold) {
-          viralPosts.add(ViralContent(
-            postId: postId,
-            viralScore: viralScore,
-            detectedAt: DateTime.now(),
-            metrics: await _getViralContentMetrics(postId, events),
-          ));
+          viralPosts.add(
+            ViralContent(
+              postId: postId,
+              viralScore: viralScore,
+              detectedAt: DateTime.now(),
+              metrics: await _getViralContentMetrics(postId, events),
+            ),
+          );
         }
       }
-      
+
       // Sort by viral score
       viralPosts.sort((a, b) => b.viralScore.compareTo(a.viralScore));
-      
+
       return viralPosts;
     } catch (e) {
       return [];
@@ -491,30 +568,44 @@ class SocialAnalyticsService {
 
   SocialEventType _getInteractionEventType(String interactionType) {
     switch (interactionType.toLowerCase()) {
-      case 'like': return SocialEventType.postLiked;
-      case 'comment': return SocialEventType.postCommented;
-      case 'share': return SocialEventType.postShared;
-      case 'view': return SocialEventType.postViewed;
-      default: return SocialEventType.postViewed;
+      case 'like':
+        return SocialEventType.postLiked;
+      case 'comment':
+        return SocialEventType.postCommented;
+      case 'share':
+        return SocialEventType.postShared;
+      case 'view':
+        return SocialEventType.postViewed;
+      default:
+        return SocialEventType.postViewed;
     }
   }
 
   SocialEventType _getFriendEventType(String activityType) {
     switch (activityType.toLowerCase()) {
-      case 'request_sent': return SocialEventType.friendRequestSent;
-      case 'request_received': return SocialEventType.friendRequestReceived;
-      case 'added': return SocialEventType.friendAdded;
-      case 'removed': return SocialEventType.friendRemoved;
-      default: return SocialEventType.friendAdded;
+      case 'request_sent':
+        return SocialEventType.friendRequestSent;
+      case 'request_received':
+        return SocialEventType.friendRequestReceived;
+      case 'added':
+        return SocialEventType.friendAdded;
+      case 'removed':
+        return SocialEventType.friendRemoved;
+      default:
+        return SocialEventType.friendAdded;
     }
   }
 
   SocialEventType _getMessageEventType(String activityType) {
     switch (activityType.toLowerCase()) {
-      case 'sent': return SocialEventType.messageSent;
-      case 'received': return SocialEventType.messageReceived;
-      case 'read': return SocialEventType.messageRead;
-      default: return SocialEventType.messageSent;
+      case 'sent':
+        return SocialEventType.messageSent;
+      case 'received':
+        return SocialEventType.messageReceived;
+      case 'read':
+        return SocialEventType.messageRead;
+      default:
+        return SocialEventType.messageSent;
     }
   }
 
@@ -548,20 +639,29 @@ class SocialAnalyticsService {
     return messageEvents.contains(type);
   }
 
-  double _calculateViralScore(int likes, int comments, int shares, int views, Duration period) {
+  double _calculateViralScore(
+    int likes,
+    int comments,
+    int shares,
+    int views,
+    Duration period,
+  ) {
     if (views == 0) return 0.0;
-    
+
     // Weighted engagement score
     final engagementScore = (likes * 1.0) + (comments * 2.0) + (shares * 3.0);
     final engagementRate = engagementScore / views;
-    
+
     // Time decay factor (newer content gets higher scores)
     final ageHours = period.inHours.toDouble();
-    final timeBoost = math.max(1.0, 48.0 / ageHours); // Boost for content less than 48 hours old
-    
+    final timeBoost = math.max(
+      1.0,
+      48.0 / ageHours,
+    ); // Boost for content less than 48 hours old
+
     // Viral velocity (engagement per hour)
     final velocity = engagementScore / ageHours;
-    
+
     return (engagementRate * 100) * timeBoost * math.log(velocity + 1);
   }
 
@@ -574,13 +674,13 @@ class SocialAnalyticsService {
   Future<void> _flushUserEvents(String userId) async {
     final events = _eventBuffer[userId];
     if (events == null || events.isEmpty) return;
-    
+
     try {
       // Store events to persistent storage
       // TODO: Implement proper storage for social events
-      // await _storageService.storeList('social_events_$userId', 
+      // await _storageService.storeList('social_events_$userId',
       //     events.map((e) => e.toJson()).toList());
-      
+
       // Clear buffer
       _eventBuffer[userId]?.clear();
     } catch (e) {
@@ -602,12 +702,18 @@ class SocialAnalyticsService {
     // Load previously calculated metrics from storage
   }
 
-  Future<List<SocialEvent>> _getUserEvents(String userId, Duration period) async {
+  Future<List<SocialEvent>> _getUserEvents(
+    String userId,
+    Duration period,
+  ) async {
     // Implementation would fetch events from storage
     return [];
   }
 
-  Future<List<SocialEvent>> _getPostEvents(String postId, Duration period) async {
+  Future<List<SocialEvent>> _getPostEvents(
+    String postId,
+    Duration period,
+  ) async {
     // Implementation would fetch post-specific events from storage
     return [];
   }
@@ -622,27 +728,41 @@ class SocialAnalyticsService {
     return PostMetrics.empty();
   }
 
-  Future<FriendMetrics> _calculateFriendMetrics(List<SocialEvent> events) async {
+  Future<FriendMetrics> _calculateFriendMetrics(
+    List<SocialEvent> events,
+  ) async {
     return FriendMetrics.empty();
   }
 
-  Future<MessageMetrics> _calculateMessageMetrics(List<SocialEvent> events) async {
+  Future<MessageMetrics> _calculateMessageMetrics(
+    List<SocialEvent> events,
+  ) async {
     return MessageMetrics.empty();
   }
 
-  Future<InteractionPatterns> _calculateInteractionPatterns(List<SocialEvent> events) async {
+  Future<InteractionPatterns> _calculateInteractionPatterns(
+    List<SocialEvent> events,
+  ) async {
     return InteractionPatterns.empty();
   }
 
-  Future<ActivityTimeline> _calculateActivityTimeline(List<SocialEvent> events, Duration period) async {
+  Future<ActivityTimeline> _calculateActivityTimeline(
+    List<SocialEvent> events,
+    Duration period,
+  ) async {
     return ActivityTimeline.empty();
   }
 
-  Map<DateTime, int> _getInteractionTimeline(List<SocialEvent> events, Duration period) {
+  Map<DateTime, int> _getInteractionTimeline(
+    List<SocialEvent> events,
+    Duration period,
+  ) {
     return {};
   }
 
-  Future<PostDemographics> _getPostDemographics(List<SocialEvent> events) async {
+  Future<PostDemographics> _getPostDemographics(
+    List<SocialEvent> events,
+  ) async {
     return PostDemographics.empty();
   }
 
@@ -650,15 +770,24 @@ class SocialAnalyticsService {
     return 12; // Default to noon
   }
 
-  double _calculateEngagementVelocity(List<SocialEvent> events, Duration period) {
+  double _calculateEngagementVelocity(
+    List<SocialEvent> events,
+    Duration period,
+  ) {
     return 0.0;
   }
 
-  Map<DateTime, int> _getFriendshipGrowthTimeline(List<SocialEvent> events, Duration period) {
+  Map<DateTime, int> _getFriendshipGrowthTimeline(
+    List<SocialEvent> events,
+    Duration period,
+  ) {
     return {};
   }
 
-  Future<double> _calculateMutualConnectionsImpact(String userId, List<SocialEvent> events) async {
+  Future<double> _calculateMutualConnectionsImpact(
+    String userId,
+    List<SocialEvent> events,
+  ) async {
     return 0.0;
   }
 
@@ -666,7 +795,10 @@ class SocialAnalyticsService {
     return null;
   }
 
-  Future<Duration> _calculateAverageResponseTime(String userId, List<SocialEvent> events) async {
+  Future<Duration> _calculateAverageResponseTime(
+    String userId,
+    List<SocialEvent> events,
+  ) async {
     return Duration.zero;
   }
 
@@ -674,7 +806,10 @@ class SocialAnalyticsService {
     return MessagingPatterns.empty();
   }
 
-  Future<ConversationMetrics> _calculateConversationMetrics(String userId, List<SocialEvent> events) async {
+  Future<ConversationMetrics> _calculateConversationMetrics(
+    String userId,
+    List<SocialEvent> events,
+  ) async {
     return ConversationMetrics.empty();
   }
 
@@ -686,34 +821,55 @@ class SocialAnalyticsService {
     return 0.0;
   }
 
-  Future<List<TopPerformingPost>> _getTopPerformingPosts(String userId, Duration period) async {
+  Future<List<TopPerformingPost>> _getTopPerformingPosts(
+    String userId,
+    Duration period,
+  ) async {
     return [];
   }
 
-  double _calculateOverallSocialScore(UserEngagementMetrics engagement, 
-      FriendshipAnalytics friendship, MessagingAnalytics messaging) {
+  double _calculateOverallSocialScore(
+    UserEngagementMetrics engagement,
+    FriendshipAnalytics friendship,
+    MessagingAnalytics messaging,
+  ) {
     return 75.0; // Placeholder calculation
   }
 
-  Future<ActivityTrends> _getActivityTrends(String userId, Duration period) async {
+  Future<ActivityTrends> _getActivityTrends(
+    String userId,
+    Duration period,
+  ) async {
     return ActivityTrends.empty();
   }
 
-  Future<ReachStatistics> _getReachStatistics(String userId, Duration period) async {
+  Future<ReachStatistics> _getReachStatistics(
+    String userId,
+    Duration period,
+  ) async {
     return ReachStatistics.empty();
   }
 
-  List<String> _generateKeyInsights(UserEngagementMetrics engagement, 
-      FriendshipAnalytics friendship, MessagingAnalytics messaging) {
+  List<String> _generateKeyInsights(
+    UserEngagementMetrics engagement,
+    FriendshipAnalytics friendship,
+    MessagingAnalytics messaging,
+  ) {
     return [];
   }
 
-  List<String> _generateRecommendations(UserEngagementMetrics engagement, 
-      FriendshipAnalytics friendship, MessagingAnalytics messaging) {
+  List<String> _generateRecommendations(
+    UserEngagementMetrics engagement,
+    FriendshipAnalytics friendship,
+    MessagingAnalytics messaging,
+  ) {
     return [];
   }
 
-  Future<ViralContentMetrics> _getViralContentMetrics(String postId, List<SocialEvent> events) async {
+  Future<ViralContentMetrics> _getViralContentMetrics(
+    String postId,
+    List<SocialEvent> events,
+  ) async {
     return ViralContentMetrics.empty();
   }
 }
@@ -762,18 +918,18 @@ enum SocialEventType {
   postLiked,
   postCommented,
   postShared,
-  
+
   // Friend events
   friendRequestSent,
   friendRequestReceived,
   friendAdded,
   friendRemoved,
-  
+
   // Message events
   messageSent,
   messageReceived,
   messageRead,
-  
+
   // Profile events
   profileViewed,
   profileUpdated,
@@ -832,14 +988,14 @@ class PostMetrics {
   final int totalLikes;
   final int totalComments;
   final int totalShares;
-  
+
   const PostMetrics({
     this.totalPosts = 0,
     this.totalLikes = 0,
     this.totalComments = 0,
     this.totalShares = 0,
   });
-  
+
   factory PostMetrics.empty() => const PostMetrics();
 }
 
@@ -847,13 +1003,13 @@ class FriendMetrics {
   final int totalFriends;
   final int newFriends;
   final int mutualConnections;
-  
+
   const FriendMetrics({
     this.totalFriends = 0,
     this.newFriends = 0,
     this.mutualConnections = 0,
   });
-  
+
   factory FriendMetrics.empty() => const FriendMetrics();
 }
 
@@ -861,37 +1017,37 @@ class MessageMetrics {
   final int totalMessages;
   final int totalConversations;
   final int averageResponseTime;
-  
+
   const MessageMetrics({
     this.totalMessages = 0,
     this.totalConversations = 0,
     this.averageResponseTime = 0,
   });
-  
+
   factory MessageMetrics.empty() => const MessageMetrics();
 }
 
 class InteractionPatterns {
   final Map<String, int> activityByHour;
   final Map<String, int> interactionTypes;
-  
+
   const InteractionPatterns({
     this.activityByHour = const {},
     this.interactionTypes = const {},
   });
-  
+
   factory InteractionPatterns.empty() => const InteractionPatterns();
 }
 
 class ActivityTimeline {
   final List<DateTime> activities;
   final Map<String, int> dailyActivity;
-  
+
   const ActivityTimeline({
     this.activities = const [],
     this.dailyActivity = const {},
   });
-  
+
   factory ActivityTimeline.empty() => const ActivityTimeline();
 }
 
@@ -931,13 +1087,13 @@ class PostDemographics {
   final Map<String, int> ageGroups;
   final Map<String, int> genderDistribution;
   final Map<String, int> locationData;
-  
+
   const PostDemographics({
     this.ageGroups = const {},
     this.genderDistribution = const {},
     this.locationData = const {},
   });
-  
+
   factory PostDemographics.empty() => const PostDemographics();
 }
 
@@ -1005,13 +1161,13 @@ class MessagingPatterns {
   final Map<String, int> messageFrequency;
   final List<String> commonTopics;
   final double averageResponseTime;
-  
+
   const MessagingPatterns({
     this.messageFrequency = const {},
     this.commonTopics = const [],
     this.averageResponseTime = 0.0,
   });
-  
+
   factory MessagingPatterns.empty() => const MessagingPatterns();
 }
 
@@ -1019,13 +1175,13 @@ class ConversationMetrics {
   final int totalConversations;
   final int activeConversations;
   final double averageLength;
-  
+
   const ConversationMetrics({
     this.totalConversations = 0,
     this.activeConversations = 0,
     this.averageLength = 0.0,
   });
-  
+
   factory ConversationMetrics.empty() => const ConversationMetrics();
 }
 
@@ -1077,13 +1233,13 @@ class ActivityTrends {
   final Map<String, double> weeklyTrends;
   final Map<String, double> monthlyTrends;
   final List<String> peakHours;
-  
+
   const ActivityTrends({
     this.weeklyTrends = const {},
     this.monthlyTrends = const {},
     this.peakHours = const [],
   });
-  
+
   factory ActivityTrends.empty() => const ActivityTrends();
 }
 
@@ -1091,13 +1247,13 @@ class ReachStatistics {
   final int totalReach;
   final int uniqueUsers;
   final double engagementRate;
-  
+
   const ReachStatistics({
     this.totalReach = 0,
     this.uniqueUsers = 0,
     this.engagementRate = 0.0,
   });
-  
+
   factory ReachStatistics.empty() => const ReachStatistics();
 }
 
@@ -1120,13 +1276,13 @@ class ViralContentMetrics {
   final int viewCount;
   final double velocityScore;
   final double reachMultiplier;
-  
+
   const ViralContentMetrics({
     this.shareCount = 0,
     this.viewCount = 0,
     this.velocityScore = 0.0,
     this.reachMultiplier = 0.0,
   });
-  
+
   factory ViralContentMetrics.empty() => const ViralContentMetrics();
 }

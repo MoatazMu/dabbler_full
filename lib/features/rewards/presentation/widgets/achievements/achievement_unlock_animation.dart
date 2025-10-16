@@ -5,13 +5,7 @@ import 'package:flutter/services.dart';
 import '../../../domain/entities/achievement.dart';
 import '../../../domain/entities/user_progress.dart';
 
-enum CelebrationTheme {
-  classic,
-  confetti,
-  burst,
-  sparkle,
-  fireworks,
-}
+enum CelebrationTheme { classic, confetti, burst, sparkle, fireworks }
 
 class AchievementUnlockAnimation extends StatefulWidget {
   final Achievement achievement;
@@ -38,7 +32,8 @@ class AchievementUnlockAnimation extends StatefulWidget {
   });
 
   @override
-  State<AchievementUnlockAnimation> createState() => _AchievementUnlockAnimationState();
+  State<AchievementUnlockAnimation> createState() =>
+      _AchievementUnlockAnimationState();
 }
 
 class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
@@ -99,87 +94,77 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
       vsync: this,
     );
 
-    _slideAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.elasticOut,
-    ));
+    _slideAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.elasticOut),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.bounceOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.bounceOut),
+    );
 
-    _pointsAnimation = IntTween(
-      begin: 0,
-      end: widget.achievement.points,
-    ).animate(CurvedAnimation(
-      parent: _pointsController,
-      curve: Curves.easeOutCubic,
-    ));
+    _pointsAnimation = IntTween(begin: 0, end: widget.achievement.points)
+        .animate(
+          CurvedAnimation(
+            parent: _pointsController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
 
-    _confettiAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _confettiController,
-      curve: Curves.easeOutQuart,
-    ));
+    _confettiAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _confettiController, curve: Curves.easeOutQuart),
+    );
   }
 
   void _initializeParticles() {
     final random = math.Random();
-    
+
     // Initialize confetti particles
     for (int i = 0; i < 50; i++) {
-      _confettiParticles.add(ConfettiParticle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        color: _getRandomColor(),
-        size: random.nextDouble() * 8 + 4,
-        rotation: random.nextDouble() * 2 * math.pi,
-        velocity: Offset(
-          (random.nextDouble() - 0.5) * 200,
-          random.nextDouble() * -300 - 100,
+      _confettiParticles.add(
+        ConfettiParticle(
+          x: random.nextDouble(),
+          y: random.nextDouble(),
+          color: _getRandomColor(),
+          size: random.nextDouble() * 8 + 4,
+          rotation: random.nextDouble() * 2 * math.pi,
+          velocity: Offset(
+            (random.nextDouble() - 0.5) * 200,
+            random.nextDouble() * -300 - 100,
+          ),
         ),
-      ));
+      );
     }
 
     // Initialize burst particles
     for (int i = 0; i < 30; i++) {
       final angle = (i / 30) * 2 * math.pi;
-      _burstParticles.add(BurstParticle(
-        angle: angle,
-        distance: 0,
-        maxDistance: random.nextDouble() * 150 + 100,
-        color: _getRandomColor(),
-        size: random.nextDouble() * 6 + 3,
-      ));
+      _burstParticles.add(
+        BurstParticle(
+          angle: angle,
+          distance: 0,
+          maxDistance: random.nextDouble() * 150 + 100,
+          color: _getRandomColor(),
+          size: random.nextDouble() * 6 + 3,
+        ),
+      );
     }
 
     // Initialize sparkle particles
     for (int i = 0; i < 20; i++) {
-      _sparkleParticles.add(SparkleParticle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        color: Colors.white,
-        size: random.nextDouble() * 4 + 2,
-        opacity: random.nextDouble(),
-        twinkleSpeed: random.nextDouble() * 2 + 1,
-      ));
+      _sparkleParticles.add(
+        SparkleParticle(
+          x: random.nextDouble(),
+          y: random.nextDouble(),
+          color: Colors.white,
+          size: random.nextDouble() * 4 + 2,
+          opacity: random.nextDouble(),
+          twinkleSpeed: random.nextDouble() * 2 + 1,
+        ),
+      );
     }
   }
 
@@ -205,14 +190,14 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
     // Start animations in sequence
     await Future.delayed(const Duration(milliseconds: 100));
     _slideController.forward();
-    
+
     await Future.delayed(const Duration(milliseconds: 200));
     _scaleController.forward();
     _glowController.repeat(reverse: true);
-    
+
     await Future.delayed(const Duration(milliseconds: 400));
     _confettiController.forward();
-    
+
     if (widget.showPointsAnimation) {
       await Future.delayed(const Duration(milliseconds: 600));
       _pointsController.forward();
@@ -261,7 +246,7 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
           children: [
             // Particle effects background
             _buildParticleEffects(),
-            
+
             // Main content
             Center(
               child: AnimatedBuilder(
@@ -283,8 +268,7 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
             ),
 
             // Points animation
-            if (widget.showPointsAnimation)
-              _buildPointsAnimation(),
+            if (widget.showPointsAnimation) _buildPointsAnimation(),
 
             // Dismiss hint
             _buildDismissHint(),
@@ -321,7 +305,11 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')).withOpacity(0.3),
+            color: Color(
+              int.parse(
+                '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+              ),
+            ).withOpacity(0.3),
             blurRadius: 20,
             spreadRadius: _glowAnimation.value * 10,
           ),
@@ -335,7 +323,11 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
             'Achievement Unlocked!',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')),
+              color: Color(
+                int.parse(
+                  '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                ),
+              ),
             ),
           ),
 
@@ -349,23 +341,31 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')),
-                  Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')).withOpacity(0.7),
+                  Color(
+                    int.parse(
+                      '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                    ),
+                  ),
+                  Color(
+                    int.parse(
+                      '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                    ),
+                  ).withOpacity(0.7),
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')).withOpacity(0.4),
+                  color: Color(
+                    int.parse(
+                      '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                    ),
+                  ).withOpacity(0.4),
                   blurRadius: 15,
                   spreadRadius: _glowAnimation.value * 5,
                 ),
               ],
             ),
-            child: Icon(
-              _getAchievementIcon(),
-              size: 40,
-              color: Colors.white,
-            ),
+            child: Icon(_getAchievementIcon(), size: 40, color: Colors.white),
           ),
 
           const SizedBox(height: 16),
@@ -373,9 +373,9 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
           // Achievement title
           Text(
             widget.achievement.name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
 
@@ -384,9 +384,9 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
           // Achievement description
           Text(
             widget.achievement.description,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
 
@@ -396,10 +396,18 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')).withOpacity(0.1),
+              color: Color(
+                int.parse(
+                  '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                ),
+              ).withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')),
+                color: Color(
+                  int.parse(
+                    '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                  ),
+                ),
                 width: 1,
               ),
             ),
@@ -408,7 +416,11 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Color(int.parse('0xFF${widget.achievement.getTierColorHex().substring(1)}')),
+                color: Color(
+                  int.parse(
+                    '0xFF${widget.achievement.getTierColorHex().substring(1)}',
+                  ),
+                ),
               ),
             ),
           ),
@@ -442,11 +454,7 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.white,
-                    size: 16,
-                  ),
+                  const Icon(Icons.star, color: Colors.white, size: 16),
                   const SizedBox(width: 4),
                   Text(
                     '+${_pointsAnimation.value}',
@@ -459,10 +467,7 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
                   const SizedBox(width: 4),
                   const Text(
                     'points',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ],
               ),
@@ -481,10 +486,7 @@ class _AchievementUnlockAnimationState extends State<AchievementUnlockAnimation>
       child: Center(
         child: Text(
           'Tap anywhere to continue',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
         ),
       ),
     );
@@ -599,7 +601,8 @@ class ParticleEffectsPainter extends CustomPainter {
     for (final particle in sparkleParticles) {
       final paint = Paint()
         ..color = particle.color.withOpacity(
-          particle.opacity * math.sin(animation * math.pi * particle.twinkleSpeed),
+          particle.opacity *
+              math.sin(animation * math.pi * particle.twinkleSpeed),
         )
         ..style = PaintingStyle.fill;
 
@@ -639,7 +642,8 @@ class ParticleEffectsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ParticleEffectsPainter oldDelegate) => animation != oldDelegate.animation;
+  bool shouldRepaint(ParticleEffectsPainter oldDelegate) =>
+      animation != oldDelegate.animation;
 }
 
 class ConfettiParticle {

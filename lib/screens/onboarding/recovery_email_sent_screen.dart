@@ -9,7 +9,8 @@ class RecoveryEmailSentScreen extends StatefulWidget {
   const RecoveryEmailSentScreen({super.key, required this.email});
 
   @override
-  State<RecoveryEmailSentScreen> createState() => _RecoveryEmailSentScreenState();
+  State<RecoveryEmailSentScreen> createState() =>
+      _RecoveryEmailSentScreenState();
 }
 
 class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
@@ -19,7 +20,7 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
     try {
       final authService = AuthService();
       await authService.sendPasswordResetEmail(widget.email);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -55,7 +56,7 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 32),
-              
+
               // Success Icon
               Container(
                 padding: const EdgeInsets.all(24),
@@ -69,9 +70,9 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
                   color: Colors.green[700],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Header
               Text(
                 'Check Your Email',
@@ -80,36 +81,38 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Message
               Text(
                 'We\'ve sent a password recovery link to',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 widget.email,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Instructions
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.borderRadius,
+                  ),
                   border: Border.all(color: Colors.blue[200]!),
                 ),
                 child: Column(
@@ -125,32 +128,35 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
                         const SizedBox(width: 8),
                         Text(
                           'What to do next:',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue[700],
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue[700],
+                              ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     _buildInstruction('1. Check your email inbox'),
-                    _buildInstruction('2. Click the recovery link in the email'),
+                    _buildInstruction(
+                      '2. Click the recovery link in the email',
+                    ),
                     _buildInstruction('3. Create a new password'),
                     _buildInstruction('4. Sign in with your new password'),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Resend Email Button
               CustomButton(
                 onPressed: _isResending ? null : _handleResendEmail,
                 text: _isResending ? 'Sending...' : 'Resend Email',
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Back to Sign In
               TextButton(
                 onPressed: () {
@@ -164,18 +170,18 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
                   ),
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Help Text
               Text(
                 'Didn\'t receive the email? Check your spam folder or try a different email address.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 16),
             ],
           ),
@@ -194,13 +200,13 @@ class _RecoveryEmailSentScreenState extends State<RecoveryEmailSentScreen> {
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.blue[700],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.blue[700]),
             ),
           ),
         ],
       ),
     );
   }
-} 
+}

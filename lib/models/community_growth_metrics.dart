@@ -31,9 +31,9 @@ class CommunityGrowthMetrics {
   factory CommunityGrowthMetrics.fromJson(Map<String, dynamic> json) {
     return CommunityGrowthMetrics(
       id: json['id'],
-    metric_week: json['metric_week'] != null
-      ? DateTime.parse(json['metric_week'] as String)
-      : DateTime.now(),
+      metric_week: json['metric_week'] != null
+          ? DateTime.parse(json['metric_week'] as String)
+          : DateTime.now(),
       total_groups: json['total_groups'],
       active_groups: json['active_groups'],
       total_members: json['total_members'],
@@ -43,9 +43,9 @@ class CommunityGrowthMetrics {
       event_completion_rate: json['event_completion_rate'],
       metrics_by_region: json['metrics_by_region'],
       metrics_by_sport: json['metrics_by_sport'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

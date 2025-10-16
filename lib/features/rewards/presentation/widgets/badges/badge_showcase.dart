@@ -5,18 +5,9 @@ import '../../../domain/entities/achievement.dart';
 import 'badge_display.dart';
 import 'badge_tier_indicator.dart';
 
-enum ShowcaseLayout {
-  grid,
-  carousel,
-  highlight,
-  compact,
-}
+enum ShowcaseLayout { grid, carousel, highlight, compact }
 
-enum ShowcaseMode {
-  visitor,
-  owner,
-  edit,
-}
+enum ShowcaseMode { visitor, owner, edit }
 
 class BadgeShowcase extends StatefulWidget {
   final List<Achievement> featuredBadges;
@@ -67,7 +58,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
   late AnimationController _highlightController;
   late AnimationController _carouselController;
   late AnimationController _editController;
-  
+
   late Animation<double> _highlightAnimation;
   late Animation<double> _carouselAnimation;
   late Animation<double> _editAnimation;
@@ -101,29 +92,17 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
       vsync: this,
     );
 
-    _highlightAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _highlightController,
-      curve: Curves.easeOutBack,
-    ));
+    _highlightAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _highlightController, curve: Curves.easeOutBack),
+    );
 
-    _carouselAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _carouselController,
-      curve: Curves.easeInOut,
-    ));
+    _carouselAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _carouselController, curve: Curves.easeInOut),
+    );
 
-    _editAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _editController,
-      curve: Curves.easeInOut,
-    ));
+    _editAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _editController, curve: Curves.easeInOut),
+    );
 
     _highlightController.forward();
   }
@@ -138,11 +117,11 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
   @override
   void didUpdateWidget(BadgeShowcase oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (oldWidget.layout != widget.layout) {
       _setupPageController();
     }
-    
+
     if (oldWidget.featuredBadges != widget.featuredBadges) {
       _reorderableBadges = List.from(widget.featuredBadges);
     }
@@ -164,16 +143,16 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
       children: [
         // Header
         _buildHeader(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Main showcase content
         _buildShowcaseContent(),
-        
+
         // Layout preview controls
         if (widget.enableLayoutPreview && widget.mode == ShowcaseMode.owner)
           _buildLayoutPreview(),
-        
+
         // Edit mode controls
         if (_isInEditMode && widget.mode == ShowcaseMode.owner)
           _buildEditControls(),
@@ -191,23 +170,20 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
               widget.mode == ShowcaseMode.visitor && widget.ownerName != null
                   ? '${widget.ownerName}\'s Badge Showcase'
                   : 'Featured Badges',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             if (_reorderableBadges.isNotEmpty)
               Text(
                 '${_reorderableBadges.length} featured badge${_reorderableBadges.length != 1 ? 's' : ''}',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
           ],
         ),
-        
+
         const Spacer(),
-        
+
         // Action buttons
         if (widget.mode == ShowcaseMode.owner) ...[
           // Edit toggle
@@ -218,15 +194,15 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
               builder: (context, child) {
                 return Icon(
                   _isInEditMode ? Icons.done : Icons.edit,
-                  color: _isInEditMode 
-                      ? Colors.green 
+                  color: _isInEditMode
+                      ? Colors.green
                       : Theme.of(context).primaryColor,
                 );
               },
             ),
             tooltip: _isInEditMode ? 'Finish editing' : 'Edit showcase',
           ),
-          
+
           // Share button
           if (widget.enableSharing)
             IconButton(
@@ -289,10 +265,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   'Tap edit to select your featured badges',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                 ),
               ),
           ],
@@ -339,7 +312,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
             itemCount: _reorderableBadges.length,
             itemBuilder: (context, index) {
               final scale = index == _currentPage ? 1.0 : 0.85;
-              
+
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 transform: Matrix4.identity()..scale(scale),
@@ -362,9 +335,9 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
             // Featured badge (largest)
             if (_reorderableBadges.isNotEmpty)
               _buildFeaturedBadge(_reorderableBadges[0]),
-            
+
             const SizedBox(height: 16),
-            
+
             // Supporting badges (smaller)
             if (_reorderableBadges.length > 1)
               SizedBox(
@@ -377,7 +350,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                     return Container(
                       margin: const EdgeInsets.only(right: 12),
                       child: _buildBadgeItem(
-                        _reorderableBadges[badgeIndex], 
+                        _reorderableBadges[badgeIndex],
                         badgeIndex,
                         size: 60,
                       ),
@@ -403,11 +376,18 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
         children: _reorderableBadges.asMap().entries.map((entry) {
           final index = entry.key;
           final badge = entry.value;
-          
+
           return Expanded(
             child: Container(
-              margin: EdgeInsets.only(right: index < _reorderableBadges.length - 1 ? 8 : 0),
-              child: _buildBadgeItem(badge, index, size: 50, showDetails: false),
+              margin: EdgeInsets.only(
+                right: index < _reorderableBadges.length - 1 ? 8 : 0,
+              ),
+              child: _buildBadgeItem(
+                badge,
+                index,
+                size: 50,
+                showDetails: false,
+              ),
             ),
           );
         }).toList(),
@@ -431,7 +411,9 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                 end: Alignment.bottomRight,
                 colors: [
                   widget.badgeRarities[badge.id] != BadgeRarity.common
-                      ? _getRarityColor(widget.badgeRarities[badge.id]!).withOpacity(0.1)
+                      ? _getRarityColor(
+                          widget.badgeRarities[badge.id]!,
+                        ).withOpacity(0.1)
                       : Colors.grey[100]!,
                   Colors.white,
                 ],
@@ -465,15 +447,13 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                   ),
                   textAlign: TextAlign.center,
                 ),
-                if (widget.showEarnedDates && widget.earnedDates[badge.id] != null)
+                if (widget.showEarnedDates &&
+                    widget.earnedDates[badge.id] != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       'Earned ${_formatDate(widget.earnedDates[badge.id]!)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ),
               ],
@@ -485,13 +465,13 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
   }
 
   Widget _buildBadgeItem(
-    Achievement badge, 
+    Achievement badge,
     int index, {
     double size = 100,
     bool showDetails = true,
   }) {
     final rarity = widget.badgeRarities[badge.id] ?? BadgeRarity.common;
-    
+
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 400 + (index * 100)),
       tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -524,10 +504,10 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                                 ? () => widget.onBadgeLongPress!(badge)
                                 : null,
                           ),
-                    
+
                     if (showDetails) ...[
                       const SizedBox(height: 8),
-                      
+
                       // Badge tier indicator
                       BadgeTierIndicator(
                         currentTier: badge.tier,
@@ -535,8 +515,9 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                         size: 20,
                         enableAnimations: false,
                       ),
-                      
-                      if (widget.showEarnedDates && widget.earnedDates[badge.id] != null)
+
+                      if (widget.showEarnedDates &&
+                          widget.earnedDates[badge.id] != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
@@ -553,8 +534,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                 ),
 
                 // Edit mode overlay
-                if (_isInEditMode)
-                  _buildEditOverlay(index),
+                if (_isInEditMode) _buildEditOverlay(index),
               ],
             ),
           ),
@@ -636,11 +616,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
               ),
             ],
           ),
-          child: const Icon(
-            Icons.close,
-            color: Colors.white,
-            size: 16,
-          ),
+          child: const Icon(Icons.close, color: Colors.white, size: 16),
         ),
       ),
     );
@@ -654,9 +630,9 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
         children: [
           Text(
             'Layout Options',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           SingleChildScrollView(
@@ -695,7 +671,9 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
                             _getLayoutDisplayName(layout),
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                               color: isSelected
                                   ? Theme.of(context).primaryColor
                                   : Colors.grey[600],
@@ -730,19 +708,12 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: Colors.blue[700],
-                  ),
+                  Icon(Icons.info_outline, size: 16, color: Colors.blue[700]),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Drag badges to reorder • Tap ✕ to remove',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue[700],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.blue[700]),
                     ),
                   ),
                 ],
@@ -831,7 +802,7 @@ class _BadgeShowcaseState extends State<BadgeShowcase>
   void _saveChanges() {
     widget.onBadgesReordered?.call(_reorderableBadges);
     _toggleEditMode();
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Showcase updated successfully!'),

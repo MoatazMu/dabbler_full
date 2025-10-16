@@ -37,13 +37,16 @@ class CustomButton extends StatelessWidget {
             ),
             padding: _getButtonPadding(size),
           ),
-          child: loading 
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
-            : icon != null 
+          child: loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : icon != null
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -67,13 +70,13 @@ class CustomButton extends StatelessWidget {
             ),
             padding: _getButtonPadding(size),
           ),
-          child: loading 
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : icon != null 
+          child: loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : icon != null
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -97,13 +100,13 @@ class CustomButton extends StatelessWidget {
             ),
             padding: _getButtonPadding(size),
           ),
-          child: loading 
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : icon != null 
+          child: loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : icon != null
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -125,13 +128,13 @@ class CustomButton extends StatelessWidget {
             ),
             padding: _getButtonPadding(size),
           ),
-          child: loading 
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : icon != null 
+          child: loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : icon != null
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -155,13 +158,16 @@ class CustomButton extends StatelessWidget {
             ),
             padding: _getButtonPadding(size),
           ),
-          child: loading 
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
-            : icon != null 
+          child: loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : icon != null
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -176,10 +182,7 @@ class CustomButton extends StatelessWidget {
     }
 
     if (fullWidth) {
-      return SizedBox(
-        width: double.infinity,
-        child: button,
-      );
+      return SizedBox(width: double.infinity, child: button);
     }
 
     return button;
@@ -197,16 +200,6 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-enum ButtonVariant {
-  primary,
-  secondary,
-  outline,
-  ghost,
-  destructive,
-}
+enum ButtonVariant { primary, secondary, outline, ghost, destructive }
 
-enum ButtonSize {
-  small,
-  medium,
-  large,
-}
+enum ButtonSize { small, medium, large }

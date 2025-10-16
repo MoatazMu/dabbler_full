@@ -1,5 +1,6 @@
 /// Helper class for calculating and formatting profile statistics
 library;
+
 import 'dart:math';
 
 /// Temporary model class for profile statistics
@@ -21,7 +22,7 @@ class ProfileStatistics {
   final DateTime? lastGameDate;
   final Map<String, int> sportBreakdown;
   final Map<String, double> monthlyHours;
-  
+
   const ProfileStatistics({
     this.totalGamesPlayed = 0,
     this.totalWins = 0,
@@ -76,24 +77,24 @@ class StatisticsHelper {
     if (totalHours < 1) {
       return formatPlayTime(totalHours);
     }
-    
+
     final days = (totalHours / 24).floor();
     final remainingHours = totalHours - (days * 24);
     final hours = remainingHours.floor();
     final minutes = ((remainingHours - hours) * 60).round();
-    
+
     final parts = <String>[];
     if (days > 0) parts.add('${days}d');
     if (hours > 0) parts.add('${hours}h');
     if (minutes > 0 && days == 0) parts.add('${minutes}m');
-    
+
     return parts.isEmpty ? '0m' : parts.join(' ');
   }
 
   /// Get list of earned achievements based on statistics
   static List<String> getAchievements(ProfileStatistics stats) {
     final achievements = <String>[];
-    
+
     // Game count achievements
     if (stats.totalGamesPlayed >= 1) achievements.add('First Game');
     if (stats.totalGamesPlayed >= 10) achievements.add('Getting Started');
@@ -101,19 +102,19 @@ class StatisticsHelper {
     if (stats.totalGamesPlayed >= 100) achievements.add('Century Player');
     if (stats.totalGamesPlayed >= 500) achievements.add('Dedicated Player');
     if (stats.totalGamesPlayed >= 1000) achievements.add('Game Legend');
-    
+
     // Organization achievements
     if (stats.totalGamesOrganized >= 1) achievements.add('First Organizer');
     if (stats.totalGamesOrganized >= 10) achievements.add('Event Coordinator');
     if (stats.totalGamesOrganized >= 50) achievements.add('Game Master');
     if (stats.totalGamesOrganized >= 100) achievements.add('Community Leader');
-    
+
     // Streak achievements
     if (stats.currentStreak >= 3) achievements.add('Hot Streak');
     if (stats.currentStreak >= 5) achievements.add('On Fire');
     if (stats.currentStreak >= 10) achievements.add('Unstoppable');
     if (stats.longestStreak >= 15) achievements.add('Streak Master');
-    
+
     // Rating achievements
     if (stats.reliabilityRating >= 4.0) achievements.add('Reliable');
     if (stats.reliabilityRating >= 4.5) achievements.add('Very Reliable');
@@ -121,32 +122,37 @@ class StatisticsHelper {
     if (stats.sportsmanshipRating >= 4.0) achievements.add('Good Sport');
     if (stats.sportsmanshipRating >= 4.5) achievements.add('Great Sport');
     if (stats.sportsmanshipRating >= 4.8) achievements.add('Exemplary Sport');
-    
+
     // Win rate achievements
     final winRate = calculateWinRate(stats);
-    if (winRate >= 60 && stats.totalGamesPlayed >= 20) achievements.add('Winner');
-    if (winRate >= 75 && stats.totalGamesPlayed >= 50) achievements.add('Champion');
-    if (winRate >= 85 && stats.totalGamesPlayed >= 100) achievements.add('Dominator');
-    
+    if (winRate >= 60 && stats.totalGamesPlayed >= 20)
+      achievements.add('Winner');
+    if (winRate >= 75 && stats.totalGamesPlayed >= 50)
+      achievements.add('Champion');
+    if (winRate >= 85 && stats.totalGamesPlayed >= 100)
+      achievements.add('Dominator');
+
     // Time-based achievements
     if (stats.totalHoursPlayed >= 10) achievements.add('10 Hour Club');
     if (stats.totalHoursPlayed >= 50) achievements.add('50 Hour Club');
     if (stats.totalHoursPlayed >= 100) achievements.add('Century Hours');
     if (stats.totalHoursPlayed >= 500) achievements.add('Time Warrior');
-    
+
     // Social achievements
     if (stats.totalFriends >= 10) achievements.add('Social Player');
     if (stats.totalFriends >= 50) achievements.add('Popular Player');
     if (stats.totalFriends >= 100) achievements.add('Community Connector');
-    
+
     // Time period achievements
     if (stats.firstGameDate != null && stats.lastGameDate != null) {
-      final daysSinceFirst = DateTime.now().difference(stats.firstGameDate!).inDays;
+      final daysSinceFirst = DateTime.now()
+          .difference(stats.firstGameDate!)
+          .inDays;
       if (daysSinceFirst >= 30) achievements.add('One Month Active');
       if (daysSinceFirst >= 365) achievements.add('One Year Strong');
       if (daysSinceFirst >= 365 * 2) achievements.add('Two Year Veteran');
     }
-    
+
     return achievements;
   }
 
@@ -168,7 +174,7 @@ class StatisticsHelper {
     final winRate = calculateWinRate(stats);
     final totalGames = stats.totalWins + stats.totalLosses;
     final draws = stats.totalGamesPlayed - totalGames;
-    
+
     return {
       'games': {
         'total_played': stats.totalGamesPlayed,
@@ -205,11 +211,12 @@ class StatisticsHelper {
   static Map<String, dynamic> getPerformanceInsights(ProfileStatistics stats) {
     final insights = <String, dynamic>{};
     final winRate = calculateWinRate(stats);
-    
+
     // Performance level
     if (stats.totalGamesPlayed < 5) {
       insights['level'] = 'newcomer';
-      insights['message'] = 'Play more games to establish your performance level';
+      insights['message'] =
+          'Play more games to establish your performance level';
     } else if (winRate >= 70) {
       insights['level'] = 'excellent';
       insights['message'] = 'Outstanding performance! You\'re a strong player';
@@ -223,28 +230,30 @@ class StatisticsHelper {
       insights['level'] = 'developing';
       insights['message'] = 'Focus on fundamentals to improve your game';
     }
-    
+
     // Activity insights
     if (stats.totalHoursPlayed > 0 && stats.totalGamesPlayed > 0) {
       final avgHoursPerGame = stats.totalHoursPlayed / stats.totalGamesPlayed;
       insights['avg_game_duration'] = formatPlayTime(avgHoursPerGame);
-      
+
       if (avgHoursPerGame > 3) {
         insights['duration_note'] = 'You enjoy longer games';
       } else if (avgHoursPerGame < 1) {
         insights['duration_note'] = 'You prefer quick games';
       }
     }
-    
+
     // Streak insights
     if (stats.currentStreak > 0) {
       insights['streak_status'] = 'active';
-      insights['streak_message'] = 'You\'re on a ${stats.currentStreak}-game streak!';
+      insights['streak_message'] =
+          'You\'re on a ${stats.currentStreak}-game streak!';
     } else if (stats.longestStreak >= 5) {
       insights['streak_status'] = 'potential';
-      insights['streak_message'] = 'Your best streak was ${stats.longestStreak} games';
+      insights['streak_message'] =
+          'Your best streak was ${stats.longestStreak} games';
     }
-    
+
     // Social insights
     if (stats.totalFriends >= 20) {
       insights['social_level'] = 'very_social';
@@ -252,9 +261,10 @@ class StatisticsHelper {
       insights['social_level'] = 'social';
     } else {
       insights['social_level'] = 'growing';
-      insights['social_message'] = 'Connect with more players to expand your network';
+      insights['social_message'] =
+          'Connect with more players to expand your network';
     }
-    
+
     return insights;
   }
 
@@ -300,7 +310,7 @@ class StatisticsHelper {
 
   static double _calculatePercentile(double userValue, double averageValue) {
     if (averageValue == 0) return 50.0;
-    
+
     // Simple percentile calculation - this could be enhanced with actual distribution data
     final ratio = userValue / averageValue;
     if (ratio >= 2.0) return 95.0;
@@ -317,38 +327,41 @@ class StatisticsHelper {
   /// Get monthly activity trends
   static Map<String, dynamic> getMonthlyTrends(ProfileStatistics stats) {
     final trends = <String, dynamic>{};
-    
+
     if (stats.monthlyHours.isNotEmpty) {
       final months = stats.monthlyHours.keys.toList()..sort();
-      final hours = months.map((month) => stats.monthlyHours[month] ?? 0.0).toList();
-      
+      final hours = months
+          .map((month) => stats.monthlyHours[month] ?? 0.0)
+          .toList();
+
       trends['months'] = months;
       trends['hours'] = hours;
       trends['peak_month'] = _findPeakMonth(stats.monthlyHours);
-      trends['average_monthly_hours'] = hours.fold<double>(0.0, (sum, h) => sum + h) / hours.length;
+      trends['average_monthly_hours'] =
+          hours.fold<double>(0.0, (sum, h) => sum + h) / hours.length;
       trends['trend_direction'] = _calculateTrendDirection(hours);
     }
-    
+
     return trends;
   }
 
   static String _findPeakMonth(Map<String, double> monthlyHours) {
     if (monthlyHours.isEmpty) return '';
-    
-    return monthlyHours.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
-        .key;
+
+    return monthlyHours.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
   static String _calculateTrendDirection(List<double> values) {
     if (values.length < 2) return 'stable';
-    
+
     final recent = values.sublist(max(0, values.length - 3));
     final earlier = values.sublist(0, min(values.length, 3));
-    
-    final recentAvg = recent.fold<double>(0.0, (sum, v) => sum + v) / recent.length;
-    final earlierAvg = earlier.fold<double>(0.0, (sum, v) => sum + v) / earlier.length;
-    
+
+    final recentAvg =
+        recent.fold<double>(0.0, (sum, v) => sum + v) / recent.length;
+    final earlierAvg =
+        earlier.fold<double>(0.0, (sum, v) => sum + v) / earlier.length;
+
     if (recentAvg > earlierAvg * 1.2) return 'increasing';
     if (recentAvg < earlierAvg * 0.8) return 'decreasing';
     return 'stable';

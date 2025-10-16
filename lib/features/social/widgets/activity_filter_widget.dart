@@ -7,7 +7,7 @@ class ActivityFilterWidget extends StatefulWidget {
   final List<PostActivityType> selectedTypes;
   final Function(List<PostActivityType>) onSelectionChanged;
   final bool showAllOption;
-  
+
   const ActivityFilterWidget({
     super.key,
     required this.selectedTypes,
@@ -21,13 +21,13 @@ class ActivityFilterWidget extends StatefulWidget {
 
 class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
   late List<PostActivityType> _selectedTypes;
-  
+
   @override
   void initState() {
     super.initState();
     _selectedTypes = List.from(widget.selectedTypes);
   }
-  
+
   @override
   void didUpdateWidget(ActivityFilterWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -39,7 +39,7 @@ class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -51,19 +51,22 @@ class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
             _buildAllFilterChip(theme),
             const SizedBox(width: 8),
           ],
-          ...PostActivityType.values.map((type) => Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: _buildActivityFilterChip(theme, type),
-          )),
+          ...PostActivityType.values.map(
+            (type) => Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildActivityFilterChip(theme, type),
+            ),
+          ),
         ],
       ),
     );
   }
-  
+
   Widget _buildAllFilterChip(ThemeData theme) {
-    final isSelected = _selectedTypes.isEmpty || 
-                      _selectedTypes.length == PostActivityType.values.length;
-    
+    final isSelected =
+        _selectedTypes.isEmpty ||
+        _selectedTypes.length == PostActivityType.values.length;
+
     return FilterChip(
       label: Row(
         mainAxisSize: MainAxisSize.min,
@@ -71,13 +74,17 @@ class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
           Icon(
             Icons.all_inclusive,
             size: 16,
-            color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
+            color: isSelected
+                ? Colors.white
+                : theme.textTheme.bodyMedium?.color,
           ),
           const SizedBox(width: 4),
           Text(
             'All',
             style: TextStyle(
-              color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
+              color: isSelected
+                  ? Colors.white
+                  : theme.textTheme.bodyMedium?.color,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -103,10 +110,10 @@ class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
       ),
     );
   }
-  
+
   Widget _buildActivityFilterChip(ThemeData theme, PostActivityType type) {
     final isSelected = _selectedTypes.contains(type);
-    
+
     return FilterChip(
       label: Row(
         mainAxisSize: MainAxisSize.min,
@@ -140,10 +147,7 @@ class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
       backgroundColor: type.color.withOpacity(0.1),
       selectedColor: type.color,
       checkmarkColor: Colors.white,
-      side: BorderSide(
-        color: type.color,
-        width: 1,
-      ),
+      side: BorderSide(color: type.color, width: 1),
     );
   }
 }
@@ -152,7 +156,7 @@ class _ActivityFilterWidgetState extends State<ActivityFilterWidget> {
 class ExpandableActivityFilterWidget extends StatefulWidget {
   final List<PostActivityType> selectedTypes;
   final Function(List<PostActivityType>) onSelectionChanged;
-  
+
   const ExpandableActivityFilterWidget({
     super.key,
     required this.selectedTypes,
@@ -160,13 +164,15 @@ class ExpandableActivityFilterWidget extends StatefulWidget {
   });
 
   @override
-  State<ExpandableActivityFilterWidget> createState() => _ExpandableActivityFilterWidgetState();
+  State<ExpandableActivityFilterWidget> createState() =>
+      _ExpandableActivityFilterWidgetState();
 }
 
-class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilterWidget> {
+class _ExpandableActivityFilterWidgetState
+    extends State<ExpandableActivityFilterWidget> {
   bool _isExpanded = false;
   late List<PostActivityType> _selectedTypes;
-  
+
   @override
   void initState() {
     super.initState();
@@ -176,7 +182,7 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       children: [
         // Header with filter count and toggle
@@ -186,10 +192,7 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(
-                  Icons.filter_list,
-                  color: theme.primaryColor,
-                ),
+                Icon(Icons.filter_list, color: theme.primaryColor),
                 const SizedBox(width: 8),
                 Text(
                   'Activity Filters',
@@ -197,10 +200,14 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (_selectedTypes.isNotEmpty && _selectedTypes.length < PostActivityType.values.length) ...[
+                if (_selectedTypes.isNotEmpty &&
+                    _selectedTypes.length < PostActivityType.values.length) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: theme.primaryColor,
                       borderRadius: BorderRadius.circular(10),
@@ -224,7 +231,7 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
             ),
           ),
         ),
-        
+
         // Expandable filter content
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -234,36 +241,32 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
       ],
     );
   }
-  
+
   Widget _buildExpandedContent(ThemeData theme) {
     // Group activity types by category
     final socialActivities = [
       PostActivityType.originalPost,
       PostActivityType.comment,
     ];
-    
+
     final venueActivities = [
       PostActivityType.venueRating,
       PostActivityType.checkIn,
       PostActivityType.venueBooking,
     ];
-    
+
     final gameActivities = [
       PostActivityType.gameCreation,
       PostActivityType.gameJoin,
     ];
-    
-    final achievementActivities = [
-      PostActivityType.achievement,
-    ];
-    
+
+    final achievementActivities = [PostActivityType.achievement];
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        border: Border(
-          top: BorderSide(color: theme.dividerColor),
-        ),
+        border: Border(top: BorderSide(color: theme.dividerColor)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,31 +274,23 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
           // Quick actions
           Row(
             children: [
-              _buildQuickActionButton(
-                'Select All',
-                () {
-                  setState(() {
-                    _selectedTypes = List.from(PostActivityType.values);
-                  });
-                  widget.onSelectionChanged(_selectedTypes);
-                },
-                theme,
-              ),
+              _buildQuickActionButton('Select All', () {
+                setState(() {
+                  _selectedTypes = List.from(PostActivityType.values);
+                });
+                widget.onSelectionChanged(_selectedTypes);
+              }, theme),
               const SizedBox(width: 8),
-              _buildQuickActionButton(
-                'Clear All',
-                () {
-                  setState(() {
-                    _selectedTypes.clear();
-                  });
-                  widget.onSelectionChanged(_selectedTypes);
-                },
-                theme,
-              ),
+              _buildQuickActionButton('Clear All', () {
+                setState(() {
+                  _selectedTypes.clear();
+                });
+                widget.onSelectionChanged(_selectedTypes);
+              }, theme),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Activity type groups
           _buildActivityGroup('Social', socialActivities, theme),
           const SizedBox(height: 12),
@@ -308,7 +303,7 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
       ),
     );
   }
-  
+
   Widget _buildQuickActionButton(
     String label,
     VoidCallback onPressed,
@@ -319,15 +314,13 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
       style: OutlinedButton.styleFrom(
         foregroundColor: theme.primaryColor,
         side: BorderSide(color: theme.primaryColor),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
       child: Text(label),
     );
   }
-  
+
   Widget _buildActivityGroup(
     String title,
     List<PostActivityType> activities,
@@ -347,15 +340,17 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: activities.map((type) => _buildActivityCheckbox(type, theme)).toList(),
+          children: activities
+              .map((type) => _buildActivityCheckbox(type, theme))
+              .toList(),
         ),
       ],
     );
   }
-  
+
   Widget _buildActivityCheckbox(PostActivityType type, ThemeData theme) {
     final isSelected = _selectedTypes.contains(type);
-    
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -384,19 +379,25 @@ class _ExpandableActivityFilterWidgetState extends State<ExpandableActivityFilte
             Icon(
               isSelected ? Icons.check_box : Icons.check_box_outline_blank,
               size: 18,
-              color: isSelected ? type.color : theme.textTheme.bodyMedium?.color,
+              color: isSelected
+                  ? type.color
+                  : theme.textTheme.bodyMedium?.color,
             ),
             const SizedBox(width: 8),
             Icon(
               type.icon,
               size: 16,
-              color: isSelected ? type.color : theme.textTheme.bodyMedium?.color,
+              color: isSelected
+                  ? type.color
+                  : theme.textTheme.bodyMedium?.color,
             ),
             const SizedBox(width: 4),
             Text(
               type.displayName,
               style: TextStyle(
-                color: isSelected ? type.color : theme.textTheme.bodyMedium?.color,
+                color: isSelected
+                    ? type.color
+                    : theme.textTheme.bodyMedium?.color,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),

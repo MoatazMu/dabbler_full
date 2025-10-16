@@ -81,9 +81,9 @@ class DabblerBreakpoints {
   static double getWidthRatio(BuildContext context) {
     return responsiveValue<double>(
       context: context,
-      mobile: 0.9,    // 90% of screen width
-      tablet: 0.8,    // 80% of screen width
-      desktop: 0.7,   // 70% of screen width
+      mobile: 0.9, // 90% of screen width
+      tablet: 0.8, // 80% of screen width
+      desktop: 0.7, // 70% of screen width
     );
   }
 
@@ -91,9 +91,9 @@ class DabblerBreakpoints {
   static int getGridColumns(BuildContext context) {
     return responsiveValue<int>(
       context: context,
-      mobile: 4,     // 4 columns for mobile
-      tablet: 8,     // 8 columns for tablet
-      desktop: 12,   // 12 columns for desktop
+      mobile: 4, // 4 columns for mobile
+      tablet: 8, // 8 columns for tablet
+      desktop: 12, // 12 columns for desktop
     );
   }
 }

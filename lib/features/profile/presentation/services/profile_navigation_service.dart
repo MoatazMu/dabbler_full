@@ -48,7 +48,7 @@ class ProfileNavigationService {
       }
 
       await _trackNavigation('profile_edit_view', {});
-      
+
       if (context.mounted) {
         context.pushNamed(RouteNames.profileEdit, extra: extra);
       }
@@ -72,7 +72,7 @@ class ProfileNavigationService {
       }
 
       await _trackNavigation('profile_photo_edit', {});
-      
+
       if (context.mounted) {
         context.pushNamed(RouteNames.profileEditPhoto, extra: extra);
       }
@@ -96,7 +96,7 @@ class ProfileNavigationService {
       }
 
       await _trackNavigation('profile_sports_edit', {});
-      
+
       if (context.mounted) {
         context.pushNamed(RouteNames.profileEditSports, extra: extra);
       }
@@ -190,7 +190,7 @@ class ProfileNavigationService {
   }
 
   /// Private helper methods
-  
+
   static Future<bool> _checkAuthentication(WidgetRef ref) async {
     try {
       // TODO: Replace with actual auth provider
@@ -211,7 +211,10 @@ class ProfileNavigationService {
     }
   }
 
-  static Future<void> _trackNavigation(String event, Map<String, dynamic> parameters) async {
+  static Future<void> _trackNavigation(
+    String event,
+    Map<String, dynamic> parameters,
+  ) async {
     try {
       // TODO: Implement analytics tracking
       debugPrint('$_logTag: Navigation event: $event, params: $parameters');
@@ -250,6 +253,8 @@ extension ProfileNavigationExtension on BuildContext {
 }
 
 /// Provider for the navigation service
-final profileNavigationServiceProvider = Provider<ProfileNavigationService>((ref) {
+final profileNavigationServiceProvider = Provider<ProfileNavigationService>((
+  ref,
+) {
   return ProfileNavigationService();
 });

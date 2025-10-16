@@ -44,7 +44,8 @@ class SportConfigModel extends SportConfig {
       requiredEquipment: _parseStringList(json['required_equipment']) ?? [],
       optionalEquipment: _parseStringList(json['optional_equipment']) ?? [],
       rulesDescription: json['rules_description'] as String?,
-      availableSkillLevels: _parseStringList(json['available_skill_levels']) ?? 
+      availableSkillLevels:
+          _parseStringList(json['available_skill_levels']) ??
           ['beginner', 'intermediate', 'advanced', 'mixed'],
       scoringSystem: json['scoring_system'] as String?,
       maxScore: json['max_score'] as int?,
@@ -56,35 +57,37 @@ class SportConfigModel extends SportConfig {
 
   static SportType _parseSportType(dynamic typeData) {
     if (typeData == null) return SportType.football;
-    
+
     if (typeData is String) {
       try {
         return SportType.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == typeData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              typeData.toLowerCase(),
           orElse: () => SportType.football,
         );
       } catch (e) {
         return SportType.football;
       }
     }
-    
+
     return SportType.football;
   }
 
   static List<String>? _parseStringList(dynamic listData) {
     if (listData == null) return null;
-    
+
     if (listData is List) {
       return listData.map((item) => item.toString()).toList();
     }
-    
+
     if (listData is String) {
       if (listData.contains(',')) {
         return listData.split(',').map((s) => s.trim()).toList();
       }
       return [listData];
     }
-    
+
     return null;
   }
 

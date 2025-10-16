@@ -109,7 +109,9 @@ class ExploreFilters {
   factory ExploreFilters.fromJson(Map<String, dynamic> json) {
     return ExploreFilters(
       sport: json['sport'] as String?,
-      date: json['date'] != null ? DateTime.parse(json['date'] as String) : null,
+      date: json['date'] != null
+          ? DateTime.parse(json['date'] as String)
+          : null,
       radiusKm: (json['radiusKm'] as num?)?.toDouble(),
       location: json['location'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
@@ -121,11 +123,11 @@ class ExploreFilters {
   }
 
   bool get hasLocationData => latitude != null && longitude != null;
-  
+
   bool get isValidForApi => sport != null && radiusKm != null;
 
   @override
   String toString() {
     return 'ExploreFilters(sport: $sport, location: $location, radius: ${radiusKm}km)';
   }
-} 
+}

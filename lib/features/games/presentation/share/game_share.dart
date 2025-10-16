@@ -8,7 +8,8 @@ class GameShareService {
     required String venue,
     required String url,
   }) async {
-    final date = '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    final date =
+        '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     final text = 'Join me for "$title" on $date at $venue. More details: $url';
     await Share.share(text, subject: title);
   }
@@ -24,7 +25,14 @@ class GameShareCard extends StatelessWidget {
   final DateTime dateTime;
   final String venue;
   final double price;
-  const GameShareCard({super.key, required this.title, required this.sport, required this.dateTime, required this.venue, required this.price});
+  const GameShareCard({
+    super.key,
+    required this.title,
+    required this.sport,
+    required this.dateTime,
+    required this.venue,
+    required this.price,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,17 +51,30 @@ class GameShareCard extends StatelessWidget {
               Icon(Icons.sports, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text('$sport • $venue', style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            '$sport • $venue',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: 4),
-          Text(_format(dateTime), style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            _format(dateTime),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: 8),
-          Text(price == 0 ? 'Free' : '24${price.toStringAsFixed(0)}',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.green[700])),
+          Text(
+            price == 0 ? 'Free' : '24${price.toStringAsFixed(0)}',
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: Colors.green[700]),
+          ),
         ],
       ),
     );

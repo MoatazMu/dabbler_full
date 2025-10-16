@@ -39,33 +39,39 @@ abstract class FriendsFailure extends Failure {
 }
 
 class FriendsServerFailure extends FriendsFailure {
-  const FriendsServerFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Friends server error');
+  const FriendsServerFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Friends server error');
 }
 
 class FriendsCacheFailure extends FriendsFailure {
-  const FriendsCacheFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Friends cache error');
+  const FriendsCacheFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Friends cache error');
 }
 
 class FriendRequestNotFoundFailure extends FriendsFailure {
-  const FriendRequestNotFoundFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Friend request not found');
+  const FriendRequestNotFoundFailure({
+    String? message,
+    super.code,
+    super.details,
+  }) : super(message: message ?? 'Friend request not found');
 }
 
 class DuplicateFriendRequestFailure extends FriendsFailure {
-  const DuplicateFriendRequestFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Friend request already exists');
+  const DuplicateFriendRequestFailure({
+    String? message,
+    super.code,
+    super.details,
+  }) : super(message: message ?? 'Friend request already exists');
 }
 
 class SelfFriendRequestFailure extends FriendsFailure {
-  const SelfFriendRequestFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Cannot send friend request to yourself');
+  const SelfFriendRequestFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Cannot send friend request to yourself');
 }
 
 class UnknownFriendsFailure extends FriendsFailure {
-  const UnknownFriendsFailure({String? message, super.code, super.details}) 
-      : super(message: message ?? 'Unknown friends error');
+  const UnknownFriendsFailure({String? message, super.code, super.details})
+    : super(message: message ?? 'Unknown friends error');
 }
 
 /// Implementation of FriendsRepository with caching and real-time updates
@@ -79,7 +85,7 @@ class FriendsRepositoryImpl implements FriendsRepository {
   final Map<String, List<FriendModel>> _sentRequestsCache = {};
   final Map<String, List<FriendModel>> _blockedUsersCache = {};
   final Map<String, Map<String, int>> _statisticsCache = {};
-  
+
   // Cache TTL - 5 minutes for friends, 2 minutes for suggestions
   final Map<String, DateTime> _cacheTimestamps = {};
   static const Duration _friendsCacheDuration = Duration(minutes: 5);
@@ -91,9 +97,7 @@ class FriendsRepositoryImpl implements FriendsRepository {
   final Set<String> _optimisticRequests = {};
   final Set<String> _optimisticBlocks = {};
 
-  FriendsRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  FriendsRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Either<Failure, List<FriendModel>>> getFriends(
@@ -104,7 +108,8 @@ class FriendsRepositoryImpl implements FriendsRepository {
   }) async {
     try {
       // Check cache first
-      final cacheKey = 'friends_${userId}_${status?.toString() ?? 'all'}_${limit ?? 'all'}_${offset ?? 0}';
+      final cacheKey =
+          'friends_${userId}_${status?.toString() ?? 'all'}_${limit ?? 'all'}_${offset ?? 0}';
       if (_isCacheValid(cacheKey, _friendsCacheDuration)) {
         final cached = _friendsCache[cacheKey];
         if (cached != null) {
@@ -183,25 +188,31 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } catch (e) {
       _optimisticFriends.remove(toUserId);
       _optimisticRequests.remove(toUserId);
-      return Left(UnknownFriendsFailure(message: 'Failed to send friend request: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to send friend request: $e'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, FriendModel>> acceptFriendRequest(String requestId) async {
+  Future<Either<Failure, FriendModel>> acceptFriendRequest(
+    String requestId,
+  ) async {
     try {
       final friend = await remoteDataSource.acceptFriendRequest(requestId);
-      
+
       // Update cache optimistically
       _invalidateUserCaches(await _getCurrentUserId());
-      
+
       return Right(friend);
     } on FriendRequestNotFoundException catch (e) {
       return Left(FriendRequestNotFoundFailure(message: e.message));
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to accept friend request: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to accept friend request: $e'),
+      );
     }
   }
 
@@ -209,18 +220,20 @@ class FriendsRepositoryImpl implements FriendsRepository {
   Future<Either<Failure, bool>> declineFriendRequest(String requestId) async {
     try {
       final success = await remoteDataSource.declineFriendRequest(requestId);
-      
+
       if (success) {
         _invalidateUserCaches(await _getCurrentUserId());
       }
-      
+
       return Right(success);
     } on FriendRequestNotFoundException catch (e) {
       return Left(FriendRequestNotFoundFailure(message: e.message));
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to decline friend request: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to decline friend request: $e'),
+      );
     }
   }
 
@@ -229,15 +242,15 @@ class FriendsRepositoryImpl implements FriendsRepository {
     try {
       // Optimistic update
       _optimisticBlocks.add(userId);
-      
+
       final success = await remoteDataSource.blockUser(userId);
-      
+
       if (success) {
         _invalidateUserCaches(await _getCurrentUserId());
       } else {
         _optimisticBlocks.remove(userId);
       }
-      
+
       return Right(success);
     } on FriendsServerException catch (e) {
       _optimisticBlocks.remove(userId);
@@ -252,12 +265,12 @@ class FriendsRepositoryImpl implements FriendsRepository {
   Future<Either<Failure, bool>> unblockUser(String userId) async {
     try {
       final success = await remoteDataSource.unblockUser(userId);
-      
+
       if (success) {
         _optimisticBlocks.remove(userId);
         _invalidateUserCaches(await _getCurrentUserId());
       }
-      
+
       return Right(success);
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
@@ -292,7 +305,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get friend suggestions: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get friend suggestions: $e'),
+      );
     }
   }
 
@@ -313,7 +328,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get mutual friends: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get mutual friends: $e'),
+      );
     }
   }
 
@@ -364,7 +381,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get pending requests: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get pending requests: $e'),
+      );
     }
   }
 
@@ -394,7 +413,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get sent requests: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get sent requests: $e'),
+      );
     }
   }
 
@@ -424,7 +445,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get blocked users: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get blocked users: $e'),
+      );
     }
   }
 
@@ -432,18 +455,20 @@ class FriendsRepositoryImpl implements FriendsRepository {
   Future<Either<Failure, bool>> cancelFriendRequest(String requestId) async {
     try {
       final success = await remoteDataSource.cancelFriendRequest(requestId);
-      
+
       if (success) {
         _invalidateUserCaches(await _getCurrentUserId());
       }
-      
+
       return Right(success);
     } on FriendRequestNotFoundException catch (e) {
       return Left(FriendRequestNotFoundFailure(message: e.message));
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to cancel friend request: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to cancel friend request: $e'),
+      );
     }
   }
 
@@ -451,16 +476,18 @@ class FriendsRepositoryImpl implements FriendsRepository {
   Future<Either<Failure, bool>> removeFriend(String friendId) async {
     try {
       final success = await remoteDataSource.removeFriend(friendId);
-      
+
       if (success) {
         _invalidateUserCaches(await _getCurrentUserId());
       }
-      
+
       return Right(success);
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to remove friend: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to remove friend: $e'),
+      );
     }
   }
 
@@ -470,12 +497,17 @@ class FriendsRepositoryImpl implements FriendsRepository {
     String otherUserId,
   ) async {
     try {
-      final status = await remoteDataSource.getFriendshipStatus(userId, otherUserId);
+      final status = await remoteDataSource.getFriendshipStatus(
+        userId,
+        otherUserId,
+      );
       return Right(status);
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get friendship status: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get friendship status: $e'),
+      );
     }
   }
 
@@ -494,7 +526,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get online friends: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get online friends: $e'),
+      );
     }
   }
 
@@ -504,19 +538,28 @@ class FriendsRepositoryImpl implements FriendsRepository {
     String message,
   ) async {
     try {
-      final success = await remoteDataSource.updateFriendRequestMessage(requestId, message);
+      final success = await remoteDataSource.updateFriendRequestMessage(
+        requestId,
+        message,
+      );
       return Right(success);
     } on FriendRequestNotFoundException catch (e) {
       return Left(FriendRequestNotFoundFailure(message: e.message));
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to update friend request message: $e'));
+      return Left(
+        UnknownFriendsFailure(
+          message: 'Failed to update friend request message: $e',
+        ),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, int>>> getFriendStatistics(String userId) async {
+  Future<Either<Failure, Map<String, int>>> getFriendStatistics(
+    String userId,
+  ) async {
     try {
       if (_statisticsCache.containsKey(userId)) {
         final cached = _statisticsCache[userId];
@@ -532,7 +575,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
     } on FriendsServerException catch (e) {
       return Left(FriendsServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFriendsFailure(message: 'Failed to get friend statistics: $e'));
+      return Left(
+        UnknownFriendsFailure(message: 'Failed to get friend statistics: $e'),
+      );
     }
   }
 
@@ -548,7 +593,7 @@ class FriendsRepositoryImpl implements FriendsRepository {
   /// Apply optimistic updates to cached friends list
   List<FriendModel> _applyCacheOptimizations(List<FriendModel> friends) {
     final optimized = List<FriendModel>.from(friends);
-    
+
     // Add optimistic friends
     _optimisticFriends.forEach((userId, friend) {
       if (!optimized.any((f) => f.friendId == userId)) {
@@ -560,12 +605,14 @@ class FriendsRepositoryImpl implements FriendsRepository {
   }
 
   /// Apply optimistic updates to sent requests
-  List<FriendModel> _applySentRequestsOptimizations(List<FriendModel> requests) {
+  List<FriendModel> _applySentRequestsOptimizations(
+    List<FriendModel> requests,
+  ) {
     final optimized = List<FriendModel>.from(requests);
-    
+
     // Add optimistic requests
     _optimisticFriends.forEach((userId, friend) {
-      if (_optimisticRequests.contains(userId) && 
+      if (_optimisticRequests.contains(userId) &&
           !optimized.any((r) => r.friendId == userId)) {
         optimized.add(friend);
       }
@@ -605,7 +652,9 @@ class FriendsRepositoryImpl implements FriendsRepository {
   }
 
   /// Force refresh cache for specific operation
-  Future<Either<Failure, List<FriendModel>>> refreshFriends(String userId) async {
+  Future<Either<Failure, List<FriendModel>>> refreshFriends(
+    String userId,
+  ) async {
     _invalidateUserCaches(userId);
     return getFriends(userId);
   }

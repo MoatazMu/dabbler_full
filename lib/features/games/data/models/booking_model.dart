@@ -89,35 +89,39 @@ class BookingModel extends Booking {
 
   static BookingStatus _parseBookingStatus(dynamic statusData) {
     if (statusData == null) return BookingStatus.pending;
-    
+
     if (statusData is String) {
       try {
         return BookingStatus.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == statusData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              statusData.toLowerCase(),
           orElse: () => BookingStatus.pending,
         );
       } catch (e) {
         return BookingStatus.pending;
       }
     }
-    
+
     return BookingStatus.pending;
   }
 
   static PaymentStatus _parsePaymentStatus(dynamic statusData) {
     if (statusData == null) return PaymentStatus.pending;
-    
+
     if (statusData is String) {
       try {
         return PaymentStatus.values.firstWhere(
-          (e) => e.toString().split('.').last.toLowerCase() == statusData.toLowerCase(),
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              statusData.toLowerCase(),
           orElse: () => PaymentStatus.pending,
         );
       } catch (e) {
         return PaymentStatus.pending;
       }
     }
-    
+
     return PaymentStatus.pending;
   }
 
@@ -220,8 +224,12 @@ class BookingModel extends Booking {
   String get dateDisplay {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final bookingDay = DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
-    
+    final bookingDay = DateTime(
+      bookingDate.year,
+      bookingDate.month,
+      bookingDate.day,
+    );
+
     if (bookingDay == today) {
       return 'Today';
     } else if (bookingDay == today.add(const Duration(days: 1))) {
@@ -242,11 +250,11 @@ class BookingModel extends Booking {
   String get costBreakdownDisplay {
     final buffer = StringBuffer();
     buffer.write('$currency${totalAmount.toStringAsFixed(2)}');
-    
+
     if (deposit != null && deposit! > 0) {
       buffer.write(' (Deposit: $currency${deposit!.toStringAsFixed(2)})');
     }
-    
+
     return buffer.toString();
   }
 
@@ -254,24 +262,24 @@ class BookingModel extends Booking {
   String get feeBreakdownDisplay {
     final buffer = StringBuffer();
     final baseAmount = totalAmount - (tax ?? 0) - (serviceFee ?? 0);
-    
+
     buffer.write('Base: $currency${baseAmount.toStringAsFixed(2)}');
-    
+
     if (tax != null && tax! > 0) {
       buffer.write('\nTax: $currency${tax!.toStringAsFixed(2)}');
     }
-    
+
     if (serviceFee != null && serviceFee! > 0) {
       buffer.write('\nService Fee: $currency${serviceFee!.toStringAsFixed(2)}');
     }
-    
+
     return buffer.toString();
   }
 
   // Get refund status display
   String get refundStatusDisplay {
     if (refundAmount == null) return 'No refund';
-    
+
     if (refundedAt != null) {
       return 'Refunded: $currency${refundAmount!.toStringAsFixed(2)}';
     } else {

@@ -1,19 +1,8 @@
 import 'package:flutter/material.dart';
 
-enum SkillLevel {
-  beginner,
-  novice,
-  intermediate,
-  advanced,
-  expert,
-}
+enum SkillLevel { beginner, novice, intermediate, advanced, expert }
 
-enum SkillIndicatorStyle {
-  stars,
-  bars,
-  dots,
-  custom,
-}
+enum SkillIndicatorStyle { stars, bars, dots, custom }
 
 class SkillLevelIndicator extends StatelessWidget {
   final SkillLevel level;
@@ -49,15 +38,10 @@ class SkillLevelIndicator extends StatelessWidget {
       return indicator;
     }
 
-    Widget result = showLabel
-        ? _buildWithLabel(indicator, theme)
-        : indicator;
+    Widget result = showLabel ? _buildWithLabel(indicator, theme) : indicator;
 
     if (showTooltip) {
-      result = Tooltip(
-        message: _getTooltipText(),
-        child: result,
-      );
+      result = Tooltip(message: _getTooltipText(), child: result);
     }
 
     return result;
@@ -78,7 +62,11 @@ class SkillLevelIndicator extends StatelessWidget {
     }
   }
 
-  Widget _buildStarIndicator(int levelValue, Color activeColor, Color inactiveColor) {
+  Widget _buildStarIndicator(
+    int levelValue,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
@@ -95,7 +83,11 @@ class SkillLevelIndicator extends StatelessWidget {
     );
   }
 
-  Widget _buildBarIndicator(int levelValue, Color activeColor, Color inactiveColor) {
+  Widget _buildBarIndicator(
+    int levelValue,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
@@ -115,7 +107,11 @@ class SkillLevelIndicator extends StatelessWidget {
     );
   }
 
-  Widget _buildDotIndicator(int levelValue, Color activeColor, Color inactiveColor) {
+  Widget _buildDotIndicator(
+    int levelValue,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
@@ -139,7 +135,11 @@ class SkillLevelIndicator extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomIndicator(int levelValue, Color activeColor, Color inactiveColor) {
+  Widget _buildCustomIndicator(
+    int levelValue,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
     // Custom skill indicator with gradient fill
     return Container(
       width: compact ? size * 3 : size * 4,

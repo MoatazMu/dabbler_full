@@ -7,17 +7,21 @@ class ProfilesBackupRepo {
   ProfilesBackupRepo(this._db);
 
   Future<List<ProfilesBackup>> list({int limit = 50, int offset = 0}) async {
-    final res = await _db.from('profiles_backup')
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', ascending: false);
+    final res = await _db
+        .from('profiles_backup')
+        .select('*')
+        .range(offset, offset + limit - 1)
+        .order('created_at', ascending: false);
     final list = (res as List).cast<Map<String, dynamic>>();
     return list.map(ProfilesBackup.fromJson).toList();
   }
 
   Future<ProfilesBackup?> getById(dynamic id) async {
-    final res = await _db.from('profiles_backup')
-      .select('*').eq('id', id).maybeSingle();
+    final res = await _db
+        .from('profiles_backup')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
     if (res == null) return null;
     return ProfilesBackup.fromJson(res);
   }

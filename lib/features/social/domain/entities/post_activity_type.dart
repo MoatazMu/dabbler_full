@@ -1,20 +1,20 @@
 /// Enum defining different types of user activities that can become posts
 enum PostActivityType {
-  originalPost,    // Regular user post
-  comment,         // Comment on another post
-  venueRating,     // Rating a venue
-  gameCreation,    // Creating a game
-  checkIn,         // Check-in to location
-  venueBooking,    // Booking a venue
-  gameJoin,        // Joining a game
-  achievement,     // User achievement
+  originalPost, // Regular user post
+  comment, // Comment on another post
+  venueRating, // Rating a venue
+  gameCreation, // Creating a game
+  checkIn, // Check-in to location
+  venueBooking, // Booking a venue
+  gameJoin, // Joining a game
+  achievement, // User achievement
 }
 
 /// Privacy levels for posts
 enum PostPrivacy {
-  public,          // Everyone can see
-  friends,         // Friends only
-  thread,          // Only people in the thread/conversation
+  public, // Everyone can see
+  friends, // Friends only
+  thread, // Only people in the thread/conversation
 }
 
 /// Extension methods for PostActivityType

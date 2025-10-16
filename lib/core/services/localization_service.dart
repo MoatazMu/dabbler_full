@@ -9,7 +9,7 @@ class LocalizationService extends ChangeNotifier {
 
   static const String _languageKey = 'app_language';
   static const String _defaultLanguage = 'en';
-  
+
   Locale _currentLocale = const Locale('en');
   bool _isInitialized = false;
 
@@ -36,7 +36,7 @@ class LocalizationService extends ChangeNotifier {
     try {
       // Try to get saved language preference
       String? savedLanguage = await _getSavedLanguage();
-      
+
       if (savedLanguage != null) {
         // Use saved preference
         _currentLocale = Locale(savedLanguage);
@@ -44,15 +44,17 @@ class LocalizationService extends ChangeNotifier {
         // Detect device locale
         final deviceLocale = PlatformDispatcher.instance.locale;
         final deviceLanguage = deviceLocale.languageCode;
-        
+
         // Check if device language is supported
-        if (supportedLocales.any((locale) => locale.languageCode == deviceLanguage)) {
+        if (supportedLocales.any(
+          (locale) => locale.languageCode == deviceLanguage,
+        )) {
           _currentLocale = Locale(deviceLanguage);
         } else {
           // Default to English
           _currentLocale = const Locale(_defaultLanguage);
         }
-        
+
         // Save the detected language
         await _saveLanguage(_currentLocale.languageCode);
       }
@@ -70,17 +72,19 @@ class LocalizationService extends ChangeNotifier {
 
   /// Change app language
   Future<void> changeLanguage(String languageCode) async {
-    if (!supportedLocales.any((locale) => locale.languageCode == languageCode)) {
+    if (!supportedLocales.any(
+      (locale) => locale.languageCode == languageCode,
+    )) {
       throw Exception('Unsupported language: $languageCode');
     }
 
     if (_currentLocale.languageCode == languageCode) return;
 
     _currentLocale = Locale(languageCode);
-    
+
     // Save language preference
     await _saveLanguage(languageCode);
-    
+
     notifyListeners();
   }
 
@@ -117,11 +121,13 @@ class LocalizationService extends ChangeNotifier {
 
   /// Check if a language is supported
   bool isLanguageSupported(String languageCode) {
-    return supportedLocales.any((locale) => locale.languageCode == languageCode);
+    return supportedLocales.any(
+      (locale) => locale.languageCode == languageCode,
+    );
   }
 
   /// Reset to default language
   Future<void> resetToDefault() async {
     await changeLanguage(_defaultLanguage);
   }
-} 
+}

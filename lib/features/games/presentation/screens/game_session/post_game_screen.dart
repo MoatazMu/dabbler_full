@@ -22,12 +22,12 @@ class _PostGameScreenState extends State<PostGameScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late GameCompletionRewardsHandler _rewardsHandler;
-  
+
   final Map<String, Map<String, int>> _playerRatings = {};
   bool _hasRated = false;
   bool _showQuickRating = true;
   bool _rewardsProcessed = false;
-  
+
   final List<Map<String, dynamic>> _players = [
     {
       'id': '1',
@@ -84,21 +84,18 @@ class _PostGameScreenState extends State<PostGameScreen>
 
   void _initializeRatings() {
     for (final player in _players) {
-      _playerRatings[player['id']] = {
-        'skill': 0,
-        'sportsmanship': 0,
-      };
+      _playerRatings[player['id']] = {'skill': 0, 'sportsmanship': 0};
     }
   }
 
   /// Process rewards for game completion
   Future<void> _processGameRewards() async {
     if (_rewardsProcessed) return;
-    
+
     try {
       final authService = AuthService();
       final currentUser = authService.getCurrentUser();
-      
+
       if (currentUser == null || !mounted) return;
 
       // Extract game data
@@ -106,21 +103,34 @@ class _PostGameScreenState extends State<PostGameScreen>
       final sport = widget.gameData['sport'] ?? 'unknown';
       final teamAScore = widget.gameResults['teamAScore'] ?? 0;
       final teamBScore = widget.gameResults['teamBScore'] ?? 0;
-      final gameDuration = Duration(minutes: widget.gameResults['duration'] ?? 60);
-      
+      final gameDuration = Duration(
+        minutes: widget.gameResults['duration'] ?? 60,
+      );
+
       // Determine if current user won (simplified logic)
-      final isWinner = _determineIfWinner(currentUser.id, teamAScore, teamBScore);
-      
+      final isWinner = _determineIfWinner(
+        currentUser.id,
+        teamAScore,
+        teamBScore,
+      );
+
       // Prepare game stats
       final gameStats = {
-        'score': isWinner ? (teamAScore > teamBScore ? teamAScore : teamBScore) : (teamAScore < teamBScore ? teamAScore : teamBScore),
+        'score': isWinner
+            ? (teamAScore > teamBScore ? teamAScore : teamBScore)
+            : (teamAScore < teamBScore ? teamAScore : teamBScore),
         'teamAScore': teamAScore,
         'teamBScore': teamBScore,
         'mvp': widget.gameResults['mvpId'] == currentUser.id,
-        'goals': widget.gameResults['playerStats']?[currentUser.id]?['goals'] ?? 0,
-        'assists': widget.gameResults['playerStats']?[currentUser.id]?['assists'] ?? 0,
-        'points': widget.gameResults['playerStats']?[currentUser.id]?['points'] ?? 0,
-        'rebounds': widget.gameResults['playerStats']?[currentUser.id]?['rebounds'] ?? 0,
+        'goals':
+            widget.gameResults['playerStats']?[currentUser.id]?['goals'] ?? 0,
+        'assists':
+            widget.gameResults['playerStats']?[currentUser.id]?['assists'] ?? 0,
+        'points':
+            widget.gameResults['playerStats']?[currentUser.id]?['points'] ?? 0,
+        'rebounds':
+            widget.gameResults['playerStats']?[currentUser.id]?['rebounds'] ??
+            0,
       };
 
       // Process rewards
@@ -148,13 +158,13 @@ class _PostGameScreenState extends State<PostGameScreen>
       (player) => player['id'] == userId,
       orElse: () => _players.first,
     );
-    
+
     final userTeam = userPlayer['team'] ?? 'A';
-    
+
     if (teamAScore == teamBScore) return false; // Tie
-    
+
     return (userTeam == 'A' && teamAScore > teamBScore) ||
-           (userTeam == 'B' && teamBScore > teamAScore);
+        (userTeam == 'B' && teamBScore > teamAScore);
   }
 
   @override
@@ -179,11 +189,7 @@ class _PostGameScreenState extends State<PostGameScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildResultsTab(),
-          _buildRatingTab(),
-          _buildShareTab(),
-        ],
+        children: [_buildResultsTab(), _buildRatingTab(), _buildShareTab()],
       ),
       bottomNavigationBar: _buildBottomActions(),
     );
@@ -193,8 +199,11 @@ class _PostGameScreenState extends State<PostGameScreen>
     final teamAScore = widget.gameResults['teamAScore'] ?? 0;
     final teamBScore = widget.gameResults['teamBScore'] ?? 0;
     final gameDuration = widget.gameResults['duration'] ?? 0;
-    final winner = teamAScore > teamBScore ? 'Team A' : 
-                   teamBScore > teamAScore ? 'Team B' : 'Tie';
+    final winner = teamAScore > teamBScore
+        ? 'Team A'
+        : teamBScore > teamAScore
+        ? 'Team B'
+        : 'Tie';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -218,7 +227,7 @@ class _PostGameScreenState extends State<PostGameScreen>
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: winner == 'Tie' 
+            colors: winner == 'Tie'
                 ? [Colors.grey[400]!, Colors.grey[600]!]
                 : [Colors.blue[400]!, Colors.blue[600]!],
             begin: Alignment.topLeft,
@@ -228,13 +237,9 @@ class _PostGameScreenState extends State<PostGameScreen>
         ),
         child: Column(
           children: [
-            const Icon(
-              Icons.emoji_events,
-              size: 48,
-              color: Colors.white,
-            ),
+            const Icon(Icons.emoji_events, size: 48, color: Colors.white),
             const SizedBox(height: 16),
-            
+
             Text(
               winner == 'Tie' ? 'Game Tied!' : '$winner Wins!',
               style: const TextStyle(
@@ -244,7 +249,7 @@ class _PostGameScreenState extends State<PostGameScreen>
               ),
             ),
             const SizedBox(height: 24),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -252,10 +257,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                   children: [
                     const Text(
                       'Team A',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -268,21 +270,18 @@ class _PostGameScreenState extends State<PostGameScreen>
                     ),
                   ],
                 ),
-                
+
                 Container(
                   width: 2,
                   height: 60,
                   color: Colors.white.withValues(alpha: 0.5),
                 ),
-                
+
                 Column(
                   children: [
                     const Text(
                       'Team B',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -315,13 +314,10 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Game Statistics',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -341,7 +337,7 @@ class _PostGameScreenState extends State<PostGameScreen>
               ],
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -379,19 +375,10 @@ class _PostGameScreenState extends State<PostGameScreen>
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
     );
@@ -409,20 +396,19 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Player of the Game',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Stack(
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('assets/Avatar/${mvp['avatar']}'),
+                      backgroundImage: AssetImage(
+                        'assets/Avatar/${mvp['avatar']}',
+                      ),
                     ),
                     Positioned(
                       right: -2,
@@ -445,7 +431,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                   ],
                 ),
                 const SizedBox(width: 16),
-                
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,9 +445,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                       ),
                       Text(
                         'Team ${mvp['team']}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 4),
                       Row(
@@ -470,9 +454,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                           const SizedBox(width: 4),
                           const Text(
                             '4.8 avg rating',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
@@ -496,27 +478,24 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Game Highlights',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
+
             const ListTile(
               dense: true,
               leading: Icon(Icons.sports_score, color: Colors.green),
               title: Text('Close match with great teamwork'),
               subtitle: Text('Both teams showed excellent sportsmanship'),
             ),
-            
+
             const ListTile(
               dense: true,
               leading: Icon(Icons.emoji_people, color: Colors.blue),
               title: Text('Everyone participated actively'),
               subtitle: Text('High engagement from all players'),
             ),
-            
+
             const ListTile(
               dense: true,
               leading: Icon(Icons.celebration, color: Colors.orange),
@@ -537,7 +516,7 @@ class _PostGameScreenState extends State<PostGameScreen>
           if (_showQuickRating) ...[
             _buildQuickRatingSection(),
             const SizedBox(height: 24),
-            
+
             Row(
               children: [
                 const Expanded(child: Divider()),
@@ -557,7 +536,7 @@ class _PostGameScreenState extends State<PostGameScreen>
             ),
             const SizedBox(height: 16),
           ],
-          
+
           if (!_showQuickRating) ...[
             Row(
               children: [
@@ -575,7 +554,7 @@ class _PostGameScreenState extends State<PostGameScreen>
             ),
             const SizedBox(height: 16),
           ],
-          
+
           if (!_showQuickRating) _buildDetailedRatingSection(),
         ],
       ),
@@ -595,24 +574,18 @@ class _PostGameScreenState extends State<PostGameScreen>
                 SizedBox(width: 8),
                 Text(
                   'Quick Rating',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            
+
             Text(
               'Rate all players with one click',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -624,7 +597,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 Expanded(
                   child: _buildQuickRatingButton(
                     '👌',
@@ -636,7 +609,7 @@ class _PostGameScreenState extends State<PostGameScreen>
               ],
             ),
             const SizedBox(height: 12),
-            
+
             Row(
               children: [
                 Expanded(
@@ -652,7 +625,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 Expanded(
                   child: _buildQuickRatingButton(
                     '👎',
@@ -669,7 +642,12 @@ class _PostGameScreenState extends State<PostGameScreen>
     );
   }
 
-  Widget _buildQuickRatingButton(String emoji, String title, String subtitle, VoidCallback onTap) {
+  Widget _buildQuickRatingButton(
+    String emoji,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -684,18 +662,12 @@ class _PostGameScreenState extends State<PostGameScreen>
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ],
@@ -706,20 +678,19 @@ class _PostGameScreenState extends State<PostGameScreen>
 
   Widget _buildDetailedRatingSection() {
     // Don't rate yourself
-    final playersToRate = _players.where((p) => p['id'] != 'current_user_id').toList();
+    final playersToRate = _players
+        .where((p) => p['id'] != 'current_user_id')
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Rate Each Player',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        
+
         ...playersToRate.map((player) => _buildPlayerRatingCard(player)),
       ],
     );
@@ -739,10 +710,12 @@ class _PostGameScreenState extends State<PostGameScreen>
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage('assets/Avatar/${player['avatar']}'),
+                  backgroundImage: AssetImage(
+                    'assets/Avatar/${player['avatar']}',
+                  ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -756,10 +729,7 @@ class _PostGameScreenState extends State<PostGameScreen>
                       ),
                       Text(
                         'Team ${player['team']}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],
                   ),
@@ -767,7 +737,7 @@ class _PostGameScreenState extends State<PostGameScreen>
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Skill Rating
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -777,24 +747,27 @@ class _PostGameScreenState extends State<PostGameScreen>
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
-                
+
                 Row(
-                  children: List.generate(5, (index) => GestureDetector(
-                    onTap: () => _updateRating(playerId, 'skill', index + 1),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Icon(
-                        index < skillRating ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 28,
+                  children: List.generate(
+                    5,
+                    (index) => GestureDetector(
+                      onTap: () => _updateRating(playerId, 'skill', index + 1),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          index < skillRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 28,
+                        ),
                       ),
                     ),
-                  )),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Sportsmanship Rating
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -804,19 +777,25 @@ class _PostGameScreenState extends State<PostGameScreen>
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
-                
+
                 Row(
-                  children: List.generate(5, (index) => GestureDetector(
-                    onTap: () => _updateRating(playerId, 'sportsmanship', index + 1),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Icon(
-                        index < sportsmanshipRating ? Icons.favorite : Icons.favorite_border,
-                        color: Colors.red,
-                        size: 28,
+                  children: List.generate(
+                    5,
+                    (index) => GestureDetector(
+                      onTap: () =>
+                          _updateRating(playerId, 'sportsmanship', index + 1),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          index < sportsmanshipRating
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: Colors.red,
+                          size: 28,
+                        ),
                       ),
                     ),
-                  )),
+                  ),
                 ),
               ],
             ),
@@ -855,13 +834,10 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Game Summary',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
+
             Text(
               '${widget.gameData['title'] ?? 'Game'}\n'
               'Final Score: Team A $teamAScore - $teamBScore Team B\n'
@@ -885,13 +861,10 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Share Game Results',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -927,7 +900,12 @@ class _PostGameScreenState extends State<PostGameScreen>
     );
   }
 
-  Widget _buildShareButton(IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildShareButton(
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -942,13 +920,7 @@ class _PostGameScreenState extends State<PostGameScreen>
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
         ],
       ),
     );
@@ -963,21 +935,16 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Want a Rematch?',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             Text(
               'Schedule another game with the same players',
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -1007,21 +974,16 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             const Text(
               'Rate the Venue',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             Text(
               'Help other players by rating ${venue['name']}',
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -1057,7 +1019,8 @@ class _PostGameScreenState extends State<PostGameScreen>
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
               icon: const Icon(Icons.home),
               label: const Text('Home'),
               style: OutlinedButton.styleFrom(
@@ -1066,7 +1029,7 @@ class _PostGameScreenState extends State<PostGameScreen>
             ),
           ),
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: ElevatedButton.icon(
               onPressed: _hasRated ? null : _submitRatings,
@@ -1086,7 +1049,8 @@ class _PostGameScreenState extends State<PostGameScreen>
   void _applyQuickRating(double rating) {
     setState(() {
       for (final playerId in _playerRatings.keys) {
-        if (playerId != 'current_user_id') { // Don't rate yourself
+        if (playerId != 'current_user_id') {
+          // Don't rate yourself
           _playerRatings[playerId]!['skill'] = rating.round();
           _playerRatings[playerId]!['sportsmanship'] = rating.round();
         }
@@ -1121,13 +1085,14 @@ class _PostGameScreenState extends State<PostGameScreen>
   void _shareResults(String platform) {
     final teamAScore = widget.gameResults['teamAScore'] ?? 0;
     final teamBScore = widget.gameResults['teamBScore'] ?? 0;
-    final message = 'Just finished a great ${widget.gameData['sport']} game! '
+    final message =
+        'Just finished a great ${widget.gameData['sport']} game! '
         'Final score: Team A $teamAScore - $teamBScore Team B. '
         'Thanks to all players for a fun match! 🏆';
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Sharing via $platform: $message')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Sharing via $platform: $message')));
   }
 
   void _scheduleRematch() {
@@ -1171,29 +1136,29 @@ class _PostGameScreenState extends State<PostGameScreen>
           children: [
             Text(
               'Rate ${widget.gameData['venue']['name']}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                5,
+                (index) => GestureDetector(
+                  onTap: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Icon(
+                      Icons.star_border,
+                      color: Colors.amber,
+                      size: 32,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) => GestureDetector(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Icon(
-                    Icons.star_border,
-                    color: Colors.amber,
-                    size: 32,
-                  ),
-                ),
-              )),
-            ),
-            const SizedBox(height: 16),
-            
+
             const TextField(
               decoration: InputDecoration(
                 labelText: 'Leave a review (optional)',
@@ -1202,7 +1167,7 @@ class _PostGameScreenState extends State<PostGameScreen>
               maxLines: 3,
             ),
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

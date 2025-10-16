@@ -35,14 +35,15 @@ class AchievementCategoryFilter extends StatefulWidget {
   });
 
   @override
-  State<AchievementCategoryFilter> createState() => _AchievementCategoryFilterState();
+  State<AchievementCategoryFilter> createState() =>
+      _AchievementCategoryFilterState();
 }
 
 class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late ScrollController _scrollController;
-  
+
   final Map<AchievementCategory, AnimationController> _chipAnimations = {};
   final Map<AchievementCategory, Animation<double>> _scaleAnimations = {};
   final Map<AchievementCategory, Animation<Color?>> _colorAnimations = {};
@@ -50,14 +51,14 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _scrollController = ScrollController();
-    
+
     _initializeChipAnimations();
     _animationController.forward();
   }
@@ -68,31 +69,25 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
         duration: const Duration(milliseconds: 200),
         vsync: this,
       );
-      
+
       _chipAnimations[category] = controller;
-      
+
       _scaleAnimations[category] = Tween<double>(
         begin: 1.0,
         end: 1.1,
-      ).animate(CurvedAnimation(
-        parent: controller,
-        curve: Curves.elasticOut,
-      ));
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.elasticOut));
 
       _colorAnimations[category] = ColorTween(
         begin: widget.inactiveColor ?? Colors.grey[200],
         end: widget.activeColor ?? Theme.of(context).primaryColor,
-      ).animate(CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeInOut,
-      ));
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
     }
   }
 
   @override
   void didUpdateWidget(AchievementCategoryFilter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (oldWidget.selectedCategory != widget.selectedCategory) {
       _updateAnimations();
     }
@@ -102,7 +97,7 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
     for (final entry in _chipAnimations.entries) {
       final category = entry.key;
       final controller = entry.value;
-      
+
       if (category == widget.selectedCategory) {
         controller.forward();
       } else {
@@ -115,11 +110,11 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
-    
+
     for (final controller in _chipAnimations.values) {
       controller.dispose();
     }
-    
+
     super.dispose();
   }
 
@@ -143,17 +138,19 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
                     label: 'All',
                     icon: Icons.apps,
                     isSelected: widget.selectedCategory == null,
-                    count: widget.categoryCounts?.values.fold<int>(0, (a, b) => a + b),
+                    count: widget.categoryCounts?.values.fold<int>(
+                      0,
+                      (a, b) => a + b,
+                    ),
                   ),
 
-                if (widget.showAllOption)
-                  const SizedBox(width: 8),
+                if (widget.showAllOption) const SizedBox(width: 8),
 
                 // Category chips
                 ...widget.categories.asMap().entries.map((entry) {
                   final index = entry.key;
                   final category = entry.value;
-                  
+
                   return Padding(
                     padding: EdgeInsets.only(
                       right: index < widget.categories.length - 1 ? 8 : 0,
@@ -200,15 +197,17 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
     final theme = Theme.of(context);
     final activeColor = widget.activeColor ?? theme.primaryColor;
     final inactiveColor = widget.inactiveColor ?? Colors.grey[200]!;
-    
+
     final activeTextColor = widget.activeTextStyle?.color ?? Colors.white;
     final inactiveTextColor = widget.inactiveTextStyle?.color ?? Colors.black87;
 
     return AnimatedBuilder(
-      animation: category != null ? _chipAnimations[category]! : _animationController,
+      animation: category != null
+          ? _chipAnimations[category]!
+          : _animationController,
       builder: (context, child) {
-        final scale = category != null 
-            ? _scaleAnimations[category]!.value 
+        final scale = category != null
+            ? _scaleAnimations[category]!.value
             : 1.0;
 
         return Transform.scale(
@@ -252,14 +251,19 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
                     label,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       color: isSelected ? activeTextColor : inactiveTextColor,
                     ),
                   ),
                   if (widget.showCounts && count != null) ...[
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? Colors.white.withOpacity(0.2)
@@ -271,9 +275,7 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: isSelected 
-                              ? activeTextColor 
-                              : activeColor,
+                          color: isSelected ? activeTextColor : activeColor,
                         ),
                       ),
                     ),
@@ -289,7 +291,7 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
 
   void _onCategoryTap(AchievementCategory? category) {
     widget.onCategoryChanged(category);
-    
+
     // Scroll to center the selected chip
     if (category != null) {
       _scrollToCategory(category);
@@ -377,11 +379,11 @@ class _AchievementCategoryFilterState extends State<AchievementCategoryFilter>
 extension AchievementCategoryFilterExtension on List<Achievement> {
   Map<AchievementCategory, int> getCategoryCounts() {
     final Map<AchievementCategory, int> counts = {};
-    
+
     for (final achievement in this) {
       counts[achievement.category] = (counts[achievement.category] ?? 0) + 1;
     }
-    
+
     return counts;
   }
 }

@@ -25,9 +25,9 @@ class GameCheckIns {
       id: json['id'],
       game_id: json['game_id'],
       player_id: json['player_id'],
-    check_in_time: json['check_in_time'] != null
-      ? DateTime.parse(json['check_in_time'] as String)
-      : DateTime.now(),
+      check_in_time: json['check_in_time'] != null
+          ? DateTime.parse(json['check_in_time'] as String)
+          : DateTime.now(),
       check_in_method: json['check_in_method'],
       location_latitude: json['location_latitude'],
       location_longitude: json['location_longitude'],

@@ -22,38 +22,38 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  
+
   late AnimationController _fabAnimationController;
   late Animation<double> _fabAnimation;
-  
+
   String? _conversationId;
   String? _userId;
   dynamic _conversation;
   dynamic _replyToMessage;
-  
+
   bool _isAtBottom = true;
   bool _showScrollToBottomFab = false;
   bool _isTyping = false;
-  
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     _fabAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fabAnimation = CurvedAnimation(
       parent: _fabAnimationController,
       curve: Curves.easeInOut,
     );
-    
+
     _scrollController.addListener(_onScrollChanged);
     _messageController.addListener(_onMessageChanged);
     _focusNode.addListener(_onFocusChanged);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _extractArguments();
       _loadConversationData();
@@ -76,15 +76,18 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     if (state == AppLifecycleState.resumed && _conversationId != null) {
       // Mark conversation as read when app becomes active
-      ref.read(chatControllerProvider.notifier).markConversationRead(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .markConversationRead(_conversationId!);
     }
   }
 
   void _extractArguments() {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
       _conversationId = args['conversationId'] as String?;
       _userId = args['userId'] as String?;
@@ -95,22 +98,27 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
   void _loadConversationData() {
     if (_conversationId != null) {
       ref.read(chatControllerProvider.notifier).loadMessages(_conversationId!);
-      ref.read(chatControllerProvider.notifier).markConversationRead(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .markConversationRead(_conversationId!);
     } else if (_userId != null) {
-      ref.read(chatControllerProvider.notifier).getOrCreateConversation(_userId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .getOrCreateConversation(_userId!);
     }
   }
 
   void _onScrollChanged() {
-    final isAtBottom = _scrollController.position.pixels >= 
-      _scrollController.position.maxScrollExtent - 100;
-    
+    final isAtBottom =
+        _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 100;
+
     if (isAtBottom != _isAtBottom) {
       setState(() {
         _isAtBottom = isAtBottom;
         _showScrollToBottomFab = !isAtBottom;
       });
-      
+
       if (_showScrollToBottomFab) {
         _fabAnimationController.forward();
       } else {
@@ -128,10 +136,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
     final isTyping = _messageController.text.isNotEmpty;
     if (isTyping != _isTyping) {
       setState(() => _isTyping = isTyping);
-      
+
       if (_conversationId != null) {
-        ref.read(chatControllerProvider.notifier)
-          .updateTypingStatus(_conversationId!, isTyping);
+        ref
+            .read(chatControllerProvider.notifier)
+            .updateTypingStatus(_conversationId!, isTyping);
       }
     }
   }
@@ -139,13 +148,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
   void _onFocusChanged() {
     if (_focusNode.hasFocus && _conversationId != null) {
       // Mark as read when focused
-      ref.read(chatControllerProvider.notifier).markConversationRead(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .markConversationRead(_conversationId!);
     }
   }
 
   void _loadMoreMessages() {
     if (_conversationId != null) {
-      ref.read(chatControllerProvider.notifier).loadMoreMessages(_conversationId!);
+      ref
+          .read(chatControllerProvider.notifier)
+          .loadMoreMessages(_conversationId!);
     }
   }
 
@@ -167,11 +180,15 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
     ThemeData theme,
     ChatState chatState,
   ) {
-  // ChatAppBar widget not found. Please implement or remove this usage.
-  return AppBar();
+    // ChatAppBar widget not found. Please implement or remove this usage.
+    return AppBar();
   }
 
-  Widget _buildBody(BuildContext context, ThemeData theme, ChatState chatState) {
+  Widget _buildBody(
+    BuildContext context,
+    ThemeData theme,
+    ChatState chatState,
+  ) {
     if (chatState.isLoadingMessages && chatState.messages.isEmpty) {
       return const Center(child: LoadingWidget());
     }
@@ -192,12 +209,18 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
       children: [
         // Messages list
         Expanded(
-          child: _buildMessagesList(context, theme, messages, conversation, chatState),
+          child: _buildMessagesList(
+            context,
+            theme,
+            messages,
+            conversation,
+            chatState,
+          ),
         ),
-        
+
         // Typing indicator
         _buildTypingIndicator(conversation, chatState),
-        
+
         // Message input
         _buildMessageInput(context, theme, conversation, chatState),
       ],
@@ -235,7 +258,10 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
           children: [
             // Date separator
             // DateSeparator widget not found. Please implement or remove this usage.
-            if (_shouldShowDateSeparator(message, index < messages.length - 1 ? messages[index + 1] : null))
+            if (_shouldShowDateSeparator(
+              message,
+              index < messages.length - 1 ? messages[index + 1] : null,
+            ))
               const SizedBox.shrink(),
 
             // Message bubble
@@ -259,15 +285,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundImage: conversation?.avatar != null 
-                ? NetworkImage(conversation.avatar!)
-                : null,
-              child: conversation?.avatar == null 
-                ? Icon(
-                    conversation?.isGroup == true ? Icons.group : Icons.person,
-                    size: 32,
-                  )
-                : null,
+              backgroundImage: conversation?.avatar != null
+                  ? NetworkImage(conversation.avatar!)
+                  : null,
+              child: conversation?.avatar == null
+                  ? Icon(
+                      conversation?.isGroup == true
+                          ? Icons.group
+                          : Icons.person,
+                      size: 32,
+                    )
+                  : null,
             ),
             const SizedBox(height: 16),
             Text(
@@ -279,15 +307,16 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
             const SizedBox(height: 8),
             Text(
               conversation?.isGroup == true
-                ? 'Start chatting in this group'
-                : 'Send your first message',
+                  ? 'Start chatting in this group'
+                  : 'Send your first message',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            if (conversation?.isGroup == true && conversation?.description != null)
+            if (conversation?.isGroup == true &&
+                conversation?.description != null)
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -353,7 +382,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
 
   List<dynamic> _getMessagesForConversation(List<dynamic> allMessages) {
     if (_conversationId != null) {
-      return allMessages.where((m) => m.conversationId == _conversationId).toList();
+      return allMessages
+          .where((m) => m.conversationId == _conversationId)
+          .toList();
     }
     return allMessages;
   }
@@ -374,13 +405,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
 
   bool _shouldShowDateSeparator(dynamic message, dynamic previousMessage) {
     if (previousMessage == null) return true;
-    
+
     final messageDate = DateTime.parse(message.timestamp);
     final previousDate = DateTime.parse(previousMessage.timestamp);
-    
+
     return messageDate.day != previousDate.day ||
-           messageDate.month != previousDate.month ||
-           messageDate.year != previousDate.year;
+        messageDate.month != previousDate.month ||
+        messageDate.year != previousDate.year;
   }
 
   bool _hasTypingUsers(dynamic conversation, ChatState chatState) {
@@ -389,10 +420,10 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
 
   List<String> _getTypingUserNames(dynamic conversation, ChatState chatState) {
     // Filter typing users for this conversation and return names
-    final typingUsers = chatState.typingUsers.where((user) => 
-      user.userId == conversation?.id
-    ).toList();
-    
+    final typingUsers = chatState.typingUsers
+        .where((user) => user.userId == conversation?.id)
+        .toList();
+
     return typingUsers.map((user) => user.userName).toList();
   }
 
@@ -406,47 +437,54 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
 
   void _sendMessage(String content, List<dynamic> attachments) async {
     if (content.trim().isEmpty && attachments.isEmpty) return;
-    
+
     final messageContent = content.trim();
     _messageController.clear();
-    
+
     if (_conversationId != null) {
-      await ref.read(chatControllerProvider.notifier).sendMessage(
-        _conversationId!,
-        messageContent,
-        attachments: attachments,
-        replyToId: _replyToMessage?.id,
-      );
+      await ref
+          .read(chatControllerProvider.notifier)
+          .sendMessage(
+            _conversationId!,
+            messageContent,
+            attachments: attachments,
+            replyToId: _replyToMessage?.id,
+          );
     } else if (_userId != null) {
       // Create conversation and send message
-      final conversationId = await ref.read(chatControllerProvider.notifier)
-        .getOrCreateConversation(_userId!);
-      
+      final conversationId = await ref
+          .read(chatControllerProvider.notifier)
+          .getOrCreateConversation(_userId!);
+
       if (conversationId != null) {
         _conversationId = conversationId;
-        await ref.read(chatControllerProvider.notifier).sendMessage(
-          conversationId,
-          messageContent,
-          attachments: attachments,
-          replyToId: _replyToMessage?.id,
-        );
+        await ref
+            .read(chatControllerProvider.notifier)
+            .sendMessage(
+              conversationId,
+              messageContent,
+              attachments: attachments,
+              replyToId: _replyToMessage?.id,
+            );
       }
     }
-    
+
     _cancelReply();
     _scrollToBottom();
   }
 
   void _sendVoiceMessage(String audioPath, Duration duration) async {
     if (_conversationId != null) {
-      await ref.read(chatControllerProvider.notifier).sendVoiceMessage(
-        _conversationId!,
-        audioPath,
-        duration,
-        replyToId: _replyToMessage?.id,
-      );
+      await ref
+          .read(chatControllerProvider.notifier)
+          .sendVoiceMessage(
+            _conversationId!,
+            audioPath,
+            duration,
+            replyToId: _replyToMessage?.id,
+          );
     }
-    
+
     _cancelReply();
     _scrollToBottom();
   }
@@ -461,10 +499,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
   }
 
   void _reactToMessage(dynamic message, String reaction) {
-    ref.read(chatControllerProvider.notifier).reactToMessage(
-      message.id,
-      reaction,
-    );
+    ref
+        .read(chatControllerProvider.notifier)
+        .reactToMessage(message.id, reaction);
   }
 
   void _showAttachmentOptions() {
@@ -501,9 +538,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
 
   void _takePicture() {
     // TODO: Implement camera capture
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Camera feature coming soon')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Camera feature coming soon')));
   }
 
   void _pickImage() {
@@ -540,7 +577,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen>
       const SnackBar(content: Text('Contact picker feature coming soon')),
     );
   }
-
 }
 
 /// Attachment options bottom sheet
@@ -565,7 +601,7 @@ class AttachmentOptionsBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -587,9 +623,9 @@ class AttachmentOptionsBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Attachment options grid
           GridView.count(
             crossAxisCount: 3,
@@ -636,7 +672,7 @@ class AttachmentOptionsBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
         ],
       ),
@@ -661,19 +697,12 @@ class AttachmentOptionsBottomSheet extends StatelessWidget {
               color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
+            child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
         ],

@@ -7,7 +7,7 @@ enum LeaderboardType {
   challenge('challenge', 'Challenge Leaderboard');
 
   const LeaderboardType(this.value, this.displayName);
-  
+
   final String value;
   final String displayName;
 }
@@ -22,7 +22,7 @@ enum LeaderboardPeriod {
   allTime('all_time', 'All Time');
 
   const LeaderboardPeriod(this.value, this.displayName);
-  
+
   final String value;
   final String displayName;
 }
@@ -136,7 +136,9 @@ class LeaderboardEntry {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is LeaderboardEntry && other.userId == userId && other.rank == rank;
+    return other is LeaderboardEntry &&
+        other.userId == userId &&
+        other.rank == rank;
   }
 
   @override
@@ -191,9 +193,9 @@ class Leaderboard {
 
   /// Get entries in a specific rank range
   List<LeaderboardEntry> getEntriesInRange(int startRank, int endRank) {
-    return entries.where((entry) => 
-      entry.rank >= startRank && entry.rank <= endRank
-    ).toList();
+    return entries
+        .where((entry) => entry.rank >= startRank && entry.rank <= endRank)
+        .toList();
   }
 
   /// Convert to JSON

@@ -30,15 +30,13 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
   @override
   Widget build(BuildContext context) {
     final achievementsState = ref.watch(achievementsControllerProvider);
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
           'Achievements',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
@@ -61,9 +59,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
         child: Column(
           children: [
             _buildFilterSection(),
-            Expanded(
-              child: _buildAchievementsList(achievementsState),
-            ),
+            Expanded(child: _buildAchievementsList(achievementsState)),
           ],
         ),
       ),
@@ -72,14 +68,12 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
 
   Widget _buildFilterSection() {
     final achievementsState = ref.watch(achievementsControllerProvider);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey, width: 0.2),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
       ),
       child: Column(
         children: [
@@ -91,14 +85,17 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
               children: [
                 _buildCategoryChip('All', null),
                 ...AchievementCategory.values.map((category) {
-                  return _buildCategoryChip(_getCategoryName(category), category);
+                  return _buildCategoryChip(
+                    _getCategoryName(category),
+                    category,
+                  );
                 }),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Status filter chips
           SizedBox(
             height: 32,
@@ -112,7 +109,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
               ],
             ),
           ),
-          
+
           if (achievementsState.searchQuery.isNotEmpty) ...[
             const SizedBox(height: 8),
             Container(
@@ -140,7 +137,9 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
                   ),
                   const SizedBox(width: 6),
                   GestureDetector(
-                    onTap: () => ref.read(achievementsControllerProvider.notifier).setSearchQuery(''),
+                    onTap: () => ref
+                        .read(achievementsControllerProvider.notifier)
+                        .setSearchQuery(''),
                     child: Icon(
                       Icons.close,
                       size: 16,
@@ -159,16 +158,16 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
   Widget _buildCategoryChip(String label, AchievementCategory? category) {
     final achievementsState = ref.watch(achievementsControllerProvider);
     final isSelected = achievementsState.selectedCategory == category;
-    
+
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
         label: Text(label),
         selected: isSelected,
         onSelected: (selected) {
-          ref.read(achievementsControllerProvider.notifier).setCategory(
-            selected ? category : null,
-          );
+          ref
+              .read(achievementsControllerProvider.notifier)
+              .setCategory(selected ? category : null);
         },
         selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
         checkmarkColor: Theme.of(context).primaryColor,
@@ -183,16 +182,16 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
   Widget _buildStatusChip(String label, AchievementFilter filter) {
     final achievementsState = ref.watch(achievementsControllerProvider);
     final isSelected = achievementsState.filter == filter;
-    
+
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
         label: Text(label),
         selected: isSelected,
         onSelected: (selected) {
-          ref.read(achievementsControllerProvider.notifier).setFilter(
-            selected ? filter : AchievementFilter.all,
-          );
+          ref
+              .read(achievementsControllerProvider.notifier)
+              .setFilter(selected ? filter : AchievementFilter.all);
         },
         selectedColor: _getFilterColor(filter).withOpacity(0.2),
         checkmarkColor: _getFilterColor(filter),
@@ -224,11 +223,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'Failed to load achievements',
@@ -241,15 +236,13 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
             const SizedBox(height: 8),
             Text(
               state.error!,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.read(achievementsControllerProvider.notifier).refresh(),
+              onPressed: () =>
+                  ref.read(achievementsControllerProvider.notifier).refresh(),
               child: const Text('Retry'),
             ),
           ],
@@ -281,17 +274,16 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
             const SizedBox(height: 8),
             Text(
               'Try adjusting your filters or search terms',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
       );
     }
 
-    return _isGridView ? _buildGridView(filteredAchievements) : _buildListView(filteredAchievements);
+    return _isGridView
+        ? _buildGridView(filteredAchievements)
+        : _buildListView(filteredAchievements);
   }
 
   Widget _buildGridView(List<AchievementWithProgress> achievements) {
@@ -355,7 +347,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
     final controller = TextEditingController(
       text: ref.read(achievementsControllerProvider).searchQuery,
     );
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -371,7 +363,9 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              ref.read(achievementsControllerProvider.notifier).setSearchQuery('');
+              ref
+                  .read(achievementsControllerProvider.notifier)
+                  .setSearchQuery('');
               Navigator.pop(context);
             },
             child: const Text('Clear'),
@@ -382,7 +376,9 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              ref.read(achievementsControllerProvider.notifier).setSearchQuery(controller.text);
+              ref
+                  .read(achievementsControllerProvider.notifier)
+                  .setSearchQuery(controller.text);
               Navigator.pop(context);
             },
             child: const Text('Search'),

@@ -26,16 +26,16 @@ class TierUpgrade extends BaseEntity {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        fromTier,
-        toTier,
-        pointsEarned,
-        totalPoints,
-        unlockedBenefits,
-        upgradeDate,
-        isNotificationSent,
-      ];
+    id,
+    userId,
+    fromTier,
+    toTier,
+    pointsEarned,
+    totalPoints,
+    unlockedBenefits,
+    upgradeDate,
+    isNotificationSent,
+  ];
 
   @override
   String toString() {
@@ -160,7 +160,11 @@ class TierUpgrade extends BaseEntity {
       case BadgeTier.platinum:
         return ['VIP status', 'Early access', 'Bonus rewards'];
       case BadgeTier.diamond:
-        return ['Elite status', 'Personal rewards consultant', 'Exclusive perks'];
+        return [
+          'Elite status',
+          'Personal rewards consultant',
+          'Exclusive perks',
+        ];
     }
   }
 }

@@ -12,11 +12,11 @@ class GameValidators {
     }
 
     final trimmedTitle = title.trim();
-    
+
     if (trimmedTitle.length < 3) {
       return ValidationResult.error('Title must be at least 3 characters');
     }
-    
+
     if (trimmedTitle.length > 100) {
       return ValidationResult.error('Title must be less than 100 characters');
     }
@@ -37,16 +37,21 @@ class GameValidators {
 
     final sportType = SportType.fromString(sport);
     final config = SportsConstants.getConfiguration(sportType);
-    
+
     if (config == null && sportType == SportType.other) {
-      return ValidationResult.warning('Custom sport selected - ensure all details are accurate');
+      return ValidationResult.warning(
+        'Custom sport selected - ensure all details are accurate',
+      );
     }
 
     return ValidationResult.success();
   }
 
   /// Validate skill level
-  static ValidationResult validateSkillLevel(String? skillLevel, String? sport) {
+  static ValidationResult validateSkillLevel(
+    String? skillLevel,
+    String? sport,
+  ) {
     if (skillLevel == null || skillLevel.trim().isEmpty) {
       return ValidationResult.error('Skill level is required');
     }
@@ -81,11 +86,11 @@ class GameValidators {
     if (sport != null) {
       final minAdvance = GameHelpers.getMinimumAdvanceBooking(sport);
       final timeUntilGame = GameHelpers.getTimeUntilGame(dateTime);
-      
+
       if (timeUntilGame < minAdvance) {
         final hours = minAdvance.inHours;
         return ValidationResult.error(
-          'Game must be scheduled at least $hours hours in advance'
+          'Game must be scheduled at least $hours hours in advance',
         );
       }
     }
@@ -94,7 +99,7 @@ class GameValidators {
     final hour = dateTime.hour;
     if (hour < 6 || hour > 23) {
       return ValidationResult.warning(
-        'Game scheduled outside normal hours (6 AM - 11 PM)'
+        'Game scheduled outside normal hours (6 AM - 11 PM)',
       );
     }
 
@@ -109,7 +114,9 @@ class GameValidators {
 
     // Minimum duration
     if (duration.inMinutes < 15) {
-      return ValidationResult.error('Game duration must be at least 15 minutes');
+      return ValidationResult.error(
+        'Game duration must be at least 15 minutes',
+      );
     }
 
     // Maximum duration
@@ -121,15 +128,19 @@ class GameValidators {
     if (sport != null) {
       final sportType = SportType.fromString(sport);
       final config = SportsConstants.getConfiguration(sportType);
-      
+
       if (config != null) {
         final suggested = config.suggestedDuration;
-        final minReasonable = Duration(minutes: (suggested.inMinutes * 0.5).round());
-        final maxReasonable = Duration(minutes: (suggested.inMinutes * 2).round());
-        
+        final minReasonable = Duration(
+          minutes: (suggested.inMinutes * 0.5).round(),
+        );
+        final maxReasonable = Duration(
+          minutes: (suggested.inMinutes * 2).round(),
+        );
+
         if (duration < minReasonable || duration > maxReasonable) {
           return ValidationResult.warning(
-            'Unusual duration for $sport (suggested: ${GameHelpers.formatGameDuration(suggested)})'
+            'Unusual duration for $sport (suggested: ${GameHelpers.formatGameDuration(suggested)})',
           );
         }
       }
@@ -153,7 +164,9 @@ class GameValidators {
     }
 
     if (maxPlayers < minPlayers) {
-      return ValidationResult.error('Maximum players must be greater than or equal to minimum');
+      return ValidationResult.error(
+        'Maximum players must be greater than or equal to minimum',
+      );
     }
 
     if (maxPlayers > 100) {
@@ -164,23 +177,23 @@ class GameValidators {
     if (sport != null) {
       final sportType = SportType.fromString(sport);
       final config = SportsConstants.getConfiguration(sportType);
-      
+
       if (config != null) {
         if (minPlayers < config.minPlayers) {
           return ValidationResult.error(
-            'Minimum players for $sport should be at least ${config.minPlayers}'
+            'Minimum players for $sport should be at least ${config.minPlayers}',
           );
         }
-        
+
         if (maxPlayers > config.maxPlayers) {
           return ValidationResult.warning(
-            'Maximum players for $sport is typically ${config.maxPlayers}'
+            'Maximum players for $sport is typically ${config.maxPlayers}',
           );
         }
 
         if (maxPlayers < config.idealPlayers) {
           return ValidationResult.warning(
-            'Ideal player count for $sport is ${config.idealPlayers}'
+            'Ideal player count for $sport is ${config.idealPlayers}',
           );
         }
       }
@@ -192,7 +205,9 @@ class GameValidators {
   /// Validate game price
   static ValidationResult validatePrice(double? price) {
     if (price == null) {
-      return ValidationResult.error('Price is required (enter 0 for free games)');
+      return ValidationResult.error(
+        'Price is required (enter 0 for free games)',
+      );
     }
 
     if (price < 0) {
@@ -200,24 +215,29 @@ class GameValidators {
     }
 
     if (price > 1000) {
-      return ValidationResult.warning('High price - please confirm this is correct');
+      return ValidationResult.warning(
+        'High price - please confirm this is correct',
+      );
     }
 
     return ValidationResult.success();
   }
 
   /// Validate price per person
-  static ValidationResult validatePricePerPerson(double? totalPrice, int? maxPlayers) {
+  static ValidationResult validatePricePerPerson(
+    double? totalPrice,
+    int? maxPlayers,
+  ) {
     if (totalPrice == null || maxPlayers == null) {
       return ValidationResult.success(); // Other validations will catch these
     }
 
     if (totalPrice > 0 && maxPlayers > 0) {
       final pricePerPerson = totalPrice / maxPlayers;
-      
+
       if (pricePerPerson > 200) {
         return ValidationResult.warning(
-          'High per-person cost (${GameHelpers.formatPrice(pricePerPerson)} per person)'
+          'High per-person cost (${GameHelpers.formatPrice(pricePerPerson)} per person)',
         );
       }
     }
@@ -233,7 +253,7 @@ class GameValidators {
 
     // Additional venue-specific validation would go here
     // (e.g., check if venue exists, is available, supports the sport)
-    
+
     return ValidationResult.success();
   }
 
@@ -244,13 +264,17 @@ class GameValidators {
     }
 
     final trimmedDescription = description.trim();
-    
+
     if (trimmedDescription.length > 500) {
-      return ValidationResult.error('Description must be less than 500 characters');
+      return ValidationResult.error(
+        'Description must be less than 500 characters',
+      );
     }
 
     if (_containsInappropriateContent(trimmedDescription)) {
-      return ValidationResult.error('Description contains inappropriate content');
+      return ValidationResult.error(
+        'Description contains inappropriate content',
+      );
     }
 
     return ValidationResult.success();
@@ -272,11 +296,11 @@ class GameValidators {
     final conflicts = existingConflicts;
     if (conflicts.length == 1) {
       return ValidationResult.error(
-        'Time slot conflicts with an existing booking at this venue'
+        'Time slot conflicts with an existing booking at this venue',
       );
     } else {
       return ValidationResult.error(
-        'Time slot conflicts with ${conflicts.length} existing bookings at this venue'
+        'Time slot conflicts with ${conflicts.length} existing bookings at this venue',
       );
     }
   }
@@ -289,9 +313,11 @@ class GameValidators {
   ) {
     // Alternative should be within reasonable range
     final timeDifference = alternativeTime.difference(originalTime).abs();
-    
+
     if (timeDifference.inHours > 6) {
-      return ValidationResult.warning('Alternative time is significantly different from requested time');
+      return ValidationResult.warning(
+        'Alternative time is significantly different from requested time',
+      );
     }
 
     // Alternative should still be valid
@@ -306,7 +332,7 @@ class GameValidators {
     required DateTime checkinTime,
   }) {
     final timeUntilGame = gameTime.difference(checkinTime);
-    
+
     // Check-in should be within 2 hours of game
     if (timeUntilGame.inHours > 2) {
       return ValidationResult.error('Check-in opens 2 hours before the game');
@@ -337,7 +363,7 @@ class GameValidators {
       final timestamp = int.parse(parts[1]);
       final tokenTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
       final now = DateTime.now();
-      
+
       if (now.difference(tokenTime).inMinutes > 30) {
         return ValidationResult.error('QR code has expired');
       }
@@ -373,7 +399,13 @@ class GameValidators {
     results.add(validateSkillLevel(skillLevel, sport));
     results.add(validateDateTime(dateTime, sport));
     results.add(validateDuration(duration, sport));
-    results.add(validatePlayerCount(minPlayers: minPlayers, maxPlayers: maxPlayers, sport: sport));
+    results.add(
+      validatePlayerCount(
+        minPlayers: minPlayers,
+        maxPlayers: maxPlayers,
+        sport: sport,
+      ),
+    );
     results.add(validatePrice(price));
     results.add(validatePricePerPerson(price, maxPlayers));
     results.add(validateVenue(venueId));
@@ -414,18 +446,25 @@ class GameValidators {
       return ValidationResult.error('This game has already ended');
     }
 
-    if (GameHelpers.hasGameEnded(startTime: gameTime, duration: const Duration(hours: 2))) {
+    if (GameHelpers.hasGameEnded(
+      startTime: gameTime,
+      duration: const Duration(hours: 2),
+    )) {
       return ValidationResult.error('This game has already ended');
     }
 
     if (isGameFull) {
-      return ValidationResult.warning('Game is full - you will be added to the waitlist');
+      return ValidationResult.warning(
+        'Game is full - you will be added to the waitlist',
+      );
     }
 
     // Check if too close to game time
     final timeUntilGame = GameHelpers.getTimeUntilGame(gameTime);
     if (timeUntilGame.inHours < 1) {
-      return ValidationResult.warning('Game starts soon - organizer approval may be needed');
+      return ValidationResult.warning(
+        'Game starts soon - organizer approval may be needed',
+      );
     }
 
     return ValidationResult.success();
@@ -436,7 +475,7 @@ class GameValidators {
   /// Basic inappropriate content filter
   static bool _containsInappropriateContent(String text) {
     final lowercaseText = text.toLowerCase();
-    
+
     // Basic word filter - in a real app, this would be more comprehensive
     const inappropriateWords = [
       'spam',
@@ -455,18 +494,18 @@ class GameValidators {
     required List<TimeSlot> occupiedSlots,
   }) {
     final endTime = startTime.add(duration);
-    
+
     for (final slot in occupiedSlots) {
       final slotEnd = slot.startTime.add(slot.duration);
-      
+
       // Check for overlap
       if (startTime.isBefore(slotEnd) && endTime.isAfter(slot.startTime)) {
         return ValidationResult.error(
-          'Time slot overlaps with existing booking from ${_formatTime(slot.startTime)} to ${_formatTime(slotEnd)}'
+          'Time slot overlaps with existing booking from ${_formatTime(slot.startTime)} to ${_formatTime(slotEnd)}',
         );
       }
     }
-    
+
     return ValidationResult.success();
   }
 
@@ -476,7 +515,7 @@ class GameValidators {
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
     final displayMinute = minute.toString().padLeft(2, '0');
-    
+
     return '$displayHour:$displayMinute $period';
   }
 }
@@ -537,7 +576,7 @@ class GameCreationValidationResult {
 
   bool get hasWarnings => warnings.isNotEmpty;
   bool get hasErrors => errors.isNotEmpty;
-  
+
   String get firstError => errors.isNotEmpty ? errors.first : '';
   String get firstWarning => warnings.isNotEmpty ? warnings.first : '';
 }

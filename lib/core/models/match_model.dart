@@ -71,12 +71,7 @@ class Participant {
 }
 
 // Match status enum
-enum MatchStatus {
-  upcoming,
-  inProgress,
-  completed,
-  cancelled,
-}
+enum MatchStatus { upcoming, inProgress, completed, cancelled }
 
 // Match model
 class Match {
@@ -248,7 +243,7 @@ class Match {
         orElse: () => MatchStatus.upcoming,
       ),
       createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] != null 
+      updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'])
           : null,
       metadata: json['metadata'],

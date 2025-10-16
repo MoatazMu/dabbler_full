@@ -43,9 +43,9 @@ class SportProfile {
 
   /// Returns true if player has significant experience (2+ years or intermediate+)
   bool isExperienced() {
-    return yearsPlaying >= 2 || 
-           skillLevel == SkillLevel.advanced || 
-           skillLevel == SkillLevel.expert;
+    return yearsPlaying >= 2 ||
+        skillLevel == SkillLevel.advanced ||
+        skillLevel == SkillLevel.expert;
   }
 
   /// Returns true if player is active (played within last 3 months)
@@ -104,11 +104,13 @@ class SportProfile {
         orElse: () => SkillLevel.beginner,
       ),
       yearsPlaying: json['yearsPlaying'] as int? ?? 0,
-      preferredPositions: List<String>.from(json['preferredPositions'] as List? ?? []),
+      preferredPositions: List<String>.from(
+        json['preferredPositions'] as List? ?? [],
+      ),
       certifications: List<String>.from(json['certifications'] as List? ?? []),
       achievements: List<String>.from(json['achievements'] as List? ?? []),
       isPrimarySport: json['isPrimarySport'] as bool? ?? false,
-      lastPlayed: json['lastPlayed'] != null 
+      lastPlayed: json['lastPlayed'] != null
           ? DateTime.parse(json['lastPlayed'] as String)
           : null,
       gamesPlayed: json['gamesPlayed'] as int? ?? 0,

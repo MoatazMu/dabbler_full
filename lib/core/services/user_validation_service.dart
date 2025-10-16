@@ -2,7 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_service.dart';
 
 class UserValidationService {
-  static final UserValidationService _instance = UserValidationService._internal();
+  static final UserValidationService _instance =
+      UserValidationService._internal();
   factory UserValidationService() => _instance;
   UserValidationService._internal();
 
@@ -11,32 +12,40 @@ class UserValidationService {
   /// Check if a user exists by email using the comprehensive AuthService
   Future<bool> checkUserExists(String email) async {
     try {
-      print('🔍 [DEBUG] UserValidationService: Checking if user exists: $email');
-      
+      print(
+        '🔍 [DEBUG] UserValidationService: Checking if user exists: $email',
+      );
+
       // Use the comprehensive AuthService method
       final exists = await _authService.checkUserExistsByEmail(email);
-      
+
       print('🔍 [DEBUG] UserValidationService: User exists: $exists');
       return exists;
     } catch (e) {
-      print('❌ [DEBUG] UserValidationService: Error checking user existence: $e');
-  // Never attempt to sign up here; just return false on error
-  return false;
+      print(
+        '❌ [DEBUG] UserValidationService: Error checking user existence: $e',
+      );
+      // Never attempt to sign up here; just return false on error
+      return false;
     }
   }
 
   /// Check if a user exists by phone using the comprehensive AuthService
   Future<bool> checkUserExistsByPhone(String phone) async {
     try {
-      print('🔍 [DEBUG] UserValidationService: Checking if user exists by phone: $phone');
-      
+      print(
+        '🔍 [DEBUG] UserValidationService: Checking if user exists by phone: $phone',
+      );
+
       // Use the comprehensive AuthService method
       final exists = await _authService.checkUserExistsByPhone(phone);
-      
+
       print('🔍 [DEBUG] UserValidationService: User exists by phone: $exists');
       return exists;
     } catch (e) {
-      print('❌ [DEBUG] UserValidationService: Error checking user existence by phone: $e');
+      print(
+        '❌ [DEBUG] UserValidationService: Error checking user existence by phone: $e',
+      );
       return false;
     }
   }
@@ -46,7 +55,9 @@ class UserValidationService {
   @Deprecated('Use checkUserExists() instead')
   Future<bool> checkUserExistsAdmin(String email) async {
     try {
-      print('⚠️ [DEBUG] UserValidationService: Using deprecated admin method for: $email');
+      print(
+        '⚠️ [DEBUG] UserValidationService: Using deprecated admin method for: $email',
+      );
       // This would require admin privileges
       final response = await Supabase.instance.client
           .from('auth.users')
@@ -66,7 +77,9 @@ class UserValidationService {
   bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     final isValid = emailRegex.hasMatch(email);
-    print('📧 [DEBUG] UserValidationService: Email validation for $email: $isValid');
+    print(
+      '📧 [DEBUG] UserValidationService: Email validation for $email: $isValid',
+    );
     return isValid;
   }
 
@@ -76,14 +89,18 @@ class UserValidationService {
     final cleanPhone = phone.replaceFirst(RegExp(r'^\+971'), '');
     final phoneRegex = RegExp(r'^5\d{8}$');
     final isValid = phoneRegex.hasMatch(cleanPhone);
-    print('📱 [DEBUG] UserValidationService: Phone validation for $phone: $isValid');
+    print(
+      '📱 [DEBUG] UserValidationService: Phone validation for $phone: $isValid',
+    );
     return isValid;
   }
 
   /// Validate password strength
   bool isValidPassword(String password) {
     // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-    final passwordRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$');
+    final passwordRegex = RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$',
+    );
     final isValid = passwordRegex.hasMatch(password);
     print('🔐 [DEBUG] UserValidationService: Password validation: $isValid');
     return isValid;
@@ -92,13 +109,13 @@ class UserValidationService {
   /// Get password strength score (0-4)
   int getPasswordStrength(String password) {
     int score = 0;
-    
+
     if (password.length >= 8) score++;
     if (password.contains(RegExp(r'[a-z]'))) score++;
     if (password.contains(RegExp(r'[A-Z]'))) score++;
     if (password.contains(RegExp(r'\d'))) score++;
     if (password.contains(RegExp(r'[@$!%*?&]'))) score++;
-    
+
     print('🔐 [DEBUG] UserValidationService: Password strength score: $score');
     return score;
   }
@@ -106,7 +123,7 @@ class UserValidationService {
   /// Get password strength description
   String getPasswordStrengthDescription(String password) {
     final score = getPasswordStrength(password);
-    
+
     switch (score) {
       case 0:
       case 1:
@@ -123,4 +140,4 @@ class UserValidationService {
         return 'Unknown';
     }
   }
-} 
+}

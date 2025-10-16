@@ -1,10 +1,4 @@
-enum GameStatus {
-  draft,
-  upcoming,
-  inProgress,
-  completed,
-  cancelled,
-}
+enum GameStatus { draft, upcoming, inProgress, completed, cancelled }
 
 class Game {
   final String id;
@@ -13,32 +7,32 @@ class Game {
   final String sport;
   final String? venueId;
   final String? venueName; // Populated when venue data is joined
-  
+
   // Date and time fields
   final DateTime scheduledDate;
   final String startTime; // Format: "HH:mm"
-  final String endTime;   // Format: "HH:mm"
-  
+  final String endTime; // Format: "HH:mm"
+
   // Player management
   final int minPlayers;
   final int maxPlayers;
   final int currentPlayers;
-  
+
   // Game details
   final String organizerId;
   final String skillLevel; // beginner, intermediate, advanced, mixed
   final double pricePerPlayer;
   final String currency; // USD, AED, EUR, etc.
-  
+
   // Status and flags
   final GameStatus status;
   final bool isPublic;
   final bool allowsWaitlist;
   final bool checkInEnabled;
-  
+
   // Cancellation policy
   final DateTime? cancellationDeadline;
-  
+
   // Timestamps
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -72,9 +66,9 @@ class Game {
   /// Check if players can join this game
   bool isJoinable() {
     return status == GameStatus.upcoming &&
-           isPublic &&
-           (currentPlayers < maxPlayers || allowsWaitlist) &&
-           DateTime.now().isBefore(getScheduledStartDateTime());
+        isPublic &&
+        (currentPlayers < maxPlayers || allowsWaitlist) &&
+        DateTime.now().isBefore(getScheduledStartDateTime());
   }
 
   /// Check if the game is at full capacity
@@ -87,25 +81,27 @@ class Game {
     if (status == GameStatus.completed || status == GameStatus.cancelled) {
       return false;
     }
-    
+
     if (cancellationDeadline != null) {
       return DateTime.now().isBefore(cancellationDeadline!);
     }
-    
+
     // Default: can cancel up to 2 hours before start time
     final startDateTime = getScheduledStartDateTime();
-    return DateTime.now().isBefore(startDateTime.subtract(const Duration(hours: 2)));
+    return DateTime.now().isBefore(
+      startDateTime.subtract(const Duration(hours: 2)),
+    );
   }
 
   /// Get time remaining until game starts
   Duration timeUntilStart() {
     final startDateTime = getScheduledStartDateTime();
     final now = DateTime.now();
-    
+
     if (now.isAfter(startDateTime)) {
       return Duration.zero;
     }
-    
+
     return startDateTime.difference(now);
   }
 
@@ -114,7 +110,7 @@ class Game {
     final timeParts = startTime.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
-    
+
     return DateTime(
       scheduledDate.year,
       scheduledDate.month,
@@ -129,7 +125,7 @@ class Game {
     final timeParts = endTime.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
-    
+
     return DateTime(
       scheduledDate.year,
       scheduledDate.month,
@@ -150,8 +146,8 @@ class Game {
   bool isToday() {
     final now = DateTime.now();
     return scheduledDate.year == now.year &&
-           scheduledDate.month == now.month &&
-           scheduledDate.day == now.day;
+        scheduledDate.month == now.month &&
+        scheduledDate.day == now.day;
   }
 
   /// Check if check-in is available (typically 30 minutes before start)
@@ -159,11 +155,11 @@ class Game {
     if (!checkInEnabled || status != GameStatus.upcoming) {
       return false;
     }
-    
+
     final startDateTime = getScheduledStartDateTime();
     final now = DateTime.now();
     final checkInWindow = startDateTime.subtract(const Duration(minutes: 30));
-    
+
     return now.isAfter(checkInWindow) && now.isBefore(startDateTime);
   }
 

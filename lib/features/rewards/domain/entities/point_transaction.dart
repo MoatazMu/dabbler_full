@@ -2,34 +2,49 @@
 enum TransactionType {
   /// Points earned from completing achievements
   achievement,
+
   /// Points from game participation
   gameParticipation,
+
   /// Points from winning games
   gameVictory,
+
   /// Points from social interactions
   social,
+
   /// Daily login bonuses
   dailyBonus,
+
   /// Weekly streak bonuses
   weeklyBonus,
+
   /// Monthly rewards
   monthlyReward,
+
   /// Tournament participation
   tournament,
+
   /// Tournament winnings
   tournamentWin,
+
   /// Referee points for community contribution
   referee,
+
   /// Points from inviting friends
   referral,
+
   /// Special event bonuses
   specialEvent,
+
   /// Manual adjustments by admin
   adjustment,
+
   /// Points deducted for penalties
   penalty,
+
   /// Points spent on rewards/items
   spend,
+
   /// Refund transactions
   refund,
 }
@@ -73,17 +88,21 @@ class PointTransaction {
   /// Calculates the total multiplier applied
   double getTotalMultiplier() {
     if (multipliersApplied.isEmpty) return 1.0;
-    
+
     return multipliersApplied.values.reduce((a, b) => a * b);
   }
 
   /// Gets a breakdown of multipliers for display
   List<Map<String, dynamic>> getMultiplierBreakdown() {
-    return multipliersApplied.entries.map((entry) => {
-      'name': _formatMultiplierName(entry.key),
-      'value': entry.value,
-      'formatted': '×${entry.value.toStringAsFixed(2)}',
-    }).toList();
+    return multipliersApplied.entries
+        .map(
+          (entry) => {
+            'name': _formatMultiplierName(entry.key),
+            'value': entry.value,
+            'formatted': '×${entry.value.toStringAsFixed(2)}',
+          },
+        )
+        .toList();
   }
 
   String _formatMultiplierName(String key) {
@@ -103,9 +122,14 @@ class PointTransaction {
       case 'social_bonus':
         return 'Social Bonus';
       default:
-        return key.replaceAll('_', ' ').split(' ').map((word) => 
-            word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1)
-        ).join(' ');
+        return key
+            .replaceAll('_', ' ')
+            .split(' ')
+            .map(
+              (word) =>
+                  word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1),
+            )
+            .join(' ');
     }
   }
 
@@ -113,7 +137,7 @@ class PointTransaction {
   String getFormattedDescription() {
     final buffer = StringBuffer();
     buffer.write(description);
-    
+
     if (referenceType != null && referenceId != null) {
       switch (referenceType) {
         case 'achievement':
@@ -129,11 +153,11 @@ class PointTransaction {
           buffer.write(' (${referenceType!})');
       }
     }
-    
+
     if (isReversed) {
       buffer.write(' [REVERSED]');
     }
-    
+
     return buffer.toString();
   }
 
@@ -177,7 +201,7 @@ class PointTransaction {
   /// Gets the transaction color for UI display
   String getTransactionColor() {
     if (isReversed) return '#808080'; // Gray for reversed
-    
+
     if (finalPoints >= 0) {
       // Positive transactions
       switch (type) {
@@ -208,7 +232,7 @@ class PointTransaction {
   /// Gets the points change with proper formatting
   String getFormattedPointsChange() {
     if (isReversed) return '0';
-    
+
     final points = finalPoints;
     final prefix = points >= 0 ? '+' : '';
     return '$prefix${points.toStringAsFixed(0)}';
@@ -222,7 +246,7 @@ class PointTransaction {
   /// Gets bonus percentage if applicable
   double? getBonusPercentage() {
     if (!hasBonus()) return null;
-    
+
     final totalMultiplier = getTotalMultiplier();
     return (totalMultiplier - 1.0) * 100;
   }
@@ -262,7 +286,7 @@ class PointTransaction {
   String getTimeAgo() {
     final now = DateTime.now();
     final difference = now.difference(createdAt);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
     } else if (difference.inHours > 0) {
@@ -328,7 +352,7 @@ class PointTransaction {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is PointTransaction &&
         other.id == id &&
         other.userId == userId &&
@@ -338,15 +362,12 @@ class PointTransaction {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        userId.hashCode ^
-        type.hashCode ^
-        finalPoints.hashCode;
+    return id.hashCode ^ userId.hashCode ^ type.hashCode ^ finalPoints.hashCode;
   }
 
   @override
   String toString() {
     return 'PointTransaction(id: $id, type: $type, points: $finalPoints, '
-           'balance: $runningBalance)';
+        'balance: $runningBalance)';
   }
 }

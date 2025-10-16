@@ -24,82 +24,77 @@ class RewardsNotificationBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayMessage = message ?? _getDefaultMessage();
-    
+
     if (displayMessage.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _getBackgroundColor(),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _getBackgroundColor(),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            _getIcon(),
-            color: _getIconColor(),
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getTitle(),
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: _getTextColor(),
-                    fontWeight: FontWeight.bold,
+          child: Row(
+            children: [
+              Icon(_getIcon(), color: _getIconColor(), size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getTitle(),
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: _getTextColor(),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (displayMessage.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        displayMessage,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: _getTextColor(),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (actionText != null && onAction != null) ...[
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: onAction,
+                  style: TextButton.styleFrom(foregroundColor: _getIconColor()),
+                  child: Text(actionText!),
+                ),
+              ],
+              if (onDismiss != null) ...[
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onDismiss,
+                  child: Icon(
+                    Icons.close,
+                    color: _getTextColor().withOpacity(0.7),
+                    size: 20,
                   ),
                 ),
-                if (displayMessage.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    displayMessage,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: _getTextColor(),
-                    ),
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
-          if (actionText != null && onAction != null) ...[
-            const SizedBox(width: 8),
-            TextButton(
-              onPressed: onAction,
-              style: TextButton.styleFrom(
-                foregroundColor: _getIconColor(),
-              ),
-              child: Text(actionText!),
-            ),
-          ],
-          if (onDismiss != null) ...[
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: onDismiss,
-              child: Icon(
-                Icons.close,
-                color: _getTextColor().withOpacity(0.7),
-                size: 20,
-              ),
-            ),
-          ],
-        ],
-      ),
-    ).animate()
-      .fadeIn(duration: 600.ms)
-      .slideY(begin: -0.2, end: 0, duration: 600.ms);
+        )
+        .animate()
+        .fadeIn(duration: 600.ms)
+        .slideY(begin: -0.2, end: 0, duration: 600.ms);
   }
 
   String _getDefaultMessage() {

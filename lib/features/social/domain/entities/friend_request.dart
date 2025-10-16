@@ -34,10 +34,4 @@ class FriendRequest {
 }
 
 /// Enum for friend request status
-enum FriendRequestStatus { 
-  pending, 
-  accepted, 
-  declined, 
-  cancelled, 
-  blocked 
-}
+enum FriendRequestStatus { pending, accepted, declined, cancelled, blocked }

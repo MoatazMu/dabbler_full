@@ -87,7 +87,7 @@ class TierBenefitsData {
     this.tierDescription = '',
   });
 
-  double get progressPercentage => 
+  double get progressPercentage =>
       totalBenefits > 0 ? (unlockedBenefits / totalBenefits) : 0.0;
 
   List<TierBenefit> getBenefitsByCategory(TierBenefitCategory category) {
@@ -96,7 +96,7 @@ class TierBenefitsData {
 
   List<TierBenefitCategory> get availableCategories {
     return benefits.map((b) => b.category).toSet().toList()
-        ..sort((a, b) => a.index.compareTo(b.index));
+      ..sort((a, b) => a.index.compareTo(b.index));
   }
 }
 
@@ -154,7 +154,7 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
   void initState() {
     super.initState();
     _isExpanded = widget.isExpanded;
-    
+
     if (widget.data.availableCategories.isNotEmpty) {
       _selectedCategory = widget.data.availableCategories.first;
     }
@@ -188,29 +188,17 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
       curve: Curves.easeInOut,
     );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _shimmerAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _shimmerController,
-      curve: Curves.easeInOut,
-    ));
+    _shimmerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
 
-    _badgeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _badgeController,
-      curve: Curves.elasticOut,
-    ));
+    _badgeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _badgeController, curve: Curves.elasticOut),
+    );
 
     // Start animations
     if (_isExpanded) {
@@ -381,17 +369,18 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
     final tierName = _getTierName(widget.data.tier);
     final benefitsCount = widget.data.unlockedBenefits;
     final totalBenefits = widget.data.totalBenefits;
-    
-    final message = 'I just reached $tierName tier! 🎉\n'
+
+    final message =
+        'I just reached $tierName tier! 🎉\n'
         'Unlocked $benefitsCount/$totalBenefits exclusive benefits.\n'
         'Join me in the game and level up your tier too!';
 
     Share.share(message, subject: 'Tier Achievement Unlocked!');
-    
+
     if (widget.enableHaptics) {
       HapticFeedback.heavyImpact();
     }
-    
+
     widget.onShare?.call();
   }
 
@@ -405,10 +394,7 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
         elevation: widget.elevation ?? 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: tierColor.withOpacity(0.3),
-            width: 2,
-          ),
+          side: BorderSide(color: tierColor.withOpacity(0.3), width: 2),
         ),
         child: AnimatedBuilder(
           animation: _pulseAnimation,
@@ -453,10 +439,7 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         gradient: LinearGradient(
-          colors: [
-            tierColor.withOpacity(0.1),
-            tierColor.withOpacity(0.05),
-          ],
+          colors: [tierColor.withOpacity(0.1), tierColor.withOpacity(0.05)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -489,7 +472,8 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (widget.data.newBenefits.isNotEmpty && widget.showNewBadges)
+                    if (widget.data.newBenefits.isNotEmpty &&
+                        widget.showNewBadges)
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: AnimatedBuilder(
@@ -651,9 +635,9 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
         padding: const EdgeInsets.all(16),
         child: Text(
           'No benefits in this category yet',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
       );
     }
@@ -661,7 +645,9 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: benefits.map((benefit) => _buildBenefitItem(benefit)).toList(),
+        children: benefits
+            .map((benefit) => _buildBenefitItem(benefit))
+            .toList(),
       ),
     );
   }
@@ -674,7 +660,7 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: benefit.isUnlocked 
+        color: benefit.isUnlocked
             ? tierColor.withOpacity(0.05)
             : Colors.grey[50],
       ),
@@ -701,10 +687,10 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
               child: Text(
                 benefit.title,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: benefit.isUnlocked 
-                      ? FontWeight.bold 
+                  fontWeight: benefit.isUnlocked
+                      ? FontWeight.bold
                       : FontWeight.normal,
-                  color: benefit.isUnlocked 
+                  color: benefit.isUnlocked
                       ? theme.colorScheme.onSurface
                       : Colors.grey[600],
                 ),
@@ -742,7 +728,7 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
             ? Text(
                 benefit.description,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: benefit.isUnlocked 
+                  color: benefit.isUnlocked
                       ? Colors.grey[700]
                       : Colors.grey[500],
                 ),
@@ -875,29 +861,27 @@ class _TierBenefitsCardState extends State<TierBenefitsCard>
             ],
           ),
           const SizedBox(height: 12),
-          ...widget.data.comingSoonBenefits.take(3).map((benefit) => 
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    benefit.icon,
-                    color: Colors.blue[400],
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      benefit.title,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.blue[700],
+          ...widget.data.comingSoonBenefits
+              .take(3)
+              .map(
+                (benefit) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Icon(benefit.icon, color: Colors.blue[400], size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          benefit.title,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.blue[700],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
           if (widget.data.comingSoonBenefits.length > 3)
             Text(
               '+${widget.data.comingSoonBenefits.length - 3} more benefits',

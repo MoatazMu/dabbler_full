@@ -12,7 +12,8 @@ class SocialMonitoringDashboard extends StatefulWidget {
   });
 
   @override
-  State<SocialMonitoringDashboard> createState() => _SocialMonitoringDashboardState();
+  State<SocialMonitoringDashboard> createState() =>
+      _SocialMonitoringDashboardState();
 }
 
 class _SocialMonitoringDashboardState extends State<SocialMonitoringDashboard> {
@@ -21,36 +22,21 @@ class _SocialMonitoringDashboardState extends State<SocialMonitoringDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Social Monitoring'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Social Monitoring'), centerTitle: true),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.dashboard,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
+                  Icon(Icons.dashboard, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
                   Text(
                     'Social Monitoring Dashboard',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    'Coming Soon',
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
+                  Text('Coming Soon', style: TextStyle(color: Colors.grey)),
                 ],
               ),
             ),

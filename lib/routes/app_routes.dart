@@ -41,27 +41,21 @@ import '../features/profile/presentation/screens/onboarding/onboarding_privacy_s
 import '../features/profile/presentation/screens/onboarding/onboarding_completion_screen.dart';
 
 // Page transition types
-enum PageTransitionType {
-  slideUp,
-  slideLeft,
-  slideRight,
-  fadeIn,
-  scale,
-}
+enum PageTransitionType { slideUp, slideLeft, slideRight, fadeIn, scale }
 
 class AppRoutes {
   // Main navigation routes (handled by GoRouter)
   static const String home = '/';
   static const String explore = '/explore';
   static const String bookings = '/bookings';
-  
+
   // Game routes
   static const String gameCreate = '/gameCreate';
   static const String gameDetail = '/gameDetail';
   static const String invitePlayers = '/invitePlayers';
   static const String matchDetail = '/matchDetail';
   static const String venueDetail = '/venueDetail';
-  
+
   // Booking routes
   static const String booking = '/booking';
   static const String bookingFlow = '/bookingFlow';
@@ -70,14 +64,14 @@ class AppRoutes {
   static const String rateGame = '/rateGame';
   static const String rebook = '/rebook';
   static const String confirmation = '/confirmation';
-  
+
   // Profile routes
   static const String profile = '/profile';
   static const String editProfile = '/editProfile';
   static const String settingsScreen = '/settingsScreen';
   static const String paymentMethods = '/paymentMethods';
   static const String themeSettings = '/themeSettings';
-  
+
   // Enhanced profile routes
   static const String profileCompletion = '/profileCompletion';
   static const String profileOnboarding = '/profileOnboarding';
@@ -88,8 +82,9 @@ class AppRoutes {
   static const String profileAvatar = '/profileAvatar';
   static const String profileDataExport = '/profileDataExport';
   static const String profileAccountDeletion = '/profileAccountDeletion';
-  static const String profileViewProfile = '/profileViewProfile'; // View another user's profile
-  
+  static const String profileViewProfile =
+      '/profileViewProfile'; // View another user's profile
+
   // Comprehensive onboarding routes
   static const String onboardingWelcome = '/onboarding/welcome';
   static const String onboardingBasicInfo = '/onboarding/basic-info';
@@ -97,7 +92,7 @@ class AppRoutes {
   static const String onboardingPreferences = '/onboarding/preferences';
   static const String onboardingPrivacy = '/onboarding/privacy';
   static const String onboardingCompletion = '/onboarding/completion';
-  
+
   // Onboarding routes
   static const String phoneInput = '/phoneInput';
   static const String otpVerification = '/otpVerification';
@@ -106,17 +101,17 @@ class AppRoutes {
   static const String intentSelection = '/intentSelection';
   static const String languageSelection = '/languageSelection';
   static const String changePhone = '/changePhone';
-  
+
   // Support routes
   static const String helpCenter = '/helpCenter';
   static const String contactSupport = '/contactSupport';
   static const String faq = '/faq';
-  
+
   // Loyalty routes
   static const String rewardsCenter = '/rewardsCenter';
   static const String pointsDetail = '/pointsDetail';
   static const String badgeDetail = '/badgeDetail';
-  
+
   // Other routes
   static const String yourMatches = '/yourMatches';
   static const String chat = '/chat';
@@ -157,7 +152,10 @@ class AppRoutes {
     Navigator.pushNamed(context, gameCreate);
   }
 
-  static void navigateToCreateGameWithDraft(BuildContext context, dynamic draft) {
+  static void navigateToCreateGameWithDraft(
+    BuildContext context,
+    dynamic draft,
+  ) {
     Navigator.pushNamed(context, gameCreate, arguments: draft);
   }
 
@@ -166,18 +164,36 @@ class AppRoutes {
   }
 
   static void navigateToMatchDetail(BuildContext context, dynamic match) {
-    Navigator.pushNamed(context, matchDetail, arguments: MatchDetailArgs(match: match));
+    Navigator.pushNamed(
+      context,
+      matchDetail,
+      arguments: MatchDetailArgs(match: match),
+    );
   }
 
   static void navigateToVenueDetail(BuildContext context, dynamic venue) {
-    Navigator.pushNamed(context, venueDetail, arguments: VenueDetailArgs(venue: venue));
+    Navigator.pushNamed(
+      context,
+      venueDetail,
+      arguments: VenueDetailArgs(venue: venue),
+    );
   }
 
-  static void navigateToBookingFlow(BuildContext context, Map<String, dynamic> venue) {
-    Navigator.pushNamed(context, bookingFlow, arguments: BookingFlowArgs(venue: venue));
+  static void navigateToBookingFlow(
+    BuildContext context,
+    Map<String, dynamic> venue,
+  ) {
+    Navigator.pushNamed(
+      context,
+      bookingFlow,
+      arguments: BookingFlowArgs(venue: venue),
+    );
   }
 
-  static void navigateToBookingSuccess(BuildContext context, BookingSuccessArgs args) {
+  static void navigateToBookingSuccess(
+    BuildContext context,
+    BookingSuccessArgs args,
+  ) {
     Navigator.pushNamed(context, bookingSuccess, arguments: args);
   }
 
@@ -246,16 +262,29 @@ class AppRoutes {
   }
 
   // Enhanced profile navigation methods
-  static void navigateToProfileCompletion(BuildContext context, {Map<String, dynamic>? arguments}) {
+  static void navigateToProfileCompletion(
+    BuildContext context, {
+    Map<String, dynamic>? arguments,
+  }) {
     Navigator.pushNamed(context, profileCompletion, arguments: arguments);
   }
 
-  static void navigateToProfileOnboarding(BuildContext context, {String? step}) {
+  static void navigateToProfileOnboarding(
+    BuildContext context, {
+    String? step,
+  }) {
     Navigator.pushNamed(context, profileOnboarding, arguments: {'step': step});
   }
 
-  static void navigateToProfileSettings(BuildContext context, {String? section}) {
-    Navigator.pushNamed(context, profileSettings, arguments: {'section': section});
+  static void navigateToProfileSettings(
+    BuildContext context, {
+    String? section,
+  }) {
+    Navigator.pushNamed(
+      context,
+      profileSettings,
+      arguments: {'section': section},
+    );
   }
 
   static void navigateToProfilePrivacy(BuildContext context) {
@@ -282,22 +311,25 @@ class AppRoutes {
     Navigator.pushNamed(context, profileAccountDeletion);
   }
 
-  static void navigateToViewProfile(BuildContext context, String userId, {String? heroTag}) {
-    Navigator.pushNamed(context, profileViewProfile, arguments: {
-      'userId': userId,
-      'heroTag': heroTag,
-    });
+  static void navigateToViewProfile(
+    BuildContext context,
+    String userId, {
+    String? heroTag,
+  }) {
+    Navigator.pushNamed(
+      context,
+      profileViewProfile,
+      arguments: {'userId': userId, 'heroTag': heroTag},
+    );
   }
 
   // Navigation with custom transitions
   static void navigateToProfileWithTransition(
-    BuildContext context, 
-    String routeName, 
-    {
-      Map<String, dynamic>? arguments,
-      PageTransitionType transition = PageTransitionType.slideUp,
-    }
-  ) {
+    BuildContext context,
+    String routeName, {
+    Map<String, dynamic>? arguments,
+    PageTransitionType transition = PageTransitionType.slideUp,
+  }) {
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -316,7 +348,7 @@ class AppRoutes {
   static void handleProfileDeepLink(BuildContext context, Uri uri) {
     final path = uri.path;
     final queryParams = uri.queryParameters;
-    
+
     if (path.startsWith('/profile/')) {
       final segments = path.split('/');
       if (segments.length >= 3) {
@@ -338,8 +370,6 @@ class AppRoutes {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-
-      
       // Main navigation routes
       case home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
@@ -347,7 +377,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ExploreScreen());
       case bookings:
         return MaterialPageRoute(builder: (_) => const ActivitiesScreenV2());
-      
+
       // Profile routes
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
@@ -357,135 +387,196 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
       case paymentMethods:
         return MaterialPageRoute(builder: (_) => const PaymentMethodsScreen());
-      
+
       // Enhanced profile routes
       case profileCompletion:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Profile Completion - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Profile Completion - Coming Soon')),
+          ),
+        );
       case profileOnboarding:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Profile Onboarding - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Profile Onboarding - Coming Soon')),
+          ),
+        );
       case profileSettings:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Profile Settings - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Profile Settings - Coming Soon')),
+          ),
+        );
       case profilePrivacy:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Privacy Settings - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Privacy Settings - Coming Soon')),
+          ),
+        );
       case profileSports:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Sports Profile - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Sports Profile - Coming Soon')),
+          ),
+        );
       case profileStats:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Profile Stats - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Profile Stats - Coming Soon')),
+          ),
+        );
       case profileAvatar:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Avatar Upload - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Avatar Upload - Coming Soon')),
+          ),
+        );
       case profileDataExport:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Data Export - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Data Export - Coming Soon')),
+          ),
+        );
       case profileAccountDeletion:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('Account Deletion - Coming Soon'))
-        ));
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Account Deletion - Coming Soon')),
+          ),
+        );
       case profileViewProfile:
-        return MaterialPageRoute(builder: (_) => const Scaffold(
-          body: Center(child: Text('View Profile - Coming Soon'))
-        ));
-      
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('View Profile - Coming Soon')),
+          ),
+        );
+
       // Game routes
       case gameCreate:
         final args = settings.arguments;
         if (args is CreateGameArguments) {
           // For now, just pass the draftId if available, or create a new game
-          return MaterialPageRoute(builder: (_) => CreateGameScreen(
-            draftId: args.bookingId, // Use bookingId as draftId for now
-          ));
+          return MaterialPageRoute(
+            builder: (_) => CreateGameScreen(
+              draftId: args.bookingId, // Use bookingId as draftId for now
+            ),
+          );
         } else if (args is Map<String, dynamic>) {
-          return MaterialPageRoute(builder: (_) => CreateGameScreen(draftId: args['draftId']));
+          return MaterialPageRoute(
+            builder: (_) => CreateGameScreen(draftId: args['draftId']),
+          );
         } else {
           return MaterialPageRoute(builder: (_) => const CreateGameScreen());
         }
       case gameDetail:
         final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) => GameDetailScreen(gameId: args['gameId']));
+        return MaterialPageRoute(
+          builder: (_) => GameDetailScreen(gameId: args['gameId']),
+        );
       case invitePlayers:
         return MaterialPageRoute(builder: (_) => const InvitePlayersScreen());
       case matchDetail:
         final args = settings.arguments as MatchDetailArgs;
-        return MaterialPageRoute(builder: (_) => MatchDetailScreen(match: args.match));
+        return MaterialPageRoute(
+          builder: (_) => MatchDetailScreen(match: args.match),
+        );
       case venueDetail:
         final args = settings.arguments as VenueDetailArgs;
-        return MaterialPageRoute(builder: (_) => VenueDetailScreen(venueId: args.venue['id'] ?? ''));
-      
+        return MaterialPageRoute(
+          builder: (_) => VenueDetailScreen(venueId: args.venue['id'] ?? ''),
+        );
+
       // Booking routes
       case bookingFlow:
         final args = settings.arguments as BookingFlowArgs;
-        return MaterialPageRoute(builder: (_) => BookingFlowScreen(venue: args.venue));
+        return MaterialPageRoute(
+          builder: (_) => BookingFlowScreen(venue: args.venue),
+        );
       case bookingSuccess:
         final args = settings.arguments as BookingSuccessArgs;
-        return MaterialPageRoute(builder: (_) => BookingSuccessScreen(
-          venue: args.venue,
-          selectedDate: args.selectedDate,
-          selectedTime: args.selectedTime,
-          selectedSport: args.selectedSport,
-          bookingId: args.bookingId,
-        ));
+        return MaterialPageRoute(
+          builder: (_) => BookingSuccessScreen(
+            venue: args.venue,
+            selectedDate: args.selectedDate,
+            selectedTime: args.selectedTime,
+            selectedSport: args.selectedSport,
+            bookingId: args.bookingId,
+          ),
+        );
       case checkin:
         final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) => CheckinScreen(bookingId: args['bookingId']));
+        return MaterialPageRoute(
+          builder: (_) => CheckinScreen(bookingId: args['bookingId']),
+        );
       case rateGame:
         final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) => RateGameScreen(gameId: args['gameId']));
+        return MaterialPageRoute(
+          builder: (_) => RateGameScreen(gameId: args['gameId']),
+        );
       case rebook:
         final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) => RebookFlow(gameId: args['gameId']));
-      
+        return MaterialPageRoute(
+          builder: (_) => RebookFlow(gameId: args['gameId']),
+        );
+
       // Notification routes
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationsScreenV2());
       case notificationSettings:
-        return MaterialPageRoute(builder: (_) => const NotificationSettingsScreen());
-      
+        return MaterialPageRoute(
+          builder: (_) => const NotificationSettingsScreen(),
+        );
+
       // Onboarding routes
       case phoneInput:
         return MaterialPageRoute(builder: (_) => const PhoneInputScreen());
       case otpVerification:
         final args = settings.arguments as Map<String, dynamic>?;
-        return MaterialPageRoute(builder: (_) => OtpVerificationScreen(phoneNumber: args?['phoneNumber']));
+        return MaterialPageRoute(
+          builder: (_) =>
+              OtpVerificationScreen(phoneNumber: args?['phoneNumber']),
+        );
       case createUserInfo:
         final args = settings.arguments as Map<String, dynamic>?;
-        return MaterialPageRoute(builder: (_) => CreateUserInformation(email: args?['email'] ?? ''));
+        return MaterialPageRoute(
+          builder: (_) => CreateUserInformation(email: args?['email'] ?? ''),
+        );
       case sportsSelection:
         return MaterialPageRoute(builder: (_) => const SportsSelectionScreen());
       case intentSelection:
         return MaterialPageRoute(builder: (_) => const IntentSelectionScreen());
       case languageSelection:
-        return MaterialPageRoute(builder: (_) => const LanguageSelectionScreen());
+        return MaterialPageRoute(
+          builder: (_) => const LanguageSelectionScreen(),
+        );
       case changePhone:
         return MaterialPageRoute(builder: (_) => const ChangePhoneScreen());
-      
+
       // Comprehensive onboarding routes
       case onboardingWelcome:
-        return MaterialPageRoute(builder: (_) => const ProfileOnboardingWelcomeScreen());
+        return MaterialPageRoute(
+          builder: (_) => const ProfileOnboardingWelcomeScreen(),
+        );
       case onboardingBasicInfo:
-        return MaterialPageRoute(builder: (_) => const OnboardingBasicInfoScreen());
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingBasicInfoScreen(),
+        );
       case onboardingSports:
-        return MaterialPageRoute(builder: (_) => const OnboardingSportsScreen());
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingSportsScreen(),
+        );
       case onboardingPreferences:
-        return MaterialPageRoute(builder: (_) => const OnboardingPreferencesScreen());
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingPreferencesScreen(),
+        );
       case onboardingPrivacy:
-        return MaterialPageRoute(builder: (_) => const OnboardingPrivacyScreen());
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingPrivacyScreen(),
+        );
       case onboardingCompletion:
-        return MaterialPageRoute(builder: (_) => const OnboardingCompletionScreen());
-      
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingCompletionScreen(),
+        );
+
       // Support routes
       case helpCenter:
         return MaterialPageRoute(builder: (_) => const HelpCenterScreen());
@@ -493,7 +584,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ContactSupportScreen());
       case faq:
         return MaterialPageRoute(builder: (_) => const FaqScreen());
-      
+
       // Loyalty routes
       case rewardsCenter:
         return MaterialPageRoute(builder: (_) => const RewardsCenterScreen());
@@ -501,19 +592,23 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const PointsDetailScreen());
       case badgeDetail:
         final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) => BadgeDetailScreen(badgeId: args['badgeId']));
-      
+        return MaterialPageRoute(
+          builder: (_) => BadgeDetailScreen(badgeId: args['badgeId']),
+        );
+
       default:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Page not found')),
-          ),
+          builder: (_) =>
+              const Scaffold(body: Center(child: Text('Page not found'))),
         );
     }
   }
 
   // Helper methods for transitions and page building
-  static Widget _getPageForRoute(String routeName, Map<String, dynamic>? arguments) {
+  static Widget _getPageForRoute(
+    String routeName,
+    Map<String, dynamic>? arguments,
+  ) {
     switch (routeName) {
       case profile:
         return const ProfileScreen();
@@ -523,76 +618,105 @@ class AppRoutes {
         return const SettingsScreen();
       case profileSettings:
         // TODO: Create ProfileSettingsScreen
-        return const Scaffold(body: Center(child: Text('Profile Settings - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Profile Settings - Coming Soon')),
+        );
       case profilePrivacy:
         // TODO: Create ProfilePrivacyScreen
-        return const Scaffold(body: Center(child: Text('Privacy Settings - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Privacy Settings - Coming Soon')),
+        );
       case profileSports:
-        // TODO: Create ProfileSportsScreen  
-        return const Scaffold(body: Center(child: Text('Sports Profile - Coming Soon')));
+        // TODO: Create ProfileSportsScreen
+        return const Scaffold(
+          body: Center(child: Text('Sports Profile - Coming Soon')),
+        );
       case profileStats:
         // TODO: Create ProfileStatsScreen
-        return const Scaffold(body: Center(child: Text('Profile Stats - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Profile Stats - Coming Soon')),
+        );
       case profileAvatar:
         // TODO: Create ProfileAvatarScreen
-        return const Scaffold(body: Center(child: Text('Avatar Upload - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Avatar Upload - Coming Soon')),
+        );
       case profileDataExport:
         // TODO: Create ProfileDataExportScreen
-        return const Scaffold(body: Center(child: Text('Data Export - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Data Export - Coming Soon')),
+        );
       case profileAccountDeletion:
         // TODO: Create ProfileAccountDeletionScreen
-        return const Scaffold(body: Center(child: Text('Account Deletion - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Account Deletion - Coming Soon')),
+        );
       case profileViewProfile:
         // TODO: Create ViewProfileScreen
-        return const Scaffold(body: Center(child: Text('View Profile - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('View Profile - Coming Soon')),
+        );
       case profileCompletion:
         // TODO: Create ProfileCompletionScreen
-        return const Scaffold(body: Center(child: Text('Profile Completion - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Profile Completion - Coming Soon')),
+        );
       case profileOnboarding:
         // TODO: Create ProfileOnboardingScreen
-        return const Scaffold(body: Center(child: Text('Profile Onboarding - Coming Soon')));
+        return const Scaffold(
+          body: Center(child: Text('Profile Onboarding - Coming Soon')),
+        );
       default:
         return const Scaffold(body: Center(child: Text('Page not found')));
     }
   }
 
-  static Widget _buildTransition(PageTransitionType type, Animation<double> animation, Widget child) {
+  static Widget _buildTransition(
+    PageTransitionType type,
+    Animation<double> animation,
+    Widget child,
+  ) {
     switch (type) {
       case PageTransitionType.slideUp:
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0.0, 1.0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          position:
+              Tween<Offset>(
+                begin: const Offset(0.0, 1.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
           child: child,
         );
       case PageTransitionType.slideLeft:
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          position:
+              Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
           child: child,
         );
       case PageTransitionType.slideRight:
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(-1.0, 0.0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          position:
+              Tween<Offset>(
+                begin: const Offset(-1.0, 0.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
           child: child,
         );
       case PageTransitionType.fadeIn:
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+        return FadeTransition(opacity: animation, child: child);
       case PageTransitionType.scale:
         return ScaleTransition(
-          scale: Tween<double>(
-            begin: 0.0,
-            end: 1.0,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          ),
           child: child,
         );
     }
@@ -617,7 +741,11 @@ class AppRoutes {
     return protectedRoutes.contains(routeName);
   }
 
-  static void navigateWithAuthCheck(BuildContext context, String routeName, {Map<String, dynamic>? arguments}) {
+  static void navigateWithAuthCheck(
+    BuildContext context,
+    String routeName, {
+    Map<String, dynamic>? arguments,
+  }) {
     if (isProtectedRoute(routeName)) {
       // TODO: Check authentication status
       // For now, assume user is authenticated
@@ -656,7 +784,7 @@ class BookingSuccessArgs {
   final String selectedTime;
   final String selectedSport;
   final String bookingId;
-  
+
   BookingSuccessArgs({
     required this.venue,
     required this.selectedDate,
@@ -673,7 +801,7 @@ class CreateGameArguments {
   final String? selectedSport;
   final bool isFromBooking;
   final String? bookingId;
-  
+
   CreateGameArguments({
     this.venue,
     this.selectedDate,

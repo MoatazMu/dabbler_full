@@ -7,19 +7,9 @@ import '../../../domain/entities/achievement.dart';
 import '../../../domain/entities/badge_tier.dart';
 import 'badge_display.dart';
 
-enum GridLayoutType {
-  traditional,
-  hexagonal,
-}
+enum GridLayoutType { traditional, hexagonal }
 
-enum SortOption {
-  name,
-  tier,
-  rarity,
-  dateEarned,
-  category,
-  points,
-}
+enum SortOption { name, tier, rarity, dateEarned, category, points }
 
 class BadgeCollectionGrid extends StatefulWidget {
   final List<Achievement> achievements;
@@ -89,7 +79,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
   @override
   void initState() {
     super.initState();
-    
+
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -100,21 +90,13 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
       vsync: this,
     );
 
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeOutCubic,
-    ));
+    _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _progressController, curve: Curves.easeOutCubic),
+    );
 
-    _loadingAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _loadingController,
-      curve: Curves.easeInOut,
-    ));
+    _loadingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _loadingController, curve: Curves.easeInOut),
+    );
 
     _filterAndSortBadges();
     _progressController.forward();
@@ -123,7 +105,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
   @override
   void didUpdateWidget(BadgeCollectionGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (oldWidget.achievements != widget.achievements ||
         oldWidget.searchQuery != widget.searchQuery ||
         oldWidget.sortBy != widget.sortBy ||
@@ -141,8 +123,8 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
       filtered = filtered.where((achievement) {
         final query = widget.searchQuery.toLowerCase();
         return achievement.name.toLowerCase().contains(query) ||
-               achievement.description.toLowerCase().contains(query) ||
-               achievement.category.toString().toLowerCase().contains(query);
+            achievement.description.toLowerCase().contains(query) ||
+            achievement.category.toString().toLowerCase().contains(query);
       }).toList();
     }
 
@@ -156,7 +138,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
     // Apply sorting
     filtered.sort((a, b) {
       int comparison = 0;
-      
+
       switch (widget.sortBy) {
         case SortOption.name:
           comparison = a.name.compareTo(b.name);
@@ -212,11 +194,9 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
         ),
 
         // Export button
-        if (widget.enableExport && !_isExporting)
-          _buildExportButton(),
+        if (widget.enableExport && !_isExporting) _buildExportButton(),
 
-        if (_isExporting)
-          _buildExportProgress(),
+        if (_isExporting) _buildExportProgress(),
       ],
     );
   }
@@ -227,16 +207,14 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
       child: Column(
         children: [
           // Collection progress
-          if (widget.showProgress)
-            _buildCollectionProgress(),
+          if (widget.showProgress) _buildCollectionProgress(),
 
-          if (widget.showProgress && 
+          if (widget.showProgress &&
               (widget.enableSearch || widget.enableSorting))
             const SizedBox(height: 16),
 
           // Search and sort controls
-          if (widget.enableSearch || widget.enableSorting)
-            _buildControls(),
+          if (widget.enableSearch || widget.enableSorting) _buildControls(),
         ],
       ),
     );
@@ -255,9 +233,9 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
           children: [
             Text(
               'Badge Collection',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               '$earnedBadges/$totalBadges',
@@ -280,15 +258,15 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
               ),
               child: FractionallySizedBox(
                 alignment: Alignment.centerLeft,
-                widthFactor: (progress * _progressAnimation.value).clamp(0.0, 1.0),
+                widthFactor: (progress * _progressAnimation.value).clamp(
+                  0.0,
+                  1.0,
+                ),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
                     gradient: LinearGradient(
-                      colors: [
-                        Colors.blue[400]!,
-                        Colors.blue[600]!,
-                      ],
+                      colors: [Colors.blue[400]!, Colors.blue[600]!],
                     ),
                   ),
                 ),
@@ -299,10 +277,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
         const SizedBox(height: 4),
         Text(
           '${(progress * 100).toStringAsFixed(1)}% Complete',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
     );
@@ -370,10 +345,15 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
               // Sort direction
               IconButton(
                 onPressed: () {
-                  widget.onSortChanged?.call(widget.sortBy, !widget.sortAscending);
+                  widget.onSortChanged?.call(
+                    widget.sortBy,
+                    !widget.sortAscending,
+                  );
                 },
                 icon: Icon(
-                  widget.sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                  widget.sortAscending
+                      ? Icons.arrow_upward
+                      : Icons.arrow_downward,
                   size: 20,
                 ),
               ),
@@ -393,8 +373,10 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
   }
 
   Widget _buildTraditionalGrid() {
-    final totalSlots = widget.showEmptySlots ? widget.maxBadges : _filteredAchievements.length;
-    
+    final totalSlots = widget.showEmptySlots
+        ? widget.maxBadges
+        : _filteredAchievements.length;
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -426,8 +408,8 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                final totalSlots = widget.showEmptySlots 
-                    ? widget.maxBadges 
+                final totalSlots = widget.showEmptySlots
+                    ? widget.maxBadges
                     : _filteredAchievements.length;
 
                 if (index < _filteredAchievements.length) {
@@ -438,8 +420,8 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
                   return null;
                 }
               },
-              childCount: widget.showEmptySlots 
-                  ? widget.maxBadges 
+              childCount: widget.showEmptySlots
+                  ? widget.maxBadges
                   : _filteredAchievements.length,
             ),
           ),
@@ -450,13 +432,13 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
 
   Widget _buildTierGroupedGrid() {
     final groupedBadges = _groupBadgesByTier();
-    
+
     return ListView.builder(
       itemCount: groupedBadges.length,
       itemBuilder: (context, index) {
         final tier = groupedBadges.keys.elementAt(index);
         final badges = groupedBadges[tier]!;
-        
+
         return _buildTierSection(tier, badges);
       },
     );
@@ -474,22 +456,30 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
                 width: 4,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: Color(int.parse('0xFF${badges.first.getTierColorHex().substring(1)}')),
+                  color: Color(
+                    int.parse(
+                      '0xFF${badges.first.getTierColorHex().substring(1)}',
+                    ),
+                  ),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 tier.toString().split('.').last.toUpperCase(),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Color(int.parse('0xFF${badges.first.getTierColorHex().substring(1)}')).withOpacity(0.1),
+                  color: Color(
+                    int.parse(
+                      '0xFF${badges.first.getTierColorHex().substring(1)}',
+                    ),
+                  ).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -497,7 +487,11 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(int.parse('0xFF${badges.first.getTierColorHex().substring(1)}')),
+                    color: Color(
+                      int.parse(
+                        '0xFF${badges.first.getTierColorHex().substring(1)}',
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -526,7 +520,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
 
   Widget _buildBadgeItem(Achievement achievement, int index) {
     final rarity = widget.badgeRarities[achievement.id] ?? BadgeRarity.common;
-    
+
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300 + (index % 9) * 50),
       tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -617,10 +611,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
               const SizedBox(height: 8),
               Text(
                 'Exporting collection...',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
             ],
           );
@@ -631,7 +622,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
 
   Map<BadgeTier, List<Achievement>> _groupBadgesByTier() {
     final Map<BadgeTier, List<Achievement>> grouped = {};
-    
+
     for (final achievement in _filteredAchievements) {
       if (!grouped.containsKey(achievement.tier)) {
         grouped[achievement.tier] = [];
@@ -642,7 +633,7 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
     // Sort tiers by index
     final sortedKeys = grouped.keys.toList()
       ..sort((a, b) => a.index.compareTo(b.index));
-    
+
     final Map<BadgeTier, List<Achievement>> sortedGrouped = {};
     for (final key in sortedKeys) {
       sortedGrouped[key] = grouped[key]!;
@@ -661,16 +652,18 @@ class _BadgeCollectionGridState extends State<BadgeCollectionGrid>
 
     try {
       // Capture the grid as an image
-      final RenderRepaintBoundary boundary = 
+      final RenderRepaintBoundary boundary =
           _gridKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
-      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+      final ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+
       if (byteData != null) {
         // In a real app, you would save or share the image here
         HapticFeedback.mediumImpact();
         widget.onExportCollection?.call();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -747,9 +740,9 @@ class HexagonalGridDelegate extends SliverGridDelegate {
   SliverGridLayout getLayout(SliverConstraints constraints) {
     final double crossAxisSpacing = 8;
     final double mainAxisSpacing = 4;
-    
-    final double usableWidth = constraints.crossAxisExtent - 
-        (crossAxisCount - 1) * crossAxisSpacing;
+
+    final double usableWidth =
+        constraints.crossAxisExtent - (crossAxisCount - 1) * crossAxisSpacing;
     final double childWidth = usableWidth / crossAxisCount;
     final double childHeight = badgeSize + mainAxisSpacing;
 
@@ -766,6 +759,6 @@ class HexagonalGridDelegate extends SliverGridDelegate {
   @override
   bool shouldRelayout(HexagonalGridDelegate oldDelegate) {
     return crossAxisCount != oldDelegate.crossAxisCount ||
-           badgeSize != oldDelegate.badgeSize;
+        badgeSize != oldDelegate.badgeSize;
   }
 }

@@ -4,24 +4,22 @@ import 'tier.dart';
 enum RankMovement {
   /// Rank improved (moved up)
   up,
+
   /// Rank declined (moved down)
   down,
+
   /// Rank stayed the same
   same,
+
   /// New entry (first time on leaderboard)
   newEntry,
+
   /// Returned to leaderboard after absence
   returned,
 }
 
 /// Time period for leaderboard entries
-enum LeaderboardPeriod {
-  daily,
-  weekly,
-  monthly,
-  yearly,
-  allTime,
-}
+enum LeaderboardPeriod { daily, weekly, monthly, yearly, allTime }
 
 /// Leaderboard entry entity representing a user's position and stats
 class LeaderboardEntry {
@@ -34,7 +32,8 @@ class LeaderboardEntry {
   final double totalPoints;
   final double periodPoints; // Points for the specific leaderboard period
   final TierLevel tier;
-  final Map<String, double> pointsByCategory; // e.g., {'basketball': 1500, 'football': 800}
+  final Map<String, double>
+  pointsByCategory; // e.g., {'basketball': 1500, 'football': 800}
   final List<String> recentAchievements; // Achievement IDs
   final RankMovement movement;
   final int movementAmount; // How many positions moved
@@ -71,7 +70,7 @@ class LeaderboardEntry {
     if (rank % 100 >= 11 && rank % 100 <= 13) {
       return '${rank}th';
     }
-    
+
     switch (rank % 10) {
       case 1:
         return '${rank}st';
@@ -103,11 +102,11 @@ class LeaderboardEntry {
   String getMovementDescription() {
     switch (movement) {
       case RankMovement.up:
-        return movementAmount > 0 
+        return movementAmount > 0
             ? 'Up $movementAmount position${movementAmount == 1 ? '' : 's'}'
             : 'Improved';
       case RankMovement.down:
-        return movementAmount > 0 
+        return movementAmount > 0
             ? 'Down $movementAmount position${movementAmount == 1 ? '' : 's'}'
             : 'Declined';
       case RankMovement.same:
@@ -174,33 +173,37 @@ class LeaderboardEntry {
   /// Gets points breakdown as formatted strings
   Map<String, String> getFormattedPointsBreakdown() {
     final breakdown = <String, String>{};
-    
+
     for (final entry in pointsByCategory.entries) {
       final category = entry.key;
       final points = entry.value;
       final percentage = totalPoints > 0 ? (points / totalPoints * 100) : 0;
-      
-      breakdown[_formatCategoryName(category)] = 
+
+      breakdown[_formatCategoryName(category)] =
           '${points.toStringAsFixed(0)} pts (${percentage.toStringAsFixed(1)}%)';
     }
-    
+
     return breakdown;
   }
 
   String _formatCategoryName(String category) {
-    return category.split('_')
-        .map((word) => word.isEmpty ? '' : 
-             word[0].toUpperCase() + word.substring(1))
+    return category
+        .split('_')
+        .map(
+          (word) =>
+              word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1),
+        )
         .join(' ');
   }
 
   /// Gets the dominant category (highest points)
   String? getDominantCategory() {
     if (pointsByCategory.isEmpty) return null;
-    
-    final entry = pointsByCategory.entries
-        .reduce((a, b) => a.value > b.value ? a : b);
-    
+
+    final entry = pointsByCategory.entries.reduce(
+      (a, b) => a.value > b.value ? a : b,
+    );
+
     return _formatCategoryName(entry.key);
   }
 
@@ -208,7 +211,7 @@ class LeaderboardEntry {
   String getActivityStatus() {
     final now = DateTime.now();
     final daysSinceActive = now.difference(lastActiveAt).inDays;
-    
+
     if (daysSinceActive == 0) {
       return 'Active today';
     } else if (daysSinceActive == 1) {
@@ -293,15 +296,15 @@ class LeaderboardEntry {
           return '🥉 Third Place';
       }
     }
-    
+
     if (isTopTen()) {
       return '⭐ Top Player';
     }
-    
+
     if (currentRank <= 50) {
       return '🔥 Rising Star';
     }
-    
+
     return '🎮 Player';
   }
 
@@ -351,7 +354,7 @@ class LeaderboardEntry {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is LeaderboardEntry &&
         other.id == id &&
         other.userId == userId &&
@@ -370,6 +373,6 @@ class LeaderboardEntry {
   @override
   String toString() {
     return 'LeaderboardEntry(id: $id, userId: $userId, rank: $currentRank, '
-           'points: $totalPoints, tier: ${tier.displayName})';
+        'points: $totalPoints, tier: ${tier.displayName})';
   }
 }

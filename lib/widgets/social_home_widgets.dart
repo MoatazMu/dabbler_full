@@ -6,7 +6,6 @@ import '../../utils/constants/route_constants.dart';
 
 /// Social widgets to be integrated into the home screen
 class SocialHomeWidgets {
-  
   /// Friend activity summary widget
   static Widget friendActivitySummary(BuildContext context) {
     return _SocialSectionCard(
@@ -52,7 +51,8 @@ class SocialHomeWidgets {
           _PostPreviewItem(
             author: 'Emma Wilson',
             avatar: 'https://i.pravatar.cc/150?img=4',
-            content: 'Great tennis match today at Central Courts! Looking for partners for next week.',
+            content:
+                'Great tennis match today at Central Courts! Looking for partners for next week.',
             likes: 12,
             comments: 3,
             time: '1 hour ago',
@@ -62,7 +62,8 @@ class SocialHomeWidgets {
           _PostPreviewItem(
             author: 'David Kim',
             avatar: 'https://i.pravatar.cc/150?img=5',
-            content: 'New to the area and looking for basketball buddies. Anyone know good courts nearby?',
+            content:
+                'New to the area and looking for basketball buddies. Anyone know good courts nearby?',
             likes: 8,
             comments: 5,
             time: '3 hours ago',
@@ -79,9 +80,9 @@ class SocialHomeWidgets {
       builder: (context, ref, child) {
         // TODO: Replace with actual unread count from social services
         const unreadCount = 3;
-        
+
         if (unreadCount == 0) return const SizedBox.shrink();
-        
+
         return GestureDetector(
           onTap: () => context.push(RoutePaths.socialChatList),
           child: Container(
@@ -127,7 +128,10 @@ class SocialHomeWidgets {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),
@@ -173,7 +177,9 @@ class SocialHomeWidgets {
             mutualFriends: index + 1,
             onAdd: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Friend request sent to ${_mockNames[index]}')),
+                SnackBar(
+                  content: Text('Friend request sent to ${_mockNames[index]}'),
+                ),
               );
             },
             onTap: () => context.push('/social/profile/user${index + 10}'),
@@ -219,9 +225,7 @@ class SocialHomeWidgets {
 
   // TODO: Replace with real friend suggestions from FriendsRepository.getFriendSuggestions()
   // This widget needs to be converted to use Riverpod and fetch real data
-  static const List<String> _mockNames = [
-    'No suggestions available',
-  ];
+  static const List<String> _mockNames = ['No suggestions available'];
 }
 
 class _SocialSectionCard extends StatelessWidget {
@@ -240,7 +244,7 @@ class _SocialSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -299,10 +303,7 @@ class _ActivityItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage(avatar),
-            ),
+            CircleAvatar(radius: 16, backgroundImage: NetworkImage(avatar)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -322,9 +323,9 @@ class _ActivityItem extends StatelessWidget {
                   ),
                   Text(
                     time,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                 ],
               ),
@@ -367,10 +368,7 @@ class _PostPreviewItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage(avatar),
-                ),
+                CircleAvatar(radius: 16, backgroundImage: NetworkImage(avatar)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -382,9 +380,9 @@ class _PostPreviewItem extends StatelessWidget {
                       ),
                       Text(
                         time,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -445,10 +443,7 @@ class _FriendSuggestionCard extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: NetworkImage(avatar),
-                ),
+                CircleAvatar(radius: 20, backgroundImage: NetworkImage(avatar)),
                 const SizedBox(height: 6),
                 Text(
                   name,
@@ -560,9 +555,9 @@ class _TrendingItem extends StatelessWidget {
                   ),
                   Text(
                     description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                 ],
               ),

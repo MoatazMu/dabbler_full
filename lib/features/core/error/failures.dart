@@ -4,18 +4,14 @@ import 'package:equatable/equatable.dart';
 abstract class Failure extends Equatable {
   /// Error message
   final String message;
-  
+
   /// Optional error code
   final String? code;
-  
+
   /// Optional error details
   final Map<String, dynamic>? details;
 
-  const Failure({
-    required this.message,
-    this.code,
-    this.details,
-  });
+  const Failure({required this.message, this.code, this.details});
 
   @override
   List<Object?> get props => [message, code, details];
@@ -26,38 +22,22 @@ abstract class Failure extends Equatable {
 
 /// Server-related failures
 class ServerFailure extends Failure {
-  const ServerFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const ServerFailure({required super.message, super.code, super.details});
 }
 
 /// Cache-related failures
 class CacheFailure extends Failure {
-  const CacheFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const CacheFailure({required super.message, super.code, super.details});
 }
 
 /// Network-related failures
 class NetworkFailure extends Failure {
-  const NetworkFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const NetworkFailure({required super.message, super.code, super.details});
 }
 
 /// Authentication-related failures
 class AuthFailure extends Failure {
-  const AuthFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const AuthFailure({required super.message, super.code, super.details});
 }
 
 /// Authorization-related failures
@@ -71,65 +51,37 @@ class AuthorizationFailure extends Failure {
 
 /// Validation-related failures
 class ValidationFailure extends Failure {
-  const ValidationFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const ValidationFailure({required super.message, super.code, super.details});
 }
 
 /// Data not found failures
 class NotFoundFailure extends Failure {
-  const NotFoundFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const NotFoundFailure({required super.message, super.code, super.details});
 }
 
 /// Generic failures for unexpected errors
 class UnknownFailure extends Failure {
-  const UnknownFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const UnknownFailure({required super.message, super.code, super.details});
 }
 
 /// Database-related failures
 class DatabaseFailure extends Failure {
-  const DatabaseFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const DatabaseFailure({required super.message, super.code, super.details});
 }
 
 /// File system-related failures
 class FileSystemFailure extends Failure {
-  const FileSystemFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const FileSystemFailure({required super.message, super.code, super.details});
 }
 
 /// Parsing-related failures
 class ParsingFailure extends Failure {
-  const ParsingFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const ParsingFailure({required super.message, super.code, super.details});
 }
 
 /// Permission-related failures
 class PermissionFailure extends Failure {
-  const PermissionFailure({
-    required super.message,
-    super.code,
-    super.details,
-  });
+  const PermissionFailure({required super.message, super.code, super.details});
 }
 
 /// Extension for common failure messages

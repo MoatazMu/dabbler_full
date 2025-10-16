@@ -81,9 +81,13 @@ class MessageModel extends ChatMessage {
       sentAt: DateTime.tryParse(json['sent_at'] ?? '') ?? DateTime.now(),
       messageType: messageType,
       isEdited: json['is_edited'] ?? false,
-      editedAt: json['edited_at'] != null ? DateTime.tryParse(json['edited_at']) : null,
+      editedAt: json['edited_at'] != null
+          ? DateTime.tryParse(json['edited_at'])
+          : null,
       isDeleted: json['is_deleted'] ?? false,
-      deletedAt: json['deleted_at'] != null ? DateTime.tryParse(json['deleted_at']) : null,
+      deletedAt: json['deleted_at'] != null
+          ? DateTime.tryParse(json['deleted_at'])
+          : null,
       status: status,
       replyToId: json['reply_to_id'],
     );
@@ -176,9 +180,4 @@ class MessageModel extends ChatMessage {
 }
 
 /// Message status enum
-enum MessageStatus {
-  sent,
-  delivered,
-  read,
-  failed,
-}
+enum MessageStatus { sent, delivered, read, failed }

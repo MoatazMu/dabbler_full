@@ -80,8 +80,6 @@ class TierUpgradeData {
   }
 }
 
-
-
 /// Tier up celebration widget
 class TierUpCelebration extends StatefulWidget {
   final TierUpgradeData upgradeData;
@@ -164,13 +162,12 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
       curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _mainController,
-      curve: const Interval(0.2, 0.7, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.2, 0.7, curve: Curves.elasticOut),
+      ),
+    );
 
     _tierTransitionAnimation = CurvedAnimation(
       parent: _tierAnimationController,
@@ -192,13 +189,9 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
       curve: Curves.easeOut,
     );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.3,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   void _startCelebrationSequence() async {
@@ -213,7 +206,7 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
     // Start tier transition after delay
     Future.delayed(const Duration(milliseconds: 500), () {
       _tierAnimationController.forward();
-      
+
       if (widget.enableHaptics) {
         HapticFeedback.mediumImpact();
       }
@@ -241,7 +234,7 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
       setState(() {
         _showBenefits = true;
       });
-      
+
       if (widget.enableHaptics) {
         HapticFeedback.lightImpact();
       }
@@ -273,10 +266,10 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
         children: [
           // Background effects
           if (widget.enableFireworks) _buildFireworksBackground(),
-          
+
           // Confetti overlay
           _buildConfettiOverlay(),
-          
+
           // Main content
           Center(
             child: SingleChildScrollView(
@@ -402,7 +395,10 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
                       animation: _tierTransitionAnimation,
                       builder: (context, child) {
                         return Transform.translate(
-                          offset: Offset(100 * (1 - _tierTransitionAnimation.value), 0),
+                          offset: Offset(
+                            100 * (1 - _tierTransitionAnimation.value),
+                            0,
+                          ),
                           child: Opacity(
                             opacity: _tierTransitionAnimation.value,
                             child: Icon(
@@ -450,11 +446,7 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
         shape: BoxShape.circle,
         color: color,
         gradient: RadialGradient(
-          colors: [
-            color.withOpacity(0.8),
-            color,
-            color.withOpacity(0.9),
-          ],
+          colors: [color.withOpacity(0.8), color, color.withOpacity(0.9)],
         ),
         boxShadow: [
           BoxShadow(
@@ -468,11 +460,7 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            widget.upgradeData.tierIcon,
-            size: 48,
-            color: Colors.white,
-          ),
+          Icon(widget.upgradeData.tierIcon, size: 48, color: Colors.white),
           const SizedBox(height: 8),
           Text(
             tier.name.toUpperCase(),
@@ -524,7 +512,10 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
                 ),
                 const SizedBox(height: 24),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: widget.upgradeData.newTierColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(24),
@@ -592,12 +583,20 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ...widget.upgradeData.benefitsUnlocked.asMap().entries.map((entry) {
+                  ...widget.upgradeData.benefitsUnlocked.asMap().entries.map((
+                    entry,
+                  ) {
                     final index = entry.key;
                     final benefit = entry.value;
-                    
+
                     return Padding(
-                      padding: EdgeInsets.only(bottom: index < widget.upgradeData.benefitsUnlocked.length - 1 ? 12 : 0),
+                      padding: EdgeInsets.only(
+                        bottom:
+                            index <
+                                widget.upgradeData.benefitsUnlocked.length - 1
+                            ? 12
+                            : 0,
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -618,9 +617,10 @@ class _TierUpCelebrationState extends State<TierUpCelebration>
                           Expanded(
                             child: Text(
                               benefit,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.white.withOpacity(0.9),
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
                             ),
                           ),
                         ],
@@ -694,10 +694,7 @@ class FireworksPainter extends CustomPainter {
   final Animation<double> animation;
   final Color color;
 
-  FireworksPainter({
-    required this.animation,
-    required this.color,
-  });
+  FireworksPainter({required this.animation, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -706,27 +703,23 @@ class FireworksPainter extends CustomPainter {
       ..blendMode = BlendMode.screen;
 
     final random = math.Random(42); // Fixed seed for consistent animation
-    
+
     for (int i = 0; i < 20; i++) {
       final progress = (animation.value + (i * 0.1)) % 1.0;
       final x = size.width * random.nextDouble();
       final y = size.height * random.nextDouble() * 0.7;
-      
+
       paint.color = color.withOpacity((1 - progress) * 0.6);
-      
+
       // Draw expanding circle
-      canvas.drawCircle(
-        Offset(x, y),
-        progress * 100,
-        paint,
-      );
-      
+      canvas.drawCircle(Offset(x, y), progress * 100, paint);
+
       // Draw particles
       for (int j = 0; j < 8; j++) {
         final angle = (j * math.pi * 2) / 8;
         final particleX = x + math.cos(angle) * progress * 150;
         final particleY = y + math.sin(angle) * progress * 150;
-        
+
         paint.color = color.withOpacity((1 - progress) * 0.8);
         canvas.drawCircle(
           Offset(particleX, particleY),
@@ -746,38 +739,30 @@ class ConfettiPainter extends CustomPainter {
   final Animation<double> animation;
   final List<Color> colors;
 
-  ConfettiPainter({
-    required this.animation,
-    required this.colors,
-  });
+  ConfettiPainter({required this.animation, required this.colors});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill;
+    final paint = Paint()..style = PaintingStyle.fill;
 
     final random = math.Random(123); // Fixed seed
-    
+
     for (int i = 0; i < 100; i++) {
       final progress = animation.value;
       final startX = size.width * random.nextDouble();
       final startY = -20.0;
-      
+
       final x = startX + (random.nextDouble() - 0.5) * 200 * progress;
       final y = startY + size.height * 1.2 * progress;
-      
+
       paint.color = colors[i % colors.length].withOpacity((1 - progress) * 0.8);
-      
+
       // Different shapes
       switch (i % 3) {
         case 0:
           // Rectangle
           canvas.drawRect(
-            Rect.fromCenter(
-              center: Offset(x, y),
-              width: 8,
-              height: 12,
-            ),
+            Rect.fromCenter(center: Offset(x, y), width: 8, height: 12),
             paint,
           );
           break;

@@ -11,7 +11,7 @@ class UpdateTierUseCase {
   const UpdateTierUseCase(this._repository);
 
   /// Updates user tier based on current points and tier requirements
-  /// 
+  ///
   /// This use case handles the complete tier progression workflow including:
   /// - Calculating tier eligibility based on points
   /// - Validating tier upgrade requirements
@@ -33,15 +33,21 @@ class UpdateTierUseCase {
       // Get current user progress
       final userProgressResult = await _repository.getUserProgress(userId);
       if (userProgressResult.isLeft()) {
-        return Left(TierError.userProgressNotFound('Failed to fetch user progress'));
+        return Left(
+          TierError.userProgressNotFound('Failed to fetch user progress'),
+        );
       }
 
-      final userProgressList = userProgressResult.getOrElse(() => throw StateError('Should not happen'));
-      
+      final userProgressList = userProgressResult.getOrElse(
+        () => throw StateError('Should not happen'),
+      );
+
       // Get current user tier
       final currentTierResult = await _repository.getUserTier(userId);
       if (currentTierResult.isLeft()) {
-        return Left(TierError.userProgressNotFound('Failed to fetch user tier'));
+        return Left(
+          TierError.userProgressNotFound('Failed to fetch user tier'),
+        );
       }
 
       final currentTier = currentTierResult.getOrElse(() => null);
@@ -49,44 +55,58 @@ class UpdateTierUseCase {
       // Calculate total points from completed achievements
       final totalPoints = userProgressList
           .where((progress) => progress.status == ProgressStatus.completed)
-          .fold(0, (sum, progress) => sum + (progress.achievement?.points ?? 0));
+          .fold(
+            0,
+            (sum, progress) => sum + (progress.achievement?.points ?? 0),
+          );
 
       // Get available tiers from achievements (for now, use a simplified approach)
       final achievementsResult = await _repository.getAchievements();
       if (achievementsResult.isLeft()) {
-        return Left(TierError.tiersNotFound('Failed to fetch achievements for tier calculation'));
+        return Left(
+          TierError.tiersNotFound(
+            'Failed to fetch achievements for tier calculation',
+          ),
+        );
       }
 
-      final achievements = achievementsResult.getOrElse(() => throw StateError('Should not happen'));
+      final achievements = achievementsResult.getOrElse(
+        () => throw StateError('Should not happen'),
+      );
       if (achievements.isEmpty) {
         return Left(TierError.tiersNotFound('No achievements configured'));
       }
 
       // Calculate eligible tier based on current points
       final eligibleTier = _calculateEligibleTierFromPoints(totalPoints);
-      
+
       // Check if tier update is needed
       final currentTierLevel = currentTier?.level.level ?? 0;
       final eligibleTierLevel = eligibleTier.level.level;
 
       if (!forceUpdate && currentTierLevel >= eligibleTierLevel) {
         // No tier change needed
-        return Right(TierUpdateResult(
-          previousTier: currentTier,
-          newTier: currentTier ?? eligibleTier,
-          tierChanged: false,
-          pointsToNext: _calculatePointsToNextTierFromPoints(totalPoints, eligibleTier),
-          milestoneRewards: [],
-          benefitsUnlocked: [],
-          celebrationTriggered: false,
-          analyticsData: _generateAnalyticsData(
-            userId: userId,
+        return Right(
+          TierUpdateResult(
             previousTier: currentTier,
             newTier: currentTier ?? eligibleTier,
             tierChanged: false,
-            context: context ?? {},
+            pointsToNext: _calculatePointsToNextTierFromPoints(
+              totalPoints,
+              eligibleTier,
+            ),
+            milestoneRewards: [],
+            benefitsUnlocked: [],
+            celebrationTriggered: false,
+            analyticsData: _generateAnalyticsData(
+              userId: userId,
+              previousTier: currentTier,
+              newTier: currentTier ?? eligibleTier,
+              tierChanged: false,
+              context: context ?? {},
+            ),
           ),
-        ));
+        );
       }
 
       // Process tier upgrade - Simplified implementation
@@ -100,25 +120,32 @@ class UpdateTierUseCase {
       // - Log analytics event
       // - Trigger notifications
 
-      return Right(TierUpdateResult(
-        previousTier: previousTier,
-        newTier: newTier,
-        tierChanged: true,
-        pointsToNext: _calculatePointsToNextTierFromPoints(totalPoints, newTier),
-        milestoneRewards: [], // Would be calculated based on tier progression
-        benefitsUnlocked: [], // Would be calculated based on new tier benefits
-        celebrationTriggered: false, // Would trigger celebration UI
-        analyticsData: _generateAnalyticsData(
-          userId: userId,
+      return Right(
+        TierUpdateResult(
           previousTier: previousTier,
           newTier: newTier,
           tierChanged: true,
-          context: context ?? {},
+          pointsToNext: _calculatePointsToNextTierFromPoints(
+            totalPoints,
+            newTier,
+          ),
+          milestoneRewards: [], // Would be calculated based on tier progression
+          benefitsUnlocked:
+              [], // Would be calculated based on new tier benefits
+          celebrationTriggered: false, // Would trigger celebration UI
+          analyticsData: _generateAnalyticsData(
+            userId: userId,
+            previousTier: previousTier,
+            newTier: newTier,
+            tierChanged: true,
+            context: context ?? {},
+          ),
         ),
-      ));
-
+      );
     } catch (e) {
-      return Left(TierError.unexpected('Unexpected error during tier update: $e'));
+      return Left(
+        TierError.unexpected('Unexpected error during tier update: $e'),
+      );
     }
   }
 
@@ -127,7 +154,7 @@ class UpdateTierUseCase {
   UserTier _calculateEligibleTierFromPoints(int totalPoints) {
     final pointsDouble = totalPoints.toDouble();
     final now = DateTime.now();
-    
+
     // Find the appropriate tier level based on points
     TierLevel tierLevel;
     if (pointsDouble >= 150000) {
@@ -175,9 +202,14 @@ class UpdateTierUseCase {
   }
 
   // Helper method to calculate points to next tier
-  double _calculatePointsToNextTierFromPoints(int currentPoints, UserTier currentTier) {
+  double _calculatePointsToNextTierFromPoints(
+    int currentPoints,
+    UserTier currentTier,
+  ) {
     final pointsDouble = currentPoints.toDouble();
-    return currentTier.level.maxPoints.isInfinite ? 0 : (currentTier.level.maxPoints + 1 - pointsDouble);
+    return currentTier.level.maxPoints.isInfinite
+        ? 0
+        : (currentTier.level.maxPoints + 1 - pointsDouble);
   }
 
   /// Generate analytics data for tier changes
@@ -231,11 +263,16 @@ class TierError {
 
   const TierError._(this.message, this.code);
 
-  static TierError invalidUserId(String message) => TierError._(message, 'INVALID_USER_ID');
-  static TierError userProgressNotFound(String message) => TierError._(message, 'USER_PROGRESS_NOT_FOUND');
-  static TierError tiersNotFound(String message) => TierError._(message, 'TIERS_NOT_FOUND');
-  static TierError updateFailed(String message) => TierError._(message, 'UPDATE_FAILED');
-  static TierError unexpected(String message) => TierError._(message, 'UNEXPECTED_ERROR');
+  static TierError invalidUserId(String message) =>
+      TierError._(message, 'INVALID_USER_ID');
+  static TierError userProgressNotFound(String message) =>
+      TierError._(message, 'USER_PROGRESS_NOT_FOUND');
+  static TierError tiersNotFound(String message) =>
+      TierError._(message, 'TIERS_NOT_FOUND');
+  static TierError updateFailed(String message) =>
+      TierError._(message, 'UPDATE_FAILED');
+  static TierError unexpected(String message) =>
+      TierError._(message, 'UNEXPECTED_ERROR');
 
   @override
   String toString() => 'TierError($code): $message';

@@ -1,5 +1,6 @@
 /// Visual indicator for skill levels with multiple display modes
 library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -20,7 +21,7 @@ class SkillLevel {
   final SkillTrend trend;
   final double confidenceScore; // 0.0-1.0
   final Map<String, dynamic> metadata;
-  
+
   const SkillLevel({
     required this.id,
     required this.sportName,
@@ -38,25 +39,26 @@ class SkillLevel {
     this.confidenceScore = 1.0,
     this.metadata = const {},
   });
-  
+
   double get normalizedLevel => level / maxLevel;
-  
+
   bool get isAdvanced => level >= (maxLevel * 0.8);
-  bool get isIntermediate => level >= (maxLevel * 0.5) && level < (maxLevel * 0.8);
+  bool get isIntermediate =>
+      level >= (maxLevel * 0.5) && level < (maxLevel * 0.8);
   bool get isBeginner => level < (maxLevel * 0.5);
-  
+
   String get proficiencyLabel {
     if (isAdvanced) return 'Advanced';
     if (isIntermediate) return 'Intermediate';
     return 'Beginner';
   }
-  
+
   Color get proficiencyColor {
     if (isAdvanced) return Colors.green;
     if (isIntermediate) return Colors.orange;
     return Colors.blue;
   }
-  
+
   SkillLevel copyWith({
     String? id,
     String? sportName,
@@ -95,11 +97,7 @@ class SkillLevel {
 }
 
 /// Skill trend indicator
-enum SkillTrend {
-  improving,
-  stable,
-  declining,
-}
+enum SkillTrend { improving, stable, declining }
 
 /// Display mode for skill level indicator
 enum SkillDisplayMode {
@@ -134,7 +132,7 @@ class SkillLevelIndicator extends StatefulWidget {
   final bool showExperienceYears;
   final bool showConfidence;
   final int maxSkillsToShow;
-  
+
   const SkillLevelIndicator({
     super.key,
     required this.skills,
@@ -158,7 +156,7 @@ class SkillLevelIndicator extends StatefulWidget {
     this.showConfidence = false,
     this.maxSkillsToShow = 10,
   });
-  
+
   @override
   State<SkillLevelIndicator> createState() => _SkillLevelIndicatorState();
 }
@@ -168,36 +166,33 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
   late AnimationController _animationController;
   late List<AnimationController> _skillAnimationControllers;
   late List<Animation<double>> _skillAnimations;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _skillAnimationControllers = widget.skills.map((skill) {
       return AnimationController(
         duration: widget.animationDuration,
         vsync: this,
       );
     }).toList();
-    
+
     _skillAnimations = _skillAnimationControllers.map((controller) {
       return Tween<double>(
         begin: 0.0,
         end: 1.0,
-      ).animate(CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeOutBack,
-      ));
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOutBack));
     }).toList();
-    
+
     if (widget.animateChanges) {
       _startStaggeredAnimations();
     } else {
@@ -206,7 +201,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }
     }
   }
-  
+
   void _startStaggeredAnimations() {
     for (int i = 0; i < _skillAnimationControllers.length; i++) {
       Future.delayed(Duration(milliseconds: i * 100), () {
@@ -216,34 +211,34 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       });
     }
   }
-  
+
   @override
   void didUpdateWidget(SkillLevelIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.skills.length != oldWidget.skills.length) {
       _disposeAnimationControllers();
       _setupAnimations();
     }
   }
-  
+
   @override
   void dispose() {
     _disposeAnimationControllers();
     super.dispose();
   }
-  
+
   void _disposeAnimationControllers() {
     _animationController.dispose();
     for (var controller in _skillAnimationControllers) {
       controller.dispose();
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final skillsToShow = widget.skills.take(widget.maxSkillsToShow).toList();
-    
+
     return Container(
       padding: widget.padding,
       child: Column(
@@ -253,9 +248,9 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
             _buildHeader(),
             const SizedBox(height: 16),
           ],
-          
+
           _buildSkillIndicator(skillsToShow),
-          
+
           if (widget.skills.length > widget.maxSkillsToShow) ...[
             const SizedBox(height: 8),
             _buildShowMoreButton(),
@@ -264,38 +259,41 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildHeader() {
-    final averageLevel = widget.skills.isEmpty 
-        ? 0.0 
-        : widget.skills.map((s) => s.normalizedLevel).reduce((a, b) => a + b) / widget.skills.length;
-    
+    final averageLevel = widget.skills.isEmpty
+        ? 0.0
+        : widget.skills.map((s) => s.normalizedLevel).reduce((a, b) => a + b) /
+              widget.skills.length;
+
     return Row(
       children: [
         Text(
           widget.title,
-          style: widget.titleStyle ?? 
-              Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style:
+              widget.titleStyle ??
+              Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const Spacer(),
-        
+
         if (widget.skills.isNotEmpty) ...[
           _buildAverageIndicator(averageLevel),
           const SizedBox(width: 8),
           Text(
             '${widget.skills.length} skills',
-            style: widget.subtitleStyle ?? 
-                Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style:
+                widget.subtitleStyle ??
+                Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
         ],
       ],
     );
   }
-  
+
   Widget _buildAverageIndicator(double averageLevel) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -327,7 +325,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildSkillIndicator(List<SkillLevel> skills) {
     switch (widget.displayMode) {
       case SkillDisplayMode.stars:
@@ -346,13 +344,13 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         return _buildDetailedDisplay(skills);
     }
   }
-  
+
   Widget _buildStarsDisplay(List<SkillLevel> skills) {
     return Column(
       children: skills.asMap().entries.map((entry) {
         final index = entry.key;
         final skill = entry.value;
-        
+
         return AnimatedBuilder(
           animation: _skillAnimations[index],
           builder: (context, child) {
@@ -365,20 +363,20 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildSkillStars(SkillLevel skill) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
-      onLongPress: widget.enableInteraction ? () => _handleSkillLongPress(skill) : null,
+      onLongPress: widget.enableInteraction
+          ? () => _handleSkillLongPress(skill)
+          : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: skill.color.withOpacity(0.05),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: skill.color.withOpacity(0.2),
-          ),
+          border: Border.all(color: skill.color.withOpacity(0.2)),
         ),
         child: Column(
           children: [
@@ -397,7 +395,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                               color: skill.color,
                             ),
                           ),
-                          
+
                           if (skill.isVerified) ...[
                             const SizedBox(width: 6),
                             Icon(
@@ -406,28 +404,25 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                               color: Colors.blue[600],
                             ),
                           ],
-                          
+
                           if (widget.showTrend)
                             _buildTrendIndicator(skill.trend),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 4),
                       Text(
                         skill.levelName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                 ),
-                
+
                 _buildStarRating(skill),
               ],
             ),
-            
+
             if (widget.showExperienceYears && skill.experienceYears > 0) ...[
               const SizedBox(height: 8),
               _buildExperienceIndicator(skill),
@@ -437,7 +432,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildStarRating(SkillLevel skill) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -445,10 +440,10 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         final starValue = (index + 1) * 2; // Scale 1-10 to 5 stars
         final filled = skill.level >= starValue;
         final halfFilled = skill.level >= starValue - 1 && !filled;
-        
+
         return Icon(
-          halfFilled 
-              ? Icons.star_half 
+          halfFilled
+              ? Icons.star_half
               : (filled ? Icons.star : Icons.star_border),
           size: 20,
           color: skill.color,
@@ -456,13 +451,13 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }),
     );
   }
-  
+
   Widget _buildBarsDisplay(List<SkillLevel> skills) {
     return Column(
       children: skills.asMap().entries.map((entry) {
         final index = entry.key;
         final skill = entry.value;
-        
+
         return AnimatedBuilder(
           animation: _skillAnimations[index],
           builder: (context, child) {
@@ -472,7 +467,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildSkillBar(SkillLevel skill, double animationValue) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
@@ -486,14 +481,11 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                   width: 100,
                   child: Text(
                     skill.sportName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                
+
                 const SizedBox(width: 8),
                 Expanded(
                   child: ClipRRect(
@@ -506,7 +498,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(width: 8),
                 Text(
                   '${skill.level}',
@@ -516,9 +508,8 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                     fontSize: 12,
                   ),
                 ),
-                
-                if (widget.showTrend)
-                  _buildTrendIndicator(skill.trend),
+
+                if (widget.showTrend) _buildTrendIndicator(skill.trend),
               ],
             ),
           ],
@@ -526,7 +517,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildBadgesDisplay(List<SkillLevel> skills) {
     return Wrap(
       spacing: 8,
@@ -534,7 +525,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       children: skills.asMap().entries.map((entry) {
         final index = entry.key;
         final skill = entry.value;
-        
+
         return AnimatedBuilder(
           animation: _skillAnimations[index],
           builder: (context, child) {
@@ -547,7 +538,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildSkillBadge(SkillLevel skill) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
@@ -568,14 +559,10 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
           mainAxisSize: MainAxisSize.min,
           children: [
             if (skill.isVerified) ...[
-              const Icon(
-                Icons.verified,
-                size: 14,
-                color: Colors.white,
-              ),
+              const Icon(Icons.verified, size: 14, color: Colors.white),
               const SizedBox(width: 4),
             ],
-            
+
             Text(
               skill.sportName,
               style: const TextStyle(
@@ -584,7 +571,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                 fontSize: 12,
               ),
             ),
-            
+
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -601,12 +588,12 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                 ),
               ),
             ),
-            
+
             if (widget.showTrend && skill.trend != SkillTrend.stable) ...[
               const SizedBox(width: 4),
               Icon(
-                skill.trend == SkillTrend.improving 
-                    ? Icons.trending_up 
+                skill.trend == SkillTrend.improving
+                    ? Icons.trending_up
                     : Icons.trending_down,
                 size: 12,
                 color: Colors.white,
@@ -617,7 +604,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildCircularDisplay(List<SkillLevel> skills) {
     return GridView.builder(
       shrinkWrap: true,
@@ -631,7 +618,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       itemCount: skills.length,
       itemBuilder: (context, index) {
         final skill = skills[index];
-        
+
         return AnimatedBuilder(
           animation: _skillAnimations[index],
           builder: (context, child) {
@@ -641,7 +628,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       },
     );
   }
-  
+
   Widget _buildCircularSkill(SkillLevel skill, double animationValue) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
@@ -649,9 +636,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         decoration: BoxDecoration(
           color: skill.color.withOpacity(0.05),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: skill.color.withOpacity(0.2),
-          ),
+          border: Border.all(color: skill.color.withOpacity(0.2)),
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -666,7 +651,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                 strokeWidth: 4,
               ),
             ),
-            
+
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -678,31 +663,24 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                     color: skill.color,
                   ),
                 ),
-                
+
                 Text(
                   skill.sportName,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-            
+
             if (skill.isVerified)
               Positioned(
                 top: 4,
                 right: 4,
-                child: Icon(
-                  Icons.verified,
-                  size: 12,
-                  color: Colors.blue[600],
-                ),
+                child: Icon(Icons.verified, size: 12, color: Colors.blue[600]),
               ),
-            
+
             if (widget.showTrend && skill.trend != SkillTrend.stable)
               Positioned(
                 bottom: 4,
@@ -714,12 +692,12 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildComparisonDisplay(List<SkillLevel> skills) {
-    final maxLevel = skills.isEmpty 
-        ? 10 
+    final maxLevel = skills.isEmpty
+        ? 10
         : skills.map((s) => s.level).reduce((a, b) => a > b ? a : b);
-    
+
     return Column(
       children: [
         // Chart header
@@ -733,34 +711,39 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                   child: Text(
                     '${index + 1}',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),
                 );
               }),
             ],
           ),
         ),
-        
+
         // Skill bars
         ...skills.asMap().entries.map((entry) {
           final index = entry.key;
           final skill = entry.value;
-          
+
           return AnimatedBuilder(
             animation: _skillAnimations[index],
             builder: (context, child) {
-              return _buildComparisonBar(skill, maxLevel, _skillAnimations[index].value);
+              return _buildComparisonBar(
+                skill,
+                maxLevel,
+                _skillAnimations[index].value,
+              );
             },
           );
         }),
       ],
     );
   }
-  
-  Widget _buildComparisonBar(SkillLevel skill, int maxLevel, double animationValue) {
+
+  Widget _buildComparisonBar(
+    SkillLevel skill,
+    int maxLevel,
+    double animationValue,
+  ) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
       child: Container(
@@ -779,7 +762,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            
+
             Expanded(
               child: Stack(
                 children: [
@@ -790,7 +773,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  
+
                   FractionallySizedBox(
                     widthFactor: (skill.level / maxLevel) * animationValue,
                     child: Container(
@@ -801,7 +784,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                       ),
                     ),
                   ),
-                  
+
                   Positioned(
                     right: 4,
                     top: 2,
@@ -810,8 +793,8 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
-                        color: skill.level > maxLevel * 0.5 
-                            ? Colors.white 
+                        color: skill.level > maxLevel * 0.5
+                            ? Colors.white
                             : skill.color,
                       ),
                     ),
@@ -824,7 +807,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildCompactDisplay(List<SkillLevel> skills) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -832,7 +815,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         children: skills.asMap().entries.map((entry) {
           final index = entry.key;
           final skill = entry.value;
-          
+
           return AnimatedBuilder(
             animation: _skillAnimations[index],
             builder: (context, child) {
@@ -846,7 +829,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildCompactSkill(SkillLevel skill) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
@@ -857,9 +840,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         decoration: BoxDecoration(
           color: skill.color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: skill.color.withOpacity(0.3),
-          ),
+          border: Border.all(color: skill.color.withOpacity(0.3)),
         ),
         child: Column(
           children: [
@@ -874,7 +855,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            
+
             const SizedBox(height: 4),
             Container(
               width: 24,
@@ -899,13 +880,13 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildDetailedDisplay(List<SkillLevel> skills) {
     return Column(
       children: skills.asMap().entries.map((entry) {
         final index = entry.key;
         final skill = entry.value;
-        
+
         return AnimatedBuilder(
           animation: _skillAnimations[index],
           builder: (context, child) {
@@ -918,7 +899,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildDetailedSkill(SkillLevel skill) {
     return GestureDetector(
       onTap: widget.enableInteraction ? () => _handleSkillTap(skill) : null,
@@ -928,9 +909,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: skill.color.withOpacity(0.2),
-          ),
+          border: Border.all(color: skill.color.withOpacity(0.2)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -962,7 +941,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -977,7 +956,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                               fontSize: 16,
                             ),
                           ),
-                          
+
                           if (skill.isVerified) ...[
                             const SizedBox(width: 6),
                             Icon(
@@ -986,41 +965,36 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
                               color: Colors.blue[600],
                             ),
                           ],
-                          
+
                           const Spacer(),
                           if (widget.showTrend)
                             _buildTrendIndicator(skill.trend),
                         ],
                       ),
-                      
+
                       Text(
                         skill.levelName,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
             Text(
               skill.description,
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.grey[700], fontSize: 13),
             ),
-            
+
             if (widget.showExperienceYears && skill.experienceYears > 0) ...[
               const SizedBox(height: 8),
               _buildExperienceIndicator(skill),
             ],
-            
-            if (widget.showCertifications && skill.certifications.isNotEmpty) ...[
+
+            if (widget.showCertifications &&
+                skill.certifications.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildCertificationBadges(skill.certifications),
             ],
@@ -1029,11 +1003,11 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Widget _buildTrendIndicator(SkillTrend trend, {double size = 16}) {
     IconData icon;
     Color color;
-    
+
     switch (trend) {
       case SkillTrend.improving:
         icon = Icons.trending_up;
@@ -1048,60 +1022,42 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
         color = Colors.grey;
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Icon(
-        icon,
-        size: size,
-        color: color,
-      ),
+      child: Icon(icon, size: size, color: color),
     );
   }
-  
+
   Widget _buildExperienceIndicator(SkillLevel skill) {
     return Row(
       children: [
-        Icon(
-          Icons.access_time,
-          size: 14,
-          color: Colors.grey[600],
-        ),
+        Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
         const SizedBox(width: 4),
-        
+
         Text(
           '${skill.experienceYears} years experience',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
-        
+
         if (widget.showConfidence) ...[
           const SizedBox(width: 12),
-          Icon(
-            Icons.psychology,
-            size: 14,
-            color: Colors.grey[600],
-          ),
+          Icon(Icons.psychology, size: 14, color: Colors.grey[600]),
           const SizedBox(width: 4),
-          
+
           Text(
             '${(skill.confidenceScore * 100).round()}% confidence',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
       ],
     );
   }
-  
+
   Widget _buildCertificationBadges(List<String> certifications) {
     return Wrap(
       spacing: 4,
@@ -1112,20 +1068,14 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
           decoration: BoxDecoration(
             color: Colors.blue[100],
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: Colors.blue[300]!,
-            ),
+            border: Border.all(color: Colors.blue[300]!),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.military_tech,
-                size: 10,
-                color: Colors.blue[700],
-              ),
+              Icon(Icons.military_tech, size: 10, color: Colors.blue[700]),
               const SizedBox(width: 2),
-              
+
               Text(
                 cert,
                 style: TextStyle(
@@ -1140,7 +1090,7 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildShowMoreButton() {
     return GestureDetector(
       onTap: () {
@@ -1169,20 +1119,20 @@ class _SkillLevelIndicatorState extends State<SkillLevelIndicator>
       ),
     );
   }
-  
+
   Color _getColorForLevel(double normalizedLevel) {
     if (normalizedLevel >= 0.8) return Colors.green;
     if (normalizedLevel >= 0.5) return Colors.orange;
     return Colors.blue;
   }
-  
+
   void _handleSkillTap(SkillLevel skill) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
     widget.onSkillTap?.call(skill);
   }
-  
+
   void _handleSkillLongPress(SkillLevel skill) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.mediumImpact();
@@ -1204,7 +1154,7 @@ extension SkillLevelIndicatorExtensions on SkillLevelIndicator {
       onSkillTap: onSkillTap,
     );
   }
-  
+
   /// Create a horizontal bars display
   static SkillLevelIndicator bars({
     required List<SkillLevel> skills,
@@ -1217,7 +1167,7 @@ extension SkillLevelIndicatorExtensions on SkillLevelIndicator {
       onSkillTap: onSkillTap,
     );
   }
-  
+
   /// Create a compact badge display
   static SkillLevelIndicator badges({
     required List<SkillLevel> skills,
@@ -1230,7 +1180,7 @@ extension SkillLevelIndicatorExtensions on SkillLevelIndicator {
       onSkillTap: onSkillTap,
     );
   }
-  
+
   /// Create a comparison chart
   static SkillLevelIndicator comparison({
     required List<SkillLevel> skills,

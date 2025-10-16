@@ -17,16 +17,16 @@ class LiveGameScreen extends StatefulWidget {
 class _LiveGameScreenState extends State<LiveGameScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   // Game timer
   int _gameTimeSeconds = 0;
   bool _isGameActive = true;
   bool _isPaused = false;
-  
+
   // Score tracking
   int _teamAScore = 0;
   int _teamBScore = 0;
-  
+
   // Player management
   final List<Map<String, dynamic>> _players = [
     {
@@ -81,7 +81,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
 
   final List<Map<String, dynamic>> _gameEvents = [];
   final TextEditingController _notesController = TextEditingController();
-  
+
   // Weather
   final Map<String, dynamic> _weatherData = {
     'temperature': 20,
@@ -141,11 +141,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
-                _buildGameTab(),
-                _buildPlayersTab(),
-                _buildNotesTab(),
-              ],
+              children: [_buildGameTab(), _buildPlayersTab(), _buildNotesTab()],
             ),
           ),
         ],
@@ -164,7 +160,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isOvertime 
+          colors: isOvertime
               ? [Colors.orange[400]!, Colors.orange[600]!]
               : [Colors.green[400]!, Colors.green[600]!],
         ),
@@ -196,7 +192,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                   ),
                 ],
               ),
-              
+
               // Timer
               Column(
                 children: [
@@ -222,14 +218,11 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                   const SizedBox(height: 4),
                   Text(
                     isOvertime ? 'Overtime' : 'Game Time',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
-              
+
               // Team B Score
               Column(
                 children: [
@@ -254,9 +247,9 @@ class _LiveGameScreenState extends State<LiveGameScreen>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Progress bar
           LinearProgressIndicator(
             value: minutes / maxDuration,
@@ -275,15 +268,15 @@ class _LiveGameScreenState extends State<LiveGameScreen>
         children: [
           if (_weatherData['alert'] != null) _buildWeatherAlert(),
           const SizedBox(height: 16),
-          
+
           if (widget.isOrganizer) ...[
             _buildScoreControls(),
             const SizedBox(height: 16),
           ],
-          
+
           _buildGameEvents(),
           const SizedBox(height: 16),
-          
+
           _buildQuickReporting(),
         ],
       ),
@@ -312,10 +305,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                 ),
                 Text(
                   _weatherData['alert'],
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.amber[700],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.amber[700]),
                 ),
               ],
             ),
@@ -334,25 +324,27 @@ class _LiveGameScreenState extends State<LiveGameScreen>
           children: [
             const Text(
               'Score Control',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('Team A', style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Team A',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            onPressed: _teamAScore > 0 ? () => _updateScore('A', -1) : null,
+                            onPressed: _teamAScore > 0
+                                ? () => _updateScore('A', -1)
+                                : null,
                             icon: const Icon(Icons.remove_circle),
                             color: Colors.red,
                           ),
@@ -383,17 +375,22 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                     ],
                   ),
                 ),
-                
+
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('Team B', style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Team B',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            onPressed: _teamBScore > 0 ? () => _updateScore('B', -1) : null,
+                            onPressed: _teamBScore > 0
+                                ? () => _updateScore('B', -1)
+                                : null,
                             icon: const Icon(Icons.remove_circle),
                             color: Colors.red,
                           ),
@@ -441,14 +438,11 @@ class _LiveGameScreenState extends State<LiveGameScreen>
           children: [
             const Text(
               'Game Events',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
-            if (_gameEvents.isEmpty) 
+
+            if (_gameEvents.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -464,7 +458,10 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _gameEvents.length,
                 itemBuilder: (context, index) {
-                  final event = _gameEvents[_gameEvents.length - 1 - index]; // Reverse order
+                  final event =
+                      _gameEvents[_gameEvents.length -
+                          1 -
+                          index]; // Reverse order
                   return _buildEventTile(event);
                 },
               ),
@@ -477,7 +474,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
   Widget _buildEventTile(Map<String, dynamic> event) {
     IconData icon;
     Color color;
-    
+
     switch (event['type']) {
       case 'score':
         icon = Icons.sports_score;
@@ -517,13 +514,10 @@ class _LiveGameScreenState extends State<LiveGameScreen>
           children: [
             const Text(
               'Quick Report',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -538,7 +532,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                   ),
                 ),
                 const SizedBox(width: 8),
-                
+
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _showIssueReport(),
@@ -581,11 +575,11 @@ class _LiveGameScreenState extends State<LiveGameScreen>
               ],
             ),
             const SizedBox(height: 12),
-            
+
             ...activePlayers.map((player) => _buildPlayerCard(player, true)),
             const SizedBox(height: 24),
           ],
-          
+
           if (benchedPlayers.isNotEmpty) ...[
             Row(
               children: [
@@ -601,7 +595,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
               ],
             ),
             const SizedBox(height: 12),
-            
+
             ...benchedPlayers.map((player) => _buildPlayerCard(player, false)),
           ],
         ],
@@ -611,7 +605,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
 
   Widget _buildPlayerCard(Map<String, dynamic> player, bool isActive) {
     final teamColor = player['team'] == 'A' ? Colors.blue : Colors.red;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -660,7 +654,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
           ],
         ),
         subtitle: Text(isActive ? 'Playing' : 'On bench'),
-        trailing: widget.isOrganizer 
+        trailing: widget.isOrganizer
             ? PopupMenuButton<String>(
                 onSelected: (value) => _handlePlayerAction(player, value),
                 itemBuilder: (context) => [
@@ -687,27 +681,25 @@ class _LiveGameScreenState extends State<LiveGameScreen>
         children: [
           const Text(
             'Game Notes',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          
+
           Expanded(
             child: TextField(
               controller: _notesController,
               maxLines: null,
               expands: true,
               decoration: const InputDecoration(
-                hintText: 'Add notes about the game, player performance, memorable moments, etc...',
+                hintText:
+                    'Add notes about the game, player performance, memorable moments, etc...',
                 border: OutlineInputBorder(),
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           Row(
             children: [
               Expanded(
@@ -718,7 +710,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: _saveNotes,
@@ -760,7 +752,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
             ),
           ),
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: ElevatedButton.icon(
               onPressed: _endGame,
@@ -785,7 +777,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
         _teamBScore += change;
       }
     });
-    
+
     if (change > 0) {
       _addGameEvent({
         'type': 'score',
@@ -848,15 +840,19 @@ class _LiveGameScreenState extends State<LiveGameScreen>
             else
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Select Player'),
-                items: _players.map((p) => DropdownMenuItem<String>(
-                  value: p['id'] as String,
-                  child: Text(p['name'] as String),
-                )).toList(),
+                items: _players
+                    .map(
+                      (p) => DropdownMenuItem<String>(
+                        value: p['id'] as String,
+                        child: Text(p['name'] as String),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (value) {},
               ),
-            
+
             const SizedBox(height: 16),
-            
+
             const TextField(
               decoration: InputDecoration(
                 labelText: 'Describe the injury',
@@ -876,7 +872,8 @@ class _LiveGameScreenState extends State<LiveGameScreen>
               Navigator.pop(context);
               _addGameEvent({
                 'type': 'injury',
-                'description': 'Injury reported: ${player?['name'] ?? 'Player'}',
+                'description':
+                    'Injury reported: ${player?['name'] ?? 'Player'}',
                 'time': _gameTimeSeconds,
               });
             },
@@ -908,9 +905,9 @@ class _LiveGameScreenState extends State<LiveGameScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Issue reported')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Issue reported')));
             },
             child: const Text('Report'),
           ),
@@ -934,11 +931,13 @@ class _LiveGameScreenState extends State<LiveGameScreen>
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Game time extended by 15 minutes')),
+                  const SnackBar(
+                    content: Text('Game time extended by 15 minutes'),
+                  ),
                 );
               },
             ),
-            
+
             ListTile(
               leading: const Icon(Icons.swap_horiz),
               title: const Text('Mass Substitution'),
@@ -948,7 +947,7 @@ class _LiveGameScreenState extends State<LiveGameScreen>
                 // Show substitution interface
               },
             ),
-            
+
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Game Settings'),
@@ -1029,8 +1028,8 @@ class _LiveGameScreenState extends State<LiveGameScreen>
   }
 
   void _saveNotes() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Notes saved!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Notes saved!')));
   }
 }

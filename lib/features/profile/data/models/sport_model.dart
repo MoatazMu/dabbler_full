@@ -119,7 +119,11 @@ class SportModel {
     }
     if (value is String) {
       // Handle comma-separated strings from database
-      return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      return value
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
     }
     return [];
   }

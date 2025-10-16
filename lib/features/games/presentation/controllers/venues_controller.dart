@@ -2,12 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/venue.dart';
 import '../../domain/repositories/venues_repository.dart' as repo;
 
-enum VenueSortBy {
-  distance,
-  rating,
-  price,
-  name,
-}
+enum VenueSortBy { distance, rating, price, name }
 
 class VenueFilters {
   final List<String> sports;
@@ -54,13 +49,13 @@ class VenueFilters {
 
   bool get hasActiveFilters {
     return sports.isNotEmpty ||
-           amenities.isNotEmpty ||
-           maxDistance != null ||
-           minRating != null ||
-           maxPricePerHour != null ||
-           minPricePerHour != null ||
-           openNow ||
-           availableAt != null;
+        amenities.isNotEmpty ||
+        maxDistance != null ||
+        minRating != null ||
+        maxPricePerHour != null ||
+        minPricePerHour != null ||
+        openNow ||
+        availableAt != null;
   }
 }
 
@@ -137,13 +132,13 @@ class VenuesState {
   bool get hasLocation => userLatitude != null && userLongitude != null;
   bool get hasError => error != null;
 
-  List<VenueWithDistance> get nearbyVenues => 
+  List<VenueWithDistance> get nearbyVenues =>
       venues.where((v) => v.isNearby).toList();
 
-  List<VenueWithDistance> get availableVenues => 
+  List<VenueWithDistance> get availableVenues =>
       venues.where((v) => v.isAvailable).toList();
 
-  List<VenueWithDistance> get favoriteVenuesWithDistance => 
+  List<VenueWithDistance> get favoriteVenuesWithDistance =>
       venues.where((v) => v.isFavorite).toList();
 
   VenuesState copyWith({
@@ -184,10 +179,7 @@ class VenuesController extends StateNotifier<VenuesState> {
 
   /// Set user location and load nearby venues
   Future<void> setUserLocation(double latitude, double longitude) async {
-    state = state.copyWith(
-      userLatitude: latitude,
-      userLongitude: longitude,
-    );
+    state = state.copyWith(userLatitude: latitude, userLongitude: longitude);
 
     await loadVenues();
   }
@@ -205,7 +197,9 @@ class VenuesController extends StateNotifier<VenuesState> {
     try {
       final repoFilters = repo.VenueFilters(
         sports: state.filters.sports.isEmpty ? null : state.filters.sports,
-        amenities: state.filters.amenities.isEmpty ? null : state.filters.amenities,
+        amenities: state.filters.amenities.isEmpty
+            ? null
+            : state.filters.amenities,
         minPrice: state.filters.minPricePerHour,
         maxPrice: state.filters.maxPricePerHour,
         minRating: state.filters.minRating,
@@ -214,8 +208,10 @@ class VenuesController extends StateNotifier<VenuesState> {
       print('🔧 [CONTROLLER] Applying filters: ${repoFilters.toJson()}');
 
       // Don't pass 'distance' to database - it's not a column, we calculate it client-side
-      final dbSortBy = state.sortBy == VenueSortBy.distance ? 'name' : state.sortBy.name;
-      
+      final dbSortBy = state.sortBy == VenueSortBy.distance
+          ? 'name'
+          : state.sortBy.name;
+
       final result = await _venuesRepository.getVenues(
         filters: repoFilters,
         sortBy: dbSortBy,
@@ -232,7 +228,7 @@ class VenuesController extends StateNotifier<VenuesState> {
         },
         (venues) {
           print('✅ [CONTROLLER] Loaded ${venues.length} venues successfully');
-          
+
           final venuesWithDistance = venues.map((venue) {
             final distance = state.hasLocation
                 ? _calculateDistance(
@@ -251,14 +247,16 @@ class VenuesController extends StateNotifier<VenuesState> {
             );
           }).toList();
 
-          print('📍 [CONTROLLER] Created ${venuesWithDistance.length} VenueWithDistance objects');
+          print(
+            '📍 [CONTROLLER] Created ${venuesWithDistance.length} VenueWithDistance objects',
+          );
 
           state = state.copyWith(
             venues: venuesWithDistance,
             isLoading: false,
             lastUpdated: DateTime.now(),
           );
-          
+
           _sortVenues();
         },
       );
@@ -308,22 +306,16 @@ class VenuesController extends StateNotifier<VenuesState> {
       final filteredVenues = state.venues.where((venueWithDistance) {
         final venue = venueWithDistance.venue;
         return venue.name.toLowerCase().contains(query.toLowerCase()) ||
-               venue.description.toLowerCase().contains(query.toLowerCase()) ||
-               venue.city.toLowerCase().contains(query.toLowerCase()) ||
-               venue.supportedSports.any((sport) => 
-                 sport.toLowerCase().contains(query.toLowerCase()));
+            venue.description.toLowerCase().contains(query.toLowerCase()) ||
+            venue.city.toLowerCase().contains(query.toLowerCase()) ||
+            venue.supportedSports.any(
+              (sport) => sport.toLowerCase().contains(query.toLowerCase()),
+            );
       }).toList();
 
-      state = state.copyWith(
-        venues: filteredVenues,
-        isLoading: false,
-      );
-
+      state = state.copyWith(venues: filteredVenues, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Search failed: $e',
-      );
+      state = state.copyWith(isLoading: false, error: 'Search failed: $e');
     }
   }
 
@@ -337,10 +329,9 @@ class VenuesController extends StateNotifier<VenuesState> {
     try {
       // TODO: Implement availability check in repository
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       // Mock implementation - randomly return availability
       return DateTime.now().millisecond % 3 != 0;
-      
     } catch (e) {
       print('Failed to check venue availability: $e');
       return false;
@@ -354,12 +345,11 @@ class VenuesController extends StateNotifier<VenuesState> {
     try {
       // TODO: Integrate with venuesRepository.getFavoriteVenues(userId)
       // For now, favorites feature is disabled
-      
+
       state = state.copyWith(
         favoriteVenues: [], // Favorites feature disabled
         isLoadingFavorites: false,
       );
-
     } catch (e) {
       state = state.copyWith(
         isLoadingFavorites: false,
@@ -379,10 +369,9 @@ class VenuesController extends StateNotifier<VenuesState> {
           .venue;
 
       final updatedFavorites = [...state.favoriteVenues, venue];
-      
+
       state = state.copyWith(favoriteVenues: updatedFavorites);
       _updateFavoriteStatus();
-
     } catch (e) {
       state = state.copyWith(error: 'Failed to add favorite: $e');
     }
@@ -397,10 +386,9 @@ class VenuesController extends StateNotifier<VenuesState> {
       final updatedFavorites = state.favoriteVenues
           .where((venue) => venue.id != venueId)
           .toList();
-      
+
       state = state.copyWith(favoriteVenues: updatedFavorites);
       _updateFavoriteStatus();
-
     } catch (e) {
       state = state.copyWith(error: 'Failed to remove favorite: $e');
     }
@@ -409,10 +397,7 @@ class VenuesController extends StateNotifier<VenuesState> {
   /// Refresh all data
   Future<void> refresh() async {
     state = state.copyWith(lastUpdated: null); // Force refresh
-    await Future.wait([
-      loadVenues(),
-      loadFavoriteVenues(),
-    ]);
+    await Future.wait([loadVenues(), loadFavoriteVenues()]);
   }
 
   /// Private helper methods
@@ -424,60 +409,77 @@ class VenuesController extends StateNotifier<VenuesState> {
 
   void _sortVenues() {
     final sortedVenues = [...state.venues];
-    
+
     switch (state.sortBy) {
       case VenueSortBy.distance:
-        sortedVenues.sort((a, b) => state.ascending
-            ? a.distanceKm.compareTo(b.distanceKm)
-            : b.distanceKm.compareTo(a.distanceKm));
+        sortedVenues.sort(
+          (a, b) => state.ascending
+              ? a.distanceKm.compareTo(b.distanceKm)
+              : b.distanceKm.compareTo(a.distanceKm),
+        );
         break;
-        
+
       case VenueSortBy.rating:
-        sortedVenues.sort((a, b) => state.ascending
-            ? a.venue.rating.compareTo(b.venue.rating)
-            : b.venue.rating.compareTo(a.venue.rating));
+        sortedVenues.sort(
+          (a, b) => state.ascending
+              ? a.venue.rating.compareTo(b.venue.rating)
+              : b.venue.rating.compareTo(a.venue.rating),
+        );
         break;
-        
+
       case VenueSortBy.price:
-        sortedVenues.sort((a, b) => state.ascending
-            ? a.venue.pricePerHour.compareTo(b.venue.pricePerHour)
-            : b.venue.pricePerHour.compareTo(a.venue.pricePerHour));
+        sortedVenues.sort(
+          (a, b) => state.ascending
+              ? a.venue.pricePerHour.compareTo(b.venue.pricePerHour)
+              : b.venue.pricePerHour.compareTo(a.venue.pricePerHour),
+        );
         break;
-        
+
       case VenueSortBy.name:
-        sortedVenues.sort((a, b) => state.ascending
-            ? a.venue.name.compareTo(b.venue.name)
-            : b.venue.name.compareTo(a.venue.name));
+        sortedVenues.sort(
+          (a, b) => state.ascending
+              ? a.venue.name.compareTo(b.venue.name)
+              : b.venue.name.compareTo(a.venue.name),
+        );
         break;
     }
-    
+
     state = state.copyWith(venues: sortedVenues);
   }
 
   void _updateFavoriteStatus() {
     final favoriteIds = state.favoriteVenues.map((v) => v.id).toSet();
-    
-    final updatedVenues = state.venues.map((vwd) => 
-        vwd.copyWith(isFavorite: favoriteIds.contains(vwd.venue.id))
-    ).toList();
-    
+
+    final updatedVenues = state.venues
+        .map(
+          (vwd) => vwd.copyWith(isFavorite: favoriteIds.contains(vwd.venue.id)),
+        )
+        .toList();
+
     state = state.copyWith(venues: updatedVenues);
   }
 
   /// Calculate distance between two points using Haversine formula
-  double _calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+  double _calculateDistance(
+    double lat1,
+    double lng1,
+    double lat2,
+    double lng2,
+  ) {
     const double earthRadius = 6371; // Earth's radius in kilometers
-    
+
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLng = _degreesToRadians(lng2 - lng1);
-    
-    final double a = 
-        (dLat / 2).abs() * (dLat / 2).abs() + 
-        (lat1 * 3.14159 / 180).abs() * (lat2 * 3.14159 / 180).abs() * 
-        (dLng / 2).abs() * (dLng / 2).abs();
-        
+
+    final double a =
+        (dLat / 2).abs() * (dLat / 2).abs() +
+        (lat1 * 3.14159 / 180).abs() *
+            (lat2 * 3.14159 / 180).abs() *
+            (dLng / 2).abs() *
+            (dLng / 2).abs();
+
     final double c = 2 * (a.abs() + (1 - a).abs());
-    
+
     return earthRadius * c;
   }
 

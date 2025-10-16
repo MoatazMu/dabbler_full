@@ -77,15 +77,16 @@ class UserSearchState {
 /// Controller for user search functionality
 class UserSearchController extends StateNotifier<UserSearchState> {
   final SearchUsersUseCase _searchUsersUseCase;
-  
+
   Timer? _debounceTimer;
   Timer? _suggestionsTimer;
   StreamSubscription? _searchHistorySubscription;
-  
+
   static const Duration _debounceDelay = Duration(milliseconds: 500);
   static const Duration _cacheExpiry = Duration(minutes: 10);
 
-  UserSearchController(this._searchUsersUseCase) : super(const UserSearchState()) {
+  UserSearchController(this._searchUsersUseCase)
+    : super(const UserSearchState()) {
     _loadRecentSearches();
     _loadSearchSuggestions();
   }
@@ -100,21 +101,14 @@ class UserSearchController extends StateNotifier<UserSearchState> {
 
   /// Update search query with debouncing
   void updateQuery(String query) {
-    state = state.copyWith(
-      query: query,
-      error: null,
-    );
+    state = state.copyWith(query: query, error: null);
 
     // Cancel previous debounce timer
     _debounceTimer?.cancel();
-    
+
     if (query.trim().isEmpty) {
       // Clear results for empty query
-      state = state.copyWith(
-        searchResults: [],
-        hasMore: false,
-        currentPage: 1,
-      );
+      state = state.copyWith(searchResults: [], hasMore: false, currentPage: 1);
       _loadSearchSuggestions();
       return;
     }
@@ -122,7 +116,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
     // Check cache first
     final cacheKey = _generateCacheKey(query, state.filters);
     final cachedResults = _getCachedResults(cacheKey);
-    
+
     if (cachedResults != null) {
       state = state.copyWith(
         searchResults: cachedResults,
@@ -143,7 +137,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
   /// Perform search with current query and filters
   Future<void> searchUsers({bool loadMore = false}) async {
     if (state.query.trim().isEmpty) return;
-    
+
     if (loadMore) {
       await _performSearch(state.query, page: state.currentPage + 1);
     } else {
@@ -153,10 +147,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
 
   /// Update search filters
   Future<void> updateFilters(SearchFilterModel newFilters) async {
-    state = state.copyWith(
-      filters: newFilters,
-      currentPage: 1,
-    );
+    state = state.copyWith(filters: newFilters, currentPage: 1);
 
     // Re-search with new filters if there's a query
     if (state.hasQuery) {
@@ -167,25 +158,19 @@ class UserSearchController extends StateNotifier<UserSearchState> {
   /// Clear specific filter
   Future<void> clearFilter(SearchFilterType filterType) async {
     SearchFilterModel updatedFilters;
-    
+
     switch (filterType) {
       case SearchFilterType.sport:
         updatedFilters = state.filters.copyWith(sportsCategories: []);
         break;
       case SearchFilterType.location:
-        updatedFilters = state.filters.copyWith(
-          location: null,
-          radius: null,
-        );
+        updatedFilters = state.filters.copyWith(location: null, radius: null);
         break;
       case SearchFilterType.skillLevel:
         updatedFilters = state.filters.copyWith(skillLevels: []);
         break;
       case SearchFilterType.age:
-        updatedFilters = state.filters.copyWith(
-          minAge: null,
-          maxAge: null,
-        );
+        updatedFilters = state.filters.copyWith(minAge: null, maxAge: null);
         break;
       case SearchFilterType.gender:
         updatedFilters = state.filters.copyWith(gender: null);
@@ -210,7 +195,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
         .toList();
 
     state = state.copyWith(recentSearches: updatedRecent);
-    
+
     // Persist recent searches
     _persistRecentSearches(updatedRecent);
   }
@@ -229,21 +214,21 @@ class UserSearchController extends StateNotifier<UserSearchState> {
   /// Load more search results (pagination)
   Future<void> loadMoreResults() async {
     if (!state.canLoadMore) return;
-    
+
     await searchUsers(loadMore: true);
   }
 
   /// Refresh current search
   Future<void> refreshSearch() async {
     if (!state.hasQuery) return;
-    
+
     await _performSearch(state.query, refresh: true);
   }
 
   /// Get search suggestions based on input
   Future<void> loadSearchSuggestions([String? query]) async {
     final searchQuery = query ?? state.query;
-    
+
     if (searchQuery.isEmpty) {
       _loadPopularSuggestions();
       return;
@@ -253,7 +238,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
 
     try {
       final suggestions = await _fetchSearchSuggestions(searchQuery);
-      
+
       // Only update if query hasn't changed
       if (state.query == searchQuery) {
         state = state.copyWith(
@@ -280,7 +265,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
       currentPage: 1,
       error: null,
     );
-    
+
     _loadSearchSuggestions();
   }
 
@@ -291,10 +276,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
 
   /// Clear search cache
   void clearCache() {
-    state = state.copyWith(
-      searchCache: {},
-      cacheTimestamps: {},
-    );
+    state = state.copyWith(searchCache: {}, cacheTimestamps: {});
   }
 
   /// Get cached results if available and not expired
@@ -302,14 +284,14 @@ class UserSearchController extends StateNotifier<UserSearchState> {
   List<UserProfile>? _getCachedResults(String cacheKey) {
     final cached = state.searchCache[cacheKey];
     final timestamp = state.cacheTimestamps[cacheKey];
-    
+
     if (cached != null && timestamp != null) {
       final age = DateTime.now().difference(timestamp);
       if (age < _cacheExpiry) {
         return cached;
       }
     }
-    
+
     return null;
   }
 
@@ -317,16 +299,16 @@ class UserSearchController extends StateNotifier<UserSearchState> {
   void _cacheResults(String cacheKey, List<UserProfile> results) {
     final updatedCache = Map<String, List<UserProfile>>.from(state.searchCache);
     final updatedTimestamps = Map<String, DateTime>.from(state.cacheTimestamps);
-    
+
     updatedCache[cacheKey] = results;
     updatedTimestamps[cacheKey] = DateTime.now();
-    
+
     // Limit cache size
     if (updatedCache.length > 50) {
       final oldestKey = updatedTimestamps.entries
           .reduce((a, b) => a.value.isBefore(b.value) ? a : b)
           .key;
-      
+
       updatedCache.remove(oldestKey);
       updatedTimestamps.remove(oldestKey);
     }
@@ -349,7 +331,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
       filters.maxAge?.toString() ?? '',
       filters.gender ?? '',
     ];
-    
+
     return components.join('_');
   }
 
@@ -363,17 +345,19 @@ class UserSearchController extends StateNotifier<UserSearchState> {
       'minAge': filters.minAge,
       'maxAge': filters.maxAge,
       'gender': filters.gender,
-    }..removeWhere((key, value) => value == null || (value is List && value.isEmpty));
+    }..removeWhere(
+      (key, value) => value == null || (value is List && value.isEmpty),
+    );
   }
 
   /// Perform the actual search
-  Future<void> _performSearch(String query, {int page = 1, bool refresh = false}) async {
+  Future<void> _performSearch(
+    String query, {
+    int page = 1,
+    bool refresh = false,
+  }) async {
     if (refresh) {
-      state = state.copyWith(
-        isSearching: true,
-        currentPage: 1,
-        error: null,
-      );
+      state = state.copyWith(isSearching: true, currentPage: 1, error: null);
     } else {
       state = state.copyWith(isSearching: true);
     }
@@ -387,18 +371,15 @@ class UserSearchController extends StateNotifier<UserSearchState> {
       );
 
       final result = await _searchUsersUseCase(params);
-      
+
       result.fold(
         (failure) {
-          state = state.copyWith(
-            isSearching: false,
-            error: failure.message,
-          );
+          state = state.copyWith(isSearching: false, error: failure.message);
         },
         (success) {
           final newResults = success.users;
-          final allResults = refresh 
-              ? newResults 
+          final allResults = refresh
+              ? newResults
               : [...state.searchResults, ...newResults];
 
           // Cache the results
@@ -419,10 +400,7 @@ class UserSearchController extends StateNotifier<UserSearchState> {
         },
       );
     } catch (e) {
-      state = state.copyWith(
-        isSearching: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isSearching: false, error: e.toString());
     }
   }
 
@@ -432,16 +410,13 @@ class UserSearchController extends StateNotifier<UserSearchState> {
 
     try {
       final suggestions = await _fetchPopularSuggestions();
-      
+
       state = state.copyWith(
         searchSuggestions: suggestions,
         isLoadingSuggestions: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoadingSuggestions: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoadingSuggestions: false, error: e.toString());
     }
   }
 
@@ -457,17 +432,20 @@ class UserSearchController extends StateNotifier<UserSearchState> {
   Future<void> _loadRecentSearches() async {
     // Mock loading recent searches from storage
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     final mockRecentSearches = [
-      'john', 'basketball players', 'soccer coach', 'tennis partner'
+      'john',
+      'basketball players',
+      'soccer coach',
+      'tennis partner',
     ];
-    
+
     state = state.copyWith(recentSearches: mockRecentSearches);
   }
 
   Future<List<String>> _fetchSearchSuggestions(String query) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     // Mock suggestions based on query
     final suggestions = [
       '${query.toLowerCase()} players',
@@ -476,16 +454,16 @@ class UserSearchController extends StateNotifier<UserSearchState> {
       '${query.toLowerCase()} partner',
       '${query.toLowerCase()} mentor',
     ].where((suggestion) => suggestion != query.toLowerCase()).take(5).toList();
-    
+
     return suggestions;
   }
 
   Future<List<String>> _fetchPopularSuggestions() async {
     await Future.delayed(const Duration(milliseconds: 150));
-    
+
     return [
       'basketball players',
-      'soccer coach', 
+      'soccer coach',
       'tennis partner',
       'football team',
       'running buddy',
@@ -501,22 +479,16 @@ class UserSearchController extends StateNotifier<UserSearchState> {
 }
 
 /// Search filter types
-enum SearchFilterType {
-  sport,
-  location,
-  skillLevel,
-  age,
-  gender,
-}
+enum SearchFilterType { sport, location, skillLevel, age, gender }
 
 /// Extension to check if filters are active
 extension SearchFilterModelExtension on SearchFilterModel {
   bool get hasActiveFilters {
     return sportsCategories.isNotEmpty ||
-           location != null ||
-           skillLevels.isNotEmpty ||
-           minAge != null ||
-           maxAge != null ||
-           gender != null;
+        location != null ||
+        skillLevels.isNotEmpty ||
+        minAge != null ||
+        maxAge != null ||
+        gender != null;
   }
 }

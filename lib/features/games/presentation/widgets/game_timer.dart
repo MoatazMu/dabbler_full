@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 enum TimerMode { countdown, countup, stopwatch }
+
 enum TimerState { stopped, running, paused }
+
 enum SportType { soccer, basketball, tennis, volleyball, other }
 
 class GameTimer extends StatefulWidget {
@@ -39,36 +41,31 @@ class GameTimer extends StatefulWidget {
   State<GameTimer> createState() => _GameTimerState();
 }
 
-class _GameTimerState extends State<GameTimer>
-    with TickerProviderStateMixin {
+class _GameTimerState extends State<GameTimer> with TickerProviderStateMixin {
   late Timer _timer;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  
+
   Duration _currentDuration = Duration.zero;
   TimerState _state = TimerState.stopped;
   int _currentPeriod = 1;
   int _totalPeriods = 2;
   bool _isOvertime = false;
-  
+
   @override
   void initState() {
     super.initState();
     _currentDuration = widget.initialDuration;
     _setupSportSpecificSettings();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     );
-    
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -120,7 +117,7 @@ class _GameTimerState extends State<GameTimer>
 
   Widget _buildTimerDisplay() {
     final color = widget.primaryColor ?? Theme.of(context).primaryColor;
-    
+
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
@@ -132,10 +129,7 @@ class _GameTimerState extends State<GameTimer>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _getTimerBackgroundColor(),
-              border: Border.all(
-                color: color,
-                width: 4,
-              ),
+              border: Border.all(color: color, width: 4),
               boxShadow: [
                 BoxShadow(
                   color: color.withOpacity(0.3),
@@ -147,9 +141,10 @@ class _GameTimerState extends State<GameTimer>
             child: Stack(
               children: [
                 // Progress indicator for countdown mode
-                if (widget.mode == TimerMode.countdown && widget.maxDuration != null)
+                if (widget.mode == TimerMode.countdown &&
+                    widget.maxDuration != null)
                   _buildProgressRing(color),
-                
+
                 // Timer text
                 Center(
                   child: Column(
@@ -176,13 +171,9 @@ class _GameTimerState extends State<GameTimer>
                     ],
                   ),
                 ),
-                
+
                 // State indicator
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: _buildStateIndicator(),
-                ),
+                Positioned(top: 8, right: 8, child: _buildStateIndicator()),
               ],
             ),
           ),
@@ -193,9 +184,12 @@ class _GameTimerState extends State<GameTimer>
 
   Widget _buildProgressRing(Color color) {
     final progress = widget.maxDuration != null
-        ? (_currentDuration.inSeconds / widget.maxDuration!.inSeconds).clamp(0.0, 1.0)
+        ? (_currentDuration.inSeconds / widget.maxDuration!.inSeconds).clamp(
+            0.0,
+            1.0,
+          )
         : 0.0;
-    
+
     return Positioned.fill(
       child: CircularProgressIndicator(
         value: widget.mode == TimerMode.countdown ? 1.0 - progress : progress,
@@ -209,7 +203,7 @@ class _GameTimerState extends State<GameTimer>
   Widget _buildStateIndicator() {
     IconData icon;
     Color color;
-    
+
     switch (_state) {
       case TimerState.running:
         icon = Icons.play_arrow;
@@ -232,11 +226,7 @@ class _GameTimerState extends State<GameTimer>
         color: color.withOpacity(0.1),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        icon,
-        color: color,
-        size: 16,
-      ),
+      child: Icon(icon, color: color, size: 16),
     );
   }
 
@@ -251,35 +241,28 @@ class _GameTimerState extends State<GameTimer>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _getSportIcon(),
-            size: 16,
-            color: Colors.grey[600],
-          ),
+          Icon(_getSportIcon(), size: 16, color: Colors.grey[600]),
           const SizedBox(width: 8),
           Text(
             _getPeriodText(),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           if (_totalPeriods > 1) ...[
             const SizedBox(width: 12),
             ...List.generate(_totalPeriods, (index) {
               final isActive = index + 1 == _currentPeriod;
               final isCompleted = index + 1 < _currentPeriod;
-              
+
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: isCompleted 
-                      ? Colors.green 
-                      : isActive 
-                          ? Theme.of(context).primaryColor 
-                          : Colors.grey[300],
+                  color: isCompleted
+                      ? Colors.green
+                      : isActive
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300],
                   shape: BoxShape.circle,
                 ),
               );
@@ -301,9 +284,9 @@ class _GameTimerState extends State<GameTimer>
           color: _state == TimerState.running ? Colors.orange : Colors.green,
           onPressed: _toggleTimer,
         ),
-        
+
         const SizedBox(width: 12),
-        
+
         // Stop/Reset button
         _buildControlButton(
           icon: Icons.stop,
@@ -311,7 +294,7 @@ class _GameTimerState extends State<GameTimer>
           color: Colors.red,
           onPressed: _resetTimer,
         ),
-        
+
         if (widget.showPeriods && _totalPeriods > 1) ...[
           const SizedBox(width: 12),
           _buildControlButton(
@@ -345,11 +328,7 @@ class _GameTimerState extends State<GameTimer>
               shape: BoxShape.circle,
               border: Border.all(color: color, width: 2),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: isSmall ? 20 : 24,
-            ),
+            child: Icon(icon, color: color, size: isSmall ? 20 : 24),
           ),
         ),
         const SizedBox(height: 4),
@@ -379,17 +358,19 @@ class _GameTimerState extends State<GameTimer>
   void _startTimer() {
     _state = TimerState.running;
     widget.onStateChanged?.call(_state);
-    
+
     if (_state == TimerState.running) {
       _pulseController.repeat(reverse: true);
     }
-    
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         switch (widget.mode) {
           case TimerMode.countdown:
             if (_currentDuration.inSeconds > 0) {
-              _currentDuration = Duration(seconds: _currentDuration.inSeconds - 1);
+              _currentDuration = Duration(
+                seconds: _currentDuration.inSeconds - 1,
+              );
             } else {
               _onTimerComplete();
               return;
@@ -397,21 +378,23 @@ class _GameTimerState extends State<GameTimer>
             break;
           case TimerMode.countup:
           case TimerMode.stopwatch:
-            _currentDuration = Duration(seconds: _currentDuration.inSeconds + 1);
-            
+            _currentDuration = Duration(
+              seconds: _currentDuration.inSeconds + 1,
+            );
+
             // Check if max duration reached
-            if (widget.maxDuration != null && 
+            if (widget.maxDuration != null &&
                 _currentDuration >= widget.maxDuration!) {
               _onTimerComplete();
               return;
             }
             break;
         }
-        
+
         widget.onTick?.call(_currentDuration);
-        
+
         // Check for overtime
-        if (widget.maxDuration != null && 
+        if (widget.maxDuration != null &&
             _currentDuration > widget.maxDuration!) {
           _isOvertime = true;
         }
@@ -433,7 +416,7 @@ class _GameTimerState extends State<GameTimer>
       _currentPeriod = 1;
       _isOvertime = false;
     });
-    
+
     if (_timer.isActive) _timer.cancel();
     _pulseController.reset();
     widget.onStateChanged?.call(_state);
@@ -453,13 +436,13 @@ class _GameTimerState extends State<GameTimer>
     setState(() {
       _state = TimerState.stopped;
     });
-    
+
     _timer.cancel();
     _pulseController.stop();
-    
+
     widget.onComplete?.call(_currentDuration);
     widget.onStateChanged?.call(_state);
-    
+
     // Play sound alert if enabled
     if (widget.enableSoundAlerts) {
       // Sound alert would be implemented here
@@ -468,7 +451,7 @@ class _GameTimerState extends State<GameTimer>
 
   Color _getTimerBackgroundColor() {
     if (_isOvertime) return Colors.red[50]!;
-    
+
     switch (_state) {
       case TimerState.running:
         return Colors.green[50]!;
@@ -507,11 +490,16 @@ class _GameTimerState extends State<GameTimer>
         return 'Overtime';
       case SportType.basketball:
         switch (_currentPeriod) {
-          case 1: return '1st Quarter';
-          case 2: return '2nd Quarter';
-          case 3: return '3rd Quarter';
-          case 4: return '4th Quarter';
-          default: return 'Overtime';
+          case 1:
+            return '1st Quarter';
+          case 2:
+            return '2nd Quarter';
+          case 3:
+            return '3rd Quarter';
+          case 4:
+            return '4th Quarter';
+          default:
+            return 'Overtime';
         }
       case SportType.tennis:
         return 'Set $_currentPeriod';
@@ -526,14 +514,14 @@ class _GameTimerState extends State<GameTimer>
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    
+
     if (hours > 0) {
       return '${hours.toString().padLeft(2, '0')}:'
-             '${minutes.toString().padLeft(2, '0')}:'
-             '${seconds.toString().padLeft(2, '0')}';
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
     } else {
       return '${minutes.toString().padLeft(2, '0')}:'
-             '${seconds.toString().padLeft(2, '0')}';
+          '${seconds.toString().padLeft(2, '0')}';
     }
   }
 
@@ -542,7 +530,7 @@ class _GameTimerState extends State<GameTimer>
   void pauseTimer() => _pauseTimer();
   void resetTimer() => _resetTimer();
   void nextPeriod() => _nextPeriod();
-  
+
   Duration get currentDuration => _currentDuration;
   TimerState get timerState => _state;
   int get currentPeriod => _currentPeriod;

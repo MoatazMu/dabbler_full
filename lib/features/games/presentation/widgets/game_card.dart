@@ -13,7 +13,8 @@ class GameCard extends StatelessWidget {
   final String skillLevel;
   final double distance; // in km
   final double price;
-  final String status; // 'open', 'filling_fast', 'almost_full', 'full', 'closed'
+  final String
+  status; // 'open', 'filling_fast', 'almost_full', 'full', 'closed'
   final GameCardVariant variant;
   final VoidCallback? onTap;
   final bool isFeatured;
@@ -40,28 +41,31 @@ class GameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: 'Game card for $title, $sport, ${_formatDateTime()}, at $venue. $currentPlayers of $maxPlayers players.',
+      label:
+          'Game card for $title, $sport, ${_formatDateTime()}, at $venue. $currentPlayers of $maxPlayers players.',
       button: onTap != null,
       child: Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: isFeatured ? BorderSide(color: Theme.of(context).primaryColor, width: 2) : BorderSide.none,
-      ),
-      child: Material(
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: variant == GameCardVariant.compact
-                ? _buildCompactLayout()
-                : _buildExpandedLayout(),
+          side: isFeatured
+              ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
+              : BorderSide.none,
+        ),
+        child: Material(
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: variant == GameCardVariant.compact
+                  ? _buildCompactLayout()
+                  : _buildExpandedLayout(),
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -73,10 +77,7 @@ class GameCard extends StatelessWidget {
         // Header with sport icon and status
         Row(
           children: [
-            Semantics(
-              label: 'Sport: $sport',
-              child: _buildSportIcon(),
-            ),
+            Semantics(label: 'Sport: $sport', child: _buildSportIcon()),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -94,10 +95,7 @@ class GameCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     _formatDateTime(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -109,7 +107,7 @@ class GameCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Details row
         Row(
           children: [
@@ -124,13 +122,15 @@ class GameCard extends StatelessWidget {
             ),
             const Spacer(),
             Semantics(
-              label: price == 0 ? 'Free' : 'Price ${price.toStringAsFixed(0)} dollars',
+              label: price == 0
+                  ? 'Free'
+                  : 'Price ${price.toStringAsFixed(0)} dollars',
               child: _buildPrice(),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        
+
         // Venue and distance
         Row(
           children: [
@@ -139,10 +139,7 @@ class GameCard extends StatelessWidget {
             Expanded(
               child: Text(
                 venue,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -189,10 +186,7 @@ class GameCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     _formatDateTime(),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -201,7 +195,7 @@ class GameCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        
+
         // Venue info
         Row(
           children: [
@@ -210,17 +204,14 @@ class GameCard extends StatelessWidget {
             Expanded(
               child: Text(
                 venue,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.grey[700]),
               ),
             ),
             _buildDistanceBadge(),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Details grid
         Row(
           children: [
@@ -230,14 +221,13 @@ class GameCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Price and additional info
         Row(
           children: [
             _buildPrice(),
             const Spacer(),
-            if (_getStatusInfo().urgency != null)
-              _buildUrgencyMessage(),
+            if (_getStatusInfo().urgency != null) _buildUrgencyMessage(),
           ],
         ),
       ],
@@ -263,7 +253,7 @@ class GameCard extends StatelessWidget {
 
   Widget _buildStatusBadge() {
     final statusInfo = _getStatusInfo();
-    
+
     Widget badge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -303,14 +293,14 @@ class GameCard extends StatelessWidget {
         },
       );
     }
-    
+
     return badge;
   }
 
   Widget _buildPlayerCount() {
     final percentage = currentPlayers / maxPlayers;
     Color progressColor;
-    
+
     if (percentage >= 1.0) {
       progressColor = Colors.red;
     } else if (percentage >= 0.7) {
@@ -328,10 +318,7 @@ class GameCard extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               '$currentPlayers/$maxPlayers',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -360,7 +347,7 @@ class GameCard extends StatelessWidget {
 
   Widget _buildSkillLevel() {
     final skillData = _getSkillLevelData(skillLevel);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -442,7 +429,7 @@ class GameCard extends StatelessWidget {
   Widget _buildUrgencyMessage() {
     final statusInfo = _getStatusInfo();
     if (statusInfo.urgency == null) return const SizedBox.shrink();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -464,7 +451,7 @@ class GameCard extends StatelessWidget {
   String _formatDateTime() {
     final now = DateTime.now();
     final difference = dateTime.difference(now).inDays;
-    
+
     String dateStr;
     if (difference == 0) {
       dateStr = 'Today';
@@ -476,16 +463,17 @@ class GameCard extends StatelessWidget {
     } else {
       dateStr = '${dateTime.day}/${dateTime.month}';
     }
-    
+
     final hour = dateTime.hour;
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final amPm = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    
+
     return '$dateStr at $displayHour:$minute $amPm';
   }
 
-  ({Color color, IconData icon, String label, String? urgency}) _getStatusInfo() {
+  ({Color color, IconData icon, String label, String? urgency})
+  _getStatusInfo() {
     switch (status) {
       case 'open':
         return (
@@ -536,65 +524,32 @@ class GameCard extends StatelessWidget {
     switch (sport.toLowerCase()) {
       case 'soccer':
       case 'football':
-        return {
-          'icon': Icons.sports_soccer,
-          'color': Colors.green,
-        };
+        return {'icon': Icons.sports_soccer, 'color': Colors.green};
       case 'basketball':
-        return {
-          'icon': Icons.sports_basketball,
-          'color': Colors.orange,
-        };
+        return {'icon': Icons.sports_basketball, 'color': Colors.orange};
       case 'tennis':
-        return {
-          'icon': Icons.sports_tennis,
-          'color': Colors.blue,
-        };
+        return {'icon': Icons.sports_tennis, 'color': Colors.blue};
       case 'volleyball':
-        return {
-          'icon': Icons.sports_volleyball,
-          'color': Colors.purple,
-        };
+        return {'icon': Icons.sports_volleyball, 'color': Colors.purple};
       case 'baseball':
-        return {
-          'icon': Icons.sports_baseball,
-          'color': Colors.brown,
-        };
+        return {'icon': Icons.sports_baseball, 'color': Colors.brown};
       default:
-        return {
-          'icon': Icons.sports,
-          'color': Colors.grey,
-        };
+        return {'icon': Icons.sports, 'color': Colors.grey};
     }
   }
 
   Map<String, dynamic> _getSkillLevelData(String level) {
     switch (level.toLowerCase()) {
       case 'beginner':
-        return {
-          'icon': Icons.star_border,
-          'color': Colors.green,
-        };
+        return {'icon': Icons.star_border, 'color': Colors.green};
       case 'intermediate':
-        return {
-          'icon': Icons.star_half,
-          'color': Colors.orange,
-        };
+        return {'icon': Icons.star_half, 'color': Colors.orange};
       case 'advanced':
-        return {
-          'icon': Icons.star,
-          'color': Colors.red,
-        };
+        return {'icon': Icons.star, 'color': Colors.red};
       case 'professional':
-        return {
-          'icon': Icons.emoji_events,
-          'color': Colors.purple,
-        };
+        return {'icon': Icons.emoji_events, 'color': Colors.purple};
       default:
-        return {
-          'icon': Icons.help,
-          'color': Colors.grey,
-        };
+        return {'icon': Icons.help, 'color': Colors.grey};
     }
   }
 }

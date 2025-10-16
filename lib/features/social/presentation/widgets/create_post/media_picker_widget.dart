@@ -32,9 +32,9 @@ class MediaPickerWidget extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Media',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 IconButton(
@@ -46,7 +46,7 @@ class MediaPickerWidget extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             if (selectedMedia.isNotEmpty) ...[
               const SizedBox(height: 8),
               Wrap(
@@ -54,7 +54,7 @@ class MediaPickerWidget extends StatelessWidget {
                 runSpacing: 8,
                 children: selectedMedia.asMap().entries.map((entry) {
                   final index = entry.key;
-                  
+
                   return Stack(
                     children: [
                       Container(

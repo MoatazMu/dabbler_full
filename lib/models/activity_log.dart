@@ -65,9 +65,9 @@ class ActivityLog {
       count: json['count'],
       metadata: json['metadata'],
       action_route: json['action_route'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

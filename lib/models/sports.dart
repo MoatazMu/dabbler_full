@@ -46,9 +46,9 @@ class Sports {
       requires_venue: json['requires_venue'],
       is_team_sport: json['is_team_sport'],
       is_active: json['is_active'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       icon_name: json['icon_name'],
       category: json['category'],
       player_count_min: json['player_count_min'],

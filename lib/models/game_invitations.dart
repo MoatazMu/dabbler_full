@@ -36,11 +36,15 @@ class GameInvitations {
       invitee_id: json['invitee_id'],
       status: json['status'],
       message: json['message'],
-    invited_at: json['invited_at'] != null
-      ? DateTime.parse(json['invited_at'] as String)
-      : DateTime.now(),
-      responded_at: (json['responded_at'] == null ? null : DateTime.parse(json['responded_at'] as String)),
-      expires_at: (json['expires_at'] == null ? null : DateTime.parse(json['expires_at'] as String)),
+      invited_at: json['invited_at'] != null
+          ? DateTime.parse(json['invited_at'] as String)
+          : DateTime.now(),
+      responded_at: (json['responded_at'] == null
+          ? null
+          : DateTime.parse(json['responded_at'] as String)),
+      expires_at: (json['expires_at'] == null
+          ? null
+          : DateTime.parse(json['expires_at'] as String)),
     );
   }
 

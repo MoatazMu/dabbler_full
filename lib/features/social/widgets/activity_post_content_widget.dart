@@ -10,7 +10,7 @@ class ActivityPostContentWidget extends StatelessWidget {
   final VoidCallback? onLike;
   final VoidCallback? onComment;
   final VoidCallback? onShare;
-  
+
   const ActivityPostContentWidget({
     super.key,
     required this.post,
@@ -24,16 +24,13 @@ class ActivityPostContentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final activityType = _getActivityType();
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: activityType?.color ?? Colors.grey,
-          width: 2,
-        ),
+        border: Border.all(color: activityType?.color ?? Colors.grey, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -73,7 +70,7 @@ class ActivityPostContentWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildHeader(ThemeData theme, PostActivityType? activityType) {
     return Row(
       children: [
@@ -81,7 +78,9 @@ class ActivityPostContentWidget extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: activityType?.color.withOpacity(0.1) ?? Colors.grey.withOpacity(0.1),
+            color:
+                activityType?.color.withOpacity(0.1) ??
+                Colors.grey.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -106,11 +105,7 @@ class ActivityPostContentWidget extends StatelessWidget {
                   ),
                   if (post.authorVerified) ...[
                     const SizedBox(width: 4),
-                    Icon(
-                      Icons.verified,
-                      size: 16,
-                      color: theme.primaryColor,
-                    ),
+                    Icon(Icons.verified, size: 16, color: theme.primaryColor),
                   ],
                 ],
               ),
@@ -134,15 +129,12 @@ class ActivityPostContentWidget extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildContent(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          post.content,
-          style: theme.textTheme.bodyMedium,
-        ),
+        Text(post.content, style: theme.textTheme.bodyMedium),
         if (_hasActivityData()) ...[
           const SizedBox(height: 8),
           _buildActivitySpecificContent(theme),
@@ -150,11 +142,11 @@ class ActivityPostContentWidget extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildActivitySpecificContent(ThemeData theme) {
     final activityType = _getActivityType();
     final activityData = post.activityData ?? {};
-    
+
     switch (activityType) {
       case PostActivityType.venueRating:
         return _buildVenueRatingContent(theme, activityData);
@@ -167,11 +159,11 @@ class ActivityPostContentWidget extends StatelessWidget {
         return const SizedBox.shrink();
     }
   }
-  
+
   Widget _buildVenueRatingContent(ThemeData theme, Map<String, dynamic> data) {
     final rating = double.tryParse(data['rating']?.toString() ?? '0') ?? 0;
     final review = data['review']?.toString();
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -197,20 +189,17 @@ class ActivityPostContentWidget extends StatelessWidget {
           ),
           if (review != null && review.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(
-              review,
-              style: theme.textTheme.bodySmall,
-            ),
+            Text(review, style: theme.textTheme.bodySmall),
           ],
         ],
       ),
     );
   }
-  
+
   Widget _buildGameContent(ThemeData theme, Map<String, dynamic> data) {
     final gameType = data['gameType']?.toString() ?? '';
     final gameDateTime = data['gameDateTime']?.toString();
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -245,11 +234,11 @@ class ActivityPostContentWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildAchievementContent(ThemeData theme, Map<String, dynamic> data) {
     final achievementName = data['achievementName']?.toString() ?? '';
     final description = data['achievementDescription']?.toString();
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -277,16 +266,13 @@ class ActivityPostContentWidget extends StatelessWidget {
           ),
           if (description != null && description.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text(
-              description,
-              style: theme.textTheme.bodySmall,
-            ),
+            Text(description, style: theme.textTheme.bodySmall),
           ],
         ],
       ),
     );
   }
-  
+
   Widget _buildMediaContent() {
     return Container(
       height: 200,
@@ -331,7 +317,7 @@ class ActivityPostContentWidget extends StatelessWidget {
             ),
     );
   }
-  
+
   Widget _buildLocationChip(ThemeData theme) {
     return Row(
       children: [
@@ -350,28 +336,32 @@ class ActivityPostContentWidget extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildTagsRow(ThemeData theme) {
     return Wrap(
       spacing: 8,
       runSpacing: 4,
-      children: post.tags.map((tag) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: theme.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          '#$tag',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.primaryColor,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      )).toList(),
+      children: post.tags
+          .map(
+            (tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '#$tag',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
-  
+
   Widget _buildEngagementSection(ThemeData theme) {
     return Row(
       children: [
@@ -395,15 +385,11 @@ class ActivityPostContentWidget extends StatelessWidget {
         ),
         const Spacer(),
         if (post.isBookmarked)
-          Icon(
-            Icons.bookmark,
-            size: 20,
-            color: theme.primaryColor,
-          ),
+          Icon(Icons.bookmark, size: 20, color: theme.primaryColor),
       ],
     );
   }
-  
+
   Widget _buildEngagementButton({
     required IconData icon,
     required String label,
@@ -418,40 +404,30 @@ class ActivityPostContentWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: color,
-            ),
+            Icon(icon, size: 20, color: color),
             if (label.isNotEmpty) ...[
               const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: color,
-                ),
-              ),
+              Text(label, style: TextStyle(fontSize: 14, color: color)),
             ],
           ],
         ),
       ),
     );
   }
-  
+
   PostActivityType? _getActivityType() {
     if (post.activityType == null) return null;
     return PostActivityType.fromValue(post.activityType!);
   }
-  
+
   bool _hasActivityData() {
     return post.activityData != null && post.activityData!.isNotEmpty;
   }
-  
+
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}d ago';
     } else if (difference.inHours > 0) {
@@ -462,7 +438,7 @@ class ActivityPostContentWidget extends StatelessWidget {
       return 'Just now';
     }
   }
-  
+
   void _showOptionsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,

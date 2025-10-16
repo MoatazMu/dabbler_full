@@ -8,7 +8,14 @@ class CachedProgressiveImage extends StatelessWidget {
   final BorderRadius? borderRadius;
   final BoxFit fit;
 
-  const CachedProgressiveImage({super.key, required this.url, required this.width, required this.height, this.borderRadius, this.fit = BoxFit.cover});
+  const CachedProgressiveImage({
+    super.key,
+    required this.url,
+    required this.width,
+    required this.height,
+    this.borderRadius,
+    this.fit = BoxFit.cover,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,5 +44,3 @@ class CachedProgressiveImage extends StatelessWidget {
     return image;
   }
 }
-
-

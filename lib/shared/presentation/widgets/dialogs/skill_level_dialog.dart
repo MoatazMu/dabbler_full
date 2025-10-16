@@ -1,5 +1,6 @@
 /// Interactive skill level selection dialog
 library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,7 +15,7 @@ class SkillLevelOption {
   final String comparisonText;
   final Color color;
   final IconData icon;
-  
+
   const SkillLevelOption({
     required this.level,
     required this.name,
@@ -39,7 +40,7 @@ class SportSkillData {
   final List<AssessmentQuestion> questions;
   final int? selectedLevel;
   final bool isCompleted;
-  
+
   const SportSkillData({
     required this.id,
     required this.name,
@@ -51,7 +52,7 @@ class SportSkillData {
     this.selectedLevel,
     this.isCompleted = false,
   });
-  
+
   SportSkillData copyWith({
     String? id,
     String? name,
@@ -75,9 +76,10 @@ class SportSkillData {
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
-  
-  SkillLevelOption? get selectedLevelOption => 
-      selectedLevel != null ? levels.firstWhere((l) => l.level == selectedLevel) : null;
+
+  SkillLevelOption? get selectedLevelOption => selectedLevel != null
+      ? levels.firstWhere((l) => l.level == selectedLevel)
+      : null;
 }
 
 /// Assessment question for skill evaluation
@@ -87,7 +89,7 @@ class AssessmentQuestion {
   final List<AssessmentAnswer> answers;
   final String? explanation;
   final int? selectedAnswerId;
-  
+
   const AssessmentQuestion({
     required this.id,
     required this.question,
@@ -95,7 +97,7 @@ class AssessmentQuestion {
     this.explanation,
     this.selectedAnswerId,
   });
-  
+
   AssessmentQuestion copyWith({
     String? id,
     String? question,
@@ -111,11 +113,12 @@ class AssessmentQuestion {
       selectedAnswerId: selectedAnswerId ?? this.selectedAnswerId,
     );
   }
-  
+
   bool get isAnswered => selectedAnswerId != null;
-  
-  AssessmentAnswer? get selectedAnswer => 
-      selectedAnswerId != null ? answers.firstWhere((a) => a.id == selectedAnswerId) : null;
+
+  AssessmentAnswer? get selectedAnswer => selectedAnswerId != null
+      ? answers.firstWhere((a) => a.id == selectedAnswerId)
+      : null;
 }
 
 /// Assessment answer option
@@ -124,7 +127,7 @@ class AssessmentAnswer {
   final String text;
   final int skillLevelWeight;
   final String? explanation;
-  
+
   const AssessmentAnswer({
     required this.id,
     required this.text,
@@ -148,7 +151,7 @@ class SkillLevelDialog extends StatefulWidget {
   final bool enableHapticFeedback;
   final String title;
   final String subtitle;
-  
+
   const SkillLevelDialog({
     super.key,
     required this.sports,
@@ -165,7 +168,7 @@ class SkillLevelDialog extends StatefulWidget {
     this.title = 'Set Your Skill Levels',
     this.subtitle = 'Help us match you with the right players',
   });
-  
+
   static Future<T?> show<T>({
     required BuildContext context,
     required List<SportSkillData> sports,
@@ -193,7 +196,7 @@ class SkillLevelDialog extends StatefulWidget {
       ),
     );
   }
-  
+
   @override
   State<SkillLevelDialog> createState() => _SkillLevelDialogState();
 }
@@ -204,14 +207,14 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
   late AnimationController _slideController;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   final PageController _pageController = PageController();
-  
+
   List<SportSkillData> _sports = [];
   int _currentSportIndex = 0;
   bool _showAssessment = false;
   int _currentQuestionIndex = 0;
-  
+
   @override
   void initState() {
     super.initState();
@@ -219,39 +222,32 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
     _setupAnimations();
     _startEntranceAnimation();
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(1, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
+    );
+
+    _slideAnimation = Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
   }
-  
+
   void _startEntranceAnimation() {
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -259,7 +255,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
     _pageController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -277,35 +273,35 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       },
     );
   }
-  
+
   Widget _buildDialogContent() {
     return Column(
       children: [
         // Header
         _buildHeader(),
-        
+
         // Progress indicator
         if (widget.showProgress && _sports.length > 1)
           _buildProgressIndicator(),
-        
+
         // Content
         Expanded(
-          child: _showAssessment 
+          child: _showAssessment
               ? _buildAssessmentContent()
               : _buildSkillSelectionContent(),
         ),
-        
+
         // Footer
         _buildFooter(),
       ],
     );
   }
-  
+
   Widget _buildHeader() {
-    final currentSport = _currentSportIndex < _sports.length 
-        ? _sports[_currentSportIndex] 
+    final currentSport = _currentSportIndex < _sports.length
+        ? _sports[_currentSportIndex]
         : null;
-    
+
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
@@ -330,12 +326,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
             children: [
               IconButton(
                 onPressed: _handleBack,
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                ),
+                icon: const Icon(Icons.close, color: Colors.white),
               ),
-              
+
               Expanded(
                 child: Text(
                   _showAssessment ? 'Skill Assessment' : widget.title,
@@ -346,32 +339,25 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   ),
                 ),
               ),
-              
+
               if (!_showAssessment)
                 TextButton(
                   onPressed: _handleSkip,
                   child: const Text(
                     'Skip',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
             ],
           ),
-          
+
           if (currentSport != null) ...[
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(
-                  currentSport.icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                Icon(currentSport.icon, color: Colors.white, size: 24),
                 const SizedBox(width: 8),
-                
+
                 Text(
                   currentSport.name,
                   style: const TextStyle(
@@ -382,10 +368,10 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 4),
             Text(
-              _showAssessment 
+              _showAssessment
                   ? 'Answer questions to determine your skill level'
                   : widget.subtitle,
               style: TextStyle(
@@ -398,10 +384,10 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildProgressIndicator() {
     final progress = (_currentSportIndex + 1) / _sports.length;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -411,12 +397,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
             children: [
               Text(
                 'Sport ${_currentSportIndex + 1} of ${_sports.length}',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
-              
+
               Text(
                 '${(progress * 100).round()}% Complete',
                 style: TextStyle(
@@ -427,7 +410,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -435,7 +418,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               value: progress,
               backgroundColor: Colors.grey[200],
               valueColor: AlwaysStoppedAnimation<Color>(
-                _currentSportIndex < _sports.length 
+                _currentSportIndex < _sports.length
                     ? _sports[_currentSportIndex].color
                     : Theme.of(context).primaryColor,
               ),
@@ -446,14 +429,14 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildSkillSelectionContent() {
     if (_currentSportIndex >= _sports.length) {
       return _buildCompletionContent();
     }
-    
+
     final currentSport = _sports[_currentSportIndex];
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -461,12 +444,12 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
         children: [
           // Sport description
           _buildSportDescription(currentSport),
-          
+
           const SizedBox(height: 24),
-          
+
           // Skill level options
           _buildSkillLevelOptions(currentSport),
-          
+
           if (widget.enableAssessment && currentSport.questions.isNotEmpty) ...[
             const SizedBox(height: 24),
             _buildAssessmentOption(),
@@ -475,16 +458,14 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildSportDescription(SportSkillData sport) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: sport.color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: sport.color.withOpacity(0.2),
-        ),
+        border: Border.all(color: sport.color.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,13 +479,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   color: sport.color,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  sport.icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: Icon(sport.icon, color: Colors.white, size: 24),
               ),
-              
+
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -517,57 +494,48 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    
+
                     Text(
                       sport.category,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
           Text(
             'Select your current skill level to help us match you with suitable players and activities.',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[700], fontSize: 14),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildSkillLevelOptions(SportSkillData sport) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Choose Your Skill Level',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         ...sport.levels.map((level) {
           return _buildSkillLevelCard(sport, level);
         }),
       ],
     );
   }
-  
+
   Widget _buildSkillLevelCard(SportSkillData sport, SkillLevelOption level) {
     final isSelected = sport.selectedLevel == level.level;
-    
+
     return GestureDetector(
       onTap: () => _selectSkillLevel(sport, level.level),
       child: AnimatedContainer(
@@ -575,23 +543,21 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? sport.color.withOpacity(0.1)
-              : Colors.white,
+          color: isSelected ? sport.color.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
-                ? sport.color 
-                : Colors.grey[300]!,
+            color: isSelected ? sport.color : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: sport.color.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ] : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: sport.color.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -602,9 +568,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: isSelected 
-                        ? sport.color 
-                        : Colors.grey[200],
+                    color: isSelected ? sport.color : Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -613,7 +577,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                     size: 20,
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -625,13 +589,13 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                             'Level ${level.level}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: isSelected 
-                                  ? sport.color 
+                              color: isSelected
+                                  ? sport.color
                                   : Colors.grey[600],
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          
+
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -639,36 +603,29 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: isSelected 
-                                    ? sport.color 
+                                color: isSelected
+                                    ? sport.color
                                     : Colors.grey[800],
                               ),
                             ),
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 4),
                       Text(
                         level.shortDescription,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                 ),
-                
+
                 if (isSelected)
-                  Icon(
-                    Icons.check_circle,
-                    color: sport.color,
-                    size: 24,
-                  ),
+                  Icon(Icons.check_circle, color: sport.color, size: 24),
               ],
             ),
-            
+
             if (isSelected) ...[
               const SizedBox(height: 12),
               _buildLevelDetails(level),
@@ -678,7 +635,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildLevelDetails(SkillLevelOption level) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -691,12 +648,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
         children: [
           Text(
             level.detailedDescription,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
-          
+
           if (level.characteristics.isNotEmpty) ...[
             const SizedBox(height: 12),
             const Text(
@@ -708,7 +662,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               ),
             ),
             const SizedBox(height: 4),
-            
+
             ...level.characteristics.map((characteristic) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 2),
@@ -717,18 +671,12 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   children: [
                     Text(
                       '• ',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                     Expanded(
                       child: Text(
                         characteristic,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ),
                   ],
@@ -736,7 +684,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               );
             }),
           ],
-          
+
           if (level.examples.isNotEmpty) ...[
             const SizedBox(height: 12),
             const Text(
@@ -748,7 +696,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               ),
             ),
             const SizedBox(height: 4),
-            
+
             ...level.examples.map((example) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 2),
@@ -757,18 +705,12 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   children: [
                     Text(
                       '• ',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                     Expanded(
                       child: Text(
                         example,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ),
                   ],
@@ -776,7 +718,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               );
             }),
           ],
-          
+
           if (level.comparisonText.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
@@ -788,13 +730,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.people,
-                    size: 16,
-                    color: Colors.blue[600],
-                  ),
+                  Icon(Icons.people, size: 16, color: Colors.blue[600]),
                   const SizedBox(width: 8),
-                  
+
                   Expanded(
                     child: Text(
                       level.comparisonText,
@@ -813,7 +751,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildAssessmentOption() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -827,34 +765,24 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
         children: [
           Row(
             children: [
-              Icon(
-                Icons.quiz,
-                color: Colors.orange[600],
-                size: 24,
-              ),
+              Icon(Icons.quiz, color: Colors.orange[600], size: 24),
               const SizedBox(width: 12),
-              
+
               const Expanded(
                 child: Text(
                   'Not sure about your level?',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
           Text(
             'Take our quick assessment to help determine your skill level based on your experience and abilities.',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[700], fontSize: 14),
           ),
-          
+
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -868,9 +796,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               ),
               child: const Text(
                 'Take Assessment',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -878,19 +804,19 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildAssessmentContent() {
     if (_currentSportIndex >= _sports.length) return const SizedBox.shrink();
-    
+
     final currentSport = _sports[_currentSportIndex];
     final questions = currentSport.questions;
-    
+
     if (_currentQuestionIndex >= questions.length) {
       return _buildAssessmentResults(currentSport);
     }
-    
+
     final currentQuestion = questions[_currentQuestionIndex];
-    
+
     return AnimatedBuilder(
       animation: _slideController,
       builder: (context, child) {
@@ -903,18 +829,19 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               children: [
                 // Question progress
                 _buildQuestionProgress(questions),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Question
                 _buildQuestionCard(currentQuestion),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Answer options
                 _buildAnswerOptions(currentQuestion),
-                
-                if (currentQuestion.explanation != null && currentQuestion.isAnswered) ...[
+
+                if (currentQuestion.explanation != null &&
+                    currentQuestion.isAnswered) ...[
                   const SizedBox(height: 16),
                   _buildQuestionExplanation(currentQuestion.explanation!),
                 ],
@@ -925,10 +852,10 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       },
     );
   }
-  
+
   Widget _buildQuestionProgress(List<AssessmentQuestion> questions) {
     final progress = (_currentQuestionIndex + 1) / questions.length;
-    
+
     return Column(
       children: [
         Row(
@@ -942,17 +869,14 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 fontWeight: FontWeight.w500,
               ),
             ),
-            
+
             Text(
               '${(progress * 100).round()}%',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
         ),
-        
+
         const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
@@ -968,7 +892,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ],
     );
   }
-  
+
   Widget _buildQuestionCard(AssessmentQuestion question) {
     return Container(
       width: double.infinity,
@@ -995,7 +919,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildAnswerOptions(AssessmentQuestion question) {
     return Column(
       children: question.answers.map((answer) {
@@ -1003,11 +927,14 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       }).toList(),
     );
   }
-  
-  Widget _buildAnswerOption(AssessmentQuestion question, AssessmentAnswer answer) {
+
+  Widget _buildAnswerOption(
+    AssessmentQuestion question,
+    AssessmentAnswer answer,
+  ) {
     final isSelected = question.selectedAnswerId == answer.id;
     final sport = _sports[_currentSportIndex];
-    
+
     return GestureDetector(
       onTap: () => _selectAnswer(question, answer),
       child: AnimatedContainer(
@@ -1016,14 +943,10 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? sport.color.withOpacity(0.1)
-              : Colors.white,
+          color: isSelected ? sport.color.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
-                ? sport.color 
-                : Colors.grey[300]!,
+            color: isSelected ? sport.color : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1035,36 +958,24 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected 
-                      ? sport.color 
-                      : Colors.grey[400]!,
+                  color: isSelected ? sport.color : Colors.grey[400]!,
                   width: 2,
                 ),
-                color: isSelected 
-                    ? sport.color 
-                    : Colors.transparent,
+                color: isSelected ? sport.color : Colors.transparent,
               ),
-              child: isSelected 
-                  ? const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
-                    )
+              child: isSelected
+                  ? const Icon(Icons.check, color: Colors.white, size: 16)
                   : null,
             ),
-            
+
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 answer.text,
                 style: TextStyle(
                   fontSize: 16,
-                  color: isSelected 
-                      ? sport.color 
-                      : Colors.grey[800],
-                  fontWeight: isSelected 
-                      ? FontWeight.w500 
-                      : FontWeight.normal,
+                  color: isSelected ? sport.color : Colors.grey[800],
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                 ),
               ),
             ),
@@ -1073,7 +984,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildQuestionExplanation(String explanation) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1085,33 +996,26 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.info,
-            color: Colors.blue[600],
-            size: 20,
-          ),
+          Icon(Icons.info, color: Colors.blue[600], size: 20),
           const SizedBox(width: 8),
-          
+
           Expanded(
             child: Text(
               explanation,
-              style: TextStyle(
-                color: Colors.blue[700],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.blue[700], fontSize: 14),
             ),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildAssessmentResults(SportSkillData sport) {
     final suggestedLevel = _calculateSuggestedLevel(sport);
     final suggestedLevelOption = sport.levels.firstWhere(
       (level) => level.level == suggestedLevel,
     );
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1139,25 +1043,19 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                     size: 40,
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
                 const Text(
                   'Assessment Complete!',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
-                
+
                 const SizedBox(height: 8),
                 Text(
                   'Based on your answers, we suggest:',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
-                
+
                 const SizedBox(height: 16),
                 Text(
                   'Level $suggestedLevel - ${suggestedLevelOption.name}',
@@ -1167,20 +1065,17 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                     color: sport.color,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
                 Text(
                   suggestedLevelOption.shortDescription,
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
           Row(
             children: [
@@ -1200,7 +1095,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
@@ -1211,9 +1106,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                   ),
                   child: const Text(
                     'Choose Manually',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -1223,10 +1116,12 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildCompletionContent() {
-    final completedSports = _sports.where((sport) => sport.selectedLevel != null).length;
-    
+    final completedSports = _sports
+        .where((sport) => sport.selectedLevel != null)
+        .length;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1246,42 +1141,34 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.check,
-              color: Colors.white,
-              size: 50,
-            ),
+            child: const Icon(Icons.check, color: Colors.white, size: 50),
           ),
-          
+
           const SizedBox(height: 24),
           const Text(
             'Skill Levels Set!',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
-          
+
           const SizedBox(height: 8),
           Text(
             'You\'ve set skill levels for $completedSports sport${completedSports == 1 ? '' : 's'}.',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 16,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 32),
           _buildSkillSummary(),
         ],
       ),
     );
   }
-  
+
   Widget _buildSkillSummary() {
-    final completedSports = _sports.where((sport) => sport.selectedLevel != null);
-    
+    final completedSports = _sports.where(
+      (sport) => sport.selectedLevel != null,
+    );
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -1294,12 +1181,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
         children: [
           const Text(
             'Your Skill Levels:',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
-          
+
           const SizedBox(height: 12),
           ...completedSports.map((sport) {
             final levelOption = sport.selectedLevelOption!;
@@ -1314,23 +1198,17 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                       color: sport.color,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Icon(
-                      sport.icon,
-                      color: Colors.white,
-                      size: 16,
-                    ),
+                    child: Icon(sport.icon, color: Colors.white, size: 16),
                   ),
-                  
+
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       sport.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ),
-                  
+
                   Text(
                     'Level ${levelOption.level} - ${levelOption.name}',
                     style: TextStyle(
@@ -1346,12 +1224,12 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildFooter() {
     if (_showAssessment) {
       return _buildAssessmentFooter();
     }
-    
+
     return Container(
       padding: EdgeInsets.only(
         left: 16,
@@ -1361,9 +1239,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Row(
         children: [
@@ -1377,10 +1253,9 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 child: const Text('Previous'),
               ),
             ),
-          
-          if (_currentSportIndex > 0)
-            const SizedBox(width: 16),
-          
+
+          if (_currentSportIndex > 0) const SizedBox(width: 16),
+
           Expanded(
             child: ElevatedButton(
               onPressed: _canContinue() ? _nextSport : null,
@@ -1391,9 +1266,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 _currentSportIndex >= _sports.length - 1
                     ? 'Complete'
                     : 'Continue',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -1401,14 +1274,14 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   Widget _buildAssessmentFooter() {
     final currentSport = _sports[_currentSportIndex];
     final questions = currentSport.questions;
     final currentQuestion = _currentQuestionIndex < questions.length
         ? questions[_currentQuestionIndex]
         : null;
-    
+
     return Container(
       padding: EdgeInsets.only(
         left: 16,
@@ -1418,9 +1291,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Row(
         children: [
@@ -1434,14 +1305,13 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 child: const Text('Previous'),
               ),
             ),
-          
-          if (_currentQuestionIndex > 0)
-            const SizedBox(width: 16),
-          
+
+          if (_currentQuestionIndex > 0) const SizedBox(width: 16),
+
           Expanded(
             child: ElevatedButton(
-              onPressed: currentQuestion?.isAnswered == true 
-                  ? _nextQuestion 
+              onPressed: currentQuestion?.isAnswered == true
+                  ? _nextQuestion
                   : null,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1450,9 +1320,7 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
                 _currentQuestionIndex >= questions.length - 1
                     ? 'Finish Assessment'
                     : 'Next Question',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -1460,56 +1328,56 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       ),
     );
   }
-  
+
   bool _canContinue() {
     if (_currentSportIndex >= _sports.length) return true;
-    
+
     final currentSport = _sports[_currentSportIndex];
     return currentSport.selectedLevel != null;
   }
-  
+
   void _handleBack() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     if (_showAssessment) {
       _exitAssessment();
     } else {
       widget.onClose?.call();
     }
   }
-  
+
   void _handleSkip() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     widget.onSkipped?.call();
     widget.onClose?.call();
   }
-  
+
   void _selectSkillLevel(SportSkillData sport, int level) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     final updatedSport = sport.copyWith(selectedLevel: level);
     final sportIndex = _sports.indexWhere((s) => s.id == sport.id);
-    
+
     setState(() {
       _sports[sportIndex] = updatedSport;
     });
-    
+
     widget.onSkillLevelSelected?.call(updatedSport, level);
     widget.onSportsUpdated?.call(_sports);
   }
-  
+
   void _nextSport() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     if (_currentSportIndex >= _sports.length - 1) {
       widget.onCompleted?.call();
       widget.onClose?.call();
@@ -1517,49 +1385,49 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       setState(() {
         _currentSportIndex++;
       });
-      
+
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     }
   }
-  
+
   void _previousSport() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     if (_currentSportIndex > 0) {
       setState(() {
         _currentSportIndex--;
       });
-      
+
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     }
   }
-  
+
   void _startAssessment() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     setState(() {
       _showAssessment = true;
       _currentQuestionIndex = 0;
     });
-    
+
     _slideController.forward();
   }
-  
+
   void _exitAssessment() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     _slideController.reverse().then((_) {
       setState(() {
         _showAssessment = false;
@@ -1567,25 +1435,27 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       });
     });
   }
-  
+
   void _selectAnswer(AssessmentQuestion question, AssessmentAnswer answer) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     final updatedQuestion = question.copyWith(selectedAnswerId: answer.id);
     final sport = _sports[_currentSportIndex];
-    final questionIndex = sport.questions.indexWhere((q) => q.id == question.id);
-    
+    final questionIndex = sport.questions.indexWhere(
+      (q) => q.id == question.id,
+    );
+
     final updatedQuestions = List<AssessmentQuestion>.from(sport.questions);
     updatedQuestions[questionIndex] = updatedQuestion;
-    
+
     final updatedSport = sport.copyWith(questions: updatedQuestions);
-    
+
     setState(() {
       _sports[_currentSportIndex] = updatedSport;
     });
-    
+
     // Auto-advance after a short delay
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
@@ -1593,19 +1463,19 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       }
     });
   }
-  
+
   void _nextQuestion() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     final sport = _sports[_currentSportIndex];
-    
+
     if (_currentQuestionIndex < sport.questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
       });
-      
+
       _slideController.reset();
       _slideController.forward();
     } else {
@@ -1615,33 +1485,33 @@ class _SkillLevelDialogState extends State<SkillLevelDialog>
       });
     }
   }
-  
+
   void _previousQuestion() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     if (_currentQuestionIndex > 0) {
       setState(() {
         _currentQuestionIndex--;
       });
-      
+
       _slideController.reset();
       _slideController.forward();
     }
   }
-  
+
   int _calculateSuggestedLevel(SportSkillData sport) {
     final answeredQuestions = sport.questions.where((q) => q.isAnswered);
-    
+
     if (answeredQuestions.isEmpty) return 1;
-    
+
     final totalWeight = answeredQuestions.fold<int>(0, (sum, question) {
       return sum + question.selectedAnswer!.skillLevelWeight;
     });
-    
+
     final averageWeight = totalWeight / answeredQuestions.length;
-    
+
     // Convert average weight to skill level (1-10)
     return (averageWeight.clamp(1, 10)).round();
   }
@@ -1674,7 +1544,8 @@ class SkillLevelPresets {
       level: 5,
       name: 'Intermediate',
       shortDescription: 'Comfortable player',
-      detailedDescription: 'Can play consistent rallies and knows basic strategy.',
+      detailedDescription:
+          'Can play consistent rallies and knows basic strategy.',
       characteristics: [
         'Consistent groundstrokes',
         'Basic serve and return',
@@ -1709,7 +1580,7 @@ class SkillLevelPresets {
       icon: Icons.sports_tennis,
     ),
   ];
-  
+
   /// Sample assessment questions for tennis
   static List<AssessmentQuestion> tennisQuestions = [
     const AssessmentQuestion(
@@ -1737,7 +1608,8 @@ class SkillLevelPresets {
           skillLevelWeight: 8,
         ),
       ],
-      explanation: 'Your serving ability is a good indicator of overall tennis skill level.',
+      explanation:
+          'Your serving ability is a good indicator of overall tennis skill level.',
     ),
     const AssessmentQuestion(
       id: '2',
@@ -1766,7 +1638,7 @@ class SkillLevelPresets {
       ],
     ),
   ];
-  
+
   /// Sample sports with skill levels
   static List<SportSkillData> sampleSports = [
     SportSkillData(
@@ -1789,8 +1661,13 @@ class SkillLevelPresets {
           level: 1,
           name: 'Beginner',
           shortDescription: 'Learning the basics',
-          detailedDescription: 'New to basketball, learning to dribble and shoot.',
-          characteristics: ['Basic dribbling', 'Learning to shoot', 'Understanding rules'],
+          detailedDescription:
+              'New to basketball, learning to dribble and shoot.',
+          characteristics: [
+            'Basic dribbling',
+            'Learning to shoot',
+            'Understanding rules',
+          ],
           examples: ['First time playing', 'Recreational games'],
           comparisonText: 'Similar to pickup game beginners',
           color: Colors.blue,

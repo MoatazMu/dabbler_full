@@ -30,17 +30,14 @@ class _AchievementFilterTabsState extends State<AchievementFilterTabs>
   void initState() {
     super.initState();
     final tabCount = widget.availableCategories.length + 1; // +1 for "All"
-    _tabController = TabController(
-      length: tabCount,
-      vsync: this,
-    );
-    
+    _tabController = TabController(length: tabCount, vsync: this);
+
     // Set initial selection
-    final initialIndex = widget.selectedCategory == null 
-        ? 0 
+    final initialIndex = widget.selectedCategory == null
+        ? 0
         : widget.availableCategories.indexOf(widget.selectedCategory!) + 1;
     _tabController.index = initialIndex;
-    
+
     _tabController.addListener(_onTabChanged);
   }
 
@@ -54,12 +51,12 @@ class _AchievementFilterTabsState extends State<AchievementFilterTabs>
 
   void _onTabChanged() {
     if (_tabController.indexIsChanging) return;
-    
+
     final selectedIndex = _tabController.index;
-    final category = selectedIndex == 0 
-        ? null 
+    final category = selectedIndex == 0
+        ? null
         : widget.availableCategories[selectedIndex - 1];
-    
+
     widget.onCategoryChanged(category);
   }
 
@@ -86,10 +83,7 @@ class _AchievementFilterTabsState extends State<AchievementFilterTabs>
         indicatorSize: TabBarIndicatorSize.label,
         labelColor: Theme.of(context).primaryColor,
         unselectedLabelColor: Colors.grey[600],
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: 14,
@@ -128,15 +122,12 @@ class _AchievementFilterTabsState extends State<AchievementFilterTabs>
           ),
           ...widget.availableCategories.map((category) {
             final isSelected = widget.selectedCategory == category;
-            
+
             return Tab(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    _getCategoryIcon(category),
-                    size: 16,
-                  ),
+                  Icon(_getCategoryIcon(category), size: 16),
                   const SizedBox(width: 8),
                   Text(_getCategoryName(category)),
                   if (isSelected)
@@ -148,12 +139,11 @@ class _AchievementFilterTabsState extends State<AchievementFilterTabs>
                         color: Theme.of(context).primaryColor,
                         shape: BoxShape.circle,
                       ),
-                    ).animate()
-                      .scale(
-                        begin: const Offset(0.5, 0.5),
-                        end: const Offset(1.0, 1.0),
-                        duration: 200.ms,
-                      ),
+                    ).animate().scale(
+                      begin: const Offset(0.5, 0.5),
+                      end: const Offset(1.0, 1.0),
+                      duration: 200.ms,
+                    ),
                 ],
               ),
             );

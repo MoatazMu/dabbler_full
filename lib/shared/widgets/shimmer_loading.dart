@@ -18,10 +18,11 @@ class ShimmerLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Shimmer.fromColors(
       baseColor: baseColor ?? (isDark ? Colors.grey[800]! : Colors.grey[300]!),
-      highlightColor: highlightColor ?? (isDark ? Colors.grey[700]! : Colors.grey[100]!),
+      highlightColor:
+          highlightColor ?? (isDark ? Colors.grey[700]! : Colors.grey[100]!),
       period: period,
       child: child,
     );
@@ -84,10 +85,7 @@ class ShimmerText extends StatelessWidget {
 class ShimmerCircle extends StatelessWidget {
   final double size;
 
-  const ShimmerCircle({
-    super.key,
-    this.size = 40,
-  });
+  const ShimmerCircle({super.key, this.size = 40});
 
   @override
   Widget build(BuildContext context) {
@@ -155,10 +153,7 @@ class ShimmerListItem extends StatelessWidget {
 class ShimmerGridItem extends StatelessWidget {
   final double aspectRatio;
 
-  const ShimmerGridItem({
-    super.key,
-    this.aspectRatio = 1.0,
-  });
+  const ShimmerGridItem({super.key, this.aspectRatio = 1.0});
 
   @override
   Widget build(BuildContext context) {
@@ -173,10 +168,7 @@ class ShimmerGridItem extends StatelessWidget {
 class ShimmerComplexCard extends StatelessWidget {
   final double height;
 
-  const ShimmerComplexCard({
-    super.key,
-    this.height = 200,
-  });
+  const ShimmerComplexCard({super.key, this.height = 200});
 
   @override
   Widget build(BuildContext context) {
@@ -206,11 +198,7 @@ class ShimmerComplexCard extends StatelessWidget {
                         color: Colors.grey[300],
                       ),
                       const SizedBox(height: 8),
-                      Container(
-                        height: 12,
-                        width: 80,
-                        color: Colors.grey[300],
-                      ),
+                      Container(height: 12, width: 80, color: Colors.grey[300]),
                     ],
                   ),
                 ),

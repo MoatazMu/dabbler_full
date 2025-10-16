@@ -44,7 +44,8 @@ class PointsCalculationResult {
   bool get hasBonuses => bonuses.isNotEmpty;
 
   /// Total bonus points from all sources
-  int get totalBonusPoints => bonuses.values.fold(0, (sum, bonus) => sum + bonus);
+  int get totalBonusPoints =>
+      bonuses.values.fold(0, (sum, bonus) => sum + bonus);
 }
 
 /// Use case for calculating points with multipliers, bonuses, and limits
@@ -60,9 +61,8 @@ class CalculatePointsUseCase {
   static const double _weekendBonus = 1.2; // 20% bonus on weekends
   static const double _eventMultiplier = 2.0; // 100% during events
 
-  CalculatePointsUseCase({
-    required RewardsRepository repository,
-  }) : _repository = repository;
+  CalculatePointsUseCase({required RewardsRepository repository})
+    : _repository = repository;
 
   /// Calculate points with full business logic
   Future<PointsCalculationResult> execute({
@@ -120,7 +120,11 @@ class CalculatePointsUseCase {
       }
 
       // Step 4: Calculate base multipliers
-      final multipliers = await _calculateMultipliers(userId, userState, context);
+      final multipliers = await _calculateMultipliers(
+        userId,
+        userState,
+        context,
+      );
 
       // Step 5: Calculate bonuses
       final bonuses = await _calculateBonuses(userId, userState, context, type);
@@ -139,11 +143,14 @@ class CalculatePointsUseCase {
       calculatedPoints *= totalMultiplier;
 
       // Add bonuses
-      final totalBonusPoints = bonuses.values.fold(0, (sum, bonus) => sum + bonus);
+      final totalBonusPoints = bonuses.values.fold(
+        0,
+        (sum, bonus) => sum + bonus,
+      );
       calculatedPoints += totalBonusPoints;
 
       // Apply limits if respected
-      final finalPoints = respectLimits 
+      final finalPoints = respectLimits
           ? limitCheck.adjustedPoints?.round() ?? calculatedPoints.round()
           : calculatedPoints.round();
 
@@ -189,7 +196,6 @@ class CalculatePointsUseCase {
         limitMessage: limitCheck.message,
         breakdown: breakdown,
       );
-
     } catch (error) {
       return PointsCalculationResult(
         success: false,
@@ -209,12 +215,11 @@ class CalculatePointsUseCase {
   Future<_UserState?> _getUserState(String userId) async {
     try {
       final userTierResult = await _repository.getUserTier(userId);
-      final achievementStatsResult = await _repository.getAchievementStats(userId);
-
-      final userTier = userTierResult.fold(
-        (failure) => null,
-        (tier) => tier,
+      final achievementStatsResult = await _repository.getAchievementStats(
+        userId,
       );
+
+      final userTier = userTierResult.fold((failure) => null, (tier) => tier);
 
       final stats = achievementStatsResult.fold(
         (failure) => <String, dynamic>{},
@@ -255,7 +260,6 @@ class CalculatePointsUseCase {
         totalPoints: stats['total_points'] as int? ?? 0,
         stats: stats,
       );
-
     } catch (error) {
       return null;
     }
@@ -277,22 +281,37 @@ class CalculatePointsUseCase {
       );
     }
 
-    final wouldExceedDaily = (userState.todayPoints + basePoints) > _dailyPointsLimit;
-    final wouldExceedWeekly = (userState.weekPoints + basePoints) > _weeklyPointsLimit;
+    final wouldExceedDaily =
+        (userState.todayPoints + basePoints) > _dailyPointsLimit;
+    final wouldExceedWeekly =
+        (userState.weekPoints + basePoints) > _weeklyPointsLimit;
 
     if (wouldExceedDaily || wouldExceedWeekly) {
-      final dailyRemaining = (_dailyPointsLimit - userState.todayPoints).clamp(0, double.infinity);
-      final weeklyRemaining = (_weeklyPointsLimit - userState.weekPoints).clamp(0, double.infinity);
-      
-      final adjustedPoints = [dailyRemaining, weeklyRemaining, basePoints.toDouble()].reduce((a, b) => a < b ? a : b);
+      final dailyRemaining = (_dailyPointsLimit - userState.todayPoints).clamp(
+        0,
+        double.infinity,
+      );
+      final weeklyRemaining = (_weeklyPointsLimit - userState.weekPoints).clamp(
+        0,
+        double.infinity,
+      );
+
+      final adjustedPoints = [
+        dailyRemaining,
+        weeklyRemaining,
+        basePoints.toDouble(),
+      ].reduce((a, b) => a < b ? a : b);
 
       String message;
       if (wouldExceedDaily && wouldExceedWeekly) {
-        message = 'Daily and weekly limits reached. Can only earn ${adjustedPoints.round()} more points today.';
+        message =
+            'Daily and weekly limits reached. Can only earn ${adjustedPoints.round()} more points today.';
       } else if (wouldExceedDaily) {
-        message = 'Daily limit reached. Can only earn ${adjustedPoints.round()} more points today.';
+        message =
+            'Daily limit reached. Can only earn ${adjustedPoints.round()} more points today.';
       } else {
-        message = 'Weekly limit reached. Can only earn ${adjustedPoints.round()} more points this week.';
+        message =
+            'Weekly limit reached. Can only earn ${adjustedPoints.round()} more points this week.';
       }
 
       return _LimitCheck(
@@ -326,29 +345,35 @@ class CalculatePointsUseCase {
 
     // Tier multiplier
     if (userState.tier != null) {
-      final tierMultiplier = 1.0 + (userState.tier!.level.level * _tierMultiplierRate);
+      final tierMultiplier =
+          1.0 + (userState.tier!.level.level * _tierMultiplierRate);
       multipliers['tier'] = tierMultiplier;
     }
 
     // Streak multiplier
     if (userState.streakDays > 0) {
-      final streakMultiplier = 1.0 + (userState.streakDays * _streakMultiplierRate);
+      final streakMultiplier =
+          1.0 + (userState.streakDays * _streakMultiplierRate);
       multipliers['streak'] = streakMultiplier.clamp(1.0, 2.0); // Cap at 200%
     }
 
     // Weekend multiplier
     final now = DateTime.now();
-    if (now.weekday >= 6) { // Saturday or Sunday
+    if (now.weekday >= 6) {
+      // Saturday or Sunday
       multipliers['weekend'] = _weekendBonus;
     }
 
     // Special event multiplier
-    if (context.containsKey('special_event') && context['special_event'] == true) {
-      multipliers['event'] = context['event_multiplier'] as double? ?? _eventMultiplier;
+    if (context.containsKey('special_event') &&
+        context['special_event'] == true) {
+      multipliers['event'] =
+          context['event_multiplier'] as double? ?? _eventMultiplier;
     }
 
     // First completion multiplier
-    if (context.containsKey('first_completion') && context['first_completion'] == true) {
+    if (context.containsKey('first_completion') &&
+        context['first_completion'] == true) {
       multipliers['first_completion'] = 1.5;
     }
 
@@ -377,8 +402,10 @@ class CalculatePointsUseCase {
     // Performance multiplier
     if (context.containsKey('performance_score')) {
       final score = context['performance_score'] as double?;
-      if (score != null && score > 0.8) { // 80%+ performance
-        multipliers['performance'] = 1.0 + ((score - 0.8) * 0.5); // Up to 10% bonus
+      if (score != null && score > 0.8) {
+        // 80%+ performance
+        multipliers['performance'] =
+            1.0 + ((score - 0.8) * 0.5); // Up to 10% bonus
       }
     }
 
@@ -410,16 +437,21 @@ class CalculatePointsUseCase {
     }
 
     // Perfect score bonus
-    if (context.containsKey('perfect_score') && context['perfect_score'] == true) {
+    if (context.containsKey('perfect_score') &&
+        context['perfect_score'] == true) {
       bonuses['perfect_score'] = 50;
     }
 
     // Speed bonus
-    if (context.containsKey('completion_time') && context.containsKey('target_time')) {
+    if (context.containsKey('completion_time') &&
+        context.containsKey('target_time')) {
       final completionTime = context['completion_time'] as int?;
       final targetTime = context['target_time'] as int?;
-      if (completionTime != null && targetTime != null && completionTime < targetTime) {
-        final speedBonus = ((targetTime - completionTime) / targetTime * 100).round();
+      if (completionTime != null &&
+          targetTime != null &&
+          completionTime < targetTime) {
+        final speedBonus = ((targetTime - completionTime) / targetTime * 100)
+            .round();
         bonuses['speed'] = speedBonus.clamp(0, 100);
       }
     }
@@ -428,7 +460,10 @@ class CalculatePointsUseCase {
     if (context.containsKey('combo_count')) {
       final combo = context['combo_count'] as int? ?? 0;
       if (combo > 1) {
-        bonuses['combo'] = (combo * 5).clamp(0, 50); // 5 points per combo, max 50
+        bonuses['combo'] = (combo * 5).clamp(
+          0,
+          50,
+        ); // 5 points per combo, max 50
       }
     }
 
@@ -436,7 +471,10 @@ class CalculatePointsUseCase {
     if (context.containsKey('friends_playing')) {
       final friendsCount = context['friends_playing'] as int? ?? 0;
       if (friendsCount > 0) {
-        bonuses['social'] = (friendsCount * 10).clamp(0, 50); // 10 points per friend, max 50
+        bonuses['social'] = (friendsCount * 10).clamp(
+          0,
+          50,
+        ); // 10 points per friend, max 50
       }
     }
 
@@ -446,7 +484,7 @@ class CalculatePointsUseCase {
   /// Calculate daily login bonus based on streak
   int _calculateDailyLoginBonus(int streakDays) {
     if (streakDays <= 0) return 10; // Base login bonus
-    
+
     // Escalating bonus: 10, 15, 20, 25, 30, then 50 for 7+ days
     if (streakDays >= 7) return 50;
     return 10 + (streakDays * 5);
@@ -487,7 +525,8 @@ class CalculatePointsUseCase {
 
       final currentBalance = transactionsResult.fold(
         (failure) => 0,
-        (transactions) => transactions.isNotEmpty ? transactions.first.runningBalance : 0,
+        (transactions) =>
+            transactions.isNotEmpty ? transactions.first.runningBalance : 0,
       );
 
       final newBalance = currentBalance + finalPoints;
@@ -513,7 +552,6 @@ class CalculatePointsUseCase {
       // In a real implementation, this would save to the repository
       // For now, we'll return the transaction object
       return transaction;
-
     } catch (error) {
       return null;
     }
@@ -523,7 +561,7 @@ class CalculatePointsUseCase {
   Future<TierLevel?> _checkTierUpgrade(String userId, int pointsToAdd) async {
     try {
       final userTierResult = await _repository.getUserTier(userId);
-      
+
       final currentTier = userTierResult.fold(
         (failure) => null,
         (tier) => tier,
@@ -532,7 +570,9 @@ class CalculatePointsUseCase {
       if (currentTier == null) return null;
 
       // Calculate new total points
-      final achievementStatsResult = await _repository.getAchievementStats(userId);
+      final achievementStatsResult = await _repository.getAchievementStats(
+        userId,
+      );
       final stats = achievementStatsResult.fold(
         (failure) => <String, dynamic>{},
         (stats) => stats,
@@ -550,7 +590,6 @@ class CalculatePointsUseCase {
       }
 
       return null;
-
     } catch (error) {
       return null;
     }
@@ -594,14 +633,12 @@ class CalculatePointsUseCase {
         'Points after multipliers: ${(basePoints * totalMultiplier).round()}',
         'Added ${bonuses.length} bonus(es): ${bonuses.keys.join(', ')}',
         'Total bonus points: ${bonuses.values.fold(0, (sum, bonus) => sum + bonus)}',
-        if (limitCheck.hitDailyLimit || limitCheck.hitWeeklyLimit) 
+        if (limitCheck.hitDailyLimit || limitCheck.hitWeeklyLimit)
           'Applied limits: ${limitCheck.message}',
         'Final points awarded: $finalPoints',
       ],
     };
   }
-
-
 }
 
 // =============================================================================

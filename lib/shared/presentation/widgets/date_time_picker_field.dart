@@ -156,11 +156,12 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
     });
 
     widget.onChanged(_selectedDateTime);
-    }
+  }
 
   Future<DateTime?> _showCustomDatePicker() async {
     final now = DateTime.now();
-    final firstDate = widget.firstDate ?? now.subtract(const Duration(days: 365));
+    final firstDate =
+        widget.firstDate ?? now.subtract(const Duration(days: 365));
     final lastDate = widget.lastDate ?? now.add(const Duration(days: 365));
 
     return await showDatePicker(
@@ -172,9 +173,9 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: Theme.of(context).primaryColor,
-            ),
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: Theme.of(context).primaryColor),
           ),
           child: child!,
         );
@@ -196,9 +197,9 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
       initialTime: initialTime,
       builder: (context, child) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            alwaysUse24HourFormat: widget.is24HourFormat,
-          ),
+          data: MediaQuery.of(
+            context,
+          ).copyWith(alwaysUse24HourFormat: widget.is24HourFormat),
           child: Theme(
             data: Theme.of(context).copyWith(
               timePickerTheme: TimePickerThemeData(
@@ -239,12 +240,17 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: availableSlots.map((time) => ListTile(
-              title: Text(_formatTimeOfDay(time)),
-              onTap: () => Navigator.of(context).pop(time),
-              selected: _selectedDateTime != null &&
-                  TimeOfDay.fromDateTime(_selectedDateTime!) == time,
-            )).toList(),
+            children: availableSlots
+                .map(
+                  (time) => ListTile(
+                    title: Text(_formatTimeOfDay(time)),
+                    onTap: () => Navigator.of(context).pop(time),
+                    selected:
+                        _selectedDateTime != null &&
+                        TimeOfDay.fromDateTime(_selectedDateTime!) == time,
+                  ),
+                )
+                .toList(),
           ),
         ),
         actions: [
@@ -306,8 +312,18 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
 
   String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
 
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
@@ -354,21 +370,21 @@ List<TimeOfDay> createTimeSlots({
   int intervalMinutes = 30,
 }) {
   final slots = <TimeOfDay>[];
-  
+
   int currentMinutes = start.hour * 60 + start.minute;
   final endMinutes = end.hour * 60 + end.minute;
-  
+
   while (currentMinutes <= endMinutes) {
     final hour = currentMinutes ~/ 60;
     final minute = currentMinutes % 60;
-    
+
     if (hour < 24) {
       slots.add(TimeOfDay(hour: hour, minute: minute));
     }
-    
+
     currentMinutes += intervalMinutes;
   }
-  
+
   return slots;
 }
 
@@ -383,7 +399,7 @@ List<int> createBlockedWeekdays({
   bool blockSaturday = false,
 }) {
   final blocked = <int>[];
-  
+
   if (blockMonday) blocked.add(1);
   if (blockTuesday) blocked.add(2);
   if (blockWednesday) blocked.add(3);
@@ -391,6 +407,6 @@ List<int> createBlockedWeekdays({
   if (blockFriday) blocked.add(5);
   if (blockSaturday) blocked.add(6);
   if (blockSunday) blocked.add(7);
-  
+
   return blocked;
 }

@@ -28,24 +28,24 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark 
+          color: isDark
               ? VioletShades.darkBorder.withOpacity(0.5)
               : VioletShades.lightBorder,
           width: 1,
         ),
-        color: isDark 
+        color: isDark
             ? VioletShades.darkCardBackground
             : VioletShades.lightCardBackground,
         boxShadow: [
           BoxShadow(
-            color: isDark 
+            color: isDark
                 ? Colors.black.withOpacity(0.2)
                 : Colors.black.withOpacity(0.04),
             blurRadius: 8,
@@ -58,14 +58,14 @@ class PostCard extends StatelessWidget {
         children: [
           // First Row - Header
           _buildHeader(context),
-          
+
           const SizedBox(height: 16),
-          
+
           // Second Row - Content
           _buildContent(context),
-          
+
           const SizedBox(height: 16),
-          
+
           // Third Row - Actions
           _buildActions(context),
         ],
@@ -76,7 +76,7 @@ class PostCard extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return SizedBox(
       height: 48,
       child: Row(
@@ -111,7 +111,7 @@ class PostCard extends StatelessWidget {
                             )
                           : null,
                       border: Border.all(
-                        color: isDark 
+                        color: isDark
                             ? VioletShades.darkBorder.withOpacity(0.3)
                             : VioletShades.lightBorder,
                         width: 2,
@@ -133,9 +133,9 @@ class PostCard extends StatelessWidget {
                         : null,
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Name and Time
                 Expanded(
                   child: Column(
@@ -145,7 +145,7 @@ class PostCard extends StatelessWidget {
                       Text(
                         post.authorName,
                         style: TextStyle(
-                          color: isDark 
+                          color: isDark
                               ? VioletShades.darkTextPrimary
                               : VioletShades.lightTextPrimary,
                           fontFamily: 'Inter',
@@ -158,7 +158,7 @@ class PostCard extends StatelessWidget {
                       Text(
                         _formatTimeAgo(post.createdAt),
                         style: TextStyle(
-                          color: isDark 
+                          color: isDark
                               ? VioletShades.darkTextMuted
                               : VioletShades.lightTextMuted,
                           fontFamily: 'Inter',
@@ -172,7 +172,7 @@ class PostCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Second Column - More Icon
           IconButton(
             onPressed: () {
@@ -181,7 +181,7 @@ class PostCard extends StatelessWidget {
             icon: Icon(
               Iconsax.more_copy,
               size: 24,
-              color: isDark 
+              color: isDark
                   ? VioletShades.darkTextMuted
                   : VioletShades.lightTextMuted,
             ),
@@ -196,7 +196,7 @@ class PostCard extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -204,7 +204,7 @@ class PostCard extends StatelessWidget {
         Text(
           post.content,
           style: TextStyle(
-            color: isDark 
+            color: isDark
                 ? VioletShades.darkTextPrimary
                 : VioletShades.lightTextPrimary,
             fontFamily: 'Inter',
@@ -213,7 +213,7 @@ class PostCard extends StatelessWidget {
             height: 1.5,
           ),
         ),
-        
+
         // Media if available
         if (post.mediaUrls.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -226,14 +226,15 @@ class PostCard extends StatelessWidget {
   Widget _buildMediaContent(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     if (post.mediaUrls.isEmpty) return const SizedBox.shrink();
-    
+
     final mediaUrl = post.mediaUrls.first;
-    final isVideo = mediaUrl.contains('.mp4') || 
-                    mediaUrl.contains('.mov') || 
-                    mediaUrl.contains('.avi');
-    
+    final isVideo =
+        mediaUrl.contains('.mp4') ||
+        mediaUrl.contains('.mov') ||
+        mediaUrl.contains('.avi');
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: AspectRatio(
@@ -241,7 +242,7 @@ class PostCard extends StatelessWidget {
         child: isVideo
             ? Container(
                 decoration: BoxDecoration(
-                  color: isDark 
+                  color: isDark
                       ? VioletShades.darkWidgetBackground
                       : VioletShades.lightWidgetBackground,
                 ),
@@ -265,12 +266,12 @@ class PostCard extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: isDark 
+                    color: isDark
                         ? VioletShades.darkWidgetBackground
                         : VioletShades.lightWidgetBackground,
                     child: Icon(
                       Icons.broken_image_outlined,
-                      color: isDark 
+                      color: isDark
                           ? VioletShades.darkTextMuted
                           : VioletShades.lightTextMuted,
                       size: 48,
@@ -285,40 +286,50 @@ class PostCard extends StatelessWidget {
   Widget _buildActions(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Row(
       children: [
         // Like Button with Count
         _ActionButton(
           icon: post.isLiked ? Iconsax.heart : Iconsax.heart_copy,
-          iconColor: post.isLiked 
-              ? const Color(0xFFFF6B6B) 
-              : (isDark ? VioletShades.darkTextMuted : VioletShades.lightTextMuted),
+          iconColor: post.isLiked
+              ? const Color(0xFFFF6B6B)
+              : (isDark
+                    ? VioletShades.darkTextMuted
+                    : VioletShades.lightTextMuted),
           count: post.likesCount,
-          textColor: isDark ? VioletShades.darkTextMuted : VioletShades.lightTextMuted,
+          textColor: isDark
+              ? VioletShades.darkTextMuted
+              : VioletShades.lightTextMuted,
           onTap: onLike,
         ),
-        
+
         const SizedBox(width: 24),
-        
+
         // Comment Button with Count
         _ActionButton(
           icon: Iconsax.message_copy,
-          iconColor: isDark ? VioletShades.darkTextMuted : VioletShades.lightTextMuted,
+          iconColor: isDark
+              ? VioletShades.darkTextMuted
+              : VioletShades.lightTextMuted,
           count: post.commentsCount,
-          textColor: isDark ? VioletShades.darkTextMuted : VioletShades.lightTextMuted,
+          textColor: isDark
+              ? VioletShades.darkTextMuted
+              : VioletShades.lightTextMuted,
           onTap: onComment,
         ),
-        
+
         const Spacer(),
-        
+
         // Share Button
         IconButton(
           onPressed: onShare,
           icon: Icon(
             Iconsax.share_copy,
             size: 20,
-            color: isDark ? VioletShades.darkTextMuted : VioletShades.lightTextMuted,
+            color: isDark
+                ? VioletShades.darkTextMuted
+                : VioletShades.lightTextMuted,
           ),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
@@ -330,7 +341,7 @@ class PostCard extends StatelessWidget {
   String _formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 7) {
       return '${(difference.inDays / 7).floor()}w ago';
     } else if (difference.inDays > 0) {
@@ -371,11 +382,7 @@ class _ActionButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: iconColor,
-            ),
+            Icon(icon, size: 20, color: iconColor),
             const SizedBox(width: 6),
             Text(
               count > 999 ? '${(count / 1000).toStringAsFixed(1)}k' : '$count',

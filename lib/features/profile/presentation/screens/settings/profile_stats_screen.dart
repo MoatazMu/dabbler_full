@@ -16,10 +16,10 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   bool _isLoading = true;
   ProfileStatistics? _statistics;
-  
+
   @override
   void initState() {
     super.initState();
@@ -32,22 +32,21 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
-    ));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _animationController.forward();
   }
@@ -55,8 +54,10 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
   Future<void> _loadStatistics() async {
     try {
       // TODO: Load from actual data source
-      await Future.delayed(const Duration(milliseconds: 800)); // Simulate API call
-      
+      await Future.delayed(
+        const Duration(milliseconds: 800),
+      ); // Simulate API call
+
       setState(() {
         _statistics = ProfileStatistics(
           totalGamesPlayed: 45,
@@ -66,18 +67,16 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
           totalHoursPlayed: 45.0, // 45 hours
           totalGamesOrganized: 8,
           uniqueTeammates: 23,
-          achievements: [
-            'Team Player',
-            'Hat Trick Hero',
-            'Consistency King',
+          achievements: ['Team Player', 'Hat Trick Hero', 'Consistency King'],
+          badges: [
+            'Skilled Player',
+            'Team Captain',
+            'Organizer',
+            'Reliable',
+            'Consistent',
           ],
-          badges: ['Skilled Player', 'Team Captain', 'Organizer', 'Reliable', 'Consistent'],
           lastGameDate: DateTime.now().subtract(const Duration(hours: 2)),
-          sportGamesCount: {
-            'Football': 25,
-            'Basketball': 12,
-            'Tennis': 8,
-          },
+          sportGamesCount: {'Football': 25, 'Basketball': 12, 'Tennis': 8},
           currentPlayStreak: 7,
           longestPlayStreak: 15,
           currentWinStreak: 5,
@@ -145,7 +144,7 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   Widget _buildOverviewCard() {
     if (_statistics == null) return const SizedBox.shrink();
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -232,7 +231,12 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -241,18 +245,14 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          child: Icon(icon, color: color, size: 24),
         ),
         const SizedBox(height: 8),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(
           label,
@@ -266,7 +266,7 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   Widget _buildGameStatsCard() {
     if (_statistics == null) return const SizedBox.shrink();
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -275,9 +275,9 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
           children: [
             Text(
               'Game Statistics',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildProgressBar(
@@ -300,7 +300,10 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
                 _buildMiniStat('Wins', _statistics!.gamesWon.toString()),
                 _buildMiniStat('Losses', _statistics!.gamesLost.toString()),
                 _buildMiniStat('Win Rate', _statistics!.winRateFormatted),
-                _buildMiniStat('Improvement', '+${_statistics!.improvementRate}%'),
+                _buildMiniStat(
+                  'Improvement',
+                  '+${_statistics!.improvementRate}%',
+                ),
               ],
             ),
           ],
@@ -311,16 +314,13 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   Widget _buildProgressBar(String label, int value, int total, Color color) {
     final percentage = total > 0 ? value / total : 0.0;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label),
-            Text('$value/$total'),
-          ],
+          children: [Text(label), Text('$value/$total')],
         ),
         const SizedBox(height: 4),
         LinearProgressIndicator(
@@ -337,9 +337,9 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
       children: [
         Text(
           value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(
           label,
@@ -353,7 +353,7 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   Widget _buildSportBreakdownCard() {
     if (_statistics == null) return const SizedBox.shrink();
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -362,16 +362,16 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
           children: [
             Text(
               'Sports Breakdown',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ..._statistics!.sportSpecificStats.entries.map((entry) {
               final sport = entry.key;
               final games = entry.value;
               final rating = _statistics!.skillRatings[sport] ?? 0.0;
-              
+
               return _buildSportItem(sport, games, rating);
             }),
           ],
@@ -389,7 +389,9 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -405,9 +407,9 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
               children: [
                 Text(
                   sport,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 Text(
                   '$games games • ${rating.toStringAsFixed(1)}★',
@@ -440,7 +442,7 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   Widget _buildAchievementsCard() {
     if (_statistics == null) return const SizedBox.shrink();
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -452,9 +454,9 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
               children: [
                 Text(
                   'Achievements',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   '${_statistics!.achievementsUnlocked}/12',
@@ -470,7 +472,10 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
               runSpacing: 8,
               children: _statistics!.recentAchievements.map((achievement) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
@@ -516,7 +521,7 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   Widget _buildActivityCard() {
     if (_statistics == null) return const SizedBox.shrink();
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -525,9 +530,9 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
           children: [
             Text(
               'Recent Activity',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -590,12 +595,10 @@ class _ProfileStatsScreenState extends ConsumerState<ProfileStatsScreen>
 
   void _shareStats() {
     if (_statistics == null) return;
-    
+
     // TODO: Implement share functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Share functionality coming soon!'),
-      ),
+      const SnackBar(content: Text('Share functionality coming soon!')),
     );
   }
 }

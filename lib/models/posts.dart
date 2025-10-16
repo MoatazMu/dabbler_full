@@ -55,13 +55,15 @@ class Posts {
       comments_count: json['comments_count'],
       shares_count: json['shares_count'],
       is_deleted: json['is_deleted'],
-      deleted_at: (json['deleted_at'] == null ? null : DateTime.parse(json['deleted_at'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      deleted_at: (json['deleted_at'] == null
+          ? null
+          : DateTime.parse(json['deleted_at'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
       location_name: json['location_name'],
       tags: json['tags'],
     );

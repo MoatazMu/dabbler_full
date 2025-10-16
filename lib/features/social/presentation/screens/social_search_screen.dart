@@ -8,11 +8,7 @@ class SocialSearchScreen extends ConsumerStatefulWidget {
   final String? initialQuery;
   final String? searchType;
 
-  const SocialSearchScreen({
-    super.key,
-    this.initialQuery,
-    this.searchType,
-  });
+  const SocialSearchScreen({super.key, this.initialQuery, this.searchType});
 
   @override
   ConsumerState<SocialSearchScreen> createState() => _SocialSearchScreenState();
@@ -22,10 +18,10 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
     with TickerProviderStateMixin {
   late TextEditingController _searchController;
   late TabController _tabController;
-  
+
   final FocusNode _searchFocus = FocusNode();
   String _currentQuery = '';
-  
+
   final List<SearchTab> _searchTabs = [
     SearchTab(key: 'all', label: 'All', icon: LucideIcons.search),
     SearchTab(key: 'people', label: 'People', icon: LucideIcons.users),
@@ -39,11 +35,11 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
     super.initState();
     _searchController = TextEditingController(text: widget.initialQuery ?? '');
     _currentQuery = widget.initialQuery ?? '';
-    
+
     final initialTabIndex = widget.searchType != null
         ? _searchTabs.indexWhere((tab) => tab.key == widget.searchType)
         : 0;
-    
+
     _tabController = TabController(
       length: _searchTabs.length,
       vsync: this,
@@ -70,14 +66,14 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
     setState(() {
       _currentQuery = query.trim();
     });
-    
+
     // Perform search with debouncing
     _performSearch(query.trim());
   }
 
   void _performSearch(String query) {
     if (query.isEmpty) return;
-    
+
     // TODO: Implement actual search logic
     print('Searching for: $query in ${_searchTabs[_tabController.index].key}');
   }
@@ -93,7 +89,7 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -117,7 +113,8 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
             onChanged: _onSearchChanged,
             onSubmitted: _performSearch,
             decoration: InputDecoration(
-              hintText: 'Search ${_searchTabs[_tabController.index].label.toLowerCase()}...',
+              hintText:
+                  'Search ${_searchTabs[_tabController.index].label.toLowerCase()}...',
               prefixIcon: const Icon(LucideIcons.search, size: 18),
               suffixIcon: _currentQuery.isNotEmpty
                   ? IconButton(
@@ -137,16 +134,20 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
           controller: _tabController,
           isScrollable: true,
           tabAlignment: TabAlignment.start,
-          tabs: _searchTabs.map((tab) => Tab(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(tab.icon, size: 16),
-                const SizedBox(width: 6),
-                Text(tab.label),
-              ],
-            ),
-          )).toList(),
+          tabs: _searchTabs
+              .map(
+                (tab) => Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(tab.icon, size: 16),
+                      const SizedBox(width: 6),
+                      Text(tab.label),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ),
       body: Column(
@@ -154,10 +155,9 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
           // Recent searches and suggestions when no query
           if (_currentQuery.isEmpty)
             Expanded(child: _buildRecentAndSuggestions()),
-          
+
           // Search results when query exists
-          if (_currentQuery.isNotEmpty)
-            Expanded(child: _buildSearchResults()),
+          if (_currentQuery.isNotEmpty) Expanded(child: _buildSearchResults()),
         ],
       ),
     );
@@ -170,27 +170,21 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Recent searches
-          _buildSection(
-            'Recent Searches',
-            [
-              _buildRecentSearchItem('John Doe', LucideIcons.user),
-              _buildRecentSearchItem('Basketball game', LucideIcons.gamepad2),
-              _buildRecentSearchItem('Central Park Courts', LucideIcons.mapPin),
-            ],
-          ),
+          _buildSection('Recent Searches', [
+            _buildRecentSearchItem('John Doe', LucideIcons.user),
+            _buildRecentSearchItem('Basketball game', LucideIcons.gamepad2),
+            _buildRecentSearchItem('Central Park Courts', LucideIcons.mapPin),
+          ]),
           const SizedBox(height: 24),
-          
+
           // Suggested searches
-          _buildSection(
-            'Suggestions',
-            [
-              _buildSuggestionItem('People nearby', LucideIcons.users),
-              _buildSuggestionItem('Popular games today', LucideIcons.gamepad2),
-              _buildSuggestionItem('Trending posts', LucideIcons.trendingUp),
-            ],
-          ),
+          _buildSection('Suggestions', [
+            _buildSuggestionItem('People nearby', LucideIcons.users),
+            _buildSuggestionItem('Popular games today', LucideIcons.gamepad2),
+            _buildSuggestionItem('Trending posts', LucideIcons.trendingUp),
+          ]),
           const SizedBox(height: 24),
-          
+
           // Quick filters
           _buildQuickFilters(),
         ],
@@ -215,9 +209,9 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
             children: [
               Text(
                 'Results for "$_currentQuery"',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const Spacer(),
               TextButton.icon(
@@ -230,7 +224,7 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Placeholder results
           ...List.generate(5, (index) => _buildResultItem(tabKey, index)),
         ],
@@ -244,9 +238,9 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         ...children,
@@ -286,27 +280,37 @@ class _SocialSearchScreenState extends ConsumerState<SocialSearchScreen>
   }
 
   Widget _buildQuickFilters() {
-    final filters = ['Near me', 'Today', 'This week', 'Friends only', 'Popular'];
-    
+    final filters = [
+      'Near me',
+      'Today',
+      'This week',
+      'Friends only',
+      'Popular',
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Quick Filters',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: filters.map((filter) => FilterChip(
-            label: Text(filter),
-            onSelected: (selected) {
-              // TODO: Apply filter
-            },
-          )).toList(),
+          children: filters
+              .map(
+                (filter) => FilterChip(
+                  label: Text(filter),
+                  onSelected: (selected) {
+                    // TODO: Apply filter
+                  },
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -350,9 +354,5 @@ class SearchTab {
   final String label;
   final IconData icon;
 
-  const SearchTab({
-    required this.key,
-    required this.label,
-    required this.icon,
-  });
+  const SearchTab({required this.key, required this.label, required this.icon});
 }

@@ -1,8 +1,13 @@
 enum ThemeMode { system, light, dark }
+
 enum DistanceUnit { miles, kilometers }
+
 enum TemperatureUnit { fahrenheit, celsius }
+
 enum DateFormat { mmddyyyy, ddmmyyyy, yyyymmdd }
+
 enum TimeFormat { twelve, twentyfour }
+
 enum NotificationSound { standard, subtle, off }
 
 class UserSettings {
@@ -40,7 +45,7 @@ class UserSettings {
   final bool vibrationEnabled;
   final int reminderMinutesBefore;
 
-  // Map preferences  
+  // Map preferences
   final bool showTrafficLayer;
   final bool showSatelliteView;
   final double defaultMapZoom;
@@ -123,7 +128,7 @@ class UserSettings {
       case TemperatureUnit.celsius:
         return '${celsius.round()}°C';
       case TemperatureUnit.fahrenheit:
-        final fahrenheit = (celsius * 9/5) + 32;
+        final fahrenheit = (celsius * 9 / 5) + 32;
         return '${fahrenheit.round()}°F';
     }
   }
@@ -144,7 +149,9 @@ class UserSettings {
   String formatTime(DateTime time) {
     switch (timeFormat) {
       case TimeFormat.twelve:
-        final hour12 = time.hour == 0 ? 12 : (time.hour > 12 ? time.hour - 12 : time.hour);
+        final hour12 = time.hour == 0
+            ? 12
+            : (time.hour > 12 ? time.hour - 12 : time.hour);
         final period = time.hour >= 12 ? 'PM' : 'AM';
         return '$hour12:${time.minute.toString().padLeft(2, '0')} $period';
       case TimeFormat.twentyfour:
@@ -175,7 +182,7 @@ class UserSettings {
   /// Returns optimal settings for data saver mode
   UserSettings getDataSaverSettings() {
     if (!enableDataSaver) return this;
-    
+
     return copyWith(
       enableAnimations: false,
       preloadImages: false,
@@ -253,20 +260,27 @@ class UserSettings {
       defaultMaxPlayers: defaultMaxPlayers ?? this.defaultMaxPlayers,
       defaultIsPublic: defaultIsPublic ?? this.defaultIsPublic,
       defaultAllowWaitlist: defaultAllowWaitlist ?? this.defaultAllowWaitlist,
-      defaultAdvanceNoticeHours: defaultAdvanceNoticeHours ?? this.defaultAdvanceNoticeHours,
-      enablePushNotifications: enablePushNotifications ?? this.enablePushNotifications,
-      gameInviteNotifications: gameInviteNotifications ?? this.gameInviteNotifications,
-      gameReminderNotifications: gameReminderNotifications ?? this.gameReminderNotifications,
-      gameUpdateNotifications: gameUpdateNotifications ?? this.gameUpdateNotifications,
+      defaultAdvanceNoticeHours:
+          defaultAdvanceNoticeHours ?? this.defaultAdvanceNoticeHours,
+      enablePushNotifications:
+          enablePushNotifications ?? this.enablePushNotifications,
+      gameInviteNotifications:
+          gameInviteNotifications ?? this.gameInviteNotifications,
+      gameReminderNotifications:
+          gameReminderNotifications ?? this.gameReminderNotifications,
+      gameUpdateNotifications:
+          gameUpdateNotifications ?? this.gameUpdateNotifications,
       socialNotifications: socialNotifications ?? this.socialNotifications,
       systemNotifications: systemNotifications ?? this.systemNotifications,
       notificationSound: notificationSound ?? this.notificationSound,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
-      reminderMinutesBefore: reminderMinutesBefore ?? this.reminderMinutesBefore,
+      reminderMinutesBefore:
+          reminderMinutesBefore ?? this.reminderMinutesBefore,
       showTrafficLayer: showTrafficLayer ?? this.showTrafficLayer,
       showSatelliteView: showSatelliteView ?? this.showSatelliteView,
       defaultMapZoom: defaultMapZoom ?? this.defaultMapZoom,
-      autoLocationDetection: autoLocationDetection ?? this.autoLocationDetection,
+      autoLocationDetection:
+          autoLocationDetection ?? this.autoLocationDetection,
       enableDataSaver: enableDataSaver ?? this.enableDataSaver,
       preloadImages: preloadImages ?? this.preloadImages,
       backgroundRefresh: backgroundRefresh ?? this.backgroundRefresh,
@@ -312,10 +326,12 @@ class UserSettings {
       defaultMaxPlayers: json['defaultMaxPlayers'] as int? ?? 10,
       defaultIsPublic: json['defaultIsPublic'] as bool? ?? true,
       defaultAllowWaitlist: json['defaultAllowWaitlist'] as bool? ?? true,
-      defaultAdvanceNoticeHours: json['defaultAdvanceNoticeHours'] as int? ?? 24,
+      defaultAdvanceNoticeHours:
+          json['defaultAdvanceNoticeHours'] as int? ?? 24,
       enablePushNotifications: json['enablePushNotifications'] as bool? ?? true,
       gameInviteNotifications: json['gameInviteNotifications'] as bool? ?? true,
-      gameReminderNotifications: json['gameReminderNotifications'] as bool? ?? true,
+      gameReminderNotifications:
+          json['gameReminderNotifications'] as bool? ?? true,
       gameUpdateNotifications: json['gameUpdateNotifications'] as bool? ?? true,
       socialNotifications: json['socialNotifications'] as bool? ?? true,
       systemNotifications: json['systemNotifications'] as bool? ?? false,

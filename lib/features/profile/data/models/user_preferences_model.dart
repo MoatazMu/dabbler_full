@@ -98,32 +98,60 @@ class UserPreferencesModel extends UserPreferences {
       maxPlayers: json['max_players'] as int?,
       competitionLevel: json['competition_level'] as String?,
       playerType: json['player_type'] as String?,
-      maxTravelRadius: _parseDoubleWithDefault(json['max_travel_radius'], 15.0) ?? 15.0,
-      maxTravelDistance: _parseDoubleWithDefault(json['max_travel_distance'], null),
+      maxTravelRadius:
+          _parseDoubleWithDefault(json['max_travel_radius'], 15.0) ?? 15.0,
+      maxTravelDistance: _parseDoubleWithDefault(
+        json['max_travel_distance'],
+        null,
+      ),
       preferredVenues: _parseStringList(json['preferred_venues']),
       preferredLocations: _parseStringList(json['preferred_locations']),
       travelWillingness: _parseTravelWillingness(json['travel_willingness']),
       preferOutdoor: _parseBoolWithDefault(json['prefer_outdoor'], true),
       preferIndoor: _parseBoolWithDefault(json['prefer_indoor'], true),
       weeklyAvailability: _parseTimeSlotList(json['weekly_availability']),
-      availableTimeSlots: _parseAvailableTimeSlots(json['available_time_slots']) ?? {},
-      advanceBookingDays: _parseIntWithDefault(json['advance_booking_days'], 14),
+      availableTimeSlots:
+          _parseAvailableTimeSlots(json['available_time_slots']) ?? {},
+      advanceBookingDays: _parseIntWithDefault(
+        json['advance_booking_days'],
+        14,
+      ),
       minimumNoticeHours: _parseIntWithDefault(json['minimum_notice_hours'], 4),
       unavailableDates: _parseStringList(json['unavailable_dates']),
-      openToNewPlayers: _parseBoolWithDefault(json['open_to_new_players'], true),
+      openToNewPlayers: _parseBoolWithDefault(
+        json['open_to_new_players'],
+        true,
+      ),
       openToNewSports: _parseBoolWithDefault(json['open_to_new_sports'], true),
-      ageRangePreference: _parseAgeRangePreference(json['age_range_preference']),
-      genderMixPreference: _parseGenderMixPreference(json['gender_mix_preference']),
-      preferFriendsOfFriends: _parseBoolWithDefault(json['prefer_friends_of_friends'], false),
+      ageRangePreference: _parseAgeRangePreference(
+        json['age_range_preference'],
+      ),
+      genderMixPreference: _parseGenderMixPreference(
+        json['gender_mix_preference'],
+      ),
+      preferFriendsOfFriends: _parseBoolWithDefault(
+        json['prefer_friends_of_friends'],
+        false,
+      ),
       maxGroupSize: _parseIntWithDefault(json['max_group_size'], 20),
       minGroupSize: _parseIntWithDefault(json['min_group_size'], 4),
-      preferCompetitive: _parseBoolWithDefault(json['prefer_competitive'], false),
+      preferCompetitive: _parseBoolWithDefault(
+        json['prefer_competitive'],
+        false,
+      ),
       preferCasual: _parseBoolWithDefault(json['prefer_casual'], true),
       acceptWaitlist: _parseBoolWithDefault(json['accept_waitlist'], true),
-      autoAcceptInvites: _parseBoolWithDefault(json['auto_accept_invites'], false),
+      autoAcceptInvites: _parseBoolWithDefault(
+        json['auto_accept_invites'],
+        false,
+      ),
       languagesSpoken: _parseStringList(json['languages_spoken']),
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 
@@ -131,16 +159,18 @@ class UserPreferencesModel extends UserPreferences {
   factory UserPreferencesModel.fromSupabaseResponse(Map<String, dynamic> json) {
     // Handle nested availability data from separate table
     final availabilityData = json['user_availability'] as List?;
-    final weeklyAvailability = availabilityData != null 
+    final weeklyAvailability = availabilityData != null
         ? _parseAvailabilityFromList(availabilityData)
         : _parseTimeSlotList(json['weekly_availability']);
 
     return UserPreferencesModel(
       userId: json['userId'] as String? ?? '',
-      preferredSports: _parseGameTypesFromRelations(json) ?? 
-                          _parseStringList(json['preferred_sports']),
-      preferredGameTypes: _parseGameTypesFromRelations(json) ?? 
-                          _parseStringList(json['preferred_game_types']),
+      preferredSports:
+          _parseGameTypesFromRelations(json) ??
+          _parseStringList(json['preferred_sports']),
+      preferredGameTypes:
+          _parseGameTypesFromRelations(json) ??
+          _parseStringList(json['preferred_game_types']),
       preferredDuration: _parseGameDuration(json['preferred_duration']),
       preferredTeamSize: _parseTeamSize(json['preferred_team_size']),
       skillLevelPreferences: _parseStringList(json['skill_level_preferences']),
@@ -149,34 +179,64 @@ class UserPreferencesModel extends UserPreferences {
       maxPlayers: json['max_players'] as int?,
       competitionLevel: json['competition_level'] as String?,
       playerType: json['player_type'] as String?,
-      maxTravelRadius: _parseDoubleWithDefault(json['max_travel_radius'], 15.0) ?? 15.0,
-      maxTravelDistance: _parseDoubleWithDefault(json['max_travel_distance'], null),
-      preferredVenues: _parseLocationsFromRelations(json) ?? 
-                       _parseStringList(json['preferred_venues']),
-      preferredLocations: _parseLocationsFromRelations(json) ?? 
-                          _parseStringList(json['preferred_locations']),
+      maxTravelRadius:
+          _parseDoubleWithDefault(json['max_travel_radius'], 15.0) ?? 15.0,
+      maxTravelDistance: _parseDoubleWithDefault(
+        json['max_travel_distance'],
+        null,
+      ),
+      preferredVenues:
+          _parseLocationsFromRelations(json) ??
+          _parseStringList(json['preferred_venues']),
+      preferredLocations:
+          _parseLocationsFromRelations(json) ??
+          _parseStringList(json['preferred_locations']),
       travelWillingness: _parseTravelWillingness(json['travel_willingness']),
       preferOutdoor: _parseBoolWithDefault(json['prefer_outdoor'], true),
       preferIndoor: _parseBoolWithDefault(json['prefer_indoor'], true),
       weeklyAvailability: weeklyAvailability,
-      availableTimeSlots: _parseAvailableTimeSlots(json['available_time_slots']) ?? {},
-      advanceBookingDays: _parseIntWithDefault(json['advance_booking_days'], 14),
+      availableTimeSlots:
+          _parseAvailableTimeSlots(json['available_time_slots']) ?? {},
+      advanceBookingDays: _parseIntWithDefault(
+        json['advance_booking_days'],
+        14,
+      ),
       minimumNoticeHours: _parseIntWithDefault(json['minimum_notice_hours'], 4),
       unavailableDates: _parseStringList(json['unavailable_dates']),
-      openToNewPlayers: _parseBoolWithDefault(json['open_to_new_players'], true),
+      openToNewPlayers: _parseBoolWithDefault(
+        json['open_to_new_players'],
+        true,
+      ),
       openToNewSports: _parseBoolWithDefault(json['open_to_new_sports'], true),
-      ageRangePreference: _parseAgeRangePreference(json['age_range_preference']),
-      genderMixPreference: _parseGenderMixPreference(json['gender_mix_preference']),
-      preferFriendsOfFriends: _parseBoolWithDefault(json['prefer_friends_of_friends'], false),
+      ageRangePreference: _parseAgeRangePreference(
+        json['age_range_preference'],
+      ),
+      genderMixPreference: _parseGenderMixPreference(
+        json['gender_mix_preference'],
+      ),
+      preferFriendsOfFriends: _parseBoolWithDefault(
+        json['prefer_friends_of_friends'],
+        false,
+      ),
       maxGroupSize: _parseIntWithDefault(json['max_group_size'], 20),
       minGroupSize: _parseIntWithDefault(json['min_group_size'], 4),
-      preferCompetitive: _parseBoolWithDefault(json['prefer_competitive'], false),
+      preferCompetitive: _parseBoolWithDefault(
+        json['prefer_competitive'],
+        false,
+      ),
       preferCasual: _parseBoolWithDefault(json['prefer_casual'], true),
       acceptWaitlist: _parseBoolWithDefault(json['accept_waitlist'], true),
-      autoAcceptInvites: _parseBoolWithDefault(json['auto_accept_invites'], false),
+      autoAcceptInvites: _parseBoolWithDefault(
+        json['auto_accept_invites'],
+        false,
+      ),
       languagesSpoken: _parseStringList(json['languages_spoken']),
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 
@@ -202,7 +262,9 @@ class UserPreferencesModel extends UserPreferences {
       'travel_willingness': travelWillingness.toString().split('.').last,
       'prefer_outdoor': preferOutdoor,
       'prefer_indoor': preferIndoor,
-      'weekly_availability': weeklyAvailability.map((slot) => slot.toJson()).toList(),
+      'weekly_availability': weeklyAvailability
+          .map((slot) => slot.toJson())
+          .toList(),
       'available_time_slots': availableTimeSlots,
       'advance_booking_days': advanceBookingDays,
       'minimum_notice_hours': minimumNoticeHours,
@@ -245,7 +307,9 @@ class UserPreferencesModel extends UserPreferences {
       'travel_willingness': travelWillingness.toString().split('.').last,
       'prefer_outdoor': preferOutdoor,
       'prefer_indoor': preferIndoor,
-      'weekly_availability': weeklyAvailability.map((slot) => slot.toJson()).toList(),
+      'weekly_availability': weeklyAvailability
+          .map((slot) => slot.toJson())
+          .toList(),
       'available_time_slots': availableTimeSlots,
       'advance_booking_days': advanceBookingDays,
       'minimum_notice_hours': minimumNoticeHours,
@@ -269,7 +333,7 @@ class UserPreferencesModel extends UserPreferences {
   /// Creates separate records for availability table
   List<Map<String, dynamic>> toAvailabilityRecords(String userId) {
     final records = <Map<String, dynamic>>[];
-    
+
     for (final slot in weeklyAvailability) {
       records.add({
         'user_id': userId,
@@ -279,14 +343,14 @@ class UserPreferencesModel extends UserPreferences {
         'created_at': DateTime.now().toIso8601String(),
       });
     }
-    
+
     return records;
   }
 
   /// Creates separate records for notification settings table
   List<Map<String, dynamic>> toNotificationRecords(String userId) {
     final now = DateTime.now().toIso8601String();
-    
+
     // Create notification preference records based on the notification settings
     // This would typically be stored in a separate notifications table
     return [
@@ -305,7 +369,7 @@ class UserPreferencesModel extends UserPreferences {
         'loyalty_points': true,
         'created_at': now,
         'updated_at': now,
-      }
+      },
     ];
   }
 
@@ -320,7 +384,8 @@ class UserPreferencesModel extends UserPreferences {
         try {
           final cleaned = value.substring(1, value.length - 1);
           if (cleaned.isEmpty) return [];
-          return cleaned.split(',')
+          return cleaned
+              .split(',')
               .map((e) => e.trim().replaceAll('"', '').replaceAll("'", ''))
               .where((e) => e.isNotEmpty)
               .toList();
@@ -328,7 +393,11 @@ class UserPreferencesModel extends UserPreferences {
           return [];
         }
       }
-      return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      return value
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
     }
     return [];
   }
@@ -336,7 +405,9 @@ class UserPreferencesModel extends UserPreferences {
   static List<TimeSlot> _parseTimeSlotList(dynamic value) {
     if (value == null) return [];
     if (value is List) {
-      return value.map((e) => TimeSlot.fromJson(e as Map<String, dynamic>)).toList();
+      return value
+          .map((e) => TimeSlot.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }
@@ -396,9 +467,11 @@ class UserPreferencesModel extends UserPreferences {
     return GenderMixPreference.any;
   }
 
-  static List<TimeSlot> _parseAvailabilityFromList(List<dynamic> availabilityData) {
+  static List<TimeSlot> _parseAvailabilityFromList(
+    List<dynamic> availabilityData,
+  ) {
     final timeSlots = <TimeSlot>[];
-    
+
     for (final item in availabilityData) {
       if (item is Map<String, dynamic>) {
         final timeSlot = TimeSlot(
@@ -409,12 +482,13 @@ class UserPreferencesModel extends UserPreferences {
         timeSlots.add(timeSlot);
       }
     }
-    
+
     return timeSlots;
   }
 
   static List<String>? _parseGameTypesFromRelations(Map<String, dynamic> json) {
-    if (json.containsKey('user_game_types') && json['user_game_types'] is List) {
+    if (json.containsKey('user_game_types') &&
+        json['user_game_types'] is List) {
       final gameTypes = json['user_game_types'] as List;
       return gameTypes
           .map((e) => e['game_type']?['name'] as String?)
@@ -526,7 +600,8 @@ class UserPreferencesModel extends UserPreferences {
       preferredGameTypes: preferredGameTypes ?? this.preferredGameTypes,
       preferredDuration: preferredDuration ?? this.preferredDuration,
       preferredTeamSize: preferredTeamSize ?? this.preferredTeamSize,
-      skillLevelPreferences: skillLevelPreferences ?? this.skillLevelPreferences,
+      skillLevelPreferences:
+          skillLevelPreferences ?? this.skillLevelPreferences,
       skillLevel: skillLevel ?? this.skillLevel,
       minPlayers: minPlayers ?? this.minPlayers,
       maxPlayers: maxPlayers ?? this.maxPlayers,
@@ -548,7 +623,8 @@ class UserPreferencesModel extends UserPreferences {
       openToNewSports: openToNewSports ?? this.openToNewSports,
       ageRangePreference: ageRangePreference ?? this.ageRangePreference,
       genderMixPreference: genderMixPreference ?? this.genderMixPreference,
-      preferFriendsOfFriends: preferFriendsOfFriends ?? this.preferFriendsOfFriends,
+      preferFriendsOfFriends:
+          preferFriendsOfFriends ?? this.preferFriendsOfFriends,
       maxGroupSize: maxGroupSize ?? this.maxGroupSize,
       minGroupSize: minGroupSize ?? this.minGroupSize,
       preferCompetitive: preferCompetitive ?? this.preferCompetitive,

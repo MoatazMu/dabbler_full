@@ -7,7 +7,8 @@ class PushNotificationService {
 
   /// Stream of incoming notifications
   Stream<Map<String, dynamic>> get notificationStream {
-    _notificationController ??= StreamController<Map<String, dynamic>>.broadcast();
+    _notificationController ??=
+        StreamController<Map<String, dynamic>>.broadcast();
     return _notificationController!.stream;
   }
 
@@ -35,10 +36,10 @@ class PushNotificationService {
       // TODO: Implement actual push notification sending
       // For now, simulate success
       await Future.delayed(const Duration(milliseconds: 50));
-      
+
       // Add to local stream for testing
       _notificationController?.add(notification);
-      
+
       return true;
     } catch (e) {
       return false;
@@ -46,7 +47,10 @@ class PushNotificationService {
   }
 
   /// Send notification to specific user
-  Future<bool> sendNotificationToUser(String userId, Map<String, dynamic> notification) async {
+  Future<bool> sendNotificationToUser(
+    String userId,
+    Map<String, dynamic> notification,
+  ) async {
     try {
       if (!_isInitialized) {
         return false;
@@ -55,14 +59,14 @@ class PushNotificationService {
       // TODO: Implement user-specific notification
       // For now, simulate success
       await Future.delayed(const Duration(milliseconds: 50));
-      
+
       // Add user ID to notification
       final userNotification = Map<String, dynamic>.from(notification);
       userNotification['userId'] = userId;
-      
+
       // Add to local stream for testing
       _notificationController?.add(userNotification);
-      
+
       return true;
     } catch (e) {
       return false;

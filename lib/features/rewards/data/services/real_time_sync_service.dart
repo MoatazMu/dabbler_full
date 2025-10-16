@@ -15,35 +15,35 @@ class RealtimeSyncService {
   final SupabaseRewardsDataSource _remoteDataSource;
   final AchievementsLocalDataSource _localDataSource;
   final Connectivity _connectivity;
-  
+
   // Subscription management
   final Map<String, RealtimeChannel> _channels = {};
   final Map<String, StreamController> _streamControllers = {};
-  
+
   // Sync status
   bool _isConnected = false;
   bool _isSyncing = false;
   DateTime? _lastSyncAt;
-  
+
   // Configuration
   static const Duration _syncInterval = Duration(minutes: 5);
   static const Duration _reconnectDelay = Duration(seconds: 30);
 
   static const int _batchSize = 50;
-  
+
   Timer? _syncTimer;
   Timer? _reconnectTimer;
   StreamSubscription? _connectivitySubscription;
-  
+
   RealtimeSyncService({
     required SupabaseClient supabase,
     required SupabaseRewardsDataSource remoteDataSource,
     required AchievementsLocalDataSource localDataSource,
     Connectivity? connectivity,
   }) : _supabase = supabase,
-        _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource,
-        _connectivity = connectivity ?? Connectivity();
+       _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource,
+       _connectivity = connectivity ?? Connectivity();
 
   // =============================================================================
   // INITIALIZATION AND LIFECYCLE
@@ -59,27 +59,29 @@ class RealtimeSyncService {
 
   /// Setup connectivity listener
   Future<void> _setupConnectivityListener() async {
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-      (List<ConnectivityResult> results) async {
-        final wasConnected = _isConnected;
-        _isConnected = results.isNotEmpty && !results.contains(ConnectivityResult.none);
-        
-        if (_isConnected && !wasConnected) {
-          // Reconnected - sync queued events
-          await _onReconnected();
-        } else if (!_isConnected && wasConnected) {
-          // Disconnected
-          await _onDisconnected();
-        }
-      },
-    );
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) async {
+      final wasConnected = _isConnected;
+      _isConnected =
+          results.isNotEmpty && !results.contains(ConnectivityResult.none);
+
+      if (_isConnected && !wasConnected) {
+        // Reconnected - sync queued events
+        await _onReconnected();
+      } else if (!_isConnected && wasConnected) {
+        // Disconnected
+        await _onDisconnected();
+      }
+    });
   }
 
   /// Check initial connectivity status
   Future<void> _checkInitialConnectivity() async {
     final results = await _connectivity.checkConnectivity();
-    _isConnected = results.isNotEmpty && !results.contains(ConnectivityResult.none);
-    
+    _isConnected =
+        results.isNotEmpty && !results.contains(ConnectivityResult.none);
+
     if (_isConnected) {
       await _establishRealtimeConnections();
     }
@@ -97,13 +99,13 @@ class RealtimeSyncService {
   /// Handle reconnection
   Future<void> _onReconnected() async {
     print('🔄 RealtimeSyncService: Reconnected to network');
-    
+
     // Cancel existing reconnect timer
     _reconnectTimer?.cancel();
-    
+
     // Re-establish realtime connections
     await _establishRealtimeConnections();
-    
+
     // Sync queued events
     await _processQueuedEvents();
   }
@@ -111,10 +113,10 @@ class RealtimeSyncService {
   /// Handle disconnection
   Future<void> _onDisconnected() async {
     print('📴 RealtimeSyncService: Disconnected from network');
-    
+
     // Clean up realtime connections
     await _cleanupRealtimeConnections();
-    
+
     // Schedule reconnection attempts
     _scheduleReconnection();
   }
@@ -138,18 +140,17 @@ class RealtimeSyncService {
     try {
       // Subscribe to user progress updates
       await _subscribeToProgressUpdates();
-      
+
       // Subscribe to achievement updates
       await _subscribeToAchievementUpdates();
-      
+
       // Subscribe to point transactions
       await _subscribeToPointUpdates();
-      
+
       // Subscribe to leaderboard updates
       await _subscribeToLeaderboardUpdates();
-      
+
       print('✅ RealtimeSyncService: Established realtime connections');
-      
     } catch (error) {
       print('❌ RealtimeSyncService: Failed to establish connections: $error');
     }
@@ -166,7 +167,7 @@ class RealtimeSyncService {
           callback: _handleProgressUpdate,
         )
         .subscribe();
-        
+
     _channels['user_progress'] = channel;
   }
 
@@ -181,7 +182,7 @@ class RealtimeSyncService {
           callback: _handleAchievementUpdate,
         )
         .subscribe();
-        
+
     _channels['achievements'] = channel;
   }
 
@@ -196,7 +197,7 @@ class RealtimeSyncService {
           callback: _handlePointUpdate,
         )
         .subscribe();
-        
+
     _channels['points'] = channel;
   }
 
@@ -211,7 +212,7 @@ class RealtimeSyncService {
           callback: _handleLeaderboardUpdate,
         )
         .subscribe();
-        
+
     _channels['leaderboard'] = channel;
   }
 
@@ -221,7 +222,7 @@ class RealtimeSyncService {
       await channel.unsubscribe();
     }
     _channels.clear();
-    
+
     print('🧹 RealtimeSyncService: Cleaned up realtime connections');
   }
 
@@ -232,16 +233,15 @@ class RealtimeSyncService {
   /// Handle user progress updates
   void _handleProgressUpdate(PostgresChangePayload payload) {
     print('📈 Progress update: ${payload.eventType}');
-    
+
     try {
       final data = payload.newRecord;
-      
+
       // Update local cache
       _updateLocalProgressCache(data);
-      
+
       // Emit to stream if exists
       _emitProgressUpdate(data);
-      
     } catch (error) {
       print('❌ Error handling progress update: $error');
     }
@@ -250,16 +250,15 @@ class RealtimeSyncService {
   /// Handle achievement updates
   void _handleAchievementUpdate(PostgresChangePayload payload) {
     print('🏆 Achievement update: ${payload.eventType}');
-    
+
     try {
       final data = payload.newRecord;
-      
+
       // Update local cache
       _updateLocalAchievementCache(data);
-      
+
       // Emit to stream if exists
       _emitAchievementUpdate(data);
-      
     } catch (error) {
       print('❌ Error handling achievement update: $error');
     }
@@ -268,16 +267,15 @@ class RealtimeSyncService {
   /// Handle point transaction updates
   void _handlePointUpdate(PostgresChangePayload payload) {
     print('💰 Point update: ${payload.eventType}');
-    
+
     try {
       final data = payload.newRecord;
-      
+
       // Update local cache
       _updateLocalPointCache(data);
-      
+
       // Emit to stream if exists
       _emitPointUpdate(data);
-      
     } catch (error) {
       print('❌ Error handling point update: $error');
     }
@@ -286,13 +284,12 @@ class RealtimeSyncService {
   /// Handle leaderboard updates
   void _handleLeaderboardUpdate(PostgresChangePayload payload) {
     print('📊 Leaderboard update: ${payload.eventType}');
-    
+
     try {
       final data = payload.newRecord;
-      
+
       // Emit to stream if exists
       _emitLeaderboardUpdate(data);
-      
     } catch (error) {
       print('❌ Error handling leaderboard update: $error');
     }
@@ -308,7 +305,6 @@ class RealtimeSyncService {
       // This would update the local SQLite cache
       // Implementation depends on your UserProgressModel structure
       print('🔄 Updating local progress cache for ${data['user_id']}');
-      
     } catch (error) {
       print('❌ Error updating local progress cache: $error');
     }
@@ -320,7 +316,6 @@ class RealtimeSyncService {
       // This would update the local SQLite cache
       // Implementation depends on your AchievementModel structure
       print('🔄 Updating local achievement cache for ${data['id']}');
-      
     } catch (error) {
       print('❌ Error updating local achievement cache: $error');
     }
@@ -332,7 +327,6 @@ class RealtimeSyncService {
       // This would update the local SQLite cache
       // Implementation depends on your PointTransaction structure
       print('🔄 Updating local point cache for ${data['user_id']}');
-      
     } catch (error) {
       print('❌ Error updating local point cache: $error');
     }
@@ -381,23 +375,28 @@ class RealtimeSyncService {
   /// Get stream for progress updates
   Stream<Map<String, dynamic>> get progressUpdates {
     if (!_streamControllers.containsKey('progress')) {
-      _streamControllers['progress'] = StreamController<Map<String, dynamic>>.broadcast();
+      _streamControllers['progress'] =
+          StreamController<Map<String, dynamic>>.broadcast();
     }
-    return _streamControllers['progress']!.stream as Stream<Map<String, dynamic>>;
+    return _streamControllers['progress']!.stream
+        as Stream<Map<String, dynamic>>;
   }
 
   /// Get stream for achievement updates
   Stream<Map<String, dynamic>> get achievementUpdates {
     if (!_streamControllers.containsKey('achievements')) {
-      _streamControllers['achievements'] = StreamController<Map<String, dynamic>>.broadcast();
+      _streamControllers['achievements'] =
+          StreamController<Map<String, dynamic>>.broadcast();
     }
-    return _streamControllers['achievements']!.stream as Stream<Map<String, dynamic>>;
+    return _streamControllers['achievements']!.stream
+        as Stream<Map<String, dynamic>>;
   }
 
   /// Get stream for point updates
   Stream<Map<String, dynamic>> get pointUpdates {
     if (!_streamControllers.containsKey('points')) {
-      _streamControllers['points'] = StreamController<Map<String, dynamic>>.broadcast();
+      _streamControllers['points'] =
+          StreamController<Map<String, dynamic>>.broadcast();
     }
     return _streamControllers['points']!.stream as Stream<Map<String, dynamic>>;
   }
@@ -405,9 +404,11 @@ class RealtimeSyncService {
   /// Get stream for leaderboard updates
   Stream<Map<String, dynamic>> get leaderboardUpdates {
     if (!_streamControllers.containsKey('leaderboard')) {
-      _streamControllers['leaderboard'] = StreamController<Map<String, dynamic>>.broadcast();
+      _streamControllers['leaderboard'] =
+          StreamController<Map<String, dynamic>>.broadcast();
     }
-    return _streamControllers['leaderboard']!.stream as Stream<Map<String, dynamic>>;
+    return _streamControllers['leaderboard']!.stream
+        as Stream<Map<String, dynamic>>;
   }
 
   // =============================================================================
@@ -417,22 +418,22 @@ class RealtimeSyncService {
   /// Process queued offline events
   Future<void> _processQueuedEvents() async {
     if (!_isConnected || _isSyncing) return;
-    
+
     _isSyncing = true;
-    
+
     try {
       final events = await _localDataSource.getQueuedEvents(limit: _batchSize);
-      
+
       if (events.isEmpty) {
         _isSyncing = false;
         return;
       }
-      
+
       print('🔄 Processing ${events.length} queued events');
-      
+
       for (final event in events) {
         final success = await _processQueuedEvent(event);
-        
+
         if (success) {
           await _localDataSource.markEventAsProcessed(event['id']);
         } else {
@@ -442,12 +443,11 @@ class RealtimeSyncService {
           );
         }
       }
-      
+
       _lastSyncAt = DateTime.now();
       await _localDataSource.updateSyncStatus('events');
-      
+
       print('✅ Processed ${events.length} queued events');
-      
     } catch (error) {
       print('❌ Error processing queued events: $error');
     } finally {
@@ -461,22 +461,21 @@ class RealtimeSyncService {
       final eventType = event['type'] as String;
       final eventData = event['data'] as Map<String, dynamic>;
       final userId = event['userId'] as String;
-      
+
       switch (eventType) {
         case 'achievement_progress':
           return await _syncAchievementProgress(userId, eventData);
-          
+
         case 'point_award':
           return await _syncPointAward(userId, eventData);
-          
+
         case 'badge_showcase':
           return await _syncBadgeShowcase(userId, eventData);
-          
+
         default:
           print('⚠️  Unknown event type: $eventType');
           return false;
       }
-      
     } catch (error) {
       print('❌ Error processing event: $error');
       return false;
@@ -484,11 +483,14 @@ class RealtimeSyncService {
   }
 
   /// Sync achievement progress
-  Future<bool> _syncAchievementProgress(String userId, Map<String, dynamic> data) async {
+  Future<bool> _syncAchievementProgress(
+    String userId,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final eventTypeStr = data['eventType'] as String? ?? 'gameEnd';
       final eventData = data['eventData'] as Map<String, dynamic>? ?? {};
-      
+
       // Parse string to EventType enum
       EventType eventType;
       try {
@@ -496,13 +498,9 @@ class RealtimeSyncService {
       } catch (_) {
         eventType = EventType.gameEnd; // default fallback
       }
-      
+
       // Call the remote datasource with correct parameters
-      await _remoteDataSource.trackEvent(
-        eventType,
-        eventData,
-        userId,
-      );
+      await _remoteDataSource.trackEvent(eventType, eventData, userId);
       return true;
     } catch (error) {
       print('❌ Error syncing achievement progress: $error');
@@ -517,15 +515,17 @@ class RealtimeSyncService {
       final typeStr = data['type'] as String? ?? 'achievement';
       final sourceId = data['sourceId'] as String? ?? 'unknown';
       final metadata = data['metadata'] as Map<String, dynamic>? ?? {};
-      
+
       // Parse string to TransactionType enum
       TransactionType transactionType;
       try {
-        transactionType = TransactionType.values.firstWhere((t) => t.name == typeStr);
+        transactionType = TransactionType.values.firstWhere(
+          (t) => t.name == typeStr,
+        );
       } catch (_) {
         transactionType = TransactionType.achievement; // default fallback
       }
-      
+
       // Call the remote datasource with correct parameters
       await _remoteDataSource.awardPoints(
         userId,
@@ -542,7 +542,10 @@ class RealtimeSyncService {
   }
 
   /// Sync badge showcase
-  Future<bool> _syncBadgeShowcase(String userId, Map<String, dynamic> data) async {
+  Future<bool> _syncBadgeShowcase(
+    String userId,
+    Map<String, dynamic> data,
+  ) async {
     try {
       // This would call a badge showcase endpoint
       // Implementation depends on your badge system
@@ -561,13 +564,12 @@ class RealtimeSyncService {
   /// Perform periodic sync
   Future<void> _performPeriodicSync() async {
     if (_isSyncing) return;
-    
+
     print('🔄 Performing periodic sync');
-    
+
     try {
       await _processQueuedEvents();
       await _syncCriticalData();
-      
     } catch (error) {
       print('❌ Error in periodic sync: $error');
     }
@@ -581,9 +583,8 @@ class RealtimeSyncService {
       // - User tier updates
       // - Badge unlocks
       // - Achievement completions
-      
+
       print('🔄 Syncing critical data');
-      
     } catch (error) {
       print('❌ Error syncing critical data: $error');
     }
@@ -609,20 +610,24 @@ class RealtimeSyncService {
     if (!_isConnected) {
       throw Exception('Cannot sync while offline');
     }
-    
+
     await _processQueuedEvents();
     await _syncCriticalData();
   }
 
   /// Queue event for offline processing
-  Future<void> queueEvent(String userId, String eventType, Map<String, dynamic> eventData) async {
+  Future<void> queueEvent(
+    String userId,
+    String eventType,
+    Map<String, dynamic> eventData,
+  ) async {
     final event = {
       'userId': userId,
       'type': eventType,
       'data': eventData,
       'timestamp': DateTime.now().toIso8601String(),
     };
-    
+
     await _localDataSource.queueEvent(event);
     print('📥 Queued event: $eventType for user $userId');
   }
@@ -639,23 +644,23 @@ class RealtimeSyncService {
   /// Dispose and cleanup all resources
   Future<void> dispose() async {
     print('🧹 Disposing RealtimeSyncService');
-    
+
     // Cancel timers
     _syncTimer?.cancel();
     _reconnectTimer?.cancel();
-    
+
     // Cancel connectivity subscription
     await _connectivitySubscription?.cancel();
-    
+
     // Clean up realtime connections
     await _cleanupRealtimeConnections();
-    
+
     // Close stream controllers
     for (final controller in _streamControllers.values) {
       await controller.close();
     }
     _streamControllers.clear();
-    
+
     print('✅ RealtimeSyncService disposed');
   }
 }

@@ -10,13 +10,16 @@ class GameFailure extends Failure {
   const GameFailure(super.message);
 }
 
-class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, FindGamesParams> {
+class FindGamesUseCase
+    extends UseCase<Either<Failure, List<GameWithDistance>>, FindGamesParams> {
   final GamesRepository gamesRepository;
 
   FindGamesUseCase({required this.gamesRepository});
 
   @override
-  Future<Either<Failure, List<GameWithDistance>>> call(FindGamesParams params) async {
+  Future<Either<Failure, List<GameWithDistance>>> call(
+    FindGamesParams params,
+  ) async {
     // Validate parameters
     final validationResult = _validateSearchParameters(params);
     if (validationResult != null) {
@@ -35,20 +38,19 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
       ascending: params.ascending,
     );
 
-    return gamesResult.fold(
-      (failure) => Left(failure),
-      (games) async {
-        // Filter and process games
-        final processedGames = await _processGames(games, params);
-        
-        // Sort by distance if location provided and not already sorting by distance
-        if (params.userLatitude != null && params.userLongitude != null && params.sortBy != 'distance') {
-          processedGames.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-        }
+    return gamesResult.fold((failure) => Left(failure), (games) async {
+      // Filter and process games
+      final processedGames = await _processGames(games, params);
 
-        return Right(processedGames);
-      },
-    );
+      // Sort by distance if location provided and not already sorting by distance
+      if (params.userLatitude != null &&
+          params.userLongitude != null &&
+          params.sortBy != 'distance') {
+        processedGames.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
+      }
+
+      return Right(processedGames);
+    });
   }
 
   /// Validates search parameters
@@ -62,18 +64,24 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
 
     // Validate location coordinates
     if ((params.userLatitude != null) != (params.userLongitude != null)) {
-      return const GameFailure('Both latitude and longitude must be provided for location-based search');
+      return const GameFailure(
+        'Both latitude and longitude must be provided for location-based search',
+      );
     }
 
     if (params.userLatitude != null) {
       if (params.userLatitude! < -90 || params.userLatitude! > 90) {
-        return const GameFailure('Invalid latitude. Must be between -90 and 90');
+        return const GameFailure(
+          'Invalid latitude. Must be between -90 and 90',
+        );
       }
     }
 
     if (params.userLongitude != null) {
       if (params.userLongitude! < -180 || params.userLongitude! > 180) {
-        return const GameFailure('Invalid longitude. Must be between -180 and 180');
+        return const GameFailure(
+          'Invalid longitude. Must be between -180 and 180',
+        );
       }
     }
 
@@ -84,9 +92,16 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
 
     // Validate skill level
     if (params.skillLevel != null) {
-      const validSkillLevels = ['beginner', 'intermediate', 'advanced', 'mixed'];
+      const validSkillLevels = [
+        'beginner',
+        'intermediate',
+        'advanced',
+        'mixed',
+      ];
       if (!validSkillLevels.contains(params.skillLevel!.toLowerCase())) {
-        return const GameFailure('Invalid skill level. Must be: beginner, intermediate, advanced, or mixed');
+        return const GameFailure(
+          'Invalid skill level. Must be: beginner, intermediate, advanced, or mixed',
+        );
       }
     }
 
@@ -153,17 +168,22 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
   }
 
   /// Processes and filters games based on additional criteria
-  Future<List<GameWithDistance>> _processGames(List<Game> games, FindGamesParams params) async {
+  Future<List<GameWithDistance>> _processGames(
+    List<Game> games,
+    FindGamesParams params,
+  ) async {
     final processedGames = <GameWithDistance>[];
 
     for (final game in games) {
       // Exclude user's own games
-      if (params.excludeUserId != null && game.organizerId == params.excludeUserId) {
+      if (params.excludeUserId != null &&
+          game.organizerId == params.excludeUserId) {
         continue;
       }
 
       // Exclude full games unless they allow waitlist and user wants waitlist games
-      if (game.isFull() && (!game.allowsWaitlist || !params.includeWaitlistGames)) {
+      if (game.isFull() &&
+          (!game.allowsWaitlist || !params.includeWaitlistGames)) {
         continue;
       }
 
@@ -174,18 +194,18 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
 
       // Calculate distance if user location provided and venue ID exists
       double? distance;
-      if (params.userLatitude != null && 
-          params.userLongitude != null && 
+      if (params.userLatitude != null &&
+          params.userLongitude != null &&
           game.venueId != null) {
         // TODO: Fetch venue coordinates from VenuesRepository
         // For now, we'll set distance to 0 and note this limitation
         distance = 0.0;
-        
+
         // In a real implementation, you would:
         // 1. Fetch venue details using venuesRepository.getVenue(game.venueId)
         // 2. Extract venue coordinates
         // 3. Calculate distance using _calculateDistance method
-        
+
         // Example:
         // final venueResult = await venuesRepository.getVenue(game.venueId!);
         // if (venueResult.isRight()) {
@@ -197,7 +217,7 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
         //       venue.latitude!,
         //       venue.longitude!,
         //     );
-        //     
+        //
         //     // Filter by radius if specified
         //     if (params.radiusKm != null && distance > params.radiusKm!) {
         //       continue;
@@ -211,10 +231,9 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
         continue;
       }
 
-      processedGames.add(GameWithDistance(
-        game: game,
-        distanceKm: distance ?? 0.0,
-      ));
+      processedGames.add(
+        GameWithDistance(game: game, distanceKm: distance ?? 0.0),
+      );
     }
 
     return processedGames;
@@ -223,15 +242,23 @@ class FindGamesUseCase extends UseCase<Either<Failure, List<GameWithDistance>>, 
   /// Calculates distance between two points using Haversine formula
   /// Used when venue coordinates are available (see TODO in _processGames)
   // ignore: unused_element
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
     const double earthRadius = 6371; // Earth's radius in kilometers
 
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLon = _degreesToRadians(lon2 - lon1);
 
-    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_degreesToRadians(lat1)) * math.cos(_degreesToRadians(lat2)) *
-        math.sin(dLon / 2) * math.sin(dLon / 2);
+    final double a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) *
+            math.cos(_degreesToRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
 
     final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 
@@ -286,10 +313,7 @@ class GameWithDistance {
   final Game game;
   final double distanceKm;
 
-  GameWithDistance({
-    required this.game,
-    required this.distanceKm,
-  });
+  GameWithDistance({required this.game, required this.distanceKm});
 
   // Convenience getters
   String get formattedDistance {

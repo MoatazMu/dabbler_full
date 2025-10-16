@@ -30,10 +30,12 @@ class EmailOutbox {
       subject: json['subject'],
       body: json['body'],
       status: json['status'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-      sent_at: (json['sent_at'] == null ? null : DateTime.parse(json['sent_at'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      sent_at: (json['sent_at'] == null
+          ? null
+          : DateTime.parse(json['sent_at'] as String)),
       fail_reason: json['fail_reason'],
     );
   }

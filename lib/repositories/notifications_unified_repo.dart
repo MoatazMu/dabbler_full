@@ -6,18 +6,25 @@ class NotificationsUnifiedRepo {
   final SupabaseClient _db;
   NotificationsUnifiedRepo(this._db);
 
-  Future<List<NotificationsUnified>> list({int limit = 50, int offset = 0}) async {
-    final res = await _db.from('notifications_unified')
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', ascending: false);
+  Future<List<NotificationsUnified>> list({
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final res = await _db
+        .from('notifications_unified')
+        .select('*')
+        .range(offset, offset + limit - 1)
+        .order('created_at', ascending: false);
     final list = (res as List).cast<Map<String, dynamic>>();
     return list.map(NotificationsUnified.fromJson).toList();
   }
 
   Future<NotificationsUnified?> getById(dynamic id) async {
-    final res = await _db.from('notifications_unified')
-      .select('*').eq('id', id).maybeSingle();
+    final res = await _db
+        .from('notifications_unified')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
     if (res == null) return null;
     return NotificationsUnified.fromJson(res);
   }

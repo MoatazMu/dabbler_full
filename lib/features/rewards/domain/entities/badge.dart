@@ -1,31 +1,13 @@
 import 'badge_tier.dart';
 
 /// Badge design style for customization
-enum BadgeStyle {
-  classic,
-  modern,
-  minimalist,
-  gaming,
-  elegant,
-}
+enum BadgeStyle { classic, modern, minimalist, gaming, elegant }
 
 /// Badge animation type for display
-enum BadgeAnimation {
-  none,
-  pulse,
-  glow,
-  rotate,
-  bounce,
-}
+enum BadgeAnimation { none, pulse, glow, rotate, bounce }
 
 /// Badge rarity levels
-enum BadgeRarity {
-  common,
-  uncommon,
-  rare,
-  epic,
-  legendary,
-}
+enum BadgeRarity { common, uncommon, rare, epic, legendary }
 
 /// Badge entity representing visual rewards for achievements
 class Badge {
@@ -93,9 +75,9 @@ class Badge {
   /// Gets the rarity color for display
   String getRarityColor() {
     if (rarityScore >= 95) return '#FF6B35'; // Legendary orange
-    if (rarityScore >= 85) return '#8A2BE2';  // Epic purple
-    if (rarityScore >= 70) return '#4169E1';  // Rare blue
-    if (rarityScore >= 50) return '#32CD32';  // Uncommon green
+    if (rarityScore >= 85) return '#8A2BE2'; // Epic purple
+    if (rarityScore >= 70) return '#4169E1'; // Rare blue
+    if (rarityScore >= 50) return '#32CD32'; // Uncommon green
     return '#808080'; // Common gray
   }
 
@@ -105,7 +87,11 @@ class Badge {
       'enabled': rarityScore >= 70 || isLimitedEdition,
       'color': getRarityColor(),
       'intensity': _getGlowIntensity(),
-      'radius': rarityScore >= 95 ? 8.0 : rarityScore >= 85 ? 6.0 : 4.0,
+      'radius': rarityScore >= 95
+          ? 8.0
+          : rarityScore >= 85
+          ? 6.0
+          : 4.0,
     };
   }
 
@@ -170,10 +156,7 @@ class Badge {
   /// Gets scarcity information
   Map<String, dynamic> getScarcityInfo() {
     if (!isLimitedEdition) {
-      return {
-        'type': 'unlimited',
-        'message': 'Available to all players',
-      };
+      return {'type': 'unlimited', 'message': 'Available to all players'};
     }
 
     if (maxOwners == null) {
@@ -192,7 +175,7 @@ class Badge {
       'max_owners': maxOwners,
       'remaining': remaining,
       'percentage_claimed': percentage,
-      'message': remaining > 0 
+      'message': remaining > 0
           ? '$remaining of ${maxOwners!} remaining'
           : 'All ${maxOwners!} badges claimed',
     };
@@ -202,23 +185,23 @@ class Badge {
   String getFormattedDisplayText() {
     final buffer = StringBuffer();
     buffer.write(name);
-    
+
     if (isLimitedEdition) {
       buffer.write(' (Limited)');
     }
-    
+
     final rarity = getRarityLabel();
     if (rarity != 'Common') {
       buffer.write(' - $rarity');
     }
-    
+
     return buffer.toString();
   }
 
   /// Gets the appropriate icon URL (animated if available and conditions met)
   String getIconUrl({bool preferAnimated = false}) {
-    if (preferAnimated && 
-        animatedIconUrl != null && 
+    if (preferAnimated &&
+        animatedIconUrl != null &&
         (rarityScore >= 70 || animation != BadgeAnimation.none)) {
       return animatedIconUrl!;
     }
@@ -272,7 +255,7 @@ class Badge {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is Badge &&
         other.id == id &&
         other.name == name &&
@@ -282,10 +265,7 @@ class Badge {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        name.hashCode ^
-        tier.hashCode ^
-        achievementId.hashCode;
+    return id.hashCode ^ name.hashCode ^ tier.hashCode ^ achievementId.hashCode;
   }
 
   @override

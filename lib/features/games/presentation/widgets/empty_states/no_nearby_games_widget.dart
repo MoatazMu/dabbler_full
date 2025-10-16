@@ -22,7 +22,7 @@ class NoNearbyGamesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -33,20 +33,22 @@ class NoNearbyGamesWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                  0.5,
+                ),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                locationEnabled 
+                locationEnabled
                     ? Icons.location_searching_rounded
                     : Icons.location_disabled_rounded,
                 size: 64,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               locationEnabled ? 'No games nearby' : 'Location disabled',
@@ -56,9 +58,9 @@ class NoNearbyGamesWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               _getMessage(),
@@ -67,18 +69,20 @@ class NoNearbyGamesWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Action buttons
-            if (locationEnabled) ..._buildLocationEnabledActions(context)
-            else ..._buildLocationDisabledActions(context),
-            
+            if (locationEnabled)
+              ..._buildLocationEnabledActions(context)
+            else
+              ..._buildLocationDisabledActions(context),
+
             const SizedBox(height: 24),
-            
+
             // Help text
             Text(
-              locationEnabled 
+              locationEnabled
                   ? 'Games will appear here as they are created in your area.'
                   : 'Enable location services to find games near you.',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -97,7 +101,7 @@ class NoNearbyGamesWidget extends StatelessWidget {
       return 'Enable location services to discover games in your area and connect with nearby players.';
     }
 
-    final radiusText = currentRadius != null 
+    final radiusText = currentRadius != null
         ? '${currentRadius!.round()} miles'
         : 'your area';
 
@@ -114,9 +118,9 @@ class NoNearbyGamesWidget extends StatelessWidget {
             onPressed: onExpandRadius,
             icon: const Icon(Icons.zoom_out_map_rounded),
             label: Text(
-              currentRadius != null 
+              currentRadius != null
                   ? 'Expand to ${(currentRadius! * 2).round()} miles'
-                  : 'Expand Search Area'
+                  : 'Expand Search Area',
             ),
           ),
         ),
@@ -202,14 +206,13 @@ class ExpandRadiusOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     final radiusOptions = [
       currentRadius * 2,
       currentRadius * 3,
       currentRadius * 5,
       50.0, // Max radius
-    ].where((radius) => radius > currentRadius).toSet().toList()
-      ..sort();
+    ].where((radius) => radius > currentRadius).toSet().toList()..sort();
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -222,39 +225,38 @@ class ExpandRadiusOptions extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           Text(
             'Current radius: ${currentRadius.round()} miles',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Radius options
-          ...radiusOptions.map((radius) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => onRadiusSelected(radius),
-                child: Text('${radius.round()} miles'),
+          ...radiusOptions.map(
+            (radius) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => onRadiusSelected(radius),
+                  child: Text('${radius.round()} miles'),
+                ),
               ),
             ),
-          )),
-          
+          ),
+
           const SizedBox(height: 16),
-          
+
           // Cancel button
           SizedBox(
             width: double.infinity,
-            child: TextButton(
-              onPressed: onCancel,
-              child: const Text('Cancel'),
-            ),
+            child: TextButton(onPressed: onCancel, child: const Text('Cancel')),
           ),
         ],
       ),

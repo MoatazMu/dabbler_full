@@ -24,12 +24,9 @@ class OptimisticGameActionOverlay extends StatelessWidget {
         AnimatedOpacity(
           opacity: isLoading ? 0.5 : 1.0,
           duration: const Duration(milliseconds: 200),
-          child: AbsorbPointer(
-            absorbing: isLoading,
-            child: child,
-          ),
+          child: AbsorbPointer(absorbing: isLoading, child: child),
         ),
-        
+
         // Loading overlay
         if (isLoading)
           Container(
@@ -103,10 +100,7 @@ class _PulsingGameCardState extends State<PulsingGameCard>
     _animation = Tween<double>(
       begin: 1.0,
       end: 0.7,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (widget.isPulsing) {
       _controller.repeat(reverse: true);
@@ -141,10 +135,7 @@ class _PulsingGameCardState extends State<PulsingGameCard>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        return Opacity(
-          opacity: _animation.value,
-          child: widget.child,
-        );
+        return Opacity(opacity: _animation.value, child: widget.child);
       },
     );
   }
@@ -154,10 +145,7 @@ class _PulsingGameCardState extends State<PulsingGameCard>
 class MapMarkersLoader extends StatefulWidget {
   final int markerCount;
 
-  const MapMarkersLoader({
-    super.key,
-    this.markerCount = 5,
-  });
+  const MapMarkersLoader({super.key, this.markerCount = 5});
 
   @override
   State<MapMarkersLoader> createState() => _MapMarkersLoaderState();
@@ -178,15 +166,13 @@ class _MapMarkersLoaderState extends State<MapMarkersLoader>
         vsync: this,
       ),
     );
-    
+
     _animations = _controllers
-        .map((controller) => Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ).animate(CurvedAnimation(
-              parent: controller,
-              curve: Curves.elasticOut,
-            )))
+        .map(
+          (controller) => Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(parent: controller, curve: Curves.elasticOut),
+          ),
+        )
         .toList();
 
     // Start animations with staggered delays
@@ -210,7 +196,7 @@ class _MapMarkersLoaderState extends State<MapMarkersLoader>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return SizedBox(
       width: 200,
       height: 150,
@@ -219,7 +205,7 @@ class _MapMarkersLoaderState extends State<MapMarkersLoader>
           final random = math.Random(index);
           final left = random.nextDouble() * 150;
           final top = random.nextDouble() * 100;
-          
+
           return Positioned(
             left: left,
             top: top,
@@ -257,10 +243,7 @@ class _MapMarkersLoaderState extends State<MapMarkersLoader>
 class SearchLoadingIndicator extends StatefulWidget {
   final String searchTerm;
 
-  const SearchLoadingIndicator({
-    super.key,
-    required this.searchTerm,
-  });
+  const SearchLoadingIndicator({super.key, required this.searchTerm});
 
   @override
   State<SearchLoadingIndicator> createState() => _SearchLoadingIndicatorState();
@@ -269,7 +252,7 @@ class SearchLoadingIndicator extends StatefulWidget {
 class _SearchLoadingIndicatorState extends State<SearchLoadingIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -288,7 +271,7 @@ class _SearchLoadingIndicatorState extends State<SearchLoadingIndicator>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -309,9 +292,9 @@ class _SearchLoadingIndicatorState extends State<SearchLoadingIndicator>
                 );
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Text(
               'Searching for "${widget.searchTerm}"',
               style: theme.textTheme.titleMedium?.copyWith(
@@ -319,9 +302,9 @@ class _SearchLoadingIndicatorState extends State<SearchLoadingIndicator>
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Animated dots
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -331,10 +314,10 @@ class _SearchLoadingIndicatorState extends State<SearchLoadingIndicator>
                   builder: (context, child) {
                     final delay = index * 0.2;
                     final progress = (_controller.value - delay) % 1.0;
-                    final opacity = progress < 0.5 
-                        ? (progress * 2) 
+                    final opacity = progress < 0.5
+                        ? (progress * 2)
                         : (2 - progress * 2);
-                    
+
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       child: Opacity(
@@ -374,7 +357,7 @@ class GameCreationProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -384,7 +367,7 @@ class GameCreationProgressIndicator extends StatelessWidget {
             children: List.generate(totalSteps, (index) {
               final isCompleted = index < currentStep;
               final isCurrent = index == currentStep;
-              
+
               return Expanded(
                 child: Row(
                   children: [
@@ -405,16 +388,16 @@ class GameCreationProgressIndicator extends StatelessWidget {
               );
             }),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Step indicators
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(totalSteps, (index) {
               final isCompleted = index < currentStep;
               final isCurrent = index == currentStep;
-              
+
               return Container(
                 width: 24,
                 height: 24,
@@ -422,8 +405,8 @@ class GameCreationProgressIndicator extends StatelessWidget {
                   color: isCompleted
                       ? theme.colorScheme.primary
                       : isCurrent
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.surfaceContainerHighest,
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -446,9 +429,9 @@ class GameCreationProgressIndicator extends StatelessWidget {
               );
             }),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Current step label
           if (currentStep < stepLabels.length)
             Text(

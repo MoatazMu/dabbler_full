@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 /// Social statistics display mode
-enum StatsDisplayMode {
-  compact,
-  expanded,
-  comparison,
-}
+enum StatsDisplayMode { compact, expanded, comparison }
 
 /// Stat item configuration
 class StatItem {
@@ -65,61 +61,61 @@ class ChartConfig {
 class SocialStatsWidget extends StatefulWidget {
   /// List of stat items to display
   final List<StatItem> stats;
-  
+
   /// Display mode
   final StatsDisplayMode displayMode;
-  
+
   /// Enable refresh functionality
   final bool enableRefresh;
-  
+
   /// Refresh callback
   final Future<void> Function()? onRefresh;
-  
+
   /// Chart data for mini previews
   final Map<String, List<ChartDataPoint>>? chartData;
-  
+
   /// Chart configuration
   final ChartConfig? chartConfig;
-  
+
   /// Show comparison with previous period
   final bool showComparison;
-  
+
   /// Comparison data (previous period)
   final List<StatItem>? comparisonStats;
-  
+
   /// Custom background color
   final Color? backgroundColor;
-  
+
   /// Custom padding
   final EdgeInsetsGeometry? padding;
-  
+
   /// Border radius
   final BorderRadius? borderRadius;
-  
+
   /// Enable animations
   final bool enableAnimations;
-  
+
   /// Animation duration
   final Duration animationDuration;
-  
+
   /// Loading state
   final bool isLoading;
-  
+
   /// Error state
   final String? errorMessage;
-  
+
   /// Retry callback for error state
   final VoidCallback? onRetry;
-  
+
   /// Show as card
   final bool showAsCard;
-  
+
   /// Card elevation
   final double cardElevation;
-  
+
   /// Custom title
   final String? title;
-  
+
   /// Title style
   final TextStyle? titleStyle;
 
@@ -160,7 +156,7 @@ class SocialStatsWidget extends StatefulWidget {
     Future<void> Function()? onRefresh,
   }) {
     final daysSinceJoin = DateTime.now().difference(joinDate).inDays;
-    
+
     return SocialStatsWidget(
       title: 'Profile Stats',
       stats: [
@@ -254,14 +250,14 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   late Animation<double> _refreshRotation;
-  
+
   bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
-    
+
     if (widget.enableAnimations) {
       _animationController.forward();
     }
@@ -278,21 +274,13 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
-    _slideAnimation = Tween<double>(
-      begin: 50.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
 
     _refreshRotation = Tween<double>(
       begin: 0.0,
@@ -317,10 +305,7 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
         builder: (context, child) {
           return Transform.translate(
             offset: Offset(0, _slideAnimation.value),
-            child: Opacity(
-              opacity: _fadeAnimation.value,
-              child: child,
-            ),
+            child: Opacity(opacity: _fadeAnimation.value, child: child),
           );
         },
         child: content,
@@ -352,10 +337,12 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
 
     return Container(
       padding: widget.padding ?? const EdgeInsets.all(16),
-      decoration: !widget.showAsCard ? BoxDecoration(
-        color: widget.backgroundColor,
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-      ) : null,
+      decoration: !widget.showAsCard
+          ? BoxDecoration(
+              color: widget.backgroundColor,
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
+            )
+          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -376,9 +363,11 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
       children: [
         Text(
           widget.title!,
-          style: widget.titleStyle ?? Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style:
+              widget.titleStyle ??
+              Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         if (widget.enableRefresh && !_isRefreshing)
           IconButton(
@@ -419,10 +408,12 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
   Widget _buildExpandedStats() {
     return Column(
       children: widget.stats
-          .map((stat) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: _buildStatItem(stat, false),
-              ))
+          .map(
+            (stat) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: _buildStatItem(stat, false),
+            ),
+          )
           .toList(),
     );
   }
@@ -432,11 +423,12 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
       children: widget.stats.asMap().entries.map((entry) {
         final index = entry.key;
         final stat = entry.value;
-        final comparison = widget.comparisonStats != null &&
+        final comparison =
+            widget.comparisonStats != null &&
                 index < widget.comparisonStats!.length
             ? widget.comparisonStats![index]
             : null;
-        
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: _buildComparisonStatItem(stat, comparison),
@@ -507,10 +499,7 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
       content = InkWell(
         onTap: stat.onTap,
         borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: content,
-        ),
+        child: Padding(padding: const EdgeInsets.all(8), child: content),
       );
     }
 
@@ -528,8 +517,9 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: (stat.color ?? Theme.of(context).primaryColor)
-                .withOpacity(0.1),
+            color: (stat.color ?? Theme.of(context).primaryColor).withOpacity(
+              0.1,
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -543,27 +533,33 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                stat.label,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(stat.label, style: Theme.of(context).textTheme.bodyMedium),
               Row(
                 children: [
                   _buildAnimatedNumber(stat.value, stat.suffix),
                   const SizedBox(width: 16),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: difference >= 0 ? Colors.green[100] : Colors.red[100],
+                      color: difference >= 0
+                          ? Colors.green[100]
+                          : Colors.red[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          difference >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                          difference >= 0
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
                           size: 12,
-                          color: difference >= 0 ? Colors.green[600] : Colors.red[600],
+                          color: difference >= 0
+                              ? Colors.green[600]
+                              : Colors.red[600],
                         ),
                         const SizedBox(width: 2),
                         Text(
@@ -571,7 +567,9 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: difference >= 0 ? Colors.green[600] : Colors.red[600],
+                            color: difference >= 0
+                                ? Colors.green[600]
+                                : Colors.red[600],
                           ),
                         ),
                       ],
@@ -593,9 +591,9 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
       builder: (context, animatedValue, child) {
         return Text(
           '${_formatNumber(animatedValue.round())}${suffix ?? ''}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         );
       },
     );
@@ -645,19 +643,21 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
   }
 
   Widget _buildMiniChart(String label, List<ChartDataPoint> data) {
-    final config = widget.chartConfig ?? ChartConfig(
-      primaryColor: Theme.of(context).primaryColor,
-      backgroundColor: Colors.grey[100]!,
-    );
+    final config =
+        widget.chartConfig ??
+        ChartConfig(
+          primaryColor: Theme.of(context).primaryColor,
+          backgroundColor: Colors.grey[100]!,
+        );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Container(
@@ -666,10 +666,7 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
             color: config.backgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: _MiniChart(
-            data: data,
-            config: config,
-          ),
+          child: _MiniChart(data: data, config: config),
         ),
       ],
     );
@@ -688,9 +685,9 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
         children: [
           Text(
             'vs Previous Period',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           _buildComparisonStats(),
@@ -769,24 +766,20 @@ class _SocialStatsWidgetState extends State<SocialStatsWidget>
       padding: widget.padding ?? const EdgeInsets.all(16),
       child: Column(
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 48,
-            color: Colors.red[400],
-          ),
+          Icon(Icons.error_outline, size: 48, color: Colors.red[400]),
           const SizedBox(height: 16),
           Text(
             'Failed to load stats',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.red[700],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: Colors.red[700]),
           ),
           const SizedBox(height: 8),
           Text(
             widget.errorMessage ?? 'Please try again',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.red[600],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.red[600]),
             textAlign: TextAlign.center,
           ),
           if (widget.onRetry != null) ...[
@@ -861,10 +854,7 @@ class _MiniChart extends StatelessWidget {
   final List<ChartDataPoint> data;
   final ChartConfig config;
 
-  const _MiniChart({
-    required this.data,
-    required this.config,
-  });
+  const _MiniChart({required this.data, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -882,10 +872,7 @@ class _MiniChartPainter extends CustomPainter {
   final List<ChartDataPoint> data;
   final ChartConfig config;
 
-  _MiniChartPainter({
-    required this.data,
-    required this.config,
-  });
+  _MiniChartPainter({required this.data, required this.config});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -909,11 +896,11 @@ class _MiniChartPainter extends CustomPainter {
 
     for (int i = 0; i < data.length; i++) {
       final x = (i / (data.length - 1)) * size.width;
-      final normalizedValue = valueRange > 0 
-          ? (data[i].value - minValue) / valueRange 
+      final normalizedValue = valueRange > 0
+          ? (data[i].value - minValue) / valueRange
           : 0.5;
       final y = size.height - (normalizedValue * size.height);
-      
+
       final point = Offset(x, y);
       points.add(point);
 
@@ -943,11 +930,7 @@ class _MiniChartPainter extends CustomPainter {
       // Horizontal grid lines
       for (int i = 1; i < 4; i++) {
         final y = (i / 4) * size.height;
-        canvas.drawLine(
-          Offset(0, y),
-          Offset(size.width, y),
-          gridPaint,
-        );
+        canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
       }
     }
   }

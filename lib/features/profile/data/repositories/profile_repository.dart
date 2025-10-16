@@ -11,7 +11,9 @@ class ProfileRepository {
   /// Get user profile by ID
   Future<UserProfile?> getUserProfile(String userId) async {
     // TODO: Implement actual Supabase query
-    throw UnimplementedError('ProfileRepository.getUserProfile not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.getUserProfile not implemented',
+    );
   }
 
   /// Network-first, cache-fallback profile fetch
@@ -35,14 +37,22 @@ class ProfileRepository {
         }
       } catch (e) {
         // On error, fallback to cache
-        final cached = await ProfileCacheService().getProfileById(userId, preferCache: true, revalidate: false);
+        final cached = await ProfileCacheService().getProfileById(
+          userId,
+          preferCache: true,
+          revalidate: false,
+        );
         if (cached != null) {
           return UserProfile.fromJson(cached);
         }
       }
     } else {
       // Offline: use cache
-      final cached = await ProfileCacheService().getProfileById(userId, preferCache: true, revalidate: false);
+      final cached = await ProfileCacheService().getProfileById(
+        userId,
+        preferCache: true,
+        revalidate: false,
+      );
       if (cached != null) {
         return UserProfile.fromJson(cached);
       }
@@ -51,7 +61,10 @@ class ProfileRepository {
   }
 
   /// Update user profile
-  Future<UserProfile> updateProfile(String userId, Map<String, dynamic> updates) async {
+  Future<UserProfile> updateProfile(
+    String userId,
+    Map<String, dynamic> updates,
+  ) async {
     // TODO: Implement actual Supabase update
     throw UnimplementedError('ProfileRepository.updateProfile not implemented');
   }
@@ -71,7 +84,9 @@ class ProfileRepository {
   /// Upload profile image
   Future<String> uploadProfileImage(String userId, File imageFile) async {
     // TODO: Implement actual Supabase storage upload
-    throw UnimplementedError('ProfileRepository.uploadProfileImage not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.uploadProfileImage not implemented',
+    );
   }
 
   /// Search profiles
@@ -83,30 +98,43 @@ class ProfileRepository {
     int offset = 0,
   }) async {
     // TODO: Implement actual Supabase search
-    throw UnimplementedError('ProfileRepository.searchProfiles not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.searchProfiles not implemented',
+    );
   }
 
   /// Get profiles by IDs
   Future<List<UserProfile>> getProfilesByIds(List<String> userIds) async {
     // TODO: Implement actual Supabase batch query
-    throw UnimplementedError('ProfileRepository.getProfilesByIds not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.getProfilesByIds not implemented',
+    );
   }
 
   /// Update profile completion percentage
-  Future<void> updateCompletionPercentage(String userId, double percentage) async {
+  Future<void> updateCompletionPercentage(
+    String userId,
+    double percentage,
+  ) async {
     // TODO: Implement actual Supabase update
-    throw UnimplementedError('ProfileRepository.updateCompletionPercentage not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.updateCompletionPercentage not implemented',
+    );
   }
 
   /// Get all user data for export
   Future<Map<String, dynamic>> getAllUserData(String userId) async {
     // TODO: Implement actual data gathering from all tables
-    throw UnimplementedError('ProfileRepository.getAllUserData not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.getAllUserData not implemented',
+    );
   }
 
   /// Delete all user data
   Future<void> deleteAllUserData(String userId) async {
     // TODO: Implement actual cascading delete from all tables
-    throw UnimplementedError('ProfileRepository.deleteAllUserData not implemented');
+    throw UnimplementedError(
+      'ProfileRepository.deleteAllUserData not implemented',
+    );
   }
 }

@@ -14,8 +14,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "OPTIONS, GET",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
 };
-// @ts-ignore: Supabase supabase-js import
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 type Row = {
   id: string;
@@ -51,58 +50,74 @@ function err(message: string, status = 400) {
 }
 
 // @ts-ignore: Deno global serve function
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return ok("ok");
 
   try {
     const url = new URL(req.url);
-    const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20"), 50);
-    const page = Math.max(parseInt(url.searchParams.get("page") ?? "1"), 1);
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
+    const page  = Number(url.searchParams.get('page') ?? '1');
+    const limit = Math.min(Number(url.searchParams.get('limit') ?? '20'), 50);
+    const createdBefore = url.searchParams.get('created_before');
+    const lastId = url.searchParams.get('last_id');
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: { Authorization: req.headers.get("Authorization") ?? "" },
-      },
-    });
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
+    );
 
-    // 1) Public posts are always visible
-    const pub = supabase
-      .from("posts_public")
-      .select("*", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range(from, to);
+    // Get current user (if any)
+    const { data: authUser } = await supabase.auth.getUser();
+    const viewerId = authUser?.user?.id ?? null;
 
-    // 2) Friends-visible posts (RLS ensures only allowed rows are returned)
-    const friends = supabase
-      .from("posts_friends_public")
-      .select("*", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range(from, to);
+    // Base filter: visible + not deleted
+    let q = supabase
+      .from('posts')
+      .select(`
+        id, author_id, content, created_at, visibility,
+        likes_count, comments_count,
+        author:users_public(id, display_name, avatar_url)
+      `)
+      .eq('is_deleted', false)
+      .in('visibility', ['public', 'friends'])
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false });
 
-    const [pubRes, frRes] = await Promise.all([pub, friends]);
+    // Friends-only gate
+    if (viewerId) {
+      const { data: ids, error: idsErr } = await supabase
+        .rpc('friend_authors_for_viewer', { p_viewer: viewerId });
+      if (idsErr) return err(idsErr.message, 500);
+      q = q.or(`visibility.eq.public,and(visibility.eq.friends,author_id.in.(${ids.map(i => i.author_id).join(',') || '00000000-0000-0000-0000-000000000000'}))`);
+    } else {
+      q = q.eq('visibility', 'public');
+    }
 
-    if (pubRes.error) return err(`public: ${pubRes.error.message}`, 500);
-    if (frRes.error) return err(`friends: ${frRes.error.message}`, 500);
+    // Keyset pagination if provided
+    if (createdBefore) {
+      q = q.lt('created_at', createdBefore);
+      if (lastId) q = q.lte('id', lastId);
+      q = q.limit(limit);
+    } else {
+      // fallback: simple page/limit
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      q = q.range(from, to);
+    }
 
-    // merge and sort by created_at desc, then paginate again in-memory (simple + safe)
-    const combined = ([] as Row[])
-      .concat(pubRes.data ?? [])
-      .concat(frRes.data ?? [])
-      .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    const { data, error } = await q;
+    if (error) return err(error.message, 500);
 
-    // cursorless pagination response
-    return ok({
-      page,
-      limit,
-      count_public: pubRes.count ?? 0,
-      count_friends: frRes.count ?? 0,
-      total_items_estimate: (pubRes.count ?? 0) + (frRes.count ?? 0),
-      items: combined.slice(0, limit),
-    });
+    const items = data ?? [];
+    const next = items.length
+      ? {
+          created_before: items[items.length - 1].created_at,
+          last_id: items[items.length - 1].id,
+        }
+      : null;
+
+    return ok({ items, next });
   } catch (e) {
     return err(e instanceof Error ? e.message : String(e), 500);
   }

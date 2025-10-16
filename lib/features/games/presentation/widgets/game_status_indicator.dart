@@ -8,7 +8,7 @@ enum GameStatus {
   closed,
   cancelled,
   inProgress,
-  completed
+  completed,
 }
 
 class GameStatusIndicator extends StatefulWidget {
@@ -47,21 +47,13 @@ class _GameStatusIndicatorState extends State<GameStatusIndicator>
       vsync: this,
     );
 
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
 
     // Start animation for filling fast status
     if (widget.status == GameStatus.fillingFast && widget.animate) {
@@ -72,7 +64,7 @@ class _GameStatusIndicatorState extends State<GameStatusIndicator>
   @override
   void didUpdateWidget(GameStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.status != oldWidget.status) {
       if (widget.status == GameStatus.fillingFast && widget.animate) {
         _animationController.repeat(reverse: true);
@@ -92,32 +84,27 @@ class _GameStatusIndicatorState extends State<GameStatusIndicator>
   @override
   Widget build(BuildContext context) {
     final statusData = _getStatusData();
-    
+
     Widget badge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: statusData.backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: statusData.borderColor,
-          width: 1,
-        ),
-        boxShadow: statusData.hasShadow ? [
-          BoxShadow(
-            color: statusData.color.withOpacity(0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ] : null,
+        border: Border.all(color: statusData.borderColor, width: 1),
+        boxShadow: statusData.hasShadow
+            ? [
+                BoxShadow(
+                  color: statusData.color.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            statusData.icon,
-            size: 14,
-            color: statusData.color,
-          ),
+          Icon(statusData.icon, size: 14, color: statusData.color),
           const SizedBox(width: 6),
           Text(
             statusData.text,
@@ -136,30 +123,21 @@ class _GameStatusIndicatorState extends State<GameStatusIndicator>
       badge = AnimatedBuilder(
         animation: _pulseAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _pulseAnimation.value,
-            child: badge,
-          );
+          return Transform.scale(scale: _pulseAnimation.value, child: badge);
         },
       );
     } else if (widget.status == GameStatus.inProgress && widget.animate) {
       badge = AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: badge,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: badge);
         },
       );
     }
 
     // Add tooltip if enabled
     if (widget.showTooltip) {
-      badge = Tooltip(
-        message: _getTooltipMessage(),
-        child: badge,
-      );
+      badge = Tooltip(message: _getTooltipMessage(), child: badge);
     }
 
     return badge;
@@ -172,7 +150,8 @@ class _GameStatusIndicatorState extends State<GameStatusIndicator>
     IconData icon,
     String text,
     bool hasShadow,
-  }) _getStatusData() {
+  })
+  _getStatusData() {
     switch (widget.status) {
       case GameStatus.open:
         return (
@@ -271,7 +250,8 @@ class _GameStatusIndicatorState extends State<GameStatusIndicator>
 
       case GameStatus.fillingFast:
         if (widget.currentPlayers != null && widget.maxPlayers != null) {
-          final percentage = (widget.currentPlayers! / widget.maxPlayers! * 100).round();
+          final percentage = (widget.currentPlayers! / widget.maxPlayers! * 100)
+              .round();
           return 'Filling fast - $percentage% full. Join quickly!';
         }
         return 'This game is filling up quickly. Join soon!';
@@ -314,9 +294,9 @@ GameStatus determineGameStatus({
   if (isCancelled) return GameStatus.cancelled;
   if (isInProgress) return GameStatus.inProgress;
   if (isClosed) return GameStatus.closed;
-  
+
   final fillPercentage = currentPlayers / maxPlayers;
-  
+
   if (currentPlayers >= maxPlayers) {
     return GameStatus.full;
   } else if (fillPercentage >= 0.9) {

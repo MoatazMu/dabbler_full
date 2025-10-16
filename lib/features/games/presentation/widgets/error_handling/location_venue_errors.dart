@@ -18,7 +18,7 @@ class LocationPermissionErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -38,9 +38,9 @@ class LocationPermissionErrorWidget extends StatelessWidget {
                 color: theme.colorScheme.tertiary,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'Location Access Needed',
@@ -50,9 +50,9 @@ class LocationPermissionErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               isPermanentlyDenied
@@ -63,21 +63,25 @@ class LocationPermissionErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Enable location button
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: isPermanentlyDenied ? onOpenSettings : onEnableLocation,
+                onPressed: isPermanentlyDenied
+                    ? onOpenSettings
+                    : onEnableLocation,
                 icon: const Icon(Icons.location_on_rounded),
-                label: Text(isPermanentlyDenied ? 'Open Settings' : 'Enable Location'),
+                label: Text(
+                  isPermanentlyDenied ? 'Open Settings' : 'Enable Location',
+                ),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Browse without location
             SizedBox(
               width: double.infinity,
@@ -87,14 +91,16 @@ class LocationPermissionErrorWidget extends StatelessWidget {
                 label: const Text('Browse All Games'),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Benefits info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                  0.5,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -158,7 +164,7 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -178,9 +184,9 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
                 color: theme.colorScheme.error,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'Venue Unavailable',
@@ -190,9 +196,9 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               venueName != null
@@ -203,14 +209,16 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             // Reason or availability info
             if (reason != null || availableFrom != null) ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                    0.5,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -261,9 +269,9 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // Choose different time
             SizedBox(
               width: double.infinity,
@@ -273,9 +281,9 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
                 label: const Text('Choose Different Time'),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Choose different venue
             SizedBox(
               width: double.infinity,
@@ -285,7 +293,7 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
                 label: const Text('Choose Different Venue'),
               ),
             ),
-            
+
             // Contact venue (if available)
             if (onContactVenue != null) ...[
               const SizedBox(height: 12),
@@ -309,7 +317,7 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
     final date = DateTime(dateTime.year, dateTime.month, dateTime.day);
-    
+
     String dateStr;
     if (date == today) {
       dateStr = 'Today';
@@ -318,13 +326,13 @@ class VenueUnavailableErrorWidget extends StatelessWidget {
     } else {
       dateStr = '${dateTime.month}/${dateTime.day}';
     }
-    
+
     final hour = dateTime.hour;
     final minute = dateTime.minute;
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     final minuteStr = minute.toString().padLeft(2, '0');
-    
+
     return '$dateStr at $displayHour:$minuteStr $period';
   }
 }
@@ -352,7 +360,7 @@ class CustomGameErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveIconColor = iconColor ?? theme.colorScheme.error;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -366,15 +374,11 @@ class CustomGameErrorWidget extends StatelessWidget {
                 color: effectiveIconColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: effectiveIconColor,
-              ),
+              child: Icon(icon, size: 64, color: effectiveIconColor),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               title,
@@ -384,9 +388,9 @@ class CustomGameErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               message,
@@ -395,52 +399,55 @@ class CustomGameErrorWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             // Additional content
             if (additionalContent != null) ...[
               const SizedBox(height: 16),
               additionalContent!,
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // Action buttons
             ...actions.asMap().entries.map((entry) {
               final index = entry.key;
               final action = entry.value;
-              
+
               Widget button;
               switch (action.style) {
                 case GameErrorActionStyle.filled:
                   button = FilledButton.icon(
                     onPressed: action.onPressed,
-                    icon: action.icon != null ? Icon(action.icon) : const SizedBox.shrink(),
+                    icon: action.icon != null
+                        ? Icon(action.icon)
+                        : const SizedBox.shrink(),
                     label: Text(action.label),
                   );
                   break;
                 case GameErrorActionStyle.outlined:
                   button = OutlinedButton.icon(
                     onPressed: action.onPressed,
-                    icon: action.icon != null ? Icon(action.icon) : const SizedBox.shrink(),
+                    icon: action.icon != null
+                        ? Icon(action.icon)
+                        : const SizedBox.shrink(),
                     label: Text(action.label),
                   );
                   break;
                 case GameErrorActionStyle.text:
                   button = TextButton.icon(
                     onPressed: action.onPressed,
-                    icon: action.icon != null ? Icon(action.icon) : const SizedBox.shrink(),
+                    icon: action.icon != null
+                        ? Icon(action.icon)
+                        : const SizedBox.shrink(),
                     label: Text(action.label),
                   );
                   break;
               }
-              
+
               return Column(
                 children: [
                   if (index > 0) const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: button,
-                  ),
+                  SizedBox(width: double.infinity, child: button),
                 ],
               );
             }),
@@ -466,8 +473,4 @@ class GameErrorAction {
   });
 }
 
-enum GameErrorActionStyle {
-  filled,
-  outlined,
-  text,
-}
+enum GameErrorActionStyle { filled, outlined, text }

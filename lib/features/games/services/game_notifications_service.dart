@@ -40,14 +40,14 @@ class GameNotificationsService {
       }
 
       final scheduledNotifications = <ScheduledNotification>[];
-      
+
       // Get all users involved (players + organizer)
       final allUserIds = [...playerIds, organizerId];
 
       for (final userId in allUserIds) {
         // Get user notification preferences
         final preferences = await _getUserNotificationPreferences(userId);
-        
+
         // Skip if user has disabled game notifications
         if (!preferences.gameNotificationsEnabled) continue;
 
@@ -88,10 +88,11 @@ class GameNotificationsService {
         scheduledCount: scheduledNotifications.length,
         notifications: scheduledNotifications,
       );
-
     } catch (e, stackTrace) {
       debugPrint('Error scheduling game notifications: $e\n$stackTrace');
-      return NotificationScheduleResult.failure('Failed to schedule notifications: $e');
+      return NotificationScheduleResult.failure(
+        'Failed to schedule notifications: $e',
+      );
     }
   }
 
@@ -109,24 +110,29 @@ class GameNotificationsService {
     if (preferences.reminderTiming.contains(ReminderTiming.hours24)) {
       final reminderTime = gameDateTime.subtract(const Duration(hours: 24));
       if (reminderTime.isAfter(DateTime.now())) {
-        notifications.add(ScheduledNotification(
-          id: _generateNotificationId(),
-          gameId: game.id,
-          userId: userId,
-          type: NotificationType.gameReminder24h,
-          scheduledFor: reminderTime,
-          title: isOrganizer 
-              ? 'Your game is tomorrow!'
-              : 'Game reminder - Tomorrow',
-          body: _buildGameReminderMessage(game, const Duration(hours: 24)),
-          channels: _getChannelsForType(NotificationType.gameReminder24h, preferences),
-          status: NotificationStatus.scheduled,
-          metadata: {
-            'gameId': game.id,
-            'venueId': game.venue.id,
-            'isOrganizer': isOrganizer.toString(),
-          },
-        ));
+        notifications.add(
+          ScheduledNotification(
+            id: _generateNotificationId(),
+            gameId: game.id,
+            userId: userId,
+            type: NotificationType.gameReminder24h,
+            scheduledFor: reminderTime,
+            title: isOrganizer
+                ? 'Your game is tomorrow!'
+                : 'Game reminder - Tomorrow',
+            body: _buildGameReminderMessage(game, const Duration(hours: 24)),
+            channels: _getChannelsForType(
+              NotificationType.gameReminder24h,
+              preferences,
+            ),
+            status: NotificationStatus.scheduled,
+            metadata: {
+              'gameId': game.id,
+              'venueId': game.venue.id,
+              'isOrganizer': isOrganizer.toString(),
+            },
+          ),
+        );
       }
     }
 
@@ -134,22 +140,27 @@ class GameNotificationsService {
     if (preferences.reminderTiming.contains(ReminderTiming.hours4)) {
       final reminderTime = gameDateTime.subtract(const Duration(hours: 4));
       if (reminderTime.isAfter(DateTime.now())) {
-        notifications.add(ScheduledNotification(
-          id: _generateNotificationId(),
-          gameId: game.id,
-          userId: userId,
-          type: NotificationType.gameReminder4h,
-          scheduledFor: reminderTime,
-          title: 'Game in 4 hours!',
-          body: _buildGameReminderMessage(game, const Duration(hours: 4)),
-          channels: _getChannelsForType(NotificationType.gameReminder4h, preferences),
-          status: NotificationStatus.scheduled,
-          metadata: {
-            'gameId': game.id,
-            'venueId': game.venue.id,
-            'weatherAlert': 'true', // Enable weather checks
-          },
-        ));
+        notifications.add(
+          ScheduledNotification(
+            id: _generateNotificationId(),
+            gameId: game.id,
+            userId: userId,
+            type: NotificationType.gameReminder4h,
+            scheduledFor: reminderTime,
+            title: 'Game in 4 hours!',
+            body: _buildGameReminderMessage(game, const Duration(hours: 4)),
+            channels: _getChannelsForType(
+              NotificationType.gameReminder4h,
+              preferences,
+            ),
+            status: NotificationStatus.scheduled,
+            metadata: {
+              'gameId': game.id,
+              'venueId': game.venue.id,
+              'weatherAlert': 'true', // Enable weather checks
+            },
+          ),
+        );
       }
     }
 
@@ -157,23 +168,28 @@ class GameNotificationsService {
     if (preferences.reminderTiming.contains(ReminderTiming.hour1)) {
       final reminderTime = gameDateTime.subtract(const Duration(hours: 1));
       if (reminderTime.isAfter(DateTime.now())) {
-        notifications.add(ScheduledNotification(
-          id: _generateNotificationId(),
-          gameId: game.id,
-          userId: userId,
-          type: NotificationType.gameReminder1h,
-          scheduledFor: reminderTime,
-          title: 'Game starting soon!',
-          body: _buildGameReminderMessage(game, const Duration(hours: 1)),
-          channels: _getChannelsForType(NotificationType.gameReminder1h, preferences),
-          status: NotificationStatus.scheduled,
-          priority: NotificationPriority.high,
-          metadata: {
-            'gameId': game.id,
-            'venueId': game.venue.id,
-            'trafficAlert': 'true', // Enable traffic checks
-          },
-        ));
+        notifications.add(
+          ScheduledNotification(
+            id: _generateNotificationId(),
+            gameId: game.id,
+            userId: userId,
+            type: NotificationType.gameReminder1h,
+            scheduledFor: reminderTime,
+            title: 'Game starting soon!',
+            body: _buildGameReminderMessage(game, const Duration(hours: 1)),
+            channels: _getChannelsForType(
+              NotificationType.gameReminder1h,
+              preferences,
+            ),
+            status: NotificationStatus.scheduled,
+            priority: NotificationPriority.high,
+            metadata: {
+              'gameId': game.id,
+              'venueId': game.venue.id,
+              'trafficAlert': 'true', // Enable traffic checks
+            },
+          ),
+        );
       }
     }
 
@@ -181,18 +197,20 @@ class GameNotificationsService {
     if (preferences.finalReminderEnabled) {
       final reminderTime = gameDateTime.subtract(const Duration(minutes: 15));
       if (reminderTime.isAfter(DateTime.now())) {
-        notifications.add(ScheduledNotification(
-          id: _generateNotificationId(),
-          gameId: game.id,
-          userId: userId,
-          type: NotificationType.gameFinalReminder,
-          scheduledFor: reminderTime,
-          title: 'Game starts in 15 minutes!',
-          body: 'Time to head to ${game.venue.name}. Safe travels! 🏃‍♂️',
-          channels: [NotificationChannel.push], // Push notification only
-          status: NotificationStatus.scheduled,
-          priority: NotificationPriority.high,
-        ));
+        notifications.add(
+          ScheduledNotification(
+            id: _generateNotificationId(),
+            gameId: game.id,
+            userId: userId,
+            type: NotificationType.gameFinalReminder,
+            scheduledFor: reminderTime,
+            title: 'Game starts in 15 minutes!',
+            body: 'Time to head to ${game.venue.name}. Safe travels! 🏃‍♂️',
+            channels: [NotificationChannel.push], // Push notification only
+            status: NotificationStatus.scheduled,
+            priority: NotificationPriority.high,
+          ),
+        );
       }
     }
 
@@ -206,43 +224,50 @@ class GameNotificationsService {
     required NotificationPreferences preferences,
   }) async {
     final notifications = <ScheduledNotification>[];
-    
+
     // Check-in opening notification (2 hours before game)
     if (preferences.checkinNotificationsEnabled) {
       final checkinOpenTime = game.dateTime.subtract(const Duration(hours: 2));
       if (checkinOpenTime.isAfter(DateTime.now())) {
-        notifications.add(ScheduledNotification(
-          id: _generateNotificationId(),
-          gameId: game.id,
-          userId: userId,
-          type: NotificationType.checkinOpened,
-          scheduledFor: checkinOpenTime,
-          title: 'Check-in is now open!',
-          body: 'You can now check in for your game at ${game.venue.name}.',
-          channels: _getChannelsForType(NotificationType.checkinOpened, preferences),
-          status: NotificationStatus.scheduled,
-        ));
+        notifications.add(
+          ScheduledNotification(
+            id: _generateNotificationId(),
+            gameId: game.id,
+            userId: userId,
+            type: NotificationType.checkinOpened,
+            scheduledFor: checkinOpenTime,
+            title: 'Check-in is now open!',
+            body: 'You can now check in for your game at ${game.venue.name}.',
+            channels: _getChannelsForType(
+              NotificationType.checkinOpened,
+              preferences,
+            ),
+            status: NotificationStatus.scheduled,
+          ),
+        );
       }
     }
 
     // Check-in reminder (30 minutes before game - for non-checked-in players)
-    final checkinReminderTime = game.dateTime.subtract(const Duration(minutes: 30));
+    final checkinReminderTime = game.dateTime.subtract(
+      const Duration(minutes: 30),
+    );
     if (checkinReminderTime.isAfter(DateTime.now())) {
-      notifications.add(ScheduledNotification(
-        id: _generateNotificationId(),
-        gameId: game.id,
-        userId: userId,
-        type: NotificationType.checkinReminder,
-        scheduledFor: checkinReminderTime,
-        title: 'Don\'t forget to check in!',
-        body: 'Game starts soon. Make sure to check in when you arrive.',
-        channels: [NotificationChannel.push],
-        status: NotificationStatus.scheduled,
-        conditional: true, // Only send if user hasn't checked in
-        metadata: {
-          'condition': 'not_checked_in',
-        },
-      ));
+      notifications.add(
+        ScheduledNotification(
+          id: _generateNotificationId(),
+          gameId: game.id,
+          userId: userId,
+          type: NotificationType.checkinReminder,
+          scheduledFor: checkinReminderTime,
+          title: 'Don\'t forget to check in!',
+          body: 'Game starts soon. Make sure to check in when you arrive.',
+          channels: [NotificationChannel.push],
+          status: NotificationStatus.scheduled,
+          conditional: true, // Only send if user hasn't checked in
+          metadata: {'condition': 'not_checked_in'},
+        ),
+      );
     }
 
     return notifications;
@@ -260,44 +285,51 @@ class GameNotificationsService {
     // Post-game rating reminder (30 minutes after game ends)
     if (preferences.ratingRemindersEnabled) {
       final ratingReminderTime = gameEndTime.add(const Duration(minutes: 30));
-      notifications.add(ScheduledNotification(
-        id: _generateNotificationId(),
-        gameId: game.id,
-        userId: organizerId,
-        type: NotificationType.postGameRatingReminder,
-        scheduledFor: ratingReminderTime,
-        title: 'How was the game?',
-        body: 'Rate your players and venue to help improve future games.',
-        channels: _getChannelsForType(NotificationType.postGameRatingReminder, preferences),
-        status: NotificationStatus.scheduled,
-        actionButtons: [
-          NotificationAction(
-            id: 'rate_now',
-            title: 'Rate Now',
-            action: 'open_rating_screen',
+      notifications.add(
+        ScheduledNotification(
+          id: _generateNotificationId(),
+          gameId: game.id,
+          userId: organizerId,
+          type: NotificationType.postGameRatingReminder,
+          scheduledFor: ratingReminderTime,
+          title: 'How was the game?',
+          body: 'Rate your players and venue to help improve future games.',
+          channels: _getChannelsForType(
+            NotificationType.postGameRatingReminder,
+            preferences,
           ),
-          NotificationAction(
-            id: 'rate_later',
-            title: 'Later',
-            action: 'snooze_1hour',
-          ),
-        ],
-      ));
+          status: NotificationStatus.scheduled,
+          actionButtons: [
+            NotificationAction(
+              id: 'rate_now',
+              title: 'Rate Now',
+              action: 'open_rating_screen',
+            ),
+            NotificationAction(
+              id: 'rate_later',
+              title: 'Later',
+              action: 'snooze_1hour',
+            ),
+          ],
+        ),
+      );
     }
 
     // Game summary notification (1 hour after game ends)
     final summaryTime = gameEndTime.add(const Duration(hours: 1));
-    notifications.add(ScheduledNotification(
-      id: _generateNotificationId(),
-      gameId: game.id,
-      userId: organizerId,
-      type: NotificationType.gameSummary,
-      scheduledFor: summaryTime,
-      title: 'Game Summary Available',
-      body: 'View stats and highlights from your recent game.',
-      channels: [NotificationChannel.push, NotificationChannel.inApp],
-      status: NotificationStatus.scheduled,
-    ));
+    notifications.add(
+      ScheduledNotification(
+        id: _generateNotificationId(),
+        gameId: game.id,
+        userId: organizerId,
+        type: NotificationType.gameSummary,
+        scheduledFor: summaryTime,
+        title: 'Game Summary Available',
+        body: 'View stats and highlights from your recent game.',
+        channels: [NotificationChannel.push, NotificationChannel.inApp],
+        status: NotificationStatus.scheduled,
+      ),
+    );
 
     return notifications;
   }
@@ -315,7 +347,7 @@ class GameNotificationsService {
     try {
       // Get user preferences
       final preferences = await _getUserNotificationPreferences(userId);
-      
+
       // Create notification
       final notification = GameNotification(
         id: _generateNotificationId(),
@@ -357,7 +389,6 @@ class GameNotificationsService {
         notification: notification,
         channelResults: results,
       );
-
     } catch (e, stackTrace) {
       debugPrint('Error sending immediate notification: $e\n$stackTrace');
       return NotificationResult.failure('Failed to send notification: $e');
@@ -410,20 +441,22 @@ class GameNotificationsService {
   Future<void> processScheduledNotifications() async {
     try {
       final now = DateTime.now();
-      
+
       // Get notifications due for delivery
-      final dueNotifications = await _notificationRepository.getDueNotifications(now);
-      
+      final dueNotifications = await _notificationRepository
+          .getDueNotifications(now);
+
       for (final scheduledNotification in dueNotifications) {
         await _processScheduledNotification(scheduledNotification);
       }
-
     } catch (e) {
       debugPrint('Error processing scheduled notifications: $e');
     }
   }
 
-  Future<void> _processScheduledNotification(ScheduledNotification scheduled) async {
+  Future<void> _processScheduledNotification(
+    ScheduledNotification scheduled,
+  ) async {
     try {
       // Check conditional notifications
       if (scheduled.conditional) {
@@ -463,7 +496,7 @@ class GameNotificationsService {
       // Update status
       await _notificationRepository.updateNotificationStatus(
         scheduled.id,
-        results.values.any((success) => success) 
+        results.values.any((success) => success)
             ? NotificationStatus.sent
             : NotificationStatus.failed,
       );
@@ -481,7 +514,6 @@ class GameNotificationsService {
           gameId: notification.gameId,
         ),
       );
-
     } catch (e) {
       debugPrint('Error processing scheduled notification ${scheduled.id}: $e');
       await _notificationRepository.updateNotificationStatus(
@@ -492,9 +524,11 @@ class GameNotificationsService {
   }
 
   // CONDITIONAL NOTIFICATION EVALUATION
-  Future<bool> _evaluateNotificationCondition(ScheduledNotification notification) async {
+  Future<bool> _evaluateNotificationCondition(
+    ScheduledNotification notification,
+  ) async {
     final condition = notification.metadata['condition'];
-    
+
     switch (condition) {
       case 'not_checked_in':
         // Check if user has checked in for the game
@@ -518,7 +552,9 @@ class GameNotificationsService {
     }
   }
 
-  Future<bool> _shouldSendWeatherDependentNotification(ScheduledNotification notification) async {
+  Future<bool> _shouldSendWeatherDependentNotification(
+    ScheduledNotification notification,
+  ) async {
     // This would integrate with weather service to check conditions
     // For now, return true (always send)
     return true;
@@ -534,7 +570,7 @@ class GameNotificationsService {
     Map<String, String>? metadata,
   }) async {
     final results = <String, NotificationResult>{};
-    
+
     for (final userId in userIds) {
       final result = await sendImmediateNotification(
         userId: userId,
@@ -548,7 +584,7 @@ class GameNotificationsService {
     }
 
     final successCount = results.values.where((r) => r.isSuccess).length;
-    
+
     return BulkNotificationResult(
       totalSent: userIds.length,
       successCount: successCount,
@@ -582,9 +618,12 @@ class GameNotificationsService {
   }
 
   // HELPER METHODS
-  Future<NotificationPreferences> _getUserNotificationPreferences(String userId) async {
+  Future<NotificationPreferences> _getUserNotificationPreferences(
+    String userId,
+  ) async {
     try {
-      final preferences = await _userPreferencesRepository.getNotificationPreferences(userId);
+      final preferences = await _userPreferencesRepository
+          .getNotificationPreferences(userId);
       return preferences ?? NotificationPreferences.defaultPreferences();
     } catch (e) {
       debugPrint('Error fetching notification preferences for $userId: $e');
@@ -632,12 +671,12 @@ class GameNotificationsService {
       case NotificationType.gameFinalReminder:
       case NotificationType.emergencyMessage:
         return NotificationPriority.high;
-        
+
       case NotificationType.gameReminder1h:
       case NotificationType.checkinReminder:
       case NotificationType.gameStartingSoon:
         return NotificationPriority.medium;
-        
+
       default:
         return NotificationPriority.normal;
     }
@@ -662,10 +701,10 @@ class GameNotificationsService {
   }
 
   String _buildGameReminderMessage(Game game, Duration timeUntil) {
-    final timeText = timeUntil.inHours >= 24 
+    final timeText = timeUntil.inHours >= 24
         ? '${timeUntil.inDays} day${timeUntil.inDays == 1 ? '' : 's'}'
         : '${timeUntil.inHours} hour${timeUntil.inHours == 1 ? '' : 's'}';
-        
+
     return 'Your ${game.sport} game at ${game.venue.name} starts in $timeText. See you there! 🏀';
   }
 
@@ -702,7 +741,8 @@ abstract class NotificationScheduleResult {
     required List<ScheduledNotification> notifications,
   }) = NotificationScheduleSuccess;
 
-  factory NotificationScheduleResult.failure(String error) = NotificationScheduleFailure;
+  factory NotificationScheduleResult.failure(String error) =
+      NotificationScheduleFailure;
 }
 
 class NotificationScheduleSuccess extends NotificationScheduleResult {
@@ -916,35 +956,13 @@ enum NotificationType {
   emergencyMessage,
 }
 
-enum NotificationChannel {
-  push,
-  email,
-  sms,
-  inApp,
-}
+enum NotificationChannel { push, email, sms, inApp }
 
-enum NotificationStatus {
-  scheduled,
-  sent,
-  failed,
-  cancelled,
-  skipped,
-}
+enum NotificationStatus { scheduled, sent, failed, cancelled, skipped }
 
-enum NotificationPriority {
-  low,
-  normal,
-  medium,
-  high,
-}
+enum NotificationPriority { low, normal, medium, high }
 
-enum ReminderTiming {
-  hours24,
-  hours4,
-  hour1,
-  minutes30,
-  minutes15,
-}
+enum ReminderTiming { hours24, hours4, hour1, minutes30, minutes15 }
 
 // Placeholder classes for dependencies
 class Game {
@@ -972,12 +990,7 @@ class Venue {
   Venue({required this.id, required this.name});
 }
 
-enum GameStatus {
-  scheduled,
-  active,
-  completed,
-  cancelled,
-}
+enum GameStatus { scheduled, active, completed, cancelled }
 
 // Abstract dependencies
 abstract class NotificationRepository {
@@ -1013,10 +1026,7 @@ abstract class EmailNotificationService {
 }
 
 abstract class SMSNotificationService {
-  Future<bool> sendSMS({
-    required String userId,
-    required String message,
-  });
+  Future<bool> sendSMS({required String userId, required String message});
 }
 
 abstract class InAppNotificationService {

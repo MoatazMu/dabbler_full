@@ -1,5 +1,6 @@
 /// Helper class for privacy management, access control, and settings validation
 library;
+
 import '../enums/privacy_level_enums.dart';
 import '../constants/privacy_constants.dart';
 
@@ -36,7 +37,7 @@ class PrivacySettings {
   final bool preciseLocation;
   final bool locationHistory;
   final bool nearbyUsers;
-  
+
   const PrivacySettings({
     this.profileVisibility = 'friends',
     this.showRealName = true,
@@ -120,13 +121,17 @@ class PrivacySettings {
       allowFriendRequests: allowFriendRequests ?? this.allowFriendRequests,
       allowGameInvites: allowGameInvites ?? this.allowGameInvites,
       allowGroupInvites: allowGroupInvites ?? this.allowGroupInvites,
-      allowMessagesFromStrangers: allowMessagesFromStrangers ?? this.allowMessagesFromStrangers,
+      allowMessagesFromStrangers:
+          allowMessagesFromStrangers ?? this.allowMessagesFromStrangers,
       appearInSearch: appearInSearch ?? this.appearInSearch,
       showInSuggestions: showInSuggestions ?? this.showInSuggestions,
-      allowDiscoveryByEmail: allowDiscoveryByEmail ?? this.allowDiscoveryByEmail,
-      allowDiscoveryByPhone: allowDiscoveryByPhone ?? this.allowDiscoveryByPhone,
+      allowDiscoveryByEmail:
+          allowDiscoveryByEmail ?? this.allowDiscoveryByEmail,
+      allowDiscoveryByPhone:
+          allowDiscoveryByPhone ?? this.allowDiscoveryByPhone,
       analyticsEnabled: analyticsEnabled ?? this.analyticsEnabled,
-      personalizationEnabled: personalizationEnabled ?? this.personalizationEnabled,
+      personalizationEnabled:
+          personalizationEnabled ?? this.personalizationEnabled,
       marketingEmails: marketingEmails ?? this.marketingEmails,
       crashReporting: crashReporting ?? this.crashReporting,
       locationServices: locationServices ?? this.locationServices,
@@ -150,10 +155,10 @@ class PrivacyHelper {
   }) {
     // Owner can always view their own profile
     if (viewerId == profileOwnerId) return true;
-    
+
     // Blocked users cannot view profile
     if (isBlocked) return false;
-    
+
     return privacyLevel.canView(isFriend, false);
   }
 
@@ -224,7 +229,7 @@ class PrivacyHelper {
 
     final profileLevel = PrivacyLevel.fromString(settings.profileVisibility);
     final canViewProfile = profileLevel.canView(isFriend, isOwner);
-    
+
     if (!canViewProfile) {
       return {
         'username': true,
@@ -282,7 +287,7 @@ class PrivacyHelper {
           appearInSearch: true,
           showInSuggestions: true,
         );
-        
+
       case 'friends':
         return const PrivacySettings(
           profileVisibility: PrivacyLevels.friendsPrivacy,
@@ -301,7 +306,7 @@ class PrivacyHelper {
           appearInSearch: false,
           showInSuggestions: true,
         );
-        
+
       case 'private':
         return const PrivacySettings(
           profileVisibility: PrivacyLevels.privatePrivacy,
@@ -321,7 +326,7 @@ class PrivacyHelper {
           appearInSearch: false,
           showInSuggestions: false,
         );
-        
+
       default:
         return const PrivacySettings(); // Default friends settings
     }
@@ -333,53 +338,58 @@ class PrivacyHelper {
     PrivacySettings newSettings,
   ) {
     final warnings = <String>[];
-    
+
     // Profile visibility warnings
-    if (oldSettings.profileVisibility == PrivacyLevels.privatePrivacy && 
+    if (oldSettings.profileVisibility == PrivacyLevels.privatePrivacy &&
         newSettings.profileVisibility != PrivacyLevels.privatePrivacy) {
       warnings.add(PrivacyMessages.publicProfileWarning);
     }
-    
+
     // Location sharing warnings
     if (!oldSettings.showLocation && newSettings.showLocation) {
       warnings.add(PrivacyMessages.locationSharingWarning);
     }
-    
+
     // Location services warnings
     if (!oldSettings.locationServices && newSettings.locationServices) {
       warnings.add('Location services will access your device location');
     }
-    
+
     // Messaging warnings
     if (!oldSettings.allowMessages && newSettings.allowMessages) {
       warnings.add('Other users will be able to message you');
     }
-    
+
     // Stranger messaging warnings
-    if (!oldSettings.allowMessagesFromStrangers && newSettings.allowMessagesFromStrangers) {
-      warnings.add('Anyone will be able to send you messages, even if you\'re not friends');
+    if (!oldSettings.allowMessagesFromStrangers &&
+        newSettings.allowMessagesFromStrangers) {
+      warnings.add(
+        'Anyone will be able to send you messages, even if you\'re not friends',
+      );
     }
-    
+
     // Search visibility warnings
     if (!oldSettings.appearInSearch && newSettings.appearInSearch) {
       warnings.add('Your profile will appear in search results');
     }
-    
+
     // Email discovery warnings
-    if (!oldSettings.allowDiscoveryByEmail && newSettings.allowDiscoveryByEmail) {
+    if (!oldSettings.allowDiscoveryByEmail &&
+        newSettings.allowDiscoveryByEmail) {
       warnings.add('People who have your email address can find your profile');
     }
-    
+
     // Phone discovery warnings
-    if (!oldSettings.allowDiscoveryByPhone && newSettings.allowDiscoveryByPhone) {
+    if (!oldSettings.allowDiscoveryByPhone &&
+        newSettings.allowDiscoveryByPhone) {
       warnings.add('People who have your phone number can find your profile');
     }
-    
+
     // Marketing email warnings
     if (!oldSettings.marketingEmails && newSettings.marketingEmails) {
       warnings.add('You will receive promotional emails and offers');
     }
-    
+
     return warnings;
   }
 
@@ -389,41 +399,52 @@ class PrivacyHelper {
     Map<String, dynamic> userContext,
   ) {
     final recommendations = <String>[];
-    
+
     // Age-based recommendations
     final age = userContext['age'] as int?;
     if (age != null && age < 18) {
       if (settings.profileVisibility == PrivacyLevels.publicPrivacy) {
-        recommendations.add('Consider setting your profile to "Friends Only" for better privacy');
+        recommendations.add(
+          'Consider setting your profile to "Friends Only" for better privacy',
+        );
       }
       if (settings.showLocation) {
         recommendations.add('We recommend hiding your location for safety');
       }
     }
-    
+
     // New user recommendations
     final accountAge = userContext['accountAgeInDays'] as int?;
     if (accountAge != null && accountAge < 30) {
-      recommendations.add('Review your privacy settings as you get familiar with the app');
+      recommendations.add(
+        'Review your privacy settings as you get familiar with the app',
+      );
       if (settings.allowMessagesFromStrangers) {
-        recommendations.add('Consider restricting messages to friends only while you\'re new');
+        recommendations.add(
+          'Consider restricting messages to friends only while you\'re new',
+        );
       }
     }
-    
+
     // Activity-based recommendations
     final gamesPlayed = userContext['totalGamesPlayed'] as int?;
     if (gamesPlayed != null && gamesPlayed > 50) {
       if (!settings.showSportsStats) {
-        recommendations.add('Consider showing your sports stats to help others find suitable game partners');
+        recommendations.add(
+          'Consider showing your sports stats to help others find suitable game partners',
+        );
       }
     }
-    
+
     // Location-based recommendations
-    final hasLocationEnabled = userContext['hasLocationEnabled'] as bool? ?? false;
+    final hasLocationEnabled =
+        userContext['hasLocationEnabled'] as bool? ?? false;
     if (hasLocationEnabled && !settings.showLocation) {
-      recommendations.add('Consider showing your general location to find nearby games');
+      recommendations.add(
+        'Consider showing your general location to find nearby games',
+      );
     }
-    
+
     return recommendations;
   }
 
@@ -435,8 +456,9 @@ class PrivacyHelper {
   }) {
     if (isBlocked) return false;
     if (!recipientSettings.allowMessages) return false;
-    if (!isFriend && !recipientSettings.allowMessagesFromStrangers) return false;
-    
+    if (!isFriend && !recipientSettings.allowMessagesFromStrangers)
+      return false;
+
     return true;
   }
 
@@ -456,44 +478,52 @@ class PrivacyHelper {
   }) {
     if (isBlocked) return false;
     if (!recipientSettings.allowGameInvites) return false;
-    
+
     // Game invites typically require friendship or public profile
-    final profileLevel = PrivacyLevel.fromString(recipientSettings.profileVisibility);
+    final profileLevel = PrivacyLevel.fromString(
+      recipientSettings.profileVisibility,
+    );
     return profileLevel == PrivacyLevel.public || isFriend;
   }
 
   /// Validate privacy settings for consistency
   static Map<String, String> validatePrivacySettings(PrivacySettings settings) {
     final errors = <String, String>{};
-    
+
     // Location consistency checks
     if (settings.preciseLocation && !settings.locationServices) {
-      errors['preciseLocation'] = 'Precise location requires location services to be enabled';
+      errors['preciseLocation'] =
+          'Precise location requires location services to be enabled';
     }
-    
+
     if (settings.locationHistory && !settings.locationServices) {
-      errors['locationHistory'] = 'Location history requires location services to be enabled';
+      errors['locationHistory'] =
+          'Location history requires location services to be enabled';
     }
-    
+
     if (settings.nearbyUsers && !settings.showLocation) {
-      errors['nearbyUsers'] = 'Showing nearby users requires location visibility to be enabled';
+      errors['nearbyUsers'] =
+          'Showing nearby users requires location visibility to be enabled';
     }
-    
+
     // Discovery consistency checks
     if (settings.allowDiscoveryByEmail && !settings.appearInSearch) {
-      errors['allowDiscoveryByEmail'] = 'Email discovery works best with search visibility enabled';
+      errors['allowDiscoveryByEmail'] =
+          'Email discovery works best with search visibility enabled';
     }
-    
+
     // Private profile consistency
     if (settings.profileVisibility == PrivacyLevels.privatePrivacy) {
       if (settings.allowMessagesFromStrangers) {
-        errors['allowMessagesFromStrangers'] = 'Private profiles cannot receive messages from strangers';
+        errors['allowMessagesFromStrangers'] =
+            'Private profiles cannot receive messages from strangers';
       }
       if (settings.appearInSearch) {
-        errors['appearInSearch'] = 'Private profiles should not appear in search results';
+        errors['appearInSearch'] =
+            'Private profiles should not appear in search results';
       }
     }
-    
+
     return errors;
   }
 
@@ -504,9 +534,11 @@ class PrivacyHelper {
   }
 
   /// Get privacy impact summary
-  static Map<String, dynamic> getPrivacyImpactSummary(PrivacySettings settings) {
+  static Map<String, dynamic> getPrivacyImpactSummary(
+    PrivacySettings settings,
+  ) {
     final level = PrivacyLevel.fromString(settings.profileVisibility);
-    
+
     return {
       'privacy_level': level.displayName,
       'visibility': level.description,
@@ -536,19 +568,23 @@ class PrivacyHelper {
   ) {
     final daysSinceUpdate = DateTime.now().difference(lastUpdated).inDays;
     final recommendations = <String>[];
-    
+
     // Check for outdated settings
     if (daysSinceUpdate > 90) {
-      recommendations.add('Review your privacy settings (last updated $daysSinceUpdate days ago)');
+      recommendations.add(
+        'Review your privacy settings (last updated $daysSinceUpdate days ago)',
+      );
     }
-    
+
     // Check for high-risk settings
-    if (settings.profileVisibility == PrivacyLevels.publicPrivacy && 
-        settings.showLocation && 
+    if (settings.profileVisibility == PrivacyLevels.publicPrivacy &&
+        settings.showLocation &&
         settings.allowMessagesFromStrangers) {
-      recommendations.add('Consider increasing your privacy level due to multiple public settings');
+      recommendations.add(
+        'Consider increasing your privacy level due to multiple public settings',
+      );
     }
-    
+
     return {
       'last_updated_days_ago': daysSinceUpdate,
       'privacy_score': _calculatePrivacyScore(settings),
@@ -561,7 +597,7 @@ class PrivacyHelper {
   /// Private helper methods
   static double _calculatePrivacyScore(PrivacySettings settings) {
     double score = 100.0; // Start with max privacy
-    
+
     // Deduct points for public settings
     if (settings.profileVisibility == PrivacyLevels.publicPrivacy) score -= 20;
     if (settings.showLocation) score -= 15;
@@ -573,32 +609,33 @@ class PrivacyHelper {
     if (settings.marketingEmails) score -= 5;
     if (settings.locationHistory) score -= 10;
     if (settings.preciseLocation) score -= 5;
-    
+
     return score.clamp(0, 100);
   }
 
   static List<String> _getHighRiskSettings(PrivacySettings settings) {
     final risks = <String>[];
-    
-    if (settings.profileVisibility == PrivacyLevels.publicPrivacy && 
+
+    if (settings.profileVisibility == PrivacyLevels.publicPrivacy &&
         settings.showLocation) {
       risks.add('Public profile with location visible');
     }
-    
+
     if (settings.allowMessagesFromStrangers && settings.showLocation) {
       risks.add('Strangers can message you and see your location');
     }
-    
+
     if (settings.preciseLocation && settings.locationHistory) {
       risks.add('Detailed location tracking enabled');
     }
-    
+
     return risks;
   }
 
   static Map<String, bool> _getDataSharingSummary(PrivacySettings settings) {
     return {
-      'profile_data': settings.profileVisibility != PrivacyLevels.privatePrivacy,
+      'profile_data':
+          settings.profileVisibility != PrivacyLevels.privatePrivacy,
       'location_data': settings.locationServices,
       'usage_analytics': settings.analyticsEnabled,
       'personalization_data': settings.personalizationEnabled,

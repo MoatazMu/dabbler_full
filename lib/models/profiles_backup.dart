@@ -44,13 +44,19 @@ class ProfilesBackup {
       full_name: json['full_name'],
       avatar_url: json['avatar_url'],
       phone_number: json['phone_number'],
-      date_of_birth: (json['date_of_birth'] == null ? null : DateTime.parse(json['date_of_birth'] as String)),
+      date_of_birth: (json['date_of_birth'] == null
+          ? null
+          : DateTime.parse(json['date_of_birth'] as String)),
       bio: json['bio'],
       is_profile_complete: json['is_profile_complete'],
       is_email_verified: json['is_email_verified'],
       is_phone_verified: json['is_phone_verified'],
-      created_at: (json['created_at'] == null ? null : DateTime.parse(json['created_at'] as String)),
-      updated_at: (json['updated_at'] == null ? null : DateTime.parse(json['updated_at'] as String)),
+      created_at: (json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String)),
+      updated_at: (json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String)),
       profile_completion_percentage: json['profile_completion_percentage'],
       search_vector: json['search_vector'],
       display_name: json['display_name'],

@@ -93,17 +93,21 @@ class BookingModel {
     final bookingDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
     return bookingDate == today;
   }
-  
+
   bool get isTomorrow {
     final now = DateTime.now();
-    final tomorrow = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+    final tomorrow = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).add(const Duration(days: 1));
     final bookingDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
     return bookingDate == tomorrow;
   }
 
   bool get isUpcoming => dateTime.isAfter(DateTime.now());
   bool get isPast => dateTime.isBefore(DateTime.now());
-  
+
   Duration get timeUntilStart {
     final now = DateTime.now();
     return dateTime.difference(now);

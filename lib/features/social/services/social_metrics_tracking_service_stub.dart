@@ -211,7 +211,8 @@ class SocialMetricsTrackingService {
     try {
       debugPrint('Exporting analytics for: $userId in format: $format');
       // Return stub export URL
-      final exportUrl = 'https://dabbler.app/exports/analytics_${userId}_${DateTime.now().millisecondsSinceEpoch}.$format';
+      final exportUrl =
+          'https://dabbler.app/exports/analytics_${userId}_${DateTime.now().millisecondsSinceEpoch}.$format';
       return Right(exportUrl);
     } catch (e) {
       debugPrint('Error exporting analytics: $e');

@@ -35,15 +35,17 @@ class UserProgressModel extends UserProgress {
       expiresAt: _parseDateTime(json['expires_at']),
       startedAt: _parseDateTime(json['started_at'])!,
       updatedAt: _parseDateTime(json['updated_at'])!,
-      achievement: json['achievement'] != null 
-          ? AchievementModel.fromJson(json['achievement'] as Map<String, dynamic>)
+      achievement: json['achievement'] != null
+          ? AchievementModel.fromJson(
+              json['achievement'] as Map<String, dynamic>,
+            )
           : null,
       metadata: _parseMetadata(json['metadata']),
-      stats: json['stats'] != null 
-          ? Map<String, dynamic>.from(json['stats'] as Map<String, dynamic>) 
+      stats: json['stats'] != null
+          ? Map<String, dynamic>.from(json['stats'] as Map<String, dynamic>)
           : const {},
-      streaks: json['streaks'] != null 
-          ? Map<String, dynamic>.from(json['streaks'] as Map<String, dynamic>) 
+      streaks: json['streaks'] != null
+          ? Map<String, dynamic>.from(json['streaks'] as Map<String, dynamic>)
           : const {},
       totalPoints: (json['total_points'] as num?)?.toDouble() ?? 0.0,
     );
@@ -111,34 +113,33 @@ class UserProgressModel extends UserProgress {
 
   static Map<String, dynamic> _parseProgressMap(dynamic value) {
     if (value == null) return {};
-    
+
     if (value is Map<String, dynamic>) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     if (value is Map) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     if (value is String) {
       try {
         // Try to parse JSON string from JSONB
-        final Map<String, dynamic> parsed = 
-            Map<String, dynamic>.from(
-                Map.from(value as dynamic)
-            );
+        final Map<String, dynamic> parsed = Map<String, dynamic>.from(
+          Map.from(value as dynamic),
+        );
         return parsed;
       } catch (e) {
         return {};
       }
     }
-    
+
     return {};
   }
 
   static ProgressStatus _parseProgressStatus(dynamic value) {
     if (value == null) return ProgressStatus.notStarted;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'not_started':
@@ -155,13 +156,13 @@ class UserProgressModel extends UserProgress {
           return ProgressStatus.notStarted;
       }
     }
-    
+
     return ProgressStatus.notStarted;
   }
 
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
-    
+
     if (value is String) {
       try {
         return DateTime.parse(value);
@@ -169,23 +170,23 @@ class UserProgressModel extends UserProgress {
         return null;
       }
     }
-    
+
     if (value is DateTime) return value;
-    
+
     return null;
   }
 
   static Map<String, dynamic>? _parseMetadata(dynamic value) {
     if (value == null) return null;
-    
+
     if (value is Map<String, dynamic>) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     if (value is Map) {
       return Map<String, dynamic>.from(value);
     }
-    
+
     return null;
   }
 
@@ -196,7 +197,8 @@ class UserProgressModel extends UserProgress {
       'user_id': data['user_id'] ?? data['userId'],
       'achievement_id': data['achievement_id'] ?? data['achievementId'],
       'current_progress': data['current_progress'] ?? data['currentProgress'],
-      'required_progress': data['required_progress'] ?? data['requiredProgress'],
+      'required_progress':
+          data['required_progress'] ?? data['requiredProgress'],
       'completed_at': data['completed_at'] ?? data['completedAt'],
       'expires_at': data['expires_at'] ?? data['expiresAt'],
       'started_at': data['started_at'] ?? data['startedAt'],
@@ -207,11 +209,11 @@ class UserProgressModel extends UserProgress {
   /// Converts to format suitable for Supabase insertion
   Map<String, dynamic> toSupabase() {
     final json = toJson();
-    
+
     // Remove null values and nested objects
     json.removeWhere((key, value) => value == null);
     json.remove('achievement'); // This would be handled by joins
-    
+
     return {
       ...json,
       'user_id': json['user_id'],
@@ -253,12 +255,12 @@ class UserProgressModel extends UserProgress {
     Map<String, dynamic>? metadataUpdate,
   }) {
     final newProgress = Map<String, dynamic>.from(currentProgress);
-    
+
     // Apply incremental updates
     for (final entry in progressDelta.entries) {
       final key = entry.key;
       final deltaValue = entry.value;
-      
+
       if (deltaValue is num && newProgress[key] is num) {
         // Increment numerical values
         newProgress[key] = (newProgress[key] as num) + deltaValue;
@@ -267,19 +269,19 @@ class UserProgressModel extends UserProgress {
         newProgress[key] = deltaValue;
       }
     }
-    
+
     // Update metadata if provided
     Map<String, dynamic>? newMetadata;
     if (metadataUpdate != null) {
       newMetadata = Map<String, dynamic>.from(metadata ?? {});
       newMetadata.addAll(metadataUpdate);
     }
-    
+
     // Check if achievement is now complete
     final isNowComplete = _checkCompletion(newProgress, requiredProgress);
     final newStatus = isNowComplete ? ProgressStatus.completed : status;
     final completionTime = isNowComplete ? DateTime.now() : completedAt;
-    
+
     return copyWith(
       currentProgress: newProgress,
       status: newStatus,
@@ -298,7 +300,7 @@ class UserProgressModel extends UserProgress {
       final key = entry.key;
       final requiredValue = entry.value;
       final currentValue = current[key];
-      
+
       if (requiredValue is num && currentValue is num) {
         if (currentValue < requiredValue) return false;
       } else if (requiredValue is bool && requiredValue == true) {
@@ -307,7 +309,7 @@ class UserProgressModel extends UserProgress {
         if (currentValue != requiredValue) return false;
       }
     }
-    
+
     return true;
   }
 
@@ -340,7 +342,8 @@ class UserProgressModel extends UserProgress {
       id: id,
       userId: userId,
       achievementId: achievement.id,
-      currentProgress: initialProgress ?? _getInitialProgress(achievement.criteria),
+      currentProgress:
+          initialProgress ?? _getInitialProgress(achievement.criteria),
       requiredProgress: achievement.criteria,
       status: ProgressStatus.notStarted,
       expiresAt: expirationDate,
@@ -350,13 +353,15 @@ class UserProgressModel extends UserProgress {
     );
   }
 
-  static Map<String, dynamic> _getInitialProgress(Map<String, dynamic> criteria) {
+  static Map<String, dynamic> _getInitialProgress(
+    Map<String, dynamic> criteria,
+  ) {
     final initial = <String, dynamic>{};
-    
+
     for (final entry in criteria.entries) {
       final key = entry.key;
       final value = entry.value;
-      
+
       if (value is num) {
         initial[key] = 0;
       } else if (value is bool) {
@@ -369,7 +374,7 @@ class UserProgressModel extends UserProgress {
         initial[key] = null;
       }
     }
-    
+
     return initial;
   }
 
@@ -377,14 +382,14 @@ class UserProgressModel extends UserProgress {
   double getProgressVelocity() {
     final totalDays = DateTime.now().difference(startedAt).inDays;
     if (totalDays == 0) return 0.0;
-    
+
     return calculateProgress() / totalDays;
   }
 
   /// Gets recent progress changes
   List<Map<String, dynamic>> getRecentChanges() {
     final changes = <Map<String, dynamic>>[];
-    
+
     // This would typically be populated from historical data
     // For now, we'll return the current state
     for (final entry in currentProgress.entries) {
@@ -395,7 +400,7 @@ class UserProgressModel extends UserProgress {
         'last_updated': updatedAt.toIso8601String(),
       });
     }
-    
+
     return changes;
   }
 }

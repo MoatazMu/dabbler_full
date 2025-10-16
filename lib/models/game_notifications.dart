@@ -33,10 +33,12 @@ class GameNotifications {
       title: json['title'],
       message: json['message'],
       is_read: json['is_read'],
-    sent_at: json['sent_at'] != null
-      ? DateTime.parse(json['sent_at'] as String)
-      : DateTime.now(),
-      read_at: (json['read_at'] == null ? null : DateTime.parse(json['read_at'] as String)),
+      sent_at: json['sent_at'] != null
+          ? DateTime.parse(json['sent_at'] as String)
+          : DateTime.now(),
+      read_at: (json['read_at'] == null
+          ? null
+          : DateTime.parse(json['read_at'] as String)),
       metadata: json['metadata'],
     );
   }

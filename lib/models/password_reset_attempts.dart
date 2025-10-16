@@ -27,9 +27,15 @@ class PasswordResetAttempts {
       ip_address: json['ip_address'],
       status: json['status'],
       token_hash: json['token_hash'],
-      attempted_at: (json['attempted_at'] == null ? null : DateTime.parse(json['attempted_at'] as String)),
-      completed_at: (json['completed_at'] == null ? null : DateTime.parse(json['completed_at'] as String)),
-      expires_at: (json['expires_at'] == null ? null : DateTime.parse(json['expires_at'] as String)),
+      attempted_at: (json['attempted_at'] == null
+          ? null
+          : DateTime.parse(json['attempted_at'] as String)),
+      completed_at: (json['completed_at'] == null
+          ? null
+          : DateTime.parse(json['completed_at'] as String)),
+      expires_at: (json['expires_at'] == null
+          ? null
+          : DateTime.parse(json['expires_at'] as String)),
     );
   }
 

@@ -46,10 +46,12 @@ class PointTransactions {
       final_points: json['final_points'],
       balance_before: json['balance_before'],
       balance_after: json['balance_after'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-      created_date_utc: (json['created_date_utc'] == null ? null : DateTime.parse(json['created_date_utc'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      created_date_utc: (json['created_date_utc'] == null
+          ? null
+          : DateTime.parse(json['created_date_utc'] as String)),
     );
   }
 

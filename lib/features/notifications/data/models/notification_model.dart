@@ -82,15 +82,15 @@ class NotificationModel {
       priority: json['priority'] as String? ?? 'normal',
       createdAt: DateTime.parse(json['created_at'] as String),
       isRead: json['is_read'] as bool? ?? false,
-      data: json['data'] != null 
-          ? (json['data'] is String 
-              ? jsonDecode(json['data'] as String) as Map<String, dynamic>
-              : json['data'] as Map<String, dynamic>)
+      data: json['data'] != null
+          ? (json['data'] is String
+                ? jsonDecode(json['data'] as String) as Map<String, dynamic>
+                : json['data'] as Map<String, dynamic>)
           : null,
       imageUrl: json['image_url'] as String?,
       actionText: json['action_text'] as String?,
       actionRoute: json['action_route'] as String?,
-      readAt: json['read_at'] != null 
+      readAt: json['read_at'] != null
           ? DateTime.parse(json['read_at'] as String)
           : null,
     );

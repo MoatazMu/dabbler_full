@@ -36,13 +36,15 @@ class UserTierProgress {
       tier_progress_percentage: json['tier_progress_percentage'],
       highest_tier_achieved: json['highest_tier_achieved'],
       tier_up_count: json['tier_up_count'],
-      last_tier_up: (json['last_tier_up'] == null ? null : DateTime.parse(json['last_tier_up'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      last_tier_up: (json['last_tier_up'] == null
+          ? null
+          : DateTime.parse(json['last_tier_up'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

@@ -13,25 +13,27 @@ import 'achievements_local_datasource.dart';
 class LeaderboardDataSource {
   final SupabaseClient _supabase;
   final AchievementsLocalDataSource _localDataSource;
-  
+
   // Real-time subscription controllers
   final Map<String, RealtimeChannel> _subscriptions = {};
-  final Map<String, StreamController<List<LeaderboardEntry>>> _leaderboardControllers = {};
+  final Map<String, StreamController<List<LeaderboardEntry>>>
+  _leaderboardControllers = {};
   final Map<String, StreamController<UserRank>> _rankControllers = {};
-  
+
   // Cache configuration
   static const Duration _cacheExpiration = Duration(minutes: 15);
   static const int _maxCachePages = 5;
-  
+
   // Local database tables
   static const String _leaderboardTable = 'leaderboard_cache';
   static const String _userRanksTable = 'user_ranks_cache';
   static const String _leaderboardMetaTable = 'leaderboard_metadata';
-  
+
   LeaderboardDataSource({
     required SupabaseClient supabase,
     required AchievementsLocalDataSource localDataSource,
-  }) : _supabase = supabase, _localDataSource = localDataSource;
+  }) : _supabase = supabase,
+       _localDataSource = localDataSource;
 
   // =============================================================================
   // LEADERBOARD OPERATIONS
@@ -47,7 +49,7 @@ class LeaderboardDataSource {
     bool forceRefresh = false,
   }) async {
     final cacheKey = _buildCacheKey(type, period, categoryFilter, page, limit);
-    
+
     // Try cache first unless force refresh
     if (!forceRefresh) {
       final cached = await _getCachedLeaderboard(cacheKey);
@@ -66,20 +68,19 @@ class LeaderboardDataSource {
 
       // Call Supabase RPC function
       final response = await _supabase.rpc('get_leaderboard', params: params);
-      
+
       final data = response as Map<String, dynamic>;
       final leaderboard = LeaderboardModel.fromJson(data);
-      
+
       // Cache the result
       await _cacheLeaderboard(cacheKey, leaderboard);
-      
+
       return leaderboard;
-      
     } catch (error) {
       // Fallback to cache on error
       final cached = await _getCachedLeaderboard(cacheKey);
       if (cached != null) return cached;
-      
+
       rethrow;
     }
   }
@@ -92,22 +93,23 @@ class LeaderboardDataSource {
     bool forceRefresh = false,
   }) async {
     final targetTypes = types ?? LeaderboardType.values;
-    final targetPeriods = periods ?? [LeaderboardPeriod.allTime, LeaderboardPeriod.monthly];
-    
+    final targetPeriods =
+        periods ?? [LeaderboardPeriod.allTime, LeaderboardPeriod.monthly];
+
     final ranks = <String, UserRank>{};
-    
+
     for (final type in targetTypes) {
       for (final period in targetPeriods) {
         final rankKey = '${type.name}_${period.name}';
-        
+
         try {
           final rank = await _getUserRankForLeaderboard(
-            userId, 
-            type, 
-            period, 
-            forceRefresh: forceRefresh
+            userId,
+            type,
+            period,
+            forceRefresh: forceRefresh,
           );
-          
+
           if (rank != null) {
             ranks[rankKey] = rank;
           }
@@ -117,7 +119,7 @@ class LeaderboardDataSource {
         }
       }
     }
-    
+
     return ranks;
   }
 
@@ -129,7 +131,7 @@ class LeaderboardDataSource {
     bool forceRefresh = false,
   }) async {
     final cacheKey = 'rank_${userId}_${type.name}_${period.name}';
-    
+
     // Try cache first
     if (!forceRefresh) {
       final cached = await _getCachedUserRank(cacheKey);
@@ -137,26 +139,28 @@ class LeaderboardDataSource {
     }
 
     try {
-      final response = await _supabase.rpc('get_user_rank', params: {
-        'target_user_id': userId,
-        'leaderboard_type': type.name,
-        'period': period.name,
-      });
-      
+      final response = await _supabase.rpc(
+        'get_user_rank',
+        params: {
+          'target_user_id': userId,
+          'leaderboard_type': type.name,
+          'period': period.name,
+        },
+      );
+
       if (response == null) return null;
-      
+
       final rank = UserRank.fromJson(response as Map<String, dynamic>);
-      
+
       // Cache the result
       await _cacheUserRank(cacheKey, rank);
-      
+
       return rank;
-      
     } catch (error) {
       // Fallback to cache
       final cached = await _getCachedUserRank(cacheKey);
       if (cached != null) return cached;
-      
+
       return null;
     }
   }
@@ -167,13 +171,12 @@ class LeaderboardDataSource {
     LeaderboardPeriod period,
   ) async {
     try {
-      final response = await _supabase.rpc('get_leaderboard_stats', params: {
-        'leaderboard_type': type.name,
-        'period': period.name,
-      });
-      
+      final response = await _supabase.rpc(
+        'get_leaderboard_stats',
+        params: {'leaderboard_type': type.name, 'period': period.name},
+      );
+
       return LeaderboardStats.fromJson(response as Map<String, dynamic>);
-      
     } catch (error) {
       // Return default stats on error
       return LeaderboardStats(
@@ -198,17 +201,15 @@ class LeaderboardDataSource {
           .from('user_rank_history')
           .select()
           .eq('user_id', userId);
-      
-      final response = await (type != null 
-          ? query.eq('leaderboard_type', type.name)
-          : query)
-          .order('recorded_at', ascending: false)
-          .limit(limit);
-      
+
+      final response =
+          await (type != null ? query.eq('leaderboard_type', type.name) : query)
+              .order('recorded_at', ascending: false)
+              .limit(limit);
+
       return (response as List)
           .map((item) => UserRankHistory.fromJson(item as Map<String, dynamic>))
           .toList();
-          
     } catch (error) {
       return [];
     }
@@ -225,17 +226,18 @@ class LeaderboardDataSource {
     String? categoryFilter,
     int limit = 20,
   }) {
-    final subscriptionKey = 'leaderboard_${type.name}_${period.name}_$categoryFilter';
-    
+    final subscriptionKey =
+        'leaderboard_${type.name}_${period.name}_$categoryFilter';
+
     // Return existing stream if already subscribed
     if (_leaderboardControllers.containsKey(subscriptionKey)) {
       return _leaderboardControllers[subscriptionKey]!.stream;
     }
-    
+
     // Create new stream controller
     final controller = StreamController<List<LeaderboardEntry>>();
     _leaderboardControllers[subscriptionKey] = controller;
-    
+
     // Set up Supabase real-time subscription
     final subscription = _supabase
         .channel('leaderboard_$subscriptionKey')
@@ -252,17 +254,23 @@ class LeaderboardDataSource {
           ),
         )
         .subscribe();
-    
+
     _subscriptions[subscriptionKey] = subscription;
-    
+
     // Emit initial data
-    _emitInitialLeaderboardData(subscriptionKey, type, period, categoryFilter, limit);
-    
+    _emitInitialLeaderboardData(
+      subscriptionKey,
+      type,
+      period,
+      categoryFilter,
+      limit,
+    );
+
     // Handle controller close
     controller.onCancel = () {
       _cleanupLeaderboardSubscription(subscriptionKey);
     };
-    
+
     return controller.stream;
   }
 
@@ -273,16 +281,16 @@ class LeaderboardDataSource {
     LeaderboardPeriod period = LeaderboardPeriod.allTime,
   }) {
     final subscriptionKey = 'rank_${userId}_${type.name}_${period.name}';
-    
+
     // Return existing stream if already subscribed
     if (_rankControllers.containsKey(subscriptionKey)) {
       return _rankControllers[subscriptionKey]!.stream;
     }
-    
+
     // Create new stream controller
     final controller = StreamController<UserRank>();
     _rankControllers[subscriptionKey] = controller;
-    
+
     // Set up Supabase real-time subscription
     final subscription = _supabase
         .channel('rank_$subscriptionKey')
@@ -295,20 +303,21 @@ class LeaderboardDataSource {
             column: 'user_id',
             value: userId,
           ),
-          callback: (payload) => _handleUserRankUpdate(subscriptionKey, userId, type, period),
+          callback: (payload) =>
+              _handleUserRankUpdate(subscriptionKey, userId, type, period),
         )
         .subscribe();
-    
+
     _subscriptions[subscriptionKey] = subscription;
-    
+
     // Emit initial data
     _emitInitialUserRankData(subscriptionKey, userId, type, period);
-    
+
     // Handle controller close
     controller.onCancel = () {
       _cleanupRankSubscription(subscriptionKey);
     };
-    
+
     return controller.stream;
   }
 
@@ -328,22 +337,28 @@ class LeaderboardDataSource {
         limit: limit,
         forceRefresh: true,
       );
-      
+
       final controller = _leaderboardControllers[subscriptionKey];
       if (controller != null && !controller.isClosed) {
-        controller.add(leaderboard.entries.map((model) => LeaderboardEntry(
-          userId: model.userId,
-          displayName: model.displayName,
-          avatarUrl: model.avatarUrl,
-          rank: model.rank,
-          previousRank: model.previousRank,
-          score: model.score,
-          previousScore: model.previousScore,
-          stats: model.stats,
-          lastUpdated: model.lastUpdated,
-          isCurrentUser: model.isCurrentUser,
-          badges: model.badges,
-        )).toList());
+        controller.add(
+          leaderboard.entries
+              .map(
+                (model) => LeaderboardEntry(
+                  userId: model.userId,
+                  displayName: model.displayName,
+                  avatarUrl: model.avatarUrl,
+                  rank: model.rank,
+                  previousRank: model.previousRank,
+                  score: model.score,
+                  previousScore: model.previousScore,
+                  stats: model.stats,
+                  lastUpdated: model.lastUpdated,
+                  isCurrentUser: model.isCurrentUser,
+                  badges: model.badges,
+                ),
+              )
+              .toList(),
+        );
       }
     } catch (error) {
       // Handle error silently to avoid breaking stream
@@ -364,7 +379,7 @@ class LeaderboardDataSource {
         period,
         forceRefresh: true,
       );
-      
+
       if (rank != null) {
         final controller = _rankControllers[subscriptionKey];
         if (controller != null && !controller.isClosed) {
@@ -391,22 +406,28 @@ class LeaderboardDataSource {
         categoryFilter: categoryFilter,
         limit: limit,
       );
-      
+
       final controller = _leaderboardControllers[subscriptionKey];
       if (controller != null && !controller.isClosed) {
-        controller.add(leaderboard.entries.map((model) => LeaderboardEntry(
-          userId: model.userId,
-          displayName: model.displayName,
-          avatarUrl: model.avatarUrl,
-          rank: model.rank,
-          previousRank: model.previousRank,
-          score: model.score,
-          previousScore: model.previousScore,
-          stats: model.stats,
-          lastUpdated: model.lastUpdated,
-          isCurrentUser: model.isCurrentUser,
-          badges: model.badges,
-        )).toList());
+        controller.add(
+          leaderboard.entries
+              .map(
+                (model) => LeaderboardEntry(
+                  userId: model.userId,
+                  displayName: model.displayName,
+                  avatarUrl: model.avatarUrl,
+                  rank: model.rank,
+                  previousRank: model.previousRank,
+                  score: model.score,
+                  previousScore: model.previousScore,
+                  stats: model.stats,
+                  lastUpdated: model.lastUpdated,
+                  isCurrentUser: model.isCurrentUser,
+                  badges: model.badges,
+                ),
+              )
+              .toList(),
+        );
       }
     } catch (error) {
       // Emit empty list on error
@@ -426,7 +447,7 @@ class LeaderboardDataSource {
   ) async {
     try {
       final rank = await _getUserRankForLeaderboard(userId, type, period);
-      
+
       if (rank != null) {
         final controller = _rankControllers[subscriptionKey];
         if (controller != null && !controller.isClosed) {
@@ -446,45 +467,42 @@ class LeaderboardDataSource {
   Future<LeaderboardModel?> _getCachedLeaderboard(String cacheKey) async {
     try {
       final db = await _localDataSource.database;
-      
+
       final result = await db.query(
         _leaderboardTable,
         where: 'cache_key = ? AND expires_at > ?',
         whereArgs: [cacheKey, DateTime.now().toIso8601String()],
         limit: 1,
       );
-      
+
       if (result.isEmpty) return null;
-      
+
       final cached = result.first;
       final leaderboardData = jsonDecode(cached['leaderboard_data'] as String);
-      
+
       return LeaderboardModel.fromJson(leaderboardData as Map<String, dynamic>);
-      
     } catch (error) {
       return null;
     }
   }
 
   /// Cache leaderboard data
-  Future<void> _cacheLeaderboard(String cacheKey, LeaderboardModel leaderboard) async {
+  Future<void> _cacheLeaderboard(
+    String cacheKey,
+    LeaderboardModel leaderboard,
+  ) async {
     try {
       final db = await _localDataSource.database;
-      
-      await db.insert(
-        _leaderboardTable,
-        {
-          'cache_key': cacheKey,
-          'leaderboard_data': jsonEncode(leaderboard.toJson()),
-          'cached_at': DateTime.now().toIso8601String(),
-          'expires_at': DateTime.now().add(_cacheExpiration).toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      
+
+      await db.insert(_leaderboardTable, {
+        'cache_key': cacheKey,
+        'leaderboard_data': jsonEncode(leaderboard.toJson()),
+        'cached_at': DateTime.now().toIso8601String(),
+        'expires_at': DateTime.now().add(_cacheExpiration).toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+
       // Clean up old cache entries
       await _cleanupLeaderboardCache();
-      
     } catch (error) {
       // Ignore cache errors
     }
@@ -494,21 +512,20 @@ class LeaderboardDataSource {
   Future<UserRank?> _getCachedUserRank(String cacheKey) async {
     try {
       final db = await _localDataSource.database;
-      
+
       final result = await db.query(
         _userRanksTable,
         where: 'cache_key = ? AND expires_at > ?',
         whereArgs: [cacheKey, DateTime.now().toIso8601String()],
         limit: 1,
       );
-      
+
       if (result.isEmpty) return null;
-      
+
       final cached = result.first;
       final rankData = jsonDecode(cached['rank_data'] as String);
-      
+
       return UserRank.fromJson(rankData as Map<String, dynamic>);
-      
     } catch (error) {
       return null;
     }
@@ -518,18 +535,13 @@ class LeaderboardDataSource {
   Future<void> _cacheUserRank(String cacheKey, UserRank rank) async {
     try {
       final db = await _localDataSource.database;
-      
-      await db.insert(
-        _userRanksTable,
-        {
-          'cache_key': cacheKey,
-          'rank_data': jsonEncode(rank.toJson()),
-          'cached_at': DateTime.now().toIso8601String(),
-          'expires_at': DateTime.now().add(_cacheExpiration).toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      
+
+      await db.insert(_userRanksTable, {
+        'cache_key': cacheKey,
+        'rank_data': jsonEncode(rank.toJson()),
+        'cached_at': DateTime.now().toIso8601String(),
+        'expires_at': DateTime.now().add(_cacheExpiration).toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (error) {
       // Ignore cache errors
     }
@@ -539,27 +551,29 @@ class LeaderboardDataSource {
   Future<void> _cleanupLeaderboardCache() async {
     try {
       final db = await _localDataSource.database;
-      
+
       // Remove expired entries
       await db.delete(
         _leaderboardTable,
         where: 'expires_at < ?',
         whereArgs: [DateTime.now().toIso8601String()],
       );
-      
+
       // Keep only recent entries to limit cache size
-      final count = Sqflite.firstIntValue(await db.rawQuery(
-        'SELECT COUNT(*) FROM $_leaderboardTable'
-      )) ?? 0;
-      
+      final count =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM $_leaderboardTable'),
+          ) ??
+          0;
+
       if (count > _maxCachePages * 10) {
         await db.delete(
           _leaderboardTable,
-          where: 'cache_key NOT IN (SELECT cache_key FROM $_leaderboardTable ORDER BY cached_at DESC LIMIT ?)',
+          where:
+              'cache_key NOT IN (SELECT cache_key FROM $_leaderboardTable ORDER BY cached_at DESC LIMIT ?)',
           whereArgs: [_maxCachePages * 5],
         );
       }
-      
     } catch (error) {
       // Ignore cleanup errors
     }
@@ -579,7 +593,7 @@ class LeaderboardDataSource {
     int pageSize = 20,
   }) async {
     final allEntries = <LeaderboardEntry>[];
-    
+
     for (int page = startPage; page <= endPage; page++) {
       try {
         final leaderboard = await getLeaderboard(
@@ -589,32 +603,37 @@ class LeaderboardDataSource {
           page: page,
           limit: pageSize,
         );
-        
-        allEntries.addAll(leaderboard.entries.map((model) => LeaderboardEntry(
-          userId: model.userId,
-          displayName: model.displayName,
-          avatarUrl: model.avatarUrl,
-          rank: model.rank,
-          previousRank: model.previousRank,
-          score: model.score,
-          previousScore: model.previousScore,
-          stats: model.stats,
-          lastUpdated: model.lastUpdated,
-          isCurrentUser: model.isCurrentUser,
-          badges: model.badges,
-        )).toList());
-        
+
+        allEntries.addAll(
+          leaderboard.entries
+              .map(
+                (model) => LeaderboardEntry(
+                  userId: model.userId,
+                  displayName: model.displayName,
+                  avatarUrl: model.avatarUrl,
+                  rank: model.rank,
+                  previousRank: model.previousRank,
+                  score: model.score,
+                  previousScore: model.previousScore,
+                  stats: model.stats,
+                  lastUpdated: model.lastUpdated,
+                  isCurrentUser: model.isCurrentUser,
+                  badges: model.badges,
+                ),
+              )
+              .toList(),
+        );
+
         // Stop if we got fewer entries than requested (reached end)
         if (leaderboard.entries.length < pageSize) {
           break;
         }
-        
       } catch (error) {
         // Stop on error to avoid partial data
         break;
       }
     }
-    
+
     return allEntries;
   }
 
@@ -626,15 +645,17 @@ class LeaderboardDataSource {
     int contextSize = 5,
   }) async {
     try {
-      final response = await _supabase.rpc('get_leaderboard_around_user', params: {
-        'target_user_id': userId,
-        'leaderboard_type': type.name,
-        'period': period.name,
-        'context_size': contextSize,
-      });
-      
+      final response = await _supabase.rpc(
+        'get_leaderboard_around_user',
+        params: {
+          'target_user_id': userId,
+          'leaderboard_type': type.name,
+          'period': period.name,
+          'context_size': contextSize,
+        },
+      );
+
       return LeaderboardModel.fromJson(response as Map<String, dynamic>);
-      
     } catch (error) {
       // Fallback to regular leaderboard
       return getLeaderboard(type: type, period: period, limit: contextSize * 2);
@@ -661,7 +682,7 @@ class LeaderboardDataSource {
     // Close subscription
     _subscriptions[subscriptionKey]?.unsubscribe();
     _subscriptions.remove(subscriptionKey);
-    
+
     // Close and remove controller
     _leaderboardControllers[subscriptionKey]?.close();
     _leaderboardControllers.remove(subscriptionKey);
@@ -672,7 +693,7 @@ class LeaderboardDataSource {
     // Close subscription
     _subscriptions[subscriptionKey]?.unsubscribe();
     _subscriptions.remove(subscriptionKey);
-    
+
     // Close and remove controller
     _rankControllers[subscriptionKey]?.close();
     _rankControllers.remove(subscriptionKey);
@@ -693,30 +714,43 @@ class LeaderboardDataSource {
   Future<Map<String, dynamic>> getCacheStats() async {
     try {
       final db = await _localDataSource.database;
-      
-      final leaderboardCount = Sqflite.firstIntValue(await db.rawQuery(
-        'SELECT COUNT(*) FROM $_leaderboardTable'
-      )) ?? 0;
-      
-      final ranksCount = Sqflite.firstIntValue(await db.rawQuery(
-        'SELECT COUNT(*) FROM $_userRanksTable'
-      )) ?? 0;
-      
-      final expiredCount = Sqflite.firstIntValue(await db.rawQuery('''
+
+      final leaderboardCount =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM $_leaderboardTable'),
+          ) ??
+          0;
+
+      final ranksCount =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM $_userRanksTable'),
+          ) ??
+          0;
+
+      final expiredCount =
+          Sqflite.firstIntValue(
+            await db.rawQuery(
+              '''
         SELECT COUNT(*) FROM (
           SELECT 1 FROM $_leaderboardTable WHERE expires_at < ?
           UNION ALL
           SELECT 1 FROM $_userRanksTable WHERE expires_at < ?
         )
-      ''', [DateTime.now().toIso8601String(), DateTime.now().toIso8601String()])) ?? 0;
-      
+      ''',
+              [
+                DateTime.now().toIso8601String(),
+                DateTime.now().toIso8601String(),
+              ],
+            ),
+          ) ??
+          0;
+
       return {
         'leaderboardCacheCount': leaderboardCount,
         'ranksCacheCount': ranksCount,
         'expiredCacheCount': expiredCount,
         'totalCacheItems': leaderboardCount + ranksCount,
       };
-      
     } catch (error) {
       return {};
     }
@@ -726,7 +760,7 @@ class LeaderboardDataSource {
   Future<void> setupLocalTables() async {
     try {
       final db = await _localDataSource.database;
-      
+
       // Leaderboard cache table
       await db.execute('''
         CREATE TABLE IF NOT EXISTS $_leaderboardTable (
@@ -736,7 +770,7 @@ class LeaderboardDataSource {
           expires_at TEXT NOT NULL
         )
       ''');
-      
+
       // User ranks cache table
       await db.execute('''
         CREATE TABLE IF NOT EXISTS $_userRanksTable (
@@ -746,7 +780,7 @@ class LeaderboardDataSource {
           expires_at TEXT NOT NULL
         )
       ''');
-      
+
       // Leaderboard metadata table
       await db.execute('''
         CREATE TABLE IF NOT EXISTS $_leaderboardMetaTable (
@@ -757,11 +791,14 @@ class LeaderboardDataSource {
           PRIMARY KEY (leaderboard_type, period)
         )
       ''');
-      
+
       // Create indexes for better performance
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_leaderboard_expires ON $_leaderboardTable(expires_at)');
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_ranks_expires ON $_userRanksTable(expires_at)');
-      
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_leaderboard_expires ON $_leaderboardTable(expires_at)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ranks_expires ON $_userRanksTable(expires_at)',
+      );
     } catch (error) {
       // Ignore table creation errors
     }
@@ -774,13 +811,13 @@ class LeaderboardDataSource {
       subscription.unsubscribe();
     }
     _subscriptions.clear();
-    
+
     // Close all controllers
     for (final controller in _leaderboardControllers.values) {
       controller.close();
     }
     _leaderboardControllers.clear();
-    
+
     for (final controller in _rankControllers.values) {
       controller.close();
     }

@@ -51,7 +51,8 @@ class SocialFeedModel {
       // Extract unique authors from posts
       final uniqueAuthors = <String, Map<String, dynamic>>{};
       for (final post in posts) {
-        if (post.authorId.isNotEmpty && !uniqueAuthors.containsKey(post.authorId)) {
+        if (post.authorId.isNotEmpty &&
+            !uniqueAuthors.containsKey(post.authorId)) {
           uniqueAuthors[post.authorId] = {
             'id': post.authorId,
             'name': post.authorName,
@@ -67,18 +68,16 @@ class SocialFeedModel {
 
     // Parse pagination metadata
     PaginationMeta pagination = PaginationMeta.fromJson(
-      json['pagination'] ?? json['meta'] ?? {}
+      json['pagination'] ?? json['meta'] ?? {},
     );
 
     // Parse filter information
     FeedFilter filter = FeedFilter.fromJson(
-      json['filter'] ?? json['filters'] ?? {}
+      json['filter'] ?? json['filters'] ?? {},
     );
 
     // Parse sort information
-    FeedSort sort = FeedSort.fromJson(
-      json['sort'] ?? json['sorting'] ?? {}
-    );
+    FeedSort sort = FeedSort.fromJson(json['sort'] ?? json['sorting'] ?? {});
 
     return SocialFeedModel(
       posts: posts,
@@ -86,7 +85,7 @@ class SocialFeedModel {
       pagination: pagination,
       filter: filter,
       sort: sort,
-      cacheTimestamp: json['cache_timestamp'] != null 
+      cacheTimestamp: json['cache_timestamp'] != null
           ? _parseDateTime(json['cache_timestamp'])
           : DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -109,12 +108,12 @@ class SocialFeedModel {
   /// Create JSON for API request
   Map<String, dynamic> toRequestJson() {
     final json = <String, dynamic>{};
-    
+
     // Add pagination parameters
     if (pagination.page != null) json['page'] = pagination.page;
     if (pagination.limit != null) json['limit'] = pagination.limit;
     if (pagination.offset != null) json['offset'] = pagination.offset;
-    
+
     // Add filter parameters
     if (filter.feedType != FeedType.home) {
       json['feed_type'] = _feedTypeToString(filter.feedType);
@@ -133,15 +132,17 @@ class SocialFeedModel {
     if (filter.maxAge != null) {
       json['max_age_hours'] = filter.maxAge!.inHours;
     }
-    
+
     // Add sort parameters
     if (sort.field != SortField.createdAt) {
       json['sort_by'] = _sortFieldToString(sort.field);
     }
     if (sort.direction != SortDirection.desc) {
-      json['sort_direction'] = sort.direction == SortDirection.asc ? 'asc' : 'desc';
+      json['sort_direction'] = sort.direction == SortDirection.asc
+          ? 'asc'
+          : 'desc';
     }
-    
+
     return json;
   }
 
@@ -167,25 +168,30 @@ class SocialFeedModel {
   }
 
   /// Append new posts (for pagination)
-  SocialFeedModel appendPosts(List<PostModel> newPosts, PaginationMeta newPagination) {
+  SocialFeedModel appendPosts(
+    List<PostModel> newPosts,
+    PaginationMeta newPagination,
+  ) {
     final allPosts = [...posts, ...newPosts];
-    
+
     // Update authors list with new unique authors
     final existingAuthorIds = authors.map((a) => a.id).toSet();
     final newAuthors = <FeedAuthor>[];
-    
+
     for (final post in newPosts) {
       if (!existingAuthorIds.contains(post.authorId)) {
-        newAuthors.add(FeedAuthor(
-          id: post.authorId,
-          name: post.authorName,
-          avatar: post.authorAvatar,
-          verified: post.authorVerified,
-        ));
+        newAuthors.add(
+          FeedAuthor(
+            id: post.authorId,
+            name: post.authorName,
+            avatar: post.authorAvatar,
+            verified: post.authorVerified,
+          ),
+        );
         existingAuthorIds.add(post.authorId);
       }
     }
-    
+
     return copyWith(
       posts: allPosts,
       authors: [...authors, ...newAuthors],
@@ -297,16 +303,14 @@ class FeedAuthor {
   factory FeedAuthor.fromJson(Map<String, dynamic> json) {
     return FeedAuthor(
       id: json['id'] ?? json['user_id'] ?? '',
-      name: json['name'] ?? 
-            json['full_name'] ?? 
-            json['username'] ?? 
-            'Unknown User',
-      avatar: json['avatar'] ?? 
-              json['avatar_url'] ?? 
-              json['profile_picture'] ?? 
-              '',
-      verified: json['verified'] == true || 
-               json['is_verified'] == true,
+      name:
+          json['name'] ??
+          json['full_name'] ??
+          json['username'] ??
+          'Unknown User',
+      avatar:
+          json['avatar'] ?? json['avatar_url'] ?? json['profile_picture'] ?? '',
+      verified: json['verified'] == true || json['is_verified'] == true,
       profile: json['profile'] as Map<String, dynamic>?,
     );
   }
@@ -349,10 +353,12 @@ class PaginationMeta {
     final page = json['page'] ?? json['current_page'];
     final limit = json['limit'] ?? json['per_page'] ?? json['page_size'];
     final total = json['total'] ?? json['total_count'];
-    final hasMore = json['has_more'] ?? 
-                   json['has_next_page'] ?? 
-                   (page != null && limit != null && total != null ? 
-                    (page * limit) < total : false);
+    final hasMore =
+        json['has_more'] ??
+        json['has_next_page'] ??
+        (page != null && limit != null && total != null
+            ? (page * limit) < total
+            : false);
 
     return PaginationMeta(
       page: page,
@@ -366,9 +372,7 @@ class PaginationMeta {
   }
 
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
-      'has_more': hasMore,
-    };
+    final json = <String, dynamic>{'has_more': hasMore};
 
     if (page != null) json['page'] = page;
     if (limit != null) json['limit'] = limit;
@@ -382,12 +386,7 @@ class PaginationMeta {
 
   /// Create pagination for first page
   static PaginationMeta firstPage({int limit = 20}) {
-    return PaginationMeta(
-      page: 1,
-      limit: limit,
-      offset: 0,
-      hasMore: true,
-    );
+    return PaginationMeta(page: 1, limit: limit, offset: 0, hasMore: true);
   }
 
   /// Create pagination for next page
@@ -496,9 +495,7 @@ class FeedFilter {
   }
 
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
-      'feed_type': _feedTypeToString(feedType),
-    };
+    final json = <String, dynamic>{'feed_type': _feedTypeToString(feedType)};
 
     if (gameId != null) json['game_id'] = gameId;
     if (authorId != null) json['author_id'] = authorId;
@@ -568,14 +565,13 @@ class FeedSort {
     }
 
     SortDirection direction = SortDirection.desc;
-    final directionStr = json['sort_direction']?.toString().toLowerCase() ?? 
-                        json['direction']?.toString().toLowerCase() ?? 'desc';
+    final directionStr =
+        json['sort_direction']?.toString().toLowerCase() ??
+        json['direction']?.toString().toLowerCase() ??
+        'desc';
     direction = directionStr == 'asc' ? SortDirection.asc : SortDirection.desc;
 
-    return FeedSort(
-      field: field,
-      direction: direction,
-    );
+    return FeedSort(field: field, direction: direction);
   }
 
   Map<String, dynamic> toJson() {
@@ -601,5 +597,7 @@ class FeedSort {
 
 /// Enums for feed types and sorting
 enum FeedType { home, following, discover, game, profile }
+
 enum SortField { createdAt, popularity, reactions, comments }
+
 enum SortDirection { asc, desc }

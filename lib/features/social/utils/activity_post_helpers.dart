@@ -6,12 +6,12 @@ import '../services/activity_post_service.dart';
 /// These functions should be called whenever users perform actions in the app
 class ActivityPostHelpers {
   static ActivityPostService? _activityService;
-  
+
   /// Initialize the helper with an activity service instance
   static void initialize(ActivityPostService activityService) {
     _activityService = activityService;
   }
-  
+
   /// Helper for comment actions - creates activity post when user comments
   static Future<void> onUserComment({
     required String commentContent,
@@ -20,7 +20,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createCommentPost(
         commentContent: commentContent,
@@ -32,7 +32,7 @@ class ActivityPostHelpers {
       print('Failed to create comment activity post: $e');
     }
   }
-  
+
   /// Helper for venue rating actions
   static Future<void> onVenueRated({
     required String venueName,
@@ -43,7 +43,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createVenueRatingPost(
         venueName: venueName,
@@ -56,7 +56,7 @@ class ActivityPostHelpers {
       print('Failed to create venue rating activity post: $e');
     }
   }
-  
+
   /// Helper for game creation actions
   static Future<void> onGameCreated({
     required String gameType,
@@ -66,7 +66,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createGameCreationPost(
         gameType: gameType,
@@ -78,7 +78,7 @@ class ActivityPostHelpers {
       print('Failed to create game creation activity post: $e');
     }
   }
-  
+
   /// Helper for check-in actions
   static Future<void> onVenueCheckIn({
     required String venueName,
@@ -89,7 +89,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createCheckInPost(
         venueName: venueName,
@@ -102,7 +102,7 @@ class ActivityPostHelpers {
       print('Failed to create check-in activity post: $e');
     }
   }
-  
+
   /// Helper for venue booking actions
   static Future<void> onVenueBooked({
     required String venueName,
@@ -111,7 +111,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createVenueBookingPost(
         venueName: venueName,
@@ -122,7 +122,7 @@ class ActivityPostHelpers {
       print('Failed to create venue booking activity post: $e');
     }
   }
-  
+
   /// Helper for game join actions
   static Future<void> onGameJoined({
     required String gameType,
@@ -132,7 +132,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createGameJoinPost(
         gameType: gameType,
@@ -144,7 +144,7 @@ class ActivityPostHelpers {
       print('Failed to create game join activity post: $e');
     }
   }
-  
+
   /// Helper for achievement earned actions
   static Future<void> onAchievementEarned({
     required String achievementName,
@@ -154,7 +154,7 @@ class ActivityPostHelpers {
     bool createActivityPost = true,
   }) async {
     if (!createActivityPost || _activityService == null) return;
-    
+
     try {
       await _activityService!.createAchievementPost(
         achievementName: achievementName,
@@ -178,7 +178,7 @@ class ActivityPostSettings {
   final bool enableGameJoinPosts;
   final bool enableAchievementPosts;
   final ActivityPrivacyLevel defaultPrivacy;
-  
+
   const ActivityPostSettings({
     this.enableCommentPosts = true,
     this.enableVenueRatingPosts = true,
@@ -189,7 +189,7 @@ class ActivityPostSettings {
     this.enableAchievementPosts = true,
     this.defaultPrivacy = ActivityPrivacyLevel.public,
   });
-  
+
   /// Create settings with all activity posts disabled
   factory ActivityPostSettings.disabled() {
     return const ActivityPostSettings(
@@ -202,7 +202,7 @@ class ActivityPostSettings {
       enableAchievementPosts: false,
     );
   }
-  
+
   /// Create settings with only essential activity posts enabled
   factory ActivityPostSettings.essential() {
     return const ActivityPostSettings(
@@ -215,7 +215,7 @@ class ActivityPostSettings {
       enableAchievementPosts: true,
     );
   }
-  
+
   /// Check if activity post creation is enabled for a specific type
   bool isEnabledForType(PostActivityType type) {
     switch (type) {
@@ -255,7 +255,7 @@ extension ActivityPostIntegration on ActivityPostHelpers {
       );
     }
   }
-  
+
   /// Integration helper for venue rating forms
   static Future<void> integrateVenueRating({
     required String venueName,
@@ -274,7 +274,7 @@ extension ActivityPostIntegration on ActivityPostHelpers {
       );
     }
   }
-  
+
   /// Integration helper for game creation flows
   static Future<void> integrateGameCreation({
     required String gameType,

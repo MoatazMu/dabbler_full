@@ -3,7 +3,7 @@ import 'supabase_config.dart';
 
 class SupabaseInit {
   /// Initialize Supabase with your project credentials
-  /// 
+  ///
   /// To get your credentials:
   /// 1. Go to your Supabase project dashboard
   /// 2. Navigate to Settings > API
@@ -21,7 +21,9 @@ class SupabaseInit {
       print('✅ Supabase initialized successfully');
     } catch (e) {
       print('❌ Failed to initialize Supabase: $e');
-      print('📝 Please check your Supabase configuration in lib/core/config/supabase_config.dart');
+      print(
+        '📝 Please check your Supabase configuration in lib/core/config/supabase_config.dart',
+      );
       rethrow;
     }
   }
@@ -29,7 +31,8 @@ class SupabaseInit {
   /// Check if Supabase is properly configured
   static bool isConfigured() {
     return SupabaseConfig.url != 'https://your-project-ref.supabase.co' &&
-           SupabaseConfig.anonKey != 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbWhyeGR3Z2VneGtka2R1a2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMjcyNjIsImV4cCI6MjA2OTgwMzI2Mn0.xzE24mCrAJsZk58Hni4TfXvbHYgf-LHJjCzpgCmuaFA';
+        SupabaseConfig.anonKey !=
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbWhyeGR3Z2VneGtka2R1a2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMjcyNjIsImV4cCI6MjA2OTgwMzI2Mn0.xzE24mCrAJsZk58Hni4TfXvbHYgf-LHJjCzpgCmuaFA';
   }
 
   /// Get configuration status message
@@ -53,4 +56,4 @@ To connect to your Supabase database:
     }
     return '✅ Supabase configured correctly';
   }
-} 
+}

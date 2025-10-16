@@ -25,28 +25,33 @@ class UserModel extends User {
       username: json['username'] as String?,
       fullName: json['fullName'] as String? ?? json['full_name'] as String?,
       avatarUrl: json['avatarUrl'] as String? ?? json['avatar_url'] as String?,
-      phoneNumber: json['phoneNumber'] as String? ?? json['phone_number'] as String?,
+      phoneNumber:
+          json['phoneNumber'] as String? ?? json['phone_number'] as String?,
       isEmailVerified: json['isEmailVerified'] as bool? ?? false,
       isPhoneVerified: json['isPhoneVerified'] as bool? ?? false,
       isProfileComplete: json['isProfileComplete'] as bool? ?? false,
-      createdAt: DateTime.tryParse(json['createdAt'] ?? json['created_at'] ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt'] ?? json['updated_at'] ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(json['createdAt'] ?? json['created_at'] ?? '') ??
+          DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(json['updatedAt'] ?? json['updated_at'] ?? '') ??
+          DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'email': email,
-        'username': username,
-        'fullName': fullName,
-        'avatarUrl': avatarUrl,
-        'phoneNumber': phoneNumber,
-        'isEmailVerified': isEmailVerified,
-        'isPhoneVerified': isPhoneVerified,
-        'isProfileComplete': isProfileComplete,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'id': id,
+    'email': email,
+    'username': username,
+    'fullName': fullName,
+    'avatarUrl': avatarUrl,
+    'phoneNumber': phoneNumber,
+    'isEmailVerified': isEmailVerified,
+    'isPhoneVerified': isPhoneVerified,
+    'isProfileComplete': isProfileComplete,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   factory UserModel.fromSupabaseUser(supabase.User user) {
     return UserModel(
@@ -58,9 +63,14 @@ class UserModel extends User {
       phoneNumber: user.phone,
       isEmailVerified: user.emailConfirmedAt != null,
       isPhoneVerified: user.phoneConfirmedAt != null,
-      isProfileComplete: user.userMetadata?['is_profile_complete'] as bool? ?? false,
-      createdAt: user.createdAt is DateTime ? user.createdAt as DateTime : DateTime.now(),
-      updatedAt: user.updatedAt is DateTime ? user.updatedAt as DateTime : DateTime.now(),
+      isProfileComplete:
+          user.userMetadata?['is_profile_complete'] as bool? ?? false,
+      createdAt: user.createdAt is DateTime
+          ? user.createdAt as DateTime
+          : DateTime.now(),
+      updatedAt: user.updatedAt is DateTime
+          ? user.updatedAt as DateTime
+          : DateTime.now(),
     );
   }
 }

@@ -7,17 +7,17 @@ class VenuesRepo {
   VenuesRepo(this._db);
 
   Future<List<Venues>> list({int limit = 50, int offset = 0}) async {
-    final res = await _db.from('venues')
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', ascending: false);
+    final res = await _db
+        .from('venues')
+        .select('*')
+        .range(offset, offset + limit - 1)
+        .order('created_at', ascending: false);
     final list = (res as List).cast<Map<String, dynamic>>();
     return list.map(Venues.fromJson).toList();
   }
 
   Future<Venues?> getById(dynamic id) async {
-    final res = await _db.from('venues')
-      .select('*').eq('id', id).maybeSingle();
+    final res = await _db.from('venues').select('*').eq('id', id).maybeSingle();
     if (res == null) return null;
     return Venues.fromJson(res);
   }

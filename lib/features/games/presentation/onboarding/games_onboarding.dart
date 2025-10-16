@@ -54,10 +54,7 @@ class _GamesOnboardingState extends State<GamesOnboarding> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: _skip,
-                    child: const Text('Skip'),
-                  ),
+                  TextButton(onPressed: _skip, child: const Text('Skip')),
                   Row(
                     children: List.generate(_pages.length, (i) {
                       final selected = i == _index;
@@ -67,7 +64,9 @@ class _GamesOnboardingState extends State<GamesOnboarding> {
                         width: selected ? 10 : 6,
                         height: selected ? 10 : 6,
                         decoration: BoxDecoration(
-                          color: selected ? Theme.of(context).colorScheme.primary : Colors.grey[400],
+                          color: selected
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.grey[400],
                           shape: BoxShape.circle,
                         ),
                       );
@@ -95,7 +94,10 @@ class _GamesOnboardingState extends State<GamesOnboarding> {
     if (_index == _pages.length - 1) {
       _skip();
     } else {
-      _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _controller.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 }
@@ -104,7 +106,11 @@ class _OnboardPage extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  const _OnboardPage({required this.title, required this.subtitle, required this.icon});
+  const _OnboardPage({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,9 +121,17 @@ class _OnboardPage extends StatelessWidget {
         children: [
           Icon(icon, size: 120, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 24),
-          Text(title, style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineSmall,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 12),
-          Text(subtitle, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
+          Text(
+            subtitle,
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

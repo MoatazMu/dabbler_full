@@ -35,36 +35,35 @@ class _PostCardState extends ConsumerState<PostCard>
   late AnimationController _scaleAnimationController;
   late Animation<double> _likeAnimation;
   late Animation<double> _scaleAnimation;
-  
+
   bool _showFullContent = false;
   final int _maxLines = 3;
 
   @override
   void initState() {
     super.initState();
-    
+
     _likeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _scaleAnimationController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    
+
     _likeAnimation = CurvedAnimation(
       parent: _likeAnimationController,
       curve: Curves.elasticOut,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _scaleAnimationController,
-      curve: Curves.easeInOut,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(
+        parent: _scaleAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
@@ -78,19 +77,19 @@ class _PostCardState extends ConsumerState<PostCard>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         elevation: isDark ? 4 : 2,
-        shadowColor: isDark 
+        shadowColor: isDark
             ? Colors.black.withOpacity(0.3)
             : Colors.black.withOpacity(0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: isDark 
+            color: isDark
                 ? VioletShades.darkBorder.withOpacity(0.3)
                 : VioletShades.lightBorder.withOpacity(0.5),
             width: 1,
@@ -105,7 +104,7 @@ class _PostCardState extends ConsumerState<PostCard>
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: isDark 
+              color: isDark
                   ? VioletShades.darkCardBackground
                   : VioletShades.lightCardBackground,
             ),
@@ -116,34 +115,35 @@ class _PostCardState extends ConsumerState<PostCard>
                   children: [
                     // Author header
                     _buildAuthorHeader(context, theme),
-                    
+
                     // Post content
                     _buildPostContent(context, theme),
-                    
+
                     // Post media
-                    if (widget.post.media != null && widget.post.media.isNotEmpty)
+                    if (widget.post.media != null &&
+                        widget.post.media.isNotEmpty)
                       _buildPostMedia(context, theme),
-                    
+
                     // Game result card
                     if (widget.post.type == 'game_result')
                       _buildGameResultCard(context, theme),
-                    
+
                     // Achievement badge
                     if (widget.post.type == 'achievement')
                       _buildAchievementBadge(context, theme),
-                    
+
                     // Engagement bar
                     _buildEngagementBar(context, theme),
-                    
+
                     // Comments section
                     if (widget.showComments)
                       _buildCommentsSection(context, theme),
                   ],
                 ),
-                
+
                 // Like animation overlay
                 _buildLikeAnimationOverlay(),
-                
+
                 // Reaction picker overlay
                 _buildReactionPickerOverlay(),
               ],
@@ -162,19 +162,19 @@ class _PostCardState extends ConsumerState<PostCard>
           // Avatar
           CircleAvatar(
             radius: 20,
-            backgroundImage: widget.post.author?.avatar != null 
-              ? NetworkImage(widget.post.author.avatar!)
-              : null,
-            child: widget.post.author?.avatar == null 
-              ? Text(
-                  widget.post.author?.name?[0]?.toUpperCase() ?? '?',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                )
-              : null,
+            backgroundImage: widget.post.author?.avatar != null
+                ? NetworkImage(widget.post.author.avatar!)
+                : null,
+            child: widget.post.author?.avatar == null
+                ? Text(
+                    widget.post.author?.name?[0]?.toUpperCase() ?? '?',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  )
+                : null,
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Author info
           Expanded(
             child: Column(
@@ -199,7 +199,10 @@ class _PostCardState extends ConsumerState<PostCard>
                     if (widget.post.isSponsored == true) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(8),
@@ -245,7 +248,7 @@ class _PostCardState extends ConsumerState<PostCard>
               ],
             ),
           ),
-          
+
           // Menu button
           IconButton(
             onPressed: widget.onMenuTap ?? () => _showPostMenu(context),
@@ -264,7 +267,8 @@ class _PostCardState extends ConsumerState<PostCard>
     }
 
     final content = widget.post.content!;
-    final hasLongContent = content.length > 200 || content.split('\n').length > _maxLines;
+    final hasLongContent =
+        content.length > 200 || content.split('\n').length > _maxLines;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -316,9 +320,7 @@ class _PostCardState extends ConsumerState<PostCard>
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.primary.withOpacity(0.3),
-        ),
+        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,11 +392,7 @@ class _PostCardState extends ConsumerState<PostCard>
               color: Colors.amber,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.emoji_events,
-              color: Colors.white,
-              size: 20,
-            ),
+            child: Icon(Icons.emoji_events, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -437,48 +435,48 @@ class _PostCardState extends ConsumerState<PostCard>
             onTap: () => _handleReaction('like'),
             child: _buildEngagementButton(
               icon: widget.post.currentUserReaction != null
-                ? _getReactionIcon(widget.post.currentUserReaction)
-                : Icons.favorite_border,
+                  ? _getReactionIcon(widget.post.currentUserReaction)
+                  : Icons.favorite_border,
               label: _formatCount(widget.post.likeCount ?? 0),
               isActive: widget.post.currentUserReaction != null,
               color: widget.post.currentUserReaction != null
-                ? _getReactionColor(widget.post.currentUserReaction)
-                : null,
+                  ? _getReactionColor(widget.post.currentUserReaction)
+                  : null,
               onTap: () => _handleQuickLike(),
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Comment button
           _buildEngagementButton(
             icon: Icons.chat_bubble_outline,
             label: _formatCount(widget.post.commentCount ?? 0),
             onTap: widget.onCommentTap ?? () => _openComments(),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Share button
           _buildEngagementButton(
             icon: Icons.share_outlined,
             label: _formatCount(widget.post.shareCount ?? 0),
             onTap: widget.onShareTap ?? () => _showShareOptions(context),
           ),
-          
+
           const Spacer(),
-          
+
           // Bookmark button
           IconButton(
             onPressed: () => _toggleBookmark(),
             icon: Icon(
               widget.post.isBookmarked == true
-                ? Icons.bookmark
-                : Icons.bookmark_border,
+                  ? Icons.bookmark
+                  : Icons.bookmark_border,
             ),
             color: widget.post.isBookmarked == true
-              ? theme.colorScheme.primary
-              : null,
+                ? theme.colorScheme.primary
+                : null,
             padding: const EdgeInsets.all(4),
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
@@ -496,17 +494,13 @@ class _PostCardState extends ConsumerState<PostCard>
   }) {
     final theme = Theme.of(context);
     final buttonColor = color ?? (isActive ? theme.colorScheme.primary : null);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: buttonColor,
-          ),
+          Icon(icon, size: 20, color: buttonColor),
           const SizedBox(width: 4),
           Text(
             label,
@@ -525,13 +519,13 @@ class _PostCardState extends ConsumerState<PostCard>
     return Consumer(
       builder: (context, ref, child) {
         final commentsAsync = ref.watch(postCommentsProvider(widget.post.id));
-        
+
         return commentsAsync.when(
           data: (comments) {
             if (comments.isEmpty) {
               return const SizedBox.shrink();
             }
-            
+
             return Container(
               margin: const EdgeInsets.only(top: 8),
               child: Column(
@@ -540,7 +534,9 @@ class _PostCardState extends ConsumerState<PostCard>
                     padding: const EdgeInsets.all(8),
                     margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -569,7 +565,7 @@ class _PostCardState extends ConsumerState<PostCard>
         if (_likeAnimation.value == 0) {
           return const SizedBox.shrink();
         }
-        
+
         return Positioned.fill(
           child: IgnorePointer(
             child: Center(
@@ -613,18 +609,21 @@ class _PostCardState extends ConsumerState<PostCard>
   }
 
   void _handleQuickLike() {
-    ref.read(socialFeedControllerProvider.notifier).togglePostLike(widget.post.id);
+    ref
+        .read(socialFeedControllerProvider.notifier)
+        .togglePostLike(widget.post.id);
   }
 
   void _handleReaction(String reaction) {
-    ref.read(socialFeedControllerProvider.notifier).reactToPost(
-      widget.post.id,
-      reaction,
-    );
+    ref
+        .read(socialFeedControllerProvider.notifier)
+        .reactToPost(widget.post.id, reaction);
   }
 
   void _toggleBookmark() {
-    ref.read(socialFeedControllerProvider.notifier).togglePostBookmark(widget.post.id);
+    ref
+        .read(socialFeedControllerProvider.notifier)
+        .togglePostBookmark(widget.post.id);
   }
 
   void _openComments() {
@@ -639,12 +638,10 @@ class _PostCardState extends ConsumerState<PostCard>
     Navigator.pushNamed(
       context,
       '/media-viewer',
-      arguments: {
-        'media': widget.post.media,
-        'initialIndex': index,
-      },
+      arguments: {'media': widget.post.media, 'initialIndex': index},
     );
   }
+
   void _showPostMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -699,9 +696,9 @@ class _PostCardState extends ConsumerState<PostCard>
   void _copyPostLink() {
     final link = 'https://dabbler.app/post/${widget.post.id}';
     Clipboard.setData(ClipboardData(text: link));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Link copied to clipboard')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
   }
 
   void _shareToSocialPlatform(String platform) {
@@ -726,10 +723,10 @@ class _PostCardState extends ConsumerState<PostCard>
 
   String _formatTimeAgo(DateTime? dateTime) {
     if (dateTime == null) return '';
-    
+
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 365) {
       return '${(difference.inDays / 365).floor()}y';
     } else if (difference.inDays > 30) {
@@ -816,7 +813,7 @@ class PostMenuBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isOwnPost = post.isOwnPost ?? false;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -838,9 +835,9 @@ class PostMenuBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           if (isOwnPost) ...[
             _buildMenuTile(
               icon: Icons.edit,
@@ -877,7 +874,7 @@ class PostMenuBottomSheet extends StatelessWidget {
               },
             ),
           ],
-          
+
           _buildMenuTile(
             icon: Icons.link,
             title: 'Copy link',
@@ -886,7 +883,7 @@ class PostMenuBottomSheet extends StatelessWidget {
               onCopyLink?.call();
             },
           ),
-          
+
           _buildMenuTile(
             icon: Icons.bookmark_border,
             title: 'Save post',
@@ -907,15 +904,10 @@ class PostMenuBottomSheet extends StatelessWidget {
     bool isDestructive = false,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isDestructive ? Colors.red : null,
-      ),
+      leading: Icon(icon, color: isDestructive ? Colors.red : null),
       title: Text(
         title,
-        style: TextStyle(
-          color: isDestructive ? Colors.red : null,
-        ),
+        style: TextStyle(color: isDestructive ? Colors.red : null),
       ),
       onTap: onTap,
     );

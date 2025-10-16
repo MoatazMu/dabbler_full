@@ -18,10 +18,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  
+
   DateTime? _gameStartTime;
   int _countdownSeconds = 0;
-  
+
   final List<Map<String, dynamic>> _checkedInPlayers = [
     {
       'id': '1',
@@ -85,32 +85,28 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _initializeCountdown();
   }
 
   void _initializeCountdown() {
     final gameTime = widget.gameData['time'] ?? '00:00';
     final gameDate = widget.gameData['date'] as DateTime?;
-    
+
     if (gameDate != null) {
       final timeParts = gameTime.split(':');
       final hour = int.parse(timeParts[0]);
       final minute = int.parse(timeParts[1].split(' ')[0]);
-      
+
       _gameStartTime = DateTime(
         gameDate.year,
         gameDate.month,
@@ -118,9 +114,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
         hour,
         minute,
       );
-      
+
       _updateCountdown();
-      
+
       // Update countdown every second
       Stream.periodic(const Duration(seconds: 1), (i) => i).listen((_) {
         if (mounted) {
@@ -134,7 +130,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
     if (_gameStartTime != null) {
       final now = DateTime.now();
       final difference = _gameStartTime!.difference(now);
-      
+
       setState(() {
         _countdownSeconds = difference.inSeconds > 0 ? difference.inSeconds : 0;
       });
@@ -185,14 +181,15 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
   Widget _buildCountdownHeader() {
     final minutes = _countdownSeconds ~/ 60;
     final seconds = _countdownSeconds % 60;
-    final isStartingSoon = _countdownSeconds <= 300 && _countdownSeconds > 0; // 5 minutes
-    
+    final isStartingSoon =
+        _countdownSeconds <= 300 && _countdownSeconds > 0; // 5 minutes
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isStartingSoon 
+          colors: isStartingSoon
               ? [Colors.orange[400]!, Colors.orange[600]!]
               : [Colors.blue[400]!, Colors.blue[600]!],
           begin: Alignment.topLeft,
@@ -210,14 +207,17 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
             ),
           ),
           const SizedBox(height: 16),
-          
+
           if (_countdownSeconds > 0) ...[
             AnimatedBuilder(
               animation: _pulseAnimation,
               builder: (context, child) => Transform.scale(
                 scale: isStartingSoon ? _pulseAnimation.value : 1.0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(25),
@@ -237,10 +237,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
             const SizedBox(height: 8),
             Text(
               isStartingSoon ? 'Game starting soon!' : 'Until game starts',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
             ),
           ] else ...[
             Container(
@@ -281,13 +278,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
       ),
       child: Row(
         children: [
-          Icon(
-            _weatherData['icon'],
-            size: 40,
-            color: Colors.blue[600],
-          ),
+          Icon(_weatherData['icon'], size: 40, color: Colors.blue[600]),
           const SizedBox(width: 16),
-          
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,38 +294,26 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                 ),
                 Text(
                   _weatherData['condition'],
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                 ),
               ],
             ),
           ),
-          
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 'Feels like ${_weatherData['feelsLike']}°C',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               Text(
                 'Humidity ${_weatherData['humidity']}%',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               Text(
                 'Wind ${_weatherData['windSpeed']} km/h',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -361,7 +342,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
             ],
           ),
           const SizedBox(height: 16),
-          
+
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -384,17 +365,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
 
   Widget _buildPlayerCard(Map<String, dynamic> player) {
     final teamColor = player['team'] == 'A' ? Colors.blue : Colors.red;
-    
+
     return GestureDetector(
       onTap: () => _showPlayerDetails(player),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: teamColor.withOpacity(0.3),
-            width: 2,
-          ),
+          border: Border.all(color: teamColor.withOpacity(0.3), width: 2),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.1),
@@ -411,7 +389,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: AssetImage('assets/Avatar/${player['avatar']}'),
+                  backgroundImage: AssetImage(
+                    'assets/Avatar/${player['avatar']}',
+                  ),
                   onBackgroundImageError: (_, __) {},
                   child: player['avatar'] == null
                       ? Text(player['name'][0].toUpperCase())
@@ -439,19 +419,16 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               ],
             ),
             const SizedBox(height: 8),
-            
+
             Text(
               player['name'].split(' ')[0], // First name only
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
-            
+
             if (_needsTeamAssignment())
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -468,9 +445,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 4),
-            
+
             _buildSkillBadge(player['skillLevel']),
           ],
         ),
@@ -526,10 +503,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               const SizedBox(width: 8),
               const Text(
                 'Team Assignment',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               if (widget.isOrganizer)
@@ -540,7 +514,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
             ],
           ),
           const SizedBox(height: 16),
-          
+
           Row(
             children: [
               Expanded(
@@ -562,19 +536,21 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...teamA.map((player) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          player['name'].split(' ')[0],
-                          style: const TextStyle(fontSize: 14),
+                      ...teamA.map(
+                        (player) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            player['name'].split(' ')[0],
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(width: 16),
-              
+
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -594,13 +570,15 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...teamB.map((player) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          player['name'].split(' ')[0],
-                          style: const TextStyle(fontSize: 14),
+                      ...teamB.map(
+                        (player) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            player['name'].split(' ')[0],
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),
@@ -614,7 +592,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
 
   Widget _buildQuickActions() {
     final venue = widget.gameData['venue'];
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -622,13 +600,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
         children: [
           const Text(
             'Quick Actions',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          
+
           Row(
             children: [
               Expanded(
@@ -640,7 +615,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               Expanded(
                 child: _buildActionCard(
                   icon: Icons.rule,
@@ -677,18 +652,12 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ],
@@ -725,7 +694,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               ),
             ),
             const SizedBox(width: 12),
-            
+
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: _countdownSeconds <= 0 ? _startGame : null,
@@ -733,7 +702,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                 label: Text(_countdownSeconds <= 0 ? 'Start Game' : 'Wait'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: _countdownSeconds <= 0 ? Colors.green : Colors.grey,
+                  backgroundColor: _countdownSeconds <= 0
+                      ? Colors.green
+                      : Colors.grey,
                 ),
               ),
             ),
@@ -743,7 +714,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Waiting for organizer to start the game...'),
+                      content: Text(
+                        'Waiting for organizer to start the game...',
+                      ),
                     ),
                   );
                 },
@@ -763,7 +736,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
 
   bool _needsTeamAssignment() {
     final sport = widget.gameData['sport']?.toLowerCase() ?? '';
-    return ['football', 'soccer', 'basketball', 'volleyball', 'hockey'].contains(sport);
+    return [
+      'football',
+      'soccer',
+      'basketball',
+      'volleyball',
+      'hockey',
+    ].contains(sport);
   }
 
   void _showPlayerDetails(Map<String, dynamic> player) {
@@ -779,19 +758,19 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               backgroundImage: AssetImage('assets/Avatar/${player['avatar']}'),
             ),
             const SizedBox(height: 16),
-            
+
             Text(
               player['name'],
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             if (player['isOrganizer'])
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.yellow[100],
                   borderRadius: BorderRadius.circular(16),
@@ -805,9 +784,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -815,10 +794,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                   children: [
                     Text(
                       'Skill Level',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -835,10 +811,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                     children: [
                       Text(
                         'Team',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -852,9 +825,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                   ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -870,7 +843,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
 
   void _showGameRules() {
     final sport = widget.gameData['sport'] ?? 'Game';
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -879,14 +852,20 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('General Rules:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'General Rules:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text('• Respect all players and maintain good sportsmanship'),
               Text('• Follow the organizer\'s instructions'),
               Text('• Play fair and avoid dangerous plays'),
               Text('• Report any injuries immediately'),
               SizedBox(height: 16),
-              Text('Game-Specific Rules:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Game-Specific Rules:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text('• Standard sport rules apply'),
               Text('• Substitutions allowed at any time'),
@@ -907,7 +886,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
 
   void _showTeamAssignment() {
     if (!widget.isOrganizer) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -919,13 +898,19 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
             children: [
               const Text('Drag players between teams:'),
               const SizedBox(height: 16),
-              
+
               Row(
                 children: [
                   Expanded(
                     child: Column(
                       children: [
-                        Text('Team A', style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.bold)),
+                        Text(
+                          'Team A',
+                          style: TextStyle(
+                            color: Colors.blue[600],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Container(
                           height: 200,
@@ -933,17 +918,25 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                             color: Colors.blue[50],
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Center(child: Text('Team assignment UI would go here')),
+                          child: const Center(
+                            child: Text('Team assignment UI would go here'),
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 16),
-                  
+
                   Expanded(
                     child: Column(
                       children: [
-                        Text('Team B', style: TextStyle(color: Colors.red[600], fontWeight: FontWeight.bold)),
+                        Text(
+                          'Team B',
+                          style: TextStyle(
+                            color: Colors.red[600],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Container(
                           height: 200,
@@ -951,7 +944,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
                             color: Colors.red[50],
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Center(child: Text('Team assignment UI would go here')),
+                          child: const Center(
+                            child: Text('Team assignment UI would go here'),
+                          ),
                         ),
                       ],
                     ),
@@ -986,7 +981,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
 
   void _showGameSettings() {
     if (!widget.isOrganizer) return;
-    
+
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -996,13 +991,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
           children: [
             const Text(
               'Game Settings',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             ListTile(
               leading: const Icon(Icons.timer),
               title: const Text('Game Duration'),
@@ -1010,7 +1002,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               trailing: const Icon(Icons.edit),
               onTap: () {},
             ),
-            
+
             ListTile(
               leading: const Icon(Icons.groups),
               title: const Text('Team Assignment'),
@@ -1018,7 +1010,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               trailing: const Icon(Icons.edit),
               onTap: _showTeamAssignment,
             ),
-            
+
             ListTile(
               leading: const Icon(Icons.notification_important),
               title: const Text('Late Policy'),
@@ -1026,9 +1018,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
               trailing: const Icon(Icons.edit),
               onTap: () {},
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -1047,7 +1039,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Start Game?'),
-        content: const Text('This will begin the live game session. All players will be moved to the active game screen.'),
+        content: const Text(
+          'This will begin the live game session. All players will be moved to the active game screen.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

@@ -47,18 +47,26 @@ class ChallengeParticipants {
       current_value: json['current_value'],
       progress_percentage: json['progress_percentage'],
       is_completed: json['is_completed'],
-      completed_at: (json['completed_at'] == null ? null : DateTime.parse(json['completed_at'] as String)),
+      completed_at: (json['completed_at'] == null
+          ? null
+          : DateTime.parse(json['completed_at'] as String)),
       rank: json['rank'],
       previous_rank: json['previous_rank'],
-      last_update: (json['last_update'] == null ? null : DateTime.parse(json['last_update'] as String)),
+      last_update: (json['last_update'] == null
+          ? null
+          : DateTime.parse(json['last_update'] as String)),
       update_count: json['update_count'],
       is_verified: json['is_verified'],
       verified_by: json['verified_by'],
-      verified_at: (json['verified_at'] == null ? null : DateTime.parse(json['verified_at'] as String)),
+      verified_at: (json['verified_at'] == null
+          ? null
+          : DateTime.parse(json['verified_at'] as String)),
       joined_at: json['joined_at'] != null
           ? DateTime.parse(json['joined_at'] as String)
           : DateTime.now(),
-      left_at: (json['left_at'] == null ? null : DateTime.parse(json['left_at'] as String)),
+      left_at: (json['left_at'] == null
+          ? null
+          : DateTime.parse(json['left_at'] as String)),
     );
   }
 

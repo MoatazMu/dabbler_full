@@ -35,31 +35,31 @@ class SkipProfileWarningModal extends StatelessWidget {
                 color: Colors.orange[700],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Title
             Text(
               'Skip Profile Setup?',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Message
             Text(
               'You can always complete your profile later, but having a complete profile helps us find better matches for you.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Buttons
             Row(
               children: [
@@ -82,9 +82,9 @@ class SkipProfileWarningModal extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Continue Button
                 Expanded(
                   child: ElevatedButton(
@@ -97,14 +97,14 @@ class SkipProfileWarningModal extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.borderRadius,
+                        ),
                       ),
                     ),
                     child: const Text(
                       'Continue Setup',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

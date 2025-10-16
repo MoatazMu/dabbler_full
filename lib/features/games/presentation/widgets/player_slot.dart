@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum PlayerStatus { confirmed, waitlisted, pending, checkedIn }
+
 enum PlayerRole { player, captain, organizer }
 
 class PlayerSlot extends StatelessWidget {
@@ -73,19 +74,12 @@ class PlayerSlot extends StatelessWidget {
                   style: BorderStyle.solid,
                 ),
               ),
-              child: Icon(
-                Icons.add,
-                color: Colors.grey[400],
-                size: 24,
-              ),
+              child: Icon(Icons.add, color: Colors.grey[400], size: 24),
             ),
             const SizedBox(height: 6),
             Text(
               'Open Spot',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -96,16 +90,13 @@ class PlayerSlot extends StatelessWidget {
 
   Widget _buildAvatarSection(BuildContext context) {
     return Stack(
-      children: [
-        _buildAvatar(context),
-        _buildStatusIndicators(context),
-      ],
+      children: [_buildAvatar(context), _buildStatusIndicators(context)],
     );
   }
 
   Widget _buildAvatar(BuildContext context) {
     Widget avatar;
-    
+
     if (avatarUrl != null && avatarUrl!.isNotEmpty) {
       avatar = CircleAvatar(
         radius: 28,
@@ -124,10 +115,7 @@ class PlayerSlot extends StatelessWidget {
       avatar = Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: teamColor!,
-            width: 3,
-          ),
+          border: Border.all(color: teamColor!, width: 3),
         ),
         child: avatar,
       );
@@ -180,10 +168,10 @@ class PlayerSlot extends StatelessWidget {
         children: [
           // Role badge
           if (role != PlayerRole.player) _buildRoleBadge(),
-          
+
           // Check-in status
           if (showCheckInStatus) _buildCheckInBadge(),
-          
+
           // Player status
           if (status != null) _buildPlayerStatusBadge(),
         ],
@@ -194,7 +182,7 @@ class PlayerSlot extends StatelessWidget {
   Widget _buildRoleBadge() {
     IconData icon;
     Color color;
-    
+
     switch (role) {
       case PlayerRole.captain:
         icon = Icons.star;
@@ -215,10 +203,7 @@ class PlayerSlot extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -227,11 +212,7 @@ class PlayerSlot extends StatelessWidget {
           ),
         ],
       ),
-      child: Icon(
-        icon,
-        size: 12,
-        color: Colors.white,
-      ),
+      child: Icon(icon, size: 12, color: Colors.white),
     );
   }
 
@@ -243,10 +224,7 @@ class PlayerSlot extends StatelessWidget {
       decoration: BoxDecoration(
         color: isCheckedIn ? Colors.green : Colors.grey,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -266,7 +244,7 @@ class PlayerSlot extends StatelessWidget {
   Widget _buildPlayerStatusBadge() {
     Color color;
     IconData icon;
-    
+
     switch (status!) {
       case PlayerStatus.confirmed:
         color = Colors.green;
@@ -292,10 +270,7 @@ class PlayerSlot extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -304,11 +279,7 @@ class PlayerSlot extends StatelessWidget {
           ),
         ],
       ),
-      child: Icon(
-        icon,
-        size: 8,
-        color: Colors.white,
-      ),
+      child: Icon(icon, size: 8, color: Colors.white),
     );
   }
 
@@ -323,18 +294,18 @@ class PlayerSlot extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-              color: isEmpty 
+              color: isEmpty
                   ? Colors.grey[600]
-                  : isCurrentUser 
-                      ? Theme.of(context).primaryColor
-                      : Colors.black87,
+                  : isCurrentUser
+                  ? Theme.of(context).primaryColor
+                  : Colors.black87,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        
+
         // Status text
         if (status != null && !isEmpty) ...[
           const SizedBox(height: 2),
@@ -348,7 +319,7 @@ class PlayerSlot extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ],
-        
+
         // Team assignment
         if (teamColor != null && !isEmpty) ...[
           const SizedBox(height: 4),
@@ -369,7 +340,7 @@ class PlayerSlot extends StatelessWidget {
     if (playerName == null || playerName!.isEmpty) {
       return Colors.grey;
     }
-    
+
     // Generate color based on name hash
     final hash = playerName!.hashCode;
     final colors = [
@@ -382,7 +353,7 @@ class PlayerSlot extends StatelessWidget {
       Colors.indigo,
       Colors.pink,
     ];
-    
+
     return colors[hash.abs() % colors.length];
   }
 

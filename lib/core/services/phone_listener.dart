@@ -107,9 +107,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Enter your phone to get started',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -117,7 +117,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(12),
@@ -125,7 +128,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       ),
                       child: Row(
                         children: [
-                          Text(_countryCode, style: Theme.of(context).textTheme.bodyLarge),
+                          Text(
+                            _countryCode,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                           const Icon(Icons.arrow_drop_down, size: 24),
                         ],
                       ),
@@ -158,7 +164,12 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                         children: [
                           Icon(Icons.error, color: Colors.red, size: 18),
                           const SizedBox(width: 8),
-                          Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red))),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -175,16 +186,27 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.green, size: 18),
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
-                          Expanded(child: Text(_successMessage!, style: TextStyle(color: Colors.green))),
+                          Expanded(
+                            child: Text(
+                              _successMessage!,
+                              style: TextStyle(color: Colors.green),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
                 // Continue Button (Primary)
                 CustomButton(
-                  onPressed: _isLoading || !_isPhoneNumberValid ? null : _handleSubmit,
+                  onPressed: _isLoading || !_isPhoneNumberValid
+                      ? null
+                      : _handleSubmit,
                   text: _isLoading ? 'Sending...' : 'Continue',
                 ),
                 const SizedBox(height: 16),
@@ -205,9 +227,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 // Terms and Privacy
                 Text(
                   'By continuing, you agree to our Terms of Service and Privacy Policy',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
               ],

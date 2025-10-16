@@ -4,7 +4,7 @@ class Venue {
   final String id;
   final String name;
   final String description;
-  
+
   // Address components
   final String addressLine1;
   final String? addressLine2;
@@ -12,30 +12,30 @@ class Venue {
   final String state;
   final String country;
   final String postalCode;
-  
+
   // Coordinates
   final double latitude;
   final double longitude;
-  
+
   // Contact information
   final String? phone;
   final String? email;
   final String? website;
-  
+
   // Operating hours (24-hour format)
   final String openingTime; // Format: "HH:mm"
   final String closingTime; // Format: "HH:mm"
-  
+
   // Rating and pricing
   final double rating;
   final int totalRatings;
   final double pricePerHour;
   final String currency;
-  
+
   // Sports and amenities
   final List<String> supportedSports;
   final List<String> amenities;
-  
+
   // Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -87,16 +87,18 @@ class Venue {
 
   /// Check if venue is open at a specific time
   bool isOpenAt(DateTime dateTime) {
-    final timeOfDay = '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    
+    final timeOfDay =
+        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+
     // Handle venues that close after midnight
-    if (_isTimeAfterMidnight(closingTime) && _isTimeAfterMidnight(openingTime)) {
+    if (_isTimeAfterMidnight(closingTime) &&
+        _isTimeAfterMidnight(openingTime)) {
       // Both times are after midnight (unusual case)
       return _isTimeBetween(timeOfDay, openingTime, closingTime);
     } else if (_isTimeAfterMidnight(closingTime)) {
       // Venue closes after midnight (e.g., 22:00 - 02:00)
       return _isTimeBetween(timeOfDay, openingTime, '23:59') ||
-             _isTimeBetween(timeOfDay, '00:00', closingTime);
+          _isTimeBetween(timeOfDay, '00:00', closingTime);
     } else {
       // Normal operating hours (e.g., 08:00 - 22:00)
       return _isTimeBetween(timeOfDay, openingTime, closingTime);
@@ -111,13 +113,13 @@ class Venue {
   /// Check if venue supports a specific sport
   bool supportsSport(String sport) {
     return supportedSports.contains(sport.toLowerCase()) ||
-           supportedSports.any((s) => s.toLowerCase() == sport.toLowerCase());
+        supportedSports.any((s) => s.toLowerCase() == sport.toLowerCase());
   }
 
   /// Check if venue has a specific amenity
   bool hasAmenity(String amenity) {
     return amenities.contains(amenity.toLowerCase()) ||
-           amenities.any((a) => a.toLowerCase() == amenity.toLowerCase());
+        amenities.any((a) => a.toLowerCase() == amenity.toLowerCase());
   }
 
   /// Get rating display text
@@ -141,7 +143,7 @@ class Venue {
     final currentMinutes = _timeToMinutes(current);
     final startMinutes = _timeToMinutes(start);
     final endMinutes = _timeToMinutes(end);
-    
+
     return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
   }
 
@@ -151,18 +153,26 @@ class Venue {
   }
 
   /// Calculate distance using Haversine formula
-  double _calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateHaversineDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
     const double earthRadius = 6371; // Earth's radius in kilometers
-    
+
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLon = _degreesToRadians(lon2 - lon1);
-    
-    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_degreesToRadians(lat1)) * math.cos(_degreesToRadians(lat2)) *
-        math.sin(dLon / 2) * math.sin(dLon / 2);
-    
+
+    final double a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) *
+            math.cos(_degreesToRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+
     final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-    
+
     return earthRadius * c;
   }
 

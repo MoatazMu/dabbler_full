@@ -1,4 +1,3 @@
-
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,7 +31,8 @@ class TierProgressData {
         .clamp(0.0, 1.0);
   }
 
-  int get pointsToNext => (tierMaxPoints - currentPoints).clamp(0, tierMaxPoints);
+  int get pointsToNext =>
+      (tierMaxPoints - currentPoints).clamp(0, tierMaxPoints);
 
   double get overallProgress => (currentPoints / totalPoints).clamp(0.0, 1.0);
 }
@@ -118,45 +118,30 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
       vsync: this,
     );
 
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: widget.progressData.progress,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeOutCubic,
-    ));
+    _progressAnimation =
+        Tween<double>(begin: 0.0, end: widget.progressData.progress).animate(
+          CurvedAnimation(
+            parent: _progressController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
 
-    _pointsCountAnimation = IntTween(
-      begin: 0,
-      end: widget.progressData.currentPoints,
-    ).animate(CurvedAnimation(
-      parent: _countController,
-      curve: Curves.easeOutCubic,
-    ));
+    _pointsCountAnimation =
+        IntTween(begin: 0, end: widget.progressData.currentPoints).animate(
+          CurvedAnimation(parent: _countController, curve: Curves.easeOutCubic),
+        );
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+    );
   }
 
   void _startAnimations() {
@@ -171,8 +156,9 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
   @override
   void didUpdateWidget(TierProgressIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    if (oldWidget.progressData.currentPoints != widget.progressData.currentPoints ||
+
+    if (oldWidget.progressData.currentPoints !=
+            widget.progressData.currentPoints ||
         oldWidget.progressData.progress != widget.progressData.progress) {
       _updateAnimations();
     }
@@ -180,22 +166,25 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
 
   void _updateAnimations() {
     // Update progress animation
-    _progressAnimation = Tween<double>(
-      begin: _progressAnimation.value,
-      end: widget.progressData.progress,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeOutCubic,
-    ));
+    _progressAnimation =
+        Tween<double>(
+          begin: _progressAnimation.value,
+          end: widget.progressData.progress,
+        ).animate(
+          CurvedAnimation(
+            parent: _progressController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     // Update points counter animation
-    _pointsCountAnimation = IntTween(
-      begin: _pointsCountAnimation.value,
-      end: widget.progressData.currentPoints,
-    ).animate(CurvedAnimation(
-      parent: _countController,
-      curve: Curves.easeOutCubic,
-    ));
+    _pointsCountAnimation =
+        IntTween(
+          begin: _pointsCountAnimation.value,
+          end: widget.progressData.currentPoints,
+        ).animate(
+          CurvedAnimation(parent: _countController, curve: Curves.easeOutCubic),
+        );
 
     _progressController.reset();
     _progressController.forward();
@@ -222,10 +211,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
       onTapUp: widget.enableInteractions ? (_) => _onTapUp() : null,
       onTapCancel: widget.enableInteractions ? _onTapUp : null,
       child: AnimatedBuilder(
-        animation: Listenable.merge([
-          _scaleAnimation,
-          _pulseAnimation,
-        ]),
+        animation: Listenable.merge([_scaleAnimation, _pulseAnimation]),
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value * _pulseAnimation.value,
@@ -236,8 +222,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
                 alignment: Alignment.center,
                 children: [
                   // Glow effect
-                  if (widget.enableAnimations)
-                    _buildGlowEffect(),
+                  if (widget.enableAnimations) _buildGlowEffect(),
 
                   // Background circle
                   _buildBackgroundCircle(),
@@ -246,8 +231,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
                   _buildProgressArc(),
 
                   // Milestone markers
-                  if (widget.showMilestones)
-                    _buildMilestoneMarkers(),
+                  if (widget.showMilestones) _buildMilestoneMarkers(),
 
                   // Center content
                   _buildCenterContent(),
@@ -293,10 +277,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.grey[100],
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.grey[300]!, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -351,15 +332,13 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
           const SizedBox(height: 4),
 
           // Points or percentage
-          if (widget.showPoints && !_showingDetails)
-            _buildPointsDisplay(),
+          if (widget.showPoints && !_showingDetails) _buildPointsDisplay(),
 
           if (widget.showPercentage && _showingDetails)
             _buildPercentageDisplay(),
 
           // Time estimate
-          if (widget.showTimeEstimate && _showingDetails)
-            _buildTimeEstimate(),
+          if (widget.showTimeEstimate && _showingDetails) _buildTimeEstimate(),
         ],
       ),
     );
@@ -470,10 +449,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: _getNextTierColor().withOpacity(0.9),
-          border: Border.all(
-            color: Colors.white,
-            width: 2,
-          ),
+          border: Border.all(color: Colors.white, width: 2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),
@@ -519,15 +495,19 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
       return [0.25, 0.50, 0.75];
     }
 
-    final tierRange = widget.progressData.tierMaxPoints - widget.progressData.tierMinPoints;
+    final tierRange =
+        widget.progressData.tierMaxPoints - widget.progressData.tierMinPoints;
     if (tierRange <= 0) return [];
 
     return widget.progressData.milestonePoints
-        .where((points) => 
-            points > widget.progressData.tierMinPoints && 
-            points < widget.progressData.tierMaxPoints)
-        .map((points) => 
-            (points - widget.progressData.tierMinPoints) / tierRange)
+        .where(
+          (points) =>
+              points > widget.progressData.tierMinPoints &&
+              points < widget.progressData.tierMaxPoints,
+        )
+        .map(
+          (points) => (points - widget.progressData.tierMinPoints) / tierRange,
+        )
         .toList();
   }
 
@@ -548,7 +528,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
 
   Color _getNextTierColor() {
     if (widget.progressData.nextTier == null) return _getTierColor();
-    
+
     switch (widget.progressData.nextTier!) {
       case BadgeTier.bronze:
         return const Color(0xFFCD7F32);
@@ -593,7 +573,7 @@ class _TierProgressIndicatorState extends State<TierProgressIndicator>
 
   IconData _getNextTierIcon() {
     if (widget.progressData.nextTier == null) return _getTierIcon();
-    
+
     switch (widget.progressData.nextTier!) {
       case BadgeTier.bronze:
         return Icons.military_tech;
@@ -680,9 +660,9 @@ class ProgressArcPainter extends CustomPainter {
   @override
   bool shouldRepaint(ProgressArcPainter oldDelegate) {
     return progress != oldDelegate.progress ||
-           strokeWidth != oldDelegate.strokeWidth ||
-           backgroundColor != oldDelegate.backgroundColor ||
-           progressGradient != oldDelegate.progressGradient;
+        strokeWidth != oldDelegate.strokeWidth ||
+        backgroundColor != oldDelegate.backgroundColor ||
+        progressGradient != oldDelegate.progressGradient;
   }
 }
 
@@ -715,11 +695,7 @@ class MilestoneMarkerPainter extends CustomPainter {
         ..style = PaintingStyle.fill;
 
       // Draw milestone marker
-      canvas.drawCircle(
-        Offset(x, y),
-        isReached ? 4 : 3,
-        paint,
-      );
+      canvas.drawCircle(Offset(x, y), isReached ? 4 : 3, paint);
 
       // Add border for reached milestones
       if (isReached) {
@@ -736,6 +712,6 @@ class MilestoneMarkerPainter extends CustomPainter {
   @override
   bool shouldRepaint(MilestoneMarkerPainter oldDelegate) {
     return currentProgress != oldDelegate.currentProgress ||
-           tierColor != oldDelegate.tierColor;
+        tierColor != oldDelegate.tierColor;
   }
 }

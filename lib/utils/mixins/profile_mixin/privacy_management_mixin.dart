@@ -1,5 +1,6 @@
 /// Mixin for managing privacy settings and access control
 library;
+
 import 'package:flutter/material.dart';
 
 /// Temporary model class for privacy settings
@@ -18,7 +19,7 @@ class PrivacySettings {
   final bool showOnlineStatus;
   final List<String> blockedUsers;
   final Map<String, bool> customPermissions;
-  
+
   const PrivacySettings({
     this.profileVisibility = 'public',
     this.showEmail = false,
@@ -34,7 +35,7 @@ class PrivacySettings {
     this.blockedUsers = const [],
     this.customPermissions = const {},
   });
-  
+
   PrivacySettings copyWith({
     String? profileVisibility,
     bool? showEmail,
@@ -74,18 +75,18 @@ mixin PrivacyManagementMixin {
   final Set<String> _pendingChanges = {};
   final Map<String, dynamic> _originalValues = {};
   bool _hasUnsavedChanges = false;
-  
+
   /// Initialize privacy management with current settings
   void initPrivacyManagement(PrivacySettings settings) {
     _currentSettings = settings;
     _pendingChanges.clear();
     _originalValues.clear();
     _hasUnsavedChanges = false;
-    
+
     // Store original values for change tracking
     _storeOriginalValues(settings);
   }
-  
+
   /// Store original values for comparison
   void _storeOriginalValues(PrivacySettings settings) {
     _originalValues.addAll({
@@ -102,7 +103,7 @@ mixin PrivacyManagementMixin {
       'showOnlineStatus': settings.showOnlineStatus,
     });
   }
-  
+
   /// Check if user can view specific field
   bool canUserView(
     String field, {
@@ -112,12 +113,12 @@ mixin PrivacyManagementMixin {
   }) {
     if (isOwner) return true;
     if (_currentSettings == null) return false;
-    
+
     // Check if user is blocked
     if (userId != null && _currentSettings!.blockedUsers.contains(userId)) {
       return false;
     }
-    
+
     // Check profile visibility first
     switch (_currentSettings!.profileVisibility) {
       case 'private':
@@ -129,7 +130,7 @@ mixin PrivacyManagementMixin {
         // Continue to field-specific checks
         break;
     }
-    
+
     // Field-specific visibility checks
     switch (field.toLowerCase()) {
       case 'email':
@@ -156,7 +157,7 @@ mixin PrivacyManagementMixin {
         return _currentSettings!.customPermissions[field] ?? true;
     }
   }
-  
+
   /// Check if user can perform specific action
   bool canUserPerformAction(
     String action, {
@@ -166,12 +167,12 @@ mixin PrivacyManagementMixin {
   }) {
     if (isOwner) return true;
     if (_currentSettings == null) return false;
-    
+
     // Check if user is blocked
     if (userId != null && _currentSettings!.blockedUsers.contains(userId)) {
       return false;
     }
-    
+
     switch (action.toLowerCase()) {
       case 'send_message':
         return _currentSettings!.allowMessages;
@@ -183,26 +184,26 @@ mixin PrivacyManagementMixin {
         return false;
     }
   }
-  
+
   /// Update privacy setting with change tracking
   void updatePrivacySetting(String key, dynamic value) {
     if (_currentSettings == null) return;
-    
+
     final oldValue = _getSettingValue(key);
     if (oldValue == value) return; // No change
-    
+
     // Track the change
     _pendingChanges.add(key);
     _hasUnsavedChanges = true;
-    
+
     // Update the setting
     _currentSettings = _updateSettingValue(key, value);
   }
-  
+
   /// Get current value of a setting
   dynamic _getSettingValue(String key) {
     if (_currentSettings == null) return null;
-    
+
     switch (key) {
       case 'profileVisibility':
         return _currentSettings!.profileVisibility;
@@ -230,7 +231,7 @@ mixin PrivacyManagementMixin {
         return _currentSettings!.customPermissions[key];
     }
   }
-  
+
   /// Update setting value and return new settings object
   PrivacySettings _updateSettingValue(String key, dynamic value) {
     switch (key) {
@@ -258,131 +259,140 @@ mixin PrivacyManagementMixin {
         return _currentSettings!.copyWith(showOnlineStatus: value as bool);
       default:
         // Handle custom permissions
-        final newPermissions = Map<String, bool>.from(_currentSettings!.customPermissions);
+        final newPermissions = Map<String, bool>.from(
+          _currentSettings!.customPermissions,
+        );
         newPermissions[key] = value as bool;
         return _currentSettings!.copyWith(customPermissions: newPermissions);
     }
   }
-  
+
   /// Show confirmation dialog for privacy changes
   Future<bool> confirmPrivacyChanges(BuildContext context) async {
     if (_pendingChanges.isEmpty) return true;
-    
+
     final warnings = _getPrivacyWarnings();
     final hasSignificantChanges = _hasSignificantPrivacyChanges();
-    
+
     if (!hasSignificantChanges && warnings.isEmpty) return true;
-    
+
     return await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(
-              hasSignificantChanges ? Icons.security : Icons.info_outline,
-              color: hasSignificantChanges ? Colors.orange : Colors.blue,
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(
+                  hasSignificantChanges ? Icons.security : Icons.info_outline,
+                  color: hasSignificantChanges ? Colors.orange : Colors.blue,
+                ),
+                const SizedBox(width: 8),
+                const Text('Privacy Settings'),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text('Privacy Settings'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (hasSignificantChanges)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange[200]!),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (hasSignificantChanges)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning, color: Colors.orange[600]),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              'You\'re making significant changes to your privacy settings.',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  if (hasSignificantChanges) const SizedBox(height: 16),
+
+                  const Text('The following changes will be applied:'),
+                  const SizedBox(height: 12),
+
+                  ..._getPendingChangesList().map(
+                    (change) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.green,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(change)),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.orange[600]),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text(
-                          'You\'re making significant changes to your privacy settings.',
-                          style: TextStyle(fontWeight: FontWeight.w500),
+
+                  if (warnings.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Important considerations:',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 8),
+                    ...warnings.map(
+                      (warning) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.blue,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(warning)),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              
-              if (hasSignificantChanges) const SizedBox(height: 16),
-              
-              const Text('The following changes will be applied:'),
-              const SizedBox(height: 12),
-              
-              ..._getPendingChangesList().map((change) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green,
-                      size: 18,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(change)),
                   ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(
+                  hasSignificantChanges ? 'Confirm Changes' : 'Apply',
                 ),
-              )),
-              
-              if (warnings.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                const Text(
-                  'Important considerations:',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 8),
-                ...warnings.map((warning) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.blue,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(warning)),
-                    ],
-                  ),
-                )),
-              ],
+              ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(hasSignificantChanges ? 'Confirm Changes' : 'Apply'),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
-  
+
   /// Get list of privacy warnings for current changes
   List<String> _getPrivacyWarnings() {
     final warnings = <String>[];
-    
+
     for (final change in _pendingChanges) {
       final currentValue = _getSettingValue(change);
       final originalValue = _originalValues[change];
-      
+
       switch (change) {
         case 'profileVisibility':
           if (originalValue == 'public' && currentValue != 'public') {
@@ -391,25 +401,25 @@ mixin PrivacyManagementMixin {
             warnings.add('Your profile will be visible to all users');
           }
           break;
-          
+
         case 'showLocation':
           if (originalValue == true && currentValue == false) {
             warnings.add('Hiding location will reduce match accuracy');
           }
           break;
-          
+
         case 'allowMessages':
           if (originalValue == true && currentValue == false) {
             warnings.add('You won\'t receive messages from other users');
           }
           break;
-          
+
         case 'allowGameInvites':
           if (originalValue == true && currentValue == false) {
             warnings.add('You won\'t receive game invitations');
           }
           break;
-          
+
         case 'showSportsStats':
           if (originalValue == true && currentValue == false) {
             warnings.add('Other players won\'t see your sports performance');
@@ -417,10 +427,10 @@ mixin PrivacyManagementMixin {
           break;
       }
     }
-    
+
     return warnings;
   }
-  
+
   /// Check if changes are significant (affect core functionality)
   bool _hasSignificantPrivacyChanges() {
     final significantFields = {
@@ -429,57 +439,71 @@ mixin PrivacyManagementMixin {
       'allowFriendRequests',
       'allowGameInvites',
     };
-    
+
     return _pendingChanges.any((change) => significantFields.contains(change));
   }
-  
+
   /// Get human-readable list of pending changes
   List<String> _getPendingChangesList() {
     final changes = <String>[];
-    
+
     for (final change in _pendingChanges) {
       final currentValue = _getSettingValue(change);
       final originalValue = _originalValues[change];
-      
+
       switch (change) {
         case 'profileVisibility':
-          changes.add('Profile visibility: ${_capitalizeFirst(originalValue)} → ${_capitalizeFirst(currentValue)}');
+          changes.add(
+            'Profile visibility: ${_capitalizeFirst(originalValue)} → ${_capitalizeFirst(currentValue)}',
+          );
           break;
         case 'showEmail':
-          changes.add('Email visibility: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}');
+          changes.add(
+            'Email visibility: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}',
+          );
           break;
         case 'showPhone':
-          changes.add('Phone visibility: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}');
+          changes.add(
+            'Phone visibility: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}',
+          );
           break;
         case 'showLocation':
-          changes.add('Location visibility: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}');
+          changes.add(
+            'Location visibility: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}',
+          );
           break;
         case 'allowMessages':
-          changes.add('Allow messages: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}');
+          changes.add(
+            'Allow messages: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}',
+          );
           break;
         case 'allowGameInvites':
-          changes.add('Allow game invites: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}');
+          changes.add(
+            'Allow game invites: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}',
+          );
           break;
         default:
-          changes.add('${_humanizeFieldName(change)}: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}');
+          changes.add(
+            '${_humanizeFieldName(change)}: ${_boolToText(originalValue)} → ${_boolToText(currentValue)}',
+          );
           break;
       }
     }
-    
+
     return changes;
   }
-  
+
   /// Convert boolean to human readable text
   String _boolToText(bool value) {
     return value ? 'Enabled' : 'Disabled';
   }
-  
+
   /// Capitalize first letter
   String _capitalizeFirst(String text) {
     if (text.isEmpty) return text;
     return '${text[0].toUpperCase()}${text.substring(1)}';
   }
-  
+
   /// Convert field name to human readable format
   String _humanizeFieldName(String fieldName) {
     return fieldName
@@ -488,12 +512,12 @@ mixin PrivacyManagementMixin {
         .map((word) => _capitalizeFirst(word))
         .join(' ');
   }
-  
+
   /// Clear pending changes without saving
   void clearPendingChanges() {
     _pendingChanges.clear();
     _hasUnsavedChanges = false;
-    
+
     // Restore original settings
     if (_originalValues.isNotEmpty && _currentSettings != null) {
       _currentSettings = PrivacySettings(
@@ -511,33 +535,33 @@ mixin PrivacyManagementMixin {
       );
     }
   }
-  
+
   /// Commit pending changes
   void commitPrivacyChanges() {
     _pendingChanges.clear();
     _hasUnsavedChanges = false;
-    
+
     // Update original values with current settings
     if (_currentSettings != null) {
       _storeOriginalValues(_currentSettings!);
     }
   }
-  
+
   /// Get current privacy settings
   PrivacySettings? get currentPrivacySettings => _currentSettings;
-  
+
   /// Check if there are unsaved changes
   bool get hasUnsavedPrivacyChanges => _hasUnsavedChanges;
-  
+
   /// Get list of pending changes
   Set<String> get pendingPrivacyChanges => Set.from(_pendingChanges);
-  
+
   /// Get privacy level assessment
   String get privacyLevel {
     if (_currentSettings == null) return 'unknown';
-    
+
     int privacyScore = 0;
-    
+
     // Profile visibility
     switch (_currentSettings!.profileVisibility) {
       case 'private':
@@ -550,19 +574,19 @@ mixin PrivacyManagementMixin {
         privacyScore += 0;
         break;
     }
-    
+
     // Field visibility (each worth 10 points if hidden)
     if (!_currentSettings!.showEmail) privacyScore += 10;
     if (!_currentSettings!.showPhone) privacyScore += 10;
     if (!_currentSettings!.showLocation) privacyScore += 5;
     if (!_currentSettings!.showAge) privacyScore += 5;
     if (!_currentSettings!.showOnlineStatus) privacyScore += 10;
-    
+
     // Communication settings (each worth 10 points if disabled)
     if (!_currentSettings!.allowMessages) privacyScore += 10;
     if (!_currentSettings!.allowFriendRequests) privacyScore += 10;
     if (!_currentSettings!.allowGameInvites) privacyScore += 10;
-    
+
     // Determine privacy level
     if (privacyScore >= 80) return 'very_high';
     if (privacyScore >= 60) return 'high';
@@ -570,29 +594,35 @@ mixin PrivacyManagementMixin {
     if (privacyScore >= 20) return 'low';
     return 'very_low';
   }
-  
+
   /// Get privacy recommendations
   List<String> get privacyRecommendations {
     if (_currentSettings == null) return [];
-    
+
     final recommendations = <String>[];
-    
+
     if (_currentSettings!.profileVisibility == 'public') {
-      recommendations.add('Consider limiting profile visibility to friends for better privacy');
+      recommendations.add(
+        'Consider limiting profile visibility to friends for better privacy',
+      );
     }
-    
+
     if (_currentSettings!.showEmail && _currentSettings!.showPhone) {
       recommendations.add('Showing both email and phone might be unnecessary');
     }
-    
-    if (_currentSettings!.allowMessages && _currentSettings!.allowFriendRequests) {
-      recommendations.add('Your profile is very open to contact - consider if this is intentional');
+
+    if (_currentSettings!.allowMessages &&
+        _currentSettings!.allowFriendRequests) {
+      recommendations.add(
+        'Your profile is very open to contact - consider if this is intentional',
+      );
     }
-    
-    if (_currentSettings!.showLocation && _currentSettings!.profileVisibility == 'public') {
+
+    if (_currentSettings!.showLocation &&
+        _currentSettings!.profileVisibility == 'public') {
       recommendations.add('Showing location on public profile reduces privacy');
     }
-    
+
     return recommendations;
   }
 }

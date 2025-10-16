@@ -41,14 +41,18 @@ class Messages {
       media_urls: json['media_urls'],
       reply_to_message_id: json['reply_to_message_id'],
       is_edited: json['is_edited'],
-      edited_at: (json['edited_at'] == null ? null : DateTime.parse(json['edited_at'] as String)),
+      edited_at: (json['edited_at'] == null
+          ? null
+          : DateTime.parse(json['edited_at'] as String)),
       is_deleted: json['is_deleted'],
-      deleted_at: (json['deleted_at'] == null ? null : DateTime.parse(json['deleted_at'] as String)),
+      deleted_at: (json['deleted_at'] == null
+          ? null
+          : DateTime.parse(json['deleted_at'] as String)),
       delivered_to: json['delivered_to'],
       read_by: json['read_by'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       topic: json['topic'],
     );
   }

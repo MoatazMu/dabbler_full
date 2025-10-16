@@ -34,13 +34,17 @@ class GamePlayers {
       status: json['status'],
       team: json['team'],
       position: json['position'],
-    joined_at: json['joined_at'] != null
-      ? DateTime.parse(json['joined_at'] as String)
-      : DateTime.now(),
-      checked_in_at: (json['checked_in_at'] == null ? null : DateTime.parse(json['checked_in_at'] as String)),
+      joined_at: json['joined_at'] != null
+          ? DateTime.parse(json['joined_at'] as String)
+          : DateTime.now(),
+      checked_in_at: (json['checked_in_at'] == null
+          ? null
+          : DateTime.parse(json['checked_in_at'] as String)),
       check_in_code: json['check_in_code'],
       player_rating: json['player_rating'],
-      rated_at: (json['rated_at'] == null ? null : DateTime.parse(json['rated_at'] as String)),
+      rated_at: (json['rated_at'] == null
+          ? null
+          : DateTime.parse(json['rated_at'] as String)),
     );
   }
 

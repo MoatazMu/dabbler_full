@@ -20,7 +20,8 @@ class SportProfileModel {
   });
 
   /// Creates SportProfileModel from domain entity
-  factory SportProfileModel.fromEntity(SportProfile entity, {
+  factory SportProfileModel.fromEntity(
+    SportProfile entity, {
     required String id,
     required String userId,
     bool isPublic = true,
@@ -43,15 +44,16 @@ class SportProfileModel {
   factory SportProfileModel.fromJson(Map<String, dynamic> json) {
     final sportProfile = SportProfile(
       sportId: json['sport_id'] as String,
-      sportName: json['sport_name'] as String? ?? 
-                 _extractSportName(json), // Extract from sport relation if available
+      sportName:
+          json['sport_name'] as String? ??
+          _extractSportName(json), // Extract from sport relation if available
       skillLevel: _parseSkillLevel(json['skill_level']),
       yearsPlaying: json['years_playing'] as int? ?? 0,
       preferredPositions: _parseStringList(json['positions']),
       certifications: _parseStringList(json['certifications']),
       achievements: _parseStringList(json['achievements']),
       isPrimarySport: json['is_primary_sport'] as bool? ?? false,
-      lastPlayed: json['last_played'] != null 
+      lastPlayed: json['last_played'] != null
           ? DateTime.parse(json['last_played'] as String)
           : null,
       gamesPlayed: json['games_played'] as int? ?? 0,
@@ -73,9 +75,10 @@ class SportProfileModel {
   factory SportProfileModel.fromSupabaseResponse(Map<String, dynamic> json) {
     // Handle nested sport data from joins
     final sportData = json['sport'] as Map<String, dynamic>?;
-    final sportName = sportData?['name'] as String? ?? 
-                      json['sport_name'] as String? ?? 
-                      'Unknown Sport';
+    final sportName =
+        sportData?['name'] as String? ??
+        json['sport_name'] as String? ??
+        'Unknown Sport';
 
     final sportProfile = SportProfile(
       sportId: json['sport_id'] as String,
@@ -86,7 +89,7 @@ class SportProfileModel {
       certifications: _parseStringList(json['certifications']),
       achievements: _parseStringList(json['achievements']),
       isPrimarySport: json['is_primary_sport'] as bool? ?? false,
-      lastPlayed: json['last_played'] != null 
+      lastPlayed: json['last_played'] != null
           ? DateTime.parse(json['last_played'] as String)
           : null,
       gamesPlayed: json['games_played'] as int? ?? 0,
@@ -171,46 +174,60 @@ class SportProfileModel {
   /// Parses skill level from various formats
   static SkillLevel _parseSkillLevel(dynamic value) {
     if (value == null) return SkillLevel.beginner;
-    
+
     if (value is int) {
       // Handle integer values from database
       switch (value) {
-        case 0: return SkillLevel.beginner;
-        case 1: return SkillLevel.intermediate;
-        case 2: return SkillLevel.advanced;
-        case 3: return SkillLevel.expert;
-        default: return SkillLevel.beginner;
+        case 0:
+          return SkillLevel.beginner;
+        case 1:
+          return SkillLevel.intermediate;
+        case 2:
+          return SkillLevel.advanced;
+        case 3:
+          return SkillLevel.expert;
+        default:
+          return SkillLevel.beginner;
       }
     }
-    
+
     if (value is String) {
       // Handle string values
       switch (value.toLowerCase()) {
-        case 'beginner': return SkillLevel.beginner;
-        case 'intermediate': return SkillLevel.intermediate;
-        case 'advanced': return SkillLevel.advanced;
-        case 'expert': return SkillLevel.expert;
-        default: return SkillLevel.beginner;
+        case 'beginner':
+          return SkillLevel.beginner;
+        case 'intermediate':
+          return SkillLevel.intermediate;
+        case 'advanced':
+          return SkillLevel.advanced;
+        case 'expert':
+          return SkillLevel.expert;
+        default:
+          return SkillLevel.beginner;
       }
     }
-    
+
     return SkillLevel.beginner;
   }
 
   /// Helper method to parse string arrays from JSON
   static List<String> _parseStringList(dynamic value) {
     if (value == null) return [];
-    
+
     if (value is List) {
       return value.map((e) => e.toString()).toList();
     }
-    
+
     if (value is String) {
       // Handle comma-separated strings from database
       if (value.isEmpty) return [];
-      return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      return value
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
     }
-    
+
     return [];
   }
 
@@ -223,12 +240,12 @@ class SportProfileModel {
         return sport['name'] as String;
       }
     }
-    
+
     // Try sport_name field
     if (json.containsKey('sport_name')) {
       return json['sport_name'] as String;
     }
-    
+
     return 'Unknown Sport';
   }
 
@@ -264,7 +281,8 @@ class SportProfileModel {
   SkillLevel get skillLevel => sportProfile.skillLevel;
   int get yearsPlaying => sportProfile.yearsPlaying;
   List<String> get preferredPositions => sportProfile.preferredPositions;
-  List<String> get positions => sportProfile.preferredPositions; // Alias for backward compatibility
+  List<String> get positions =>
+      sportProfile.preferredPositions; // Alias for backward compatibility
   List<String> get certifications => sportProfile.certifications;
   List<String> get achievements => sportProfile.achievements;
   bool get isPrimarySport => sportProfile.isPrimarySport;

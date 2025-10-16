@@ -24,9 +24,9 @@ class ProfileAuditLog {
       user_id: json['user_id'],
       table_name: json['table_name'],
       action: json['action'],
-    changed_at: json['changed_at'] != null
-      ? DateTime.parse(json['changed_at'] as String)
-      : DateTime.now(),
+      changed_at: json['changed_at'] != null
+          ? DateTime.parse(json['changed_at'] as String)
+          : DateTime.now(),
       changed_by: json['changed_by'],
       changed_to: json['changed_to'],
     );

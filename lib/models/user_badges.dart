@@ -29,9 +29,9 @@ class UserBadges {
       badge_id: json['badge_id'],
       achievement_id: json['achievement_id'],
       tier: json['tier'],
-    earned_at: json['earned_at'] != null
-      ? DateTime.parse(json['earned_at'] as String)
-      : DateTime.now(),
+      earned_at: json['earned_at'] != null
+          ? DateTime.parse(json['earned_at'] as String)
+          : DateTime.now(),
       is_showcased: json['is_showcased'],
       showcase_order: json['showcase_order'],
       times_earned: json['times_earned'],

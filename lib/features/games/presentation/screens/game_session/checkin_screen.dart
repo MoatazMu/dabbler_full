@@ -19,10 +19,10 @@ class _CheckInScreenState extends State<CheckInScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _codeController = TextEditingController();
-  
+
   bool _isScanning = false;
   bool _canStartGame = false;
-  
+
   final List<Map<String, dynamic>> _players = [
     {
       'id': '1',
@@ -108,14 +108,8 @@ class _CheckInScreenState extends State<CheckInScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(
-              icon: Icon(Icons.qr_code_scanner),
-              text: 'Scan Code',
-            ),
-            Tab(
-              icon: Icon(Icons.people),
-              text: 'Player List',
-            ),
+            Tab(icon: Icon(Icons.qr_code_scanner), text: 'Scan Code'),
+            Tab(icon: Icon(Icons.people), text: 'Player List'),
           ],
         ),
         actions: [
@@ -133,10 +127,7 @@ class _CheckInScreenState extends State<CheckInScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
-                _buildScannerTab(),
-                _buildPlayerListTab(),
-              ],
+              children: [_buildScannerTab(), _buildPlayerListTab()],
             ),
           ),
           if (widget.isOrganizer) _buildOrganizerActions(),
@@ -150,7 +141,7 @@ class _CheckInScreenState extends State<CheckInScreen>
     final venue = widget.gameData['venue']?['name'] ?? 'Venue TBD';
     final now = DateTime.now();
     final gameDateTime = widget.gameData['date'] as DateTime?;
-    
+
     bool isLate = false;
     if (gameDateTime != null) {
       final gameStart = DateTime(
@@ -167,19 +158,13 @@ class _CheckInScreenState extends State<CheckInScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue[50],
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[300]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              Icon(
-                Icons.sports_soccer,
-                color: Colors.blue[600],
-                size: 24,
-              ),
+              Icon(Icons.sports_soccer, color: Colors.blue[600], size: 24),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -192,7 +177,10 @@ class _CheckInScreenState extends State<CheckInScreen>
               ),
               if (isLate)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange[100],
                     borderRadius: BorderRadius.circular(12),
@@ -209,7 +197,7 @@ class _CheckInScreenState extends State<CheckInScreen>
             ],
           ),
           const SizedBox(height: 8),
-          
+
           Row(
             children: [
               Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
@@ -224,7 +212,7 @@ class _CheckInScreenState extends State<CheckInScreen>
             ],
           ),
           const SizedBox(height: 12),
-          
+
           Row(
             children: [
               Expanded(
@@ -270,10 +258,7 @@ class _CheckInScreenState extends State<CheckInScreen>
                       ),
                       Text(
                         isLate ? 'Since Start' : 'Until Start',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -310,18 +295,12 @@ class _CheckInScreenState extends State<CheckInScreen>
                       SizedBox(height: 16),
                       Text(
                         'Position QR code in the frame',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       SizedBox(height: 8),
                       Text(
                         'Scanner will automatically detect the code',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ],
                   ),
@@ -346,32 +325,23 @@ class _CheckInScreenState extends State<CheckInScreen>
               ),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.qr_code_2,
-                    size: 80,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.qr_code_2, size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   const Text(
                     'Scan Game QR Code',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Ask the organizer for the game QR code or check-in code',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -388,7 +358,7 @@ class _CheckInScreenState extends State<CheckInScreen>
               ),
             ),
             const SizedBox(height: 16),
-            
+
             const Row(
               children: [
                 Expanded(child: Divider()),
@@ -400,7 +370,7 @@ class _CheckInScreenState extends State<CheckInScreen>
               ],
             ),
             const SizedBox(height: 16),
-            
+
             TextField(
               controller: _codeController,
               decoration: const InputDecoration(
@@ -412,7 +382,7 @@ class _CheckInScreenState extends State<CheckInScreen>
               textCapitalization: TextCapitalization.characters,
             ),
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -451,11 +421,11 @@ class _CheckInScreenState extends State<CheckInScreen>
             ],
           ),
           const SizedBox(height: 12),
-          
+
           ...checkedInPlayers.map((player) => _buildPlayerCard(player)),
           const SizedBox(height: 24),
         ],
-        
+
         if (waitingPlayers.isNotEmpty) ...[
           Row(
             children: [
@@ -471,7 +441,7 @@ class _CheckInScreenState extends State<CheckInScreen>
             ],
           ),
           const SizedBox(height: 12),
-          
+
           ...waitingPlayers.map((player) => _buildPlayerCard(player)),
         ],
       ],
@@ -507,11 +477,7 @@ class _CheckInScreenState extends State<CheckInScreen>
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 12,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.check, size: 12, color: Colors.white),
                 ),
               ),
           ],
@@ -563,11 +529,11 @@ class _CheckInScreenState extends State<CheckInScreen>
         trailing: isCheckedIn
             ? Icon(Icons.check_circle, color: Colors.green[600])
             : widget.isOrganizer
-                ? TextButton(
-                    onPressed: () => _checkInPlayer(player['id']),
-                    child: const Text('Check In'),
-                  )
-                : Icon(Icons.schedule, color: Colors.grey[400]),
+            ? TextButton(
+                onPressed: () => _checkInPlayer(player['id']),
+                child: const Text('Check In'),
+              )
+            : Icon(Icons.schedule, color: Colors.grey[400]),
       ),
     );
   }
@@ -611,9 +577,9 @@ class _CheckInScreenState extends State<CheckInScreen>
                 ],
               ),
             ),
-          
+
           const SizedBox(height: 12),
-          
+
           Row(
             children: [
               Expanded(
@@ -648,13 +614,13 @@ class _CheckInScreenState extends State<CheckInScreen>
   String _getTimeUntilGame() {
     final gameDateTime = widget.gameData['date'] as DateTime?;
     final gameTime = widget.gameData['time'] ?? '00:00';
-    
+
     if (gameDateTime == null) return 'TBD';
-    
+
     final timeParts = gameTime.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1].split(' ')[0]);
-    
+
     final gameStart = DateTime(
       gameDateTime.year,
       gameDateTime.month,
@@ -662,10 +628,10 @@ class _CheckInScreenState extends State<CheckInScreen>
       hour,
       minute,
     );
-    
+
     final now = DateTime.now();
     final difference = gameStart.difference(now);
-    
+
     if (difference.isNegative) {
       final elapsed = now.difference(gameStart);
       if (elapsed.inHours > 0) {
@@ -713,26 +679,32 @@ class _CheckInScreenState extends State<CheckInScreen>
 
   void _showManualCheckInDialog() {
     final waitingPlayers = _players.where((p) => !p['isCheckedIn']).toList();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Manual Check-In'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: waitingPlayers.map((player) => ListTile(
-            leading: CircleAvatar(
-              backgroundImage: AssetImage('assets/Avatar/${player['avatar']}'),
-            ),
-            title: Text(player['name']),
-            trailing: ElevatedButton(
-              onPressed: () {
-                _checkInPlayer(player['id']);
-                Navigator.pop(context);
-              },
-              child: const Text('Check In'),
-            ),
-          )).toList(),
+          children: waitingPlayers
+              .map(
+                (player) => ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: AssetImage(
+                      'assets/Avatar/${player['avatar']}',
+                    ),
+                  ),
+                  title: Text(player['name']),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      _checkInPlayer(player['id']);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Check In'),
+                  ),
+                ),
+              )
+              .toList(),
         ),
         actions: [
           TextButton(
@@ -746,7 +718,7 @@ class _CheckInScreenState extends State<CheckInScreen>
 
   void _showGameCodeDialog() {
     final gameCode = 'GAME${widget.gameData['id'] ?? '123'}';
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -805,7 +777,9 @@ class _CheckInScreenState extends State<CheckInScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Start Game?'),
-        content: const Text('Are you ready to start the game? This will move all players to the game lobby.'),
+        content: const Text(
+          'Are you ready to start the game? This will move all players to the game lobby.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

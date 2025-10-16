@@ -4,7 +4,8 @@ import '../../domain/entities/payment_method.dart';
 class PaymentMethodModel {
   final String id;
   final String userId;
-  final String type; // 'card', 'paypal', 'applePay', 'googlePay', 'bankTransfer'
+  final String
+  type; // 'card', 'paypal', 'applePay', 'googlePay', 'bankTransfer'
   final String? lastFour;
   final String? brand;
   final String? expiryDate;
@@ -70,7 +71,7 @@ class PaymentMethodModel {
       email: json['email'] as String?,
       isDefault: json['is_default'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null 
+      updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
     );

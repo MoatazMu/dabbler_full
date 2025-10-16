@@ -20,9 +20,9 @@ class UserFeedCache {
       user_id: json['user_id'],
       post_id: json['post_id'],
       relevance_score: json['relevance_score'],
-    cached_at: json['cached_at'] != null
-      ? DateTime.parse(json['cached_at'] as String)
-      : DateTime.now(),
+      cached_at: json['cached_at'] != null
+          ? DateTime.parse(json['cached_at'] as String)
+          : DateTime.now(),
     );
   }
 

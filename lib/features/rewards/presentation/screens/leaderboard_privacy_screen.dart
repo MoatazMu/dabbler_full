@@ -58,7 +58,8 @@ class LeaderboardPrivacySettings {
       allowDirectMessages: allowDirectMessages ?? this.allowDirectMessages,
       visibleLeaderboards: visibleLeaderboards ?? this.visibleLeaderboards,
       rankDisplayMode: rankDisplayMode ?? this.rankDisplayMode,
-      profileVisibilityLevel: profileVisibilityLevel ?? this.profileVisibilityLevel,
+      profileVisibilityLevel:
+          profileVisibilityLevel ?? this.profileVisibilityLevel,
     );
   }
 
@@ -92,11 +93,12 @@ class LeaderboardPrivacySettings {
       allowDirectMessages: map['allowDirectMessages'] ?? true,
       visibleLeaderboards: Set<LeaderboardType>.from(
         (map['visibleLeaderboards'] as List<dynamic>?)?.map(
-          (e) => LeaderboardType.values.firstWhere(
-            (type) => type.name == e,
-            orElse: () => LeaderboardType.overall,
-          ),
-        ) ?? [],
+              (e) => LeaderboardType.values.firstWhere(
+                (type) => type.name == e,
+                orElse: () => LeaderboardType.overall,
+              ),
+            ) ??
+            [],
       ),
       rankDisplayMode: RankDisplayMode.values.firstWhere(
         (e) => e.name == map['rankDisplayMode'],
@@ -121,26 +123,21 @@ enum LeaderboardType {
   achievements,
 }
 
-enum RankDisplayMode {
-  exact,
-  range,
-  tier,
-  hidden,
-}
+enum RankDisplayMode { exact, range, tier, hidden }
 
-enum ProfileVisibilityLevel {
-  public,
-  friendsOnly,
-  private,
-  limited,
-}
+enum ProfileVisibilityLevel { public, friendsOnly, private, limited }
 
 /// Leaderboard privacy provider
-final leaderboardPrivacyProvider = StateNotifierProvider<LeaderboardPrivacyNotifier, LeaderboardPrivacySettings>((ref) {
-  return LeaderboardPrivacyNotifier();
-});
+final leaderboardPrivacyProvider =
+    StateNotifierProvider<
+      LeaderboardPrivacyNotifier,
+      LeaderboardPrivacySettings
+    >((ref) {
+      return LeaderboardPrivacyNotifier();
+    });
 
-class LeaderboardPrivacyNotifier extends StateNotifier<LeaderboardPrivacySettings> {
+class LeaderboardPrivacyNotifier
+    extends StateNotifier<LeaderboardPrivacySettings> {
   LeaderboardPrivacyNotifier() : super(const LeaderboardPrivacySettings()) {
     _loadSettings();
   }
@@ -151,7 +148,7 @@ class LeaderboardPrivacyNotifier extends StateNotifier<LeaderboardPrivacySetting
       final settingsJson = prefs.getString('leaderboard_privacy_settings');
       if (settingsJson != null) {
         final settingsMap = Map<String, dynamic>.from(
-          Uri.splitQueryString(settingsJson)
+          Uri.splitQueryString(settingsJson),
         );
         state = LeaderboardPrivacySettings.fromMap(settingsMap);
       }
@@ -164,10 +161,12 @@ class LeaderboardPrivacyNotifier extends StateNotifier<LeaderboardPrivacySetting
     try {
       final prefs = await SharedPreferences.getInstance();
       final settingsMap = newSettings.toMap();
-      final settingsJson = Uri(queryParameters: settingsMap.map(
-        (key, value) => MapEntry(key, value.toString())
-      )).query;
-      
+      final settingsJson = Uri(
+        queryParameters: settingsMap.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      ).query;
+
       await prefs.setString('leaderboard_privacy_settings', settingsJson);
       state = newSettings;
     } catch (e) {
@@ -175,18 +174,30 @@ class LeaderboardPrivacyNotifier extends StateNotifier<LeaderboardPrivacySetting
     }
   }
 
-  void toggleProfileVisible(bool value) => updateSettings(state.copyWith(profileVisible: value));
-  void toggleRankSharing(bool value) => updateSettings(state.copyWith(rankSharingEnabled: value));
-  void toggleFriendOnlyMode(bool value) => updateSettings(state.copyWith(friendOnlyMode: value));
-  void toggleHideFromLeaderboards(bool value) => updateSettings(state.copyWith(hideFromLeaderboards: value));
-  void toggleAnonymousMode(bool value) => updateSettings(state.copyWith(anonymousMode: value));
-  void toggleShareProgressData(bool value) => updateSettings(state.copyWith(shareProgressData: value));
-  void toggleShareAchievementData(bool value) => updateSettings(state.copyWith(shareAchievementData: value));
-  void toggleShowRealName(bool value) => updateSettings(state.copyWith(showRealName: value));
-  void toggleAllowDirectMessages(bool value) => updateSettings(state.copyWith(allowDirectMessages: value));
-  void updateVisibleLeaderboards(Set<LeaderboardType> types) => updateSettings(state.copyWith(visibleLeaderboards: types));
-  void updateRankDisplayMode(RankDisplayMode mode) => updateSettings(state.copyWith(rankDisplayMode: mode));
-  void updateProfileVisibilityLevel(ProfileVisibilityLevel level) => updateSettings(state.copyWith(profileVisibilityLevel: level));
+  void toggleProfileVisible(bool value) =>
+      updateSettings(state.copyWith(profileVisible: value));
+  void toggleRankSharing(bool value) =>
+      updateSettings(state.copyWith(rankSharingEnabled: value));
+  void toggleFriendOnlyMode(bool value) =>
+      updateSettings(state.copyWith(friendOnlyMode: value));
+  void toggleHideFromLeaderboards(bool value) =>
+      updateSettings(state.copyWith(hideFromLeaderboards: value));
+  void toggleAnonymousMode(bool value) =>
+      updateSettings(state.copyWith(anonymousMode: value));
+  void toggleShareProgressData(bool value) =>
+      updateSettings(state.copyWith(shareProgressData: value));
+  void toggleShareAchievementData(bool value) =>
+      updateSettings(state.copyWith(shareAchievementData: value));
+  void toggleShowRealName(bool value) =>
+      updateSettings(state.copyWith(showRealName: value));
+  void toggleAllowDirectMessages(bool value) =>
+      updateSettings(state.copyWith(allowDirectMessages: value));
+  void updateVisibleLeaderboards(Set<LeaderboardType> types) =>
+      updateSettings(state.copyWith(visibleLeaderboards: types));
+  void updateRankDisplayMode(RankDisplayMode mode) =>
+      updateSettings(state.copyWith(rankDisplayMode: mode));
+  void updateProfileVisibilityLevel(ProfileVisibilityLevel level) =>
+      updateSettings(state.copyWith(profileVisibilityLevel: level));
 }
 
 /// Leaderboard privacy screen
@@ -194,10 +205,12 @@ class LeaderboardPrivacyScreen extends ConsumerStatefulWidget {
   const LeaderboardPrivacyScreen({super.key});
 
   @override
-  ConsumerState<LeaderboardPrivacyScreen> createState() => _LeaderboardPrivacyScreenState();
+  ConsumerState<LeaderboardPrivacyScreen> createState() =>
+      _LeaderboardPrivacyScreenState();
 }
 
-class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScreen> {
+class _LeaderboardPrivacyScreenState
+    extends ConsumerState<LeaderboardPrivacyScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -234,7 +247,11 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
             const SizedBox(height: 24),
             _buildRankSharingSection(context, settings, settingsNotifier),
             const SizedBox(height: 24),
-            _buildLeaderboardVisibilitySection(context, settings, settingsNotifier),
+            _buildLeaderboardVisibilitySection(
+              context,
+              settings,
+              settingsNotifier,
+            ),
             const SizedBox(height: 24),
             _buildAnonymitySection(context, settings, settingsNotifier),
             const SizedBox(height: 24),
@@ -248,26 +265,35 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  Widget _buildProfileVisibilitySection(BuildContext context, LeaderboardPrivacySettings settings, LeaderboardPrivacyNotifier notifier) {
+  Widget _buildProfileVisibilitySection(
+    BuildContext context,
+    LeaderboardPrivacySettings settings,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Profile Visibility',
       icon: Icons.visibility,
       children: [
         SwitchListTile(
           title: const Text('Profile Visible'),
-          subtitle: const Text('Allow others to see your profile on leaderboards'),
+          subtitle: const Text(
+            'Allow others to see your profile on leaderboards',
+          ),
           value: settings.profileVisible,
           onChanged: notifier.toggleProfileVisible,
         ),
         const Divider(),
         ListTile(
           title: const Text('Visibility Level'),
-          subtitle: Text(_getVisibilityDescription(settings.profileVisibilityLevel)),
+          subtitle: Text(
+            _getVisibilityDescription(settings.profileVisibilityLevel),
+          ),
           trailing: DropdownButton<ProfileVisibilityLevel>(
             value: settings.profileVisibilityLevel,
             onChanged: settings.profileVisible
                 ? (value) {
-                    if (value != null) notifier.updateProfileVisibilityLevel(value);
+                    if (value != null)
+                      notifier.updateProfileVisibilityLevel(value);
                   }
                 : null,
             items: ProfileVisibilityLevel.values.map((level) {
@@ -297,7 +323,11 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  Widget _buildRankSharingSection(BuildContext context, LeaderboardPrivacySettings settings, LeaderboardPrivacyNotifier notifier) {
+  Widget _buildRankSharingSection(
+    BuildContext context,
+    LeaderboardPrivacySettings settings,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Rank Sharing',
       icon: Icons.leaderboard,
@@ -312,7 +342,9 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
           const Divider(),
           ListTile(
             title: const Text('Rank Display Mode'),
-            subtitle: Text(_getRankDisplayDescription(settings.rankDisplayMode)),
+            subtitle: Text(
+              _getRankDisplayDescription(settings.rankDisplayMode),
+            ),
             trailing: DropdownButton<RankDisplayMode>(
               value: settings.rankDisplayMode,
               onChanged: (value) {
@@ -338,14 +370,20 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  Widget _buildLeaderboardVisibilitySection(BuildContext context, LeaderboardPrivacySettings settings, LeaderboardPrivacyNotifier notifier) {
+  Widget _buildLeaderboardVisibilitySection(
+    BuildContext context,
+    LeaderboardPrivacySettings settings,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Leaderboard Visibility',
       icon: Icons.list,
       children: [
         SwitchListTile(
           title: const Text('Hide from Leaderboards'),
-          subtitle: const Text('Completely hide your profile from all leaderboards'),
+          subtitle: const Text(
+            'Completely hide your profile from all leaderboards',
+          ),
           value: settings.hideFromLeaderboards,
           onChanged: notifier.toggleHideFromLeaderboards,
         ),
@@ -363,21 +401,25 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
                 const SizedBox(height: 12),
                 Text(
                   'Choose which leaderboards you want to appear on',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: LeaderboardType.values.map((type) {
-                    final isSelected = settings.visibleLeaderboards.contains(type);
+                    final isSelected = settings.visibleLeaderboards.contains(
+                      type,
+                    );
                     return FilterChip(
                       label: Text(_getLeaderboardTypeLabel(type)),
                       selected: isSelected,
                       onSelected: (selected) {
-                        final newTypes = Set<LeaderboardType>.from(settings.visibleLeaderboards);
+                        final newTypes = Set<LeaderboardType>.from(
+                          settings.visibleLeaderboards,
+                        );
                         if (selected) {
                           newTypes.add(type);
                         } else {
@@ -396,14 +438,20 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  Widget _buildAnonymitySection(BuildContext context, LeaderboardPrivacySettings settings, LeaderboardPrivacyNotifier notifier) {
+  Widget _buildAnonymitySection(
+    BuildContext context,
+    LeaderboardPrivacySettings settings,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Anonymous Mode',
       icon: Icons.person_off,
       children: [
         SwitchListTile(
           title: const Text('Anonymous Mode'),
-          subtitle: const Text('Hide your identity while staying on leaderboards'),
+          subtitle: const Text(
+            'Hide your identity while staying on leaderboards',
+          ),
           value: settings.anonymousMode,
           onChanged: notifier.toggleAnonymousMode,
         ),
@@ -454,7 +502,11 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  Widget _buildDataSharingSection(BuildContext context, LeaderboardPrivacySettings settings, LeaderboardPrivacyNotifier notifier) {
+  Widget _buildDataSharingSection(
+    BuildContext context,
+    LeaderboardPrivacySettings settings,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Data Sharing Options',
       icon: Icons.share,
@@ -488,7 +540,11 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  Widget _buildAdvancedSection(BuildContext context, LeaderboardPrivacySettings settings, LeaderboardPrivacyNotifier notifier) {
+  Widget _buildAdvancedSection(
+    BuildContext context,
+    LeaderboardPrivacySettings settings,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Advanced Settings',
       icon: Icons.settings,
@@ -514,7 +570,9 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
         ),
         ListTile(
           title: const Text('Delete Leaderboard Data'),
-          subtitle: const Text('Permanently remove your data from leaderboards'),
+          subtitle: const Text(
+            'Permanently remove your data from leaderboards',
+          ),
           trailing: const Icon(Icons.delete_forever, color: Colors.red),
           onTap: () => _showDeleteDataDialog(context),
         ),
@@ -537,7 +595,9 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
             ),
             child: Row(
               children: [
@@ -642,17 +702,35 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Your Privacy Matters:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('Control exactly how you appear on leaderboards and who can see your progress.'),
+              Text(
+                'Your Privacy Matters:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Control exactly how you appear on leaderboards and who can see your progress.',
+              ),
               SizedBox(height: 12),
-              Text('Profile Visibility:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Profile Visibility:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Choose who can see your profile and achievements.'),
               SizedBox(height: 12),
-              Text('Anonymous Mode:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('Participate in leaderboards while keeping your identity private.'),
+              Text(
+                'Anonymous Mode:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Participate in leaderboards while keeping your identity private.',
+              ),
               SizedBox(height: 12),
-              Text('Data Sharing:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('Control what information is shared with other users and the platform.'),
+              Text(
+                'Data Sharing:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Control what information is shared with other users and the platform.',
+              ),
             ],
           ),
         ),
@@ -682,9 +760,9 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
 
   void _downloadUserData(BuildContext context) {
     // TODO: Implement data download
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Data download coming soon')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Data download coming soon')));
   }
 
   void _showBlockList(BuildContext context) {
@@ -701,12 +779,17 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
     );
   }
 
-  void _showResetPrivacyDialog(BuildContext context, LeaderboardPrivacyNotifier notifier) {
+  void _showResetPrivacyDialog(
+    BuildContext context,
+    LeaderboardPrivacyNotifier notifier,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Reset Privacy Settings'),
-        content: const Text('Reset all leaderboard privacy settings to their default values?'),
+        content: const Text(
+          'Reset all leaderboard privacy settings to their default values?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -717,7 +800,9 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
               notifier.updateSettings(const LeaderboardPrivacySettings());
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Privacy settings reset to defaults')),
+                const SnackBar(
+                  content: Text('Privacy settings reset to defaults'),
+                ),
               );
             },
             child: const Text('Reset'),
@@ -733,7 +818,7 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
       builder: (context) => AlertDialog(
         title: const Text('Delete Leaderboard Data'),
         content: const Text(
-          'This will permanently delete all your leaderboard data, rankings, and progress. This action cannot be undone.\n\nAre you sure you want to continue?'
+          'This will permanently delete all your leaderboard data, rankings, and progress. This action cannot be undone.\n\nAre you sure you want to continue?',
         ),
         actions: [
           TextButton(
@@ -745,7 +830,9 @@ class _LeaderboardPrivacyScreenState extends ConsumerState<LeaderboardPrivacyScr
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Data deletion request submitted. You will be contacted within 24 hours.'),
+                  content: Text(
+                    'Data deletion request submitted. You will be contacted within 24 hours.',
+                  ),
                   backgroundColor: Colors.red,
                 ),
               );

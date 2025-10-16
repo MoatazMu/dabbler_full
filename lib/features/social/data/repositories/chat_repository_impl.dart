@@ -45,13 +45,13 @@ class ChatServerFailure extends Failure {
 class ConversationNotFoundFailure extends Failure {
   final String conversationId;
   ConversationNotFoundFailure(this.conversationId)
-      : super(message: 'Conversation not found: $conversationId');
+    : super(message: 'Conversation not found: $conversationId');
 }
 
 class MessageNotFoundFailure extends Failure {
   final String messageId;
   MessageNotFoundFailure(this.messageId)
-      : super(message: 'Message not found: $messageId');
+    : super(message: 'Message not found: $messageId');
 }
 
 class MessageSendFailure extends Failure {
@@ -117,14 +117,22 @@ class ChatRepositoryImpl implements ChatRepository {
   Timer? _messageQueueProcessor;
 
   // Real-time streams
-  final Map<String, StreamController<List<ChatMessageModel>>> _messageStreamControllers = {};
-  final Map<String, StreamController<List<ConversationModel>>> _conversationStreamControllers = {};
-  final Map<String, StreamController<Map<String, bool>>> _typingStreamControllers = {};
-  final Map<String, StreamController<Map<String, DateTime>>> _readReceiptStreamControllers = {};
+  final Map<String, StreamController<List<ChatMessageModel>>>
+  _messageStreamControllers = {};
+  final Map<String, StreamController<List<ConversationModel>>>
+  _conversationStreamControllers = {};
+  final Map<String, StreamController<Map<String, bool>>>
+  _typingStreamControllers = {};
+  final Map<String, StreamController<Map<String, DateTime>>>
+  _readReceiptStreamControllers = {};
 
   // Aggregated streams expected by interface
-  final StreamController<Map<String, List<String>>> _globalTypingStreamController = StreamController<Map<String, List<String>>>.broadcast();
-  final StreamController<Map<String, Map<String, DateTime>>> _globalReadReceiptsController = StreamController<Map<String, Map<String, DateTime>>>.broadcast();
+  final StreamController<Map<String, List<String>>>
+  _globalTypingStreamController =
+      StreamController<Map<String, List<String>>>.broadcast();
+  final StreamController<Map<String, Map<String, DateTime>>>
+  _globalReadReceiptsController =
+      StreamController<Map<String, Map<String, DateTime>>>.broadcast();
 
   // Typing indicators
   final Map<String, Map<String, DateTime>> _typingUsers = {};
@@ -164,11 +172,11 @@ class ChatRepositoryImpl implements ChatRepository {
         _conversationCacheTime[conversation.id] = DateTime.now();
       }
 
-    // Optionally filter unread only
-    final result = includeUnreadOnly
-      ? conversations.where((c) => c.unreadCount > 0).toList()
-      : conversations;
-    return Right(result);
+      // Optionally filter unread only
+      final result = includeUnreadOnly
+          ? conversations.where((c) => c.unreadCount > 0).toList()
+          : conversations;
+      return Right(result);
     } on ConversationNotFoundException catch (e) {
       return Left(ConversationNotFoundFailure(e.conversationId));
     } on UnauthorizedChatException catch (e) {
@@ -176,12 +184,16 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to get conversations: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to get conversations: $e'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, ConversationModel>> getConversation(String conversationId) async {
+  Future<Either<Failure, ConversationModel>> getConversation(
+    String conversationId,
+  ) async {
     try {
       final cached = _conversationCache[conversationId];
       final cacheTime = _conversationCacheTime[conversationId];
@@ -192,7 +204,9 @@ class ChatRepositoryImpl implements ChatRepository {
         return Right(cached);
       }
 
-      final conversation = await _remoteDataSource.getConversation(conversationId);
+      final conversation = await _remoteDataSource.getConversation(
+        conversationId,
+      );
 
       _conversationCache[conversationId] = conversation;
       _conversationCacheTime[conversationId] = DateTime.now();
@@ -240,7 +254,9 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to create conversation: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to create conversation: $e'),
+      );
     }
   }
 
@@ -267,7 +283,7 @@ class ChatRepositoryImpl implements ChatRepository {
       // Notify stream subscribers
       _notifyConversationStreams();
 
-  return Right(conversation);
+      return Right(conversation);
     } on ConversationNotFoundException catch (e) {
       return Left(ConversationNotFoundFailure(e.conversationId));
     } on UnauthorizedChatException catch (e) {
@@ -275,14 +291,20 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to update conversation: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to update conversation: $e'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, bool>> deleteConversation(String conversationId) async {
+  Future<Either<Failure, bool>> deleteConversation(
+    String conversationId,
+  ) async {
     try {
-      final success = await _remoteDataSource.deleteConversation(conversationId);
+      final success = await _remoteDataSource.deleteConversation(
+        conversationId,
+      );
 
       if (success) {
         // Remove from cache
@@ -315,7 +337,9 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to delete conversation: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to delete conversation: $e'),
+      );
     }
   }
 
@@ -332,7 +356,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
     try {
       // Create optimistic message
-  final optimisticMessage = ChatMessageModel(
+      final optimisticMessage = ChatMessageModel(
         id: tempId,
         conversationId: conversationId,
         senderId: 'current_user', // Replace with actual current user ID
@@ -342,7 +366,7 @@ class ChatRepositoryImpl implements ChatRepository {
       );
 
       // Add to cache optimistically
-  final messages = _messageCache[conversationId] ?? [];
+      final messages = _messageCache[conversationId] ?? [];
       messages.add(optimisticMessage);
       _messageCache[conversationId] = messages;
 
@@ -350,7 +374,7 @@ class ChatRepositoryImpl implements ChatRepository {
       _notifyMessageStreams(conversationId);
 
       // Add to message queue
-  final pendingMessage = PendingMessage(
+      final pendingMessage = PendingMessage(
         tempId: tempId,
         conversationId: conversationId,
         content: content,
@@ -364,7 +388,12 @@ class ChatRepositoryImpl implements ChatRepository {
 
       return Right(optimisticMessage);
     } catch (e) {
-      return Left(MessageSendFailure(message: 'Failed to queue message: $e', tempId: tempId));
+      return Left(
+        MessageSendFailure(
+          message: 'Failed to queue message: $e',
+          tempId: tempId,
+        ),
+      );
     }
   }
 
@@ -377,7 +406,8 @@ class ChatRepositoryImpl implements ChatRepository {
     String? afterMessageId,
   }) async {
     try {
-      final cacheKey = '${conversationId}_${page}_${limit}_${beforeMessageId ?? ''}_${afterMessageId ?? ''}';
+      final cacheKey =
+          '${conversationId}_${page}_${limit}_${beforeMessageId ?? ''}_${afterMessageId ?? ''}';
       final cached = _messageCache[cacheKey];
       final cacheTime = _messageCacheTime[cacheKey];
 
@@ -399,9 +429,11 @@ class ChatRepositoryImpl implements ChatRepository {
       _messageCacheTime[cacheKey] = DateTime.now();
 
       // Also cache individual messages
-  final conversationMessages = _messageCache[conversationId] ?? [];
+      final conversationMessages = _messageCache[conversationId] ?? [];
       for (final message in messages) {
-        final index = conversationMessages.indexWhere((m) => m.id == message.id);
+        final index = conversationMessages.indexWhere(
+          (m) => m.id == message.id,
+        );
         if (index >= 0) {
           conversationMessages[index] = message;
         } else {
@@ -588,7 +620,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> markConversationAsRead(String conversationId) async {
+  Future<Either<Failure, bool>> markConversationAsRead(
+    String conversationId,
+  ) async {
     try {
       // Update unread count to 0 locally
       final conv = _conversationCache[conversationId];
@@ -598,7 +632,9 @@ class ChatRepositoryImpl implements ChatRepository {
       }
       return const Right(true);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to mark conversation as read: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to mark conversation as read: $e'),
+      );
     }
   }
 
@@ -613,7 +649,8 @@ class ChatRepositoryImpl implements ChatRepository {
       if (success) {
         // Update local typing state
         final conversationTyping = _typingUsers[conversationId] ?? {};
-        conversationTyping['current_user'] = DateTime.now(); // Replace with actual current user ID
+        conversationTyping['current_user'] =
+            DateTime.now(); // Replace with actual current user ID
         _typingUsers[conversationId] = conversationTyping;
 
         // Notify typing streams
@@ -673,7 +710,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, List<String>>> uploadMessageMedia(List<String> filePaths) async {
+  Future<Either<Failure, List<String>>> uploadMessageMedia(
+    List<String> filePaths,
+  ) async {
     try {
       final files = filePaths.map((p) => File(p)).toList();
       final urls = await _remoteDataSource.uploadMedia(files);
@@ -746,7 +785,9 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to remove participant: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to remove participant: $e'),
+      );
     }
   }
 
@@ -786,7 +827,9 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to leave conversation: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to leave conversation: $e'),
+      );
     }
   }
 
@@ -822,7 +865,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, int>> getUnreadMessageCount(String conversationId) async {
+  Future<Either<Failure, int>> getUnreadMessageCount(
+    String conversationId,
+  ) async {
     try {
       final counts = await _remoteDataSource.getUnreadCounts();
       return Right(counts[conversationId] ?? 0);
@@ -844,7 +889,9 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to get total unread count: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to get total unread count: $e'),
+      );
     }
   }
 
@@ -883,7 +930,9 @@ class ChatRepositoryImpl implements ChatRepository {
     } on ChatServerException catch (e) {
       return Left(ChatServerFailure(message: e.message));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to update mute state: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to update mute state: $e'),
+      );
     }
   }
 
@@ -940,7 +989,9 @@ class ChatRepositoryImpl implements ChatRepository {
       _notifyConversationStreams();
       return Right(updated);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to create group chat: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to create group chat: $e'),
+      );
     }
   }
 
@@ -956,7 +1007,9 @@ class ChatRepositoryImpl implements ChatRepository {
         settings: {'group_metadata': metadata.toJson()},
       );
       if (!success) {
-        return Left(ChatServerFailure(message: 'Failed to update group metadata'));
+        return Left(
+          ChatServerFailure(message: 'Failed to update group metadata'),
+        );
       }
       // Fetch updated conversation
       final conv = await _remoteDataSource.getConversation(conversationId);
@@ -966,7 +1019,9 @@ class ChatRepositoryImpl implements ChatRepository {
       _notifyConversationStreams();
       return Right(updated);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to update group chat metadata: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to update group chat metadata: $e'),
+      );
     }
   }
 
@@ -976,15 +1031,21 @@ class ChatRepositoryImpl implements ChatRepository {
     Duration? expiryDuration,
   }) async {
     try {
-      final link = await _remoteDataSource.getConversationInviteLink(conversationId);
+      final link = await _remoteDataSource.getConversationInviteLink(
+        conversationId,
+      );
       return Right(link);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to generate invite link: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to generate invite link: $e'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, ConversationModel>> joinViaInviteLink(String inviteCode) async {
+  Future<Either<Failure, ConversationModel>> joinViaInviteLink(
+    String inviteCode,
+  ) async {
     try {
       final conv = await _remoteDataSource.joinConversationByInvite(inviteCode);
       _conversationCache[conv.id] = conv;
@@ -997,7 +1058,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, List<ConversationParticipant>>> getParticipants(String conversationId) async {
+  Future<Either<Failure, List<ConversationParticipant>>> getParticipants(
+    String conversationId,
+  ) async {
     try {
       // Use conversation fetch to get rich participant objects
       final conv = await _remoteDataSource.getConversation(conversationId);
@@ -1008,7 +1071,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, List<String>>> getTypingUsers(String conversationId) async {
+  Future<Either<Failure, List<String>>> getTypingUsers(
+    String conversationId,
+  ) async {
     try {
       final typing = _typingUsers[conversationId] ?? {};
       final now = DateTime.now();
@@ -1058,10 +1123,19 @@ class ChatRepositoryImpl implements ChatRepository {
           break;
         }
       }
-      if (convId == null) return Left(ChatServerFailure(message: 'Conversation not found for message'));
+      if (convId == null)
+        return Left(
+          ChatServerFailure(message: 'Conversation not found for message'),
+        );
       final ok = pin
-          ? await _remoteDataSource.pinMessage(conversationId: convId, messageId: messageId)
-          : await _remoteDataSource.unpinMessage(conversationId: convId, messageId: messageId);
+          ? await _remoteDataSource.pinMessage(
+              conversationId: convId,
+              messageId: messageId,
+            )
+          : await _remoteDataSource.unpinMessage(
+              conversationId: convId,
+              messageId: messageId,
+            );
       return Right(ok);
     } catch (e) {
       return Left(ChatServerFailure(message: 'Failed to update pin: $e'));
@@ -1069,12 +1143,16 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChatMessageModel>>> getPinnedMessages(String conversationId) async {
+  Future<Either<Failure, List<ChatMessageModel>>> getPinnedMessages(
+    String conversationId,
+  ) async {
     try {
       final msgs = await _remoteDataSource.getPinnedMessages(conversationId);
       return Right(msgs);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to get pinned messages: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to get pinned messages: $e'),
+      );
     }
   }
 
@@ -1084,7 +1162,10 @@ class ChatRepositoryImpl implements ChatRepository {
     required String reaction,
   }) async {
     try {
-      final ok = await _remoteDataSource.reactToMessage(messageId: messageId, emoji: reaction);
+      final ok = await _remoteDataSource.reactToMessage(
+        messageId: messageId,
+        emoji: reaction,
+      );
       return Right(ok);
     } catch (e) {
       return Left(ChatServerFailure(message: 'Failed to react to message: $e'));
@@ -1098,7 +1179,10 @@ class ChatRepositoryImpl implements ChatRepository {
       final reactions = await _remoteDataSource.getMessageReactions(messageId);
       bool removedAny = false;
       for (final emoji in reactions.keys) {
-        final ok = await _remoteDataSource.removeReactionFromMessage(messageId: messageId, emoji: emoji);
+        final ok = await _remoteDataSource.removeReactionFromMessage(
+          messageId: messageId,
+          emoji: emoji,
+        );
         removedAny = removedAny || ok;
       }
       return Right(removedAny);
@@ -1108,12 +1192,18 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, ConversationSettings>> getConversationSettings(String conversationId) async {
+  Future<Either<Failure, ConversationSettings>> getConversationSettings(
+    String conversationId,
+  ) async {
     try {
-      final map = await _remoteDataSource.getConversationSettings(conversationId);
+      final map = await _remoteDataSource.getConversationSettings(
+        conversationId,
+      );
       return Right(ConversationSettings.fromJson(map));
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to get conversation settings: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to get conversation settings: $e'),
+      );
     }
   }
 
@@ -1127,10 +1217,15 @@ class ChatRepositoryImpl implements ChatRepository {
         conversationId: conversationId,
         settings: settings.toJson(),
       );
-      if (!ok) return Left(ChatServerFailure(message: 'Failed to update settings'));
+      if (!ok)
+        return Left(ChatServerFailure(message: 'Failed to update settings'));
       return Right(settings);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to update conversation settings: $e'));
+      return Left(
+        ChatServerFailure(
+          message: 'Failed to update conversation settings: $e',
+        ),
+      );
     }
   }
 
@@ -1149,7 +1244,9 @@ class ChatRepositoryImpl implements ChatRepository {
       _notifyConversationStreams();
       return Right(updated);
     } catch (e) {
-      return Left(ChatServerFailure(message: 'Failed to update participant role: $e'));
+      return Left(
+        ChatServerFailure(message: 'Failed to update participant role: $e'),
+      );
     }
   }
 
@@ -1176,7 +1273,9 @@ class ChatRepositoryImpl implements ChatRepository {
           // Replace optimistic message with real message
           final messages = _messageCache[pendingMessage.conversationId];
           if (messages != null) {
-            final index = messages.indexWhere((m) => m.id == pendingMessage.tempId);
+            final index = messages.indexWhere(
+              (m) => m.id == pendingMessage.tempId,
+            );
             if (index >= 0) {
               messages[index] = sentMessage;
               _notifyMessageStreams(pendingMessage.conversationId);
@@ -1185,12 +1284,18 @@ class ChatRepositoryImpl implements ChatRepository {
         } catch (e) {
           // Retry logic
           if (pendingMessage.retryCount < _maxRetries) {
-            _messageQueue.add(pendingMessage.copyWith(retryCount: pendingMessage.retryCount + 1));
+            _messageQueue.add(
+              pendingMessage.copyWith(
+                retryCount: pendingMessage.retryCount + 1,
+              ),
+            );
           } else {
             // Mark as failed
             final messages = _messageCache[pendingMessage.conversationId];
             if (messages != null) {
-              final index = messages.indexWhere((m) => m.id == pendingMessage.tempId);
+              final index = messages.indexWhere(
+                (m) => m.id == pendingMessage.tempId,
+              );
               if (index >= 0) {
                 final failedMessage = messages[index].copyWith(
                   content: '${messages[index].content} [Failed to send]',
@@ -1208,7 +1313,7 @@ class ChatRepositoryImpl implements ChatRepository {
   void _startTypingCleanup() {
     _typingCleanupTimer = Timer.periodic(Duration(seconds: 1), (_) {
       final now = DateTime.now();
-  bool hasChanges = false;
+      bool hasChanges = false;
 
       for (final conversationId in _typingUsers.keys.toList()) {
         final typingUsers = _typingUsers[conversationId]!;
@@ -1288,7 +1393,9 @@ class ChatRepositoryImpl implements ChatRepository {
       controller.add(readReceipts);
     }
 
-  // Also push aggregate map
-  _globalReadReceiptsController.add(Map<String, Map<String, DateTime>>.from(_readReceipts));
+    // Also push aggregate map
+    _globalReadReceiptsController.add(
+      Map<String, Map<String, DateTime>>.from(_readReceipts),
+    );
   }
 }

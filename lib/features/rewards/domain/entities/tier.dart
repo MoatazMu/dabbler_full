@@ -106,10 +106,10 @@ class UserTier {
   double calculateProgress() {
     final nextTier = getNextTier();
     if (nextTier == null) return 100.0; // Max tier reached
-    
+
     final pointsInCurrentTier = currentPoints - level.minPoints;
     final pointsNeededForTier = nextTier.minPoints - level.minPoints;
-    
+
     return (pointsInCurrentTier / pointsNeededForTier * 100).clamp(0.0, 100.0);
   }
 
@@ -117,7 +117,7 @@ class UserTier {
   double getPointsToNextTier() {
     final nextTier = getNextTier();
     if (nextTier == null) return 0.0;
-    
+
     return nextTier.minPoints - currentPoints;
   }
 
@@ -214,19 +214,19 @@ class UserTier {
     if (level.level >= 3) {
       baseBenefits['profile_customization_slots'] = (level.level / 3).ceil();
     }
-    
+
     if (level.level >= 5) {
       baseBenefits['monthly_exclusive_rewards'] = true;
     }
-    
+
     if (level.level >= 7) {
       baseBenefits['tournament_seed_bonus'] = true;
     }
-    
+
     if (level.level >= 11) {
       baseBenefits['mentor_program_access'] = true;
     }
-    
+
     if (level.level >= 13) {
       baseBenefits['legend_only_competitions'] = true;
     }
@@ -259,7 +259,7 @@ class UserTier {
   Map<String, dynamic> getProgressionSummary() {
     final nextTier = getNextTier();
     final progress = calculateProgress();
-    
+
     return {
       'current_tier': {
         'level': level.level,
@@ -322,7 +322,7 @@ class UserTier {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is UserTier &&
         other.id == id &&
         other.userId == userId &&
@@ -337,6 +337,6 @@ class UserTier {
   @override
   String toString() {
     return 'UserTier(id: $id, userId: $userId, level: ${level.displayName}, '
-           'points: $currentPoints, progress: ${calculateProgress().toStringAsFixed(1)}%)';
+        'points: $currentPoints, progress: ${calculateProgress().toStringAsFixed(1)}%)';
   }
 }

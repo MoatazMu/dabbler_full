@@ -21,19 +21,33 @@ class PreferencesDataSourceException implements Exception {
 /// Abstract interface for preferences remote data operations
 abstract class PreferencesRemoteDataSource {
   Future<UserPreferencesModel> getPreferences(String userId);
-  Future<UserPreferencesModel> updatePreferences(String userId, UserPreferencesModel preferences);
-  Future<UserPreferencesModel> updatePreferenceCategory(String userId, String category, dynamic data);
+  Future<UserPreferencesModel> updatePreferences(
+    String userId,
+    UserPreferencesModel preferences,
+  );
+  Future<UserPreferencesModel> updatePreferenceCategory(
+    String userId,
+    String category,
+    dynamic data,
+  );
   Future<Map<String, List<TimeSlot>>> getAvailabilitySchedule(String userId);
-  Future<Map<String, List<TimeSlot>>> updateAvailabilitySchedule(String userId, Map<String, List<TimeSlot>> schedule);
+  Future<Map<String, List<TimeSlot>>> updateAvailabilitySchedule(
+    String userId,
+    Map<String, List<TimeSlot>> schedule,
+  );
   Future<bool> isAvailableAt(String userId, DateTime dateTime);
-  Future<Map<String, dynamic>> getCompatibilityWith(String userId, String otherUserId);
+  Future<Map<String, dynamic>> getCompatibilityWith(
+    String userId,
+    String otherUserId,
+  );
   Future<double> calculateCompatibilityScore(String userId, String otherUserId);
   Future<UserPreferencesModel> getDefaultPreferencesTemplate({
     List<String>? sportTypes,
     String? location,
     String? experience,
   });
-  Future<List<UserPreferencesModel>> findCompatibleUsers(String userId, {
+  Future<List<UserPreferencesModel>> findCompatibleUsers(
+    String userId, {
     int limit = 20,
     double minCompatibilityScore = 0.5,
   });
@@ -42,17 +56,26 @@ abstract class PreferencesRemoteDataSource {
   Future<Map<String, dynamic>> getPreferenceStatistics(String userId);
 }
 
-/// Abstract interface for preferences local data operations  
+/// Abstract interface for preferences local data operations
 abstract class PreferencesLocalDataSource {
   Future<UserPreferencesModel?> getLocalPreferences(String userId);
-  Future<void> saveLocalPreferences(String userId, UserPreferencesModel preferences);
+  Future<void> saveLocalPreferences(
+    String userId,
+    UserPreferencesModel preferences,
+  );
   Future<Map<String, List<TimeSlot>>?> getLocalAvailability(String userId);
-  Future<void> saveLocalAvailability(String userId, Map<String, List<TimeSlot>> schedule);
+  Future<void> saveLocalAvailability(
+    String userId,
+    Map<String, List<TimeSlot>> schedule,
+  );
   Future<bool> hasUnsyncedChanges(String userId);
   Future<void> markAsSynced(String userId);
   Future<void> clearLocalPreferences(String userId);
   Future<Map<String, dynamic>> exportLocalPreferences(String userId);
-  Future<void> importLocalPreferences(String userId, Map<String, dynamic> preferences);
+  Future<void> importLocalPreferences(
+    String userId,
+    Map<String, dynamic> preferences,
+  );
   Future<List<String>> validatePreferences(UserPreferencesModel preferences);
   Future<List<String>> getCachedLocationSuggestions(String query);
   Future<void> cacheLocationSuggestions(String query, List<String> suggestions);
@@ -97,7 +120,10 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   }
 
   @override
-  Future<UserPreferencesModel> updatePreferences(String userId, UserPreferencesModel preferences) async {
+  Future<UserPreferencesModel> updatePreferences(
+    String userId,
+    UserPreferencesModel preferences,
+  ) async {
     try {
       final preferencesData = preferences.toJson();
       preferencesData['updated_at'] = DateTime.now().toIso8601String();
@@ -137,9 +163,15 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   }
 
   @override
-  Future<UserPreferencesModel> updatePreferenceCategory(String userId, String category, dynamic data) async {
+  Future<UserPreferencesModel> updatePreferenceCategory(
+    String userId,
+    String category,
+    dynamic data,
+  ) async {
     try {
-  await getPreferences(userId); // ensure user exists; not used directly here
+      await getPreferences(
+        userId,
+      ); // ensure user exists; not used directly here
       final updateData = <String, dynamic>{
         'user_id': userId,
         'updated_at': DateTime.now().toIso8601String(),
@@ -210,7 +242,9 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   }
 
   @override
-  Future<Map<String, List<TimeSlot>>> getAvailabilitySchedule(String userId) async {
+  Future<Map<String, List<TimeSlot>>> getAvailabilitySchedule(
+    String userId,
+  ) async {
     try {
       final response = await _client
           .from(_availabilityTable)
@@ -218,7 +252,7 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
           .eq('user_id', userId);
 
       final schedule = <String, List<TimeSlot>>{};
-      
+
       for (final row in response) {
         final dayOfWeek = row['day_of_week'] as String;
         final timeSlot = TimeSlot(
@@ -232,7 +266,15 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
       }
 
       // Ensure all days are represented
-      for (final day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']) {
+      for (final day in [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+      ]) {
         schedule[day] ??= [];
       }
 
@@ -247,23 +289,20 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
 
   @override
   Future<Map<String, List<TimeSlot>>> updateAvailabilitySchedule(
-    String userId, 
+    String userId,
     Map<String, List<TimeSlot>> schedule,
   ) async {
     try {
       // Delete existing availability
-      await _client
-          .from(_availabilityTable)
-          .delete()
-          .eq('user_id', userId);
+      await _client.from(_availabilityTable).delete().eq('user_id', userId);
 
       // Insert new availability slots
       final insertData = <Map<String, dynamic>>[];
-      
+
       for (final entry in schedule.entries) {
         final dayOfWeek = entry.key;
         final timeSlots = entry.value;
-        
+
         for (final slot in timeSlots) {
           insertData.add({
             'user_id': userId,
@@ -301,9 +340,11 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
           .eq('day_of_week', dayOfWeek);
 
       for (final slot in response) {
-        final startMinutes = (slot['start_hour'] as int) * 60 + (slot['start_minute'] as int);
-        final endMinutes = (slot['end_hour'] as int) * 60 + (slot['end_minute'] as int);
-        
+        final startMinutes =
+            (slot['start_hour'] as int) * 60 + (slot['start_minute'] as int);
+        final endMinutes =
+            (slot['end_hour'] as int) * 60 + (slot['end_minute'] as int);
+
         if (timeInMinutes >= startMinutes && timeInMinutes <= endMinutes) {
           return true;
         }
@@ -319,12 +360,15 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getCompatibilityWith(String userId, String otherUserId) async {
+  Future<Map<String, dynamic>> getCompatibilityWith(
+    String userId,
+    String otherUserId,
+  ) async {
     try {
-      final response = await _client.rpc('calculate_user_compatibility', params: {
-        'user1_id': userId,
-        'user2_id': otherUserId,
-      });
+      final response = await _client.rpc(
+        'calculate_user_compatibility',
+        params: {'user1_id': userId, 'user2_id': otherUserId},
+      );
 
       return {
         'compatibility_score': response['score'] ?? 0.0,
@@ -345,7 +389,10 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   }
 
   @override
-  Future<double> calculateCompatibilityScore(String userId, String otherUserId) async {
+  Future<double> calculateCompatibilityScore(
+    String userId,
+    String otherUserId,
+  ) async {
     try {
       final compatibility = await getCompatibilityWith(userId, otherUserId);
       return compatibility['compatibility_score'] as double;
@@ -366,48 +413,64 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
     try {
       // Try to fetch a matching template from the database
       var query = _client.from(_preferencesTemplatesTable).select();
-      
+
       if (sportTypes != null && sportTypes.isNotEmpty) {
         query = query.contains('sport_types', sportTypes);
       }
-      
+
       if (location != null) {
         query = query.eq('location_type', location);
       }
-      
+
       if (experience != null) {
         query = query.eq('experience_level', experience);
       }
 
       final templates = await query.limit(1);
-      
+
       if (templates.isNotEmpty) {
         final template = templates.first;
         return UserPreferencesModel.fromJson(template['preferences_data']);
       }
 
       // Return hardcoded default if no template found
-      return _getHardcodedDefaultPreferences('', sportTypes, location, experience);
+      return _getHardcodedDefaultPreferences(
+        '',
+        sportTypes,
+        location,
+        experience,
+      );
     } catch (e) {
       // Fallback to hardcoded defaults
-      return _getHardcodedDefaultPreferences('', sportTypes, location, experience);
+      return _getHardcodedDefaultPreferences(
+        '',
+        sportTypes,
+        location,
+        experience,
+      );
     }
   }
 
   @override
-  Future<List<UserPreferencesModel>> findCompatibleUsers(String userId, {
+  Future<List<UserPreferencesModel>> findCompatibleUsers(
+    String userId, {
     int limit = 20,
     double minCompatibilityScore = 0.5,
   }) async {
     try {
-      final response = await _client.rpc('find_compatible_users', params: {
-        'target_user_id': userId,
-        'min_score': minCompatibilityScore,
-        'max_results': limit,
-      });
+      final response = await _client.rpc(
+        'find_compatible_users',
+        params: {
+          'target_user_id': userId,
+          'min_score': minCompatibilityScore,
+          'max_results': limit,
+        },
+      );
 
       return (response as List)
-          .map<UserPreferencesModel>((json) => UserPreferencesModel.fromJson(json))
+          .map<UserPreferencesModel>(
+            (json) => UserPreferencesModel.fromJson(json),
+          )
           .toList();
     } catch (e) {
       throw PreferencesDataSourceException(
@@ -420,9 +483,10 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   @override
   Future<Map<String, dynamic>> analyzePreferencePattern(String userId) async {
     try {
-      final response = await _client.rpc('analyze_preference_pattern', params: {
-        'target_user_id': userId,
-      });
+      final response = await _client.rpc(
+        'analyze_preference_pattern',
+        params: {'target_user_id': userId},
+      );
 
       return {
         'most_preferred_sports': response['top_sports'] ?? [],
@@ -442,7 +506,10 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   }
 
   @override
-  Future<List<String>> getLocationSuggestions(String query, {int limit = 10}) async {
+  Future<List<String>> getLocationSuggestions(
+    String query, {
+    int limit = 10,
+  }) async {
     try {
       if (query.length < 2) {
         return [];
@@ -464,9 +531,10 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
   @override
   Future<Map<String, dynamic>> getPreferenceStatistics(String userId) async {
     try {
-      final response = await _client.rpc('get_preference_statistics', params: {
-        'target_user_id': userId,
-      });
+      final response = await _client.rpc(
+        'get_preference_statistics',
+        params: {'target_user_id': userId},
+      );
 
       return {
         'total_preferences_set': response['total_preferences'] ?? 0,
@@ -487,7 +555,12 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
 
   // Helper methods
   Future<UserPreferencesModel> _createDefaultPreferences(String userId) async {
-    final defaultPrefs = _getHardcodedDefaultPreferences(userId, null, null, null);
+    final defaultPrefs = _getHardcodedDefaultPreferences(
+      userId,
+      null,
+      null,
+      null,
+    );
     final preferencesData = defaultPrefs.toJson();
     preferencesData['user_id'] = userId;
     preferencesData['created_at'] = DateTime.now().toIso8601String();
@@ -538,27 +611,43 @@ class SupabasePreferencesDataSource implements PreferencesRemoteDataSource {
 
   String _getDayOfWeekString(int weekday) {
     switch (weekday) {
-      case 1: return 'monday';
-      case 2: return 'tuesday';
-      case 3: return 'wednesday';
-      case 4: return 'thursday';
-      case 5: return 'friday';
-      case 6: return 'saturday';
-      case 7: return 'sunday';
-      default: return 'monday';
+      case 1:
+        return 'monday';
+      case 2:
+        return 'tuesday';
+      case 3:
+        return 'wednesday';
+      case 4:
+        return 'thursday';
+      case 5:
+        return 'friday';
+      case 6:
+        return 'saturday';
+      case 7:
+        return 'sunday';
+      default:
+        return 'monday';
     }
   }
 
   int _dayStringToInt(String day) {
     switch (day.toLowerCase()) {
-      case 'monday': return 1;
-      case 'tuesday': return 2;
-      case 'wednesday': return 3;
-      case 'thursday': return 4;
-      case 'friday': return 5;
-      case 'saturday': return 6;
-      case 'sunday': return 7;
-      default: return 1;
+      case 'monday':
+        return 1;
+      case 'tuesday':
+        return 2;
+      case 'wednesday':
+        return 3;
+      case 'thursday':
+        return 4;
+      case 'friday':
+        return 5;
+      case 'saturday':
+        return 6;
+      case 'sunday':
+        return 7;
+      default:
+        return 1;
     }
   }
 }
@@ -576,17 +665,25 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
   }
 
   @override
-  Future<void> saveLocalPreferences(String userId, UserPreferencesModel preferences) async {
+  Future<void> saveLocalPreferences(
+    String userId,
+    UserPreferencesModel preferences,
+  ) async {
     _preferencesCache[userId] = preferences;
   }
 
   @override
-  Future<Map<String, List<TimeSlot>>?> getLocalAvailability(String userId) async {
+  Future<Map<String, List<TimeSlot>>?> getLocalAvailability(
+    String userId,
+  ) async {
     return _availabilityCache[userId];
   }
 
   @override
-  Future<void> saveLocalAvailability(String userId, Map<String, List<TimeSlot>> schedule) async {
+  Future<void> saveLocalAvailability(
+    String userId,
+    Map<String, List<TimeSlot>> schedule,
+  ) async {
     _availabilityCache[userId] = schedule;
   }
 
@@ -622,20 +719,29 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
     return {
       'user_id': userId,
       'preferences': preferences.toJson(),
-      'availability': availability?.map((key, value) => MapEntry(
-        key,
-        value.map((slot) => {
-          'dayOfWeek': slot.dayOfWeek,
-          'startHour': slot.startHour,
-          'endHour': slot.endHour,
-        }).toList(),
-      )),
+      'availability': availability?.map(
+        (key, value) => MapEntry(
+          key,
+          value
+              .map(
+                (slot) => {
+                  'dayOfWeek': slot.dayOfWeek,
+                  'startHour': slot.startHour,
+                  'endHour': slot.endHour,
+                },
+              )
+              .toList(),
+        ),
+      ),
       'exported_at': DateTime.now().toIso8601String(),
     };
   }
 
   @override
-  Future<void> importLocalPreferences(String userId, Map<String, dynamic> preferences) async {
+  Future<void> importLocalPreferences(
+    String userId,
+    Map<String, dynamic> preferences,
+  ) async {
     if (!preferences.containsKey('preferences')) {
       throw const PreferencesDataSourceException(
         message: 'Invalid preferences format',
@@ -645,22 +751,27 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
 
     final prefsData = preferences['preferences'] as Map<String, dynamic>;
     final userPreferences = UserPreferencesModel.fromJson(prefsData);
-    
+
     await saveLocalPreferences(userId, userPreferences);
 
     if (preferences.containsKey('availability')) {
-      final availabilityData = preferences['availability'] as Map<String, dynamic>;
+      final availabilityData =
+          preferences['availability'] as Map<String, dynamic>;
       final schedule = availabilityData.map<String, List<TimeSlot>>(
         (key, value) => MapEntry(
           key,
-          (value as List).map<TimeSlot>((slot) => TimeSlot(
-            dayOfWeek: slot['dayOfWeek'],
-            startHour: slot['startHour'],
-            endHour: slot['endHour'],
-          )).toList(),
+          (value as List)
+              .map<TimeSlot>(
+                (slot) => TimeSlot(
+                  dayOfWeek: slot['dayOfWeek'],
+                  startHour: slot['startHour'],
+                  endHour: slot['endHour'],
+                ),
+              )
+              .toList(),
         ),
       );
-      
+
       await saveLocalAvailability(userId, schedule);
     }
 
@@ -668,7 +779,9 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
   }
 
   @override
-  Future<List<String>> validatePreferences(UserPreferencesModel preferences) async {
+  Future<List<String>> validatePreferences(
+    UserPreferencesModel preferences,
+  ) async {
     final errors = <String>[];
 
     // Validation: safely access optional properties via dynamic to support
@@ -678,14 +791,16 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
     final int? competitiveLevel = dyn is Map
         ? (dyn['competitiveLevel'] as int?)
         : (dyn.competitiveLevel as int?);
-    if (competitiveLevel != null && (competitiveLevel < 1 || competitiveLevel > 10)) {
+    if (competitiveLevel != null &&
+        (competitiveLevel < 1 || competitiveLevel > 10)) {
       errors.add('Competitive level must be between 1 and 10');
     }
 
     final int? socialPreference = dyn is Map
         ? (dyn['socialPreference'] as int?)
         : (dyn.socialPreference as int?);
-    if (socialPreference != null && (socialPreference < 1 || socialPreference > 10)) {
+    if (socialPreference != null &&
+        (socialPreference < 1 || socialPreference > 10)) {
       errors.add('Social preference must be between 1 and 10');
     }
 
@@ -695,7 +810,8 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
     final double? maxTravelRadius = dyn is Map
         ? (dyn['maxTravelRadius'] as num?)?.toDouble()
         : (dyn.maxTravelRadius as double?);
-    final double travel = (maxTravelDistance ?? maxTravelRadius ?? 0).toDouble();
+    final double travel = (maxTravelDistance ?? maxTravelRadius ?? 0)
+        .toDouble();
     if (travel < 0 || travel > 1000) {
       errors.add('Max travel distance must be between 0 and 1000 km');
     }
@@ -711,7 +827,8 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
     final int? advanceNoticeHours = dyn is Map
         ? dyn['advanceNoticeHours'] as int?
         : (dyn.advanceNoticeHours as int? ?? dyn.minimumNoticeHours as int?);
-    if (advanceNoticeHours != null && (advanceNoticeHours < 0 || advanceNoticeHours > 168)) {
+    if (advanceNoticeHours != null &&
+        (advanceNoticeHours < 0 || advanceNoticeHours > 168)) {
       errors.add('Advance notice must be between 0 and 168 hours');
     }
 
@@ -719,7 +836,13 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
         ? dyn['genderPreference'] as String?
         : dyn.genderPreference as String?;
     if (genderPreference != null &&
-        !['any', 'male', 'female', 'non-binary', 'same'].contains(genderPreference)) {
+        ![
+          'any',
+          'male',
+          'female',
+          'non-binary',
+          'same',
+        ].contains(genderPreference)) {
       errors.add('Invalid gender preference');
     }
 
@@ -732,9 +855,12 @@ class LocalPreferencesDataSource implements PreferencesLocalDataSource {
   }
 
   @override
-  Future<void> cacheLocationSuggestions(String query, List<String> suggestions) async {
+  Future<void> cacheLocationSuggestions(
+    String query,
+    List<String> suggestions,
+  ) async {
     _locationSuggestionsCache[query.toLowerCase()] = suggestions;
-    
+
     // Keep cache size manageable
     if (_locationSuggestionsCache.length > 100) {
       final keys = _locationSuggestionsCache.keys.toList();

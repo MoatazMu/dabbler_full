@@ -27,7 +27,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    
+
     // Load initial feed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(socialFeedControllerProvider.notifier).loadPosts();
@@ -56,7 +56,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     final feedState = ref.watch(socialFeedControllerProvider);
     final theme = Theme.of(context);
 
@@ -89,10 +89,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
               // Navigate to search
               Navigator.pushNamed(context, '/social/search');
             },
-            icon: Icon(
-              Icons.search,
-              color: theme.colorScheme.onSurface,
-            ),
+            icon: Icon(Icons.search, color: theme.colorScheme.onSurface),
           ),
           IconButton(
             onPressed: () {
@@ -107,9 +104,11 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
                 ),
                 Consumer(
                   builder: (context, ref, child) {
-                    final hasNotifications = ref.watch(hasNotificationsProvider);
+                    final hasNotifications = ref.watch(
+                      hasNotificationsProvider,
+                    );
                     if (!hasNotifications) return const SizedBox.shrink();
-                    
+
                     return Positioned(
                       right: 0,
                       top: 0,
@@ -132,7 +131,11 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
     );
   }
 
-  Widget _buildBody(BuildContext context, ThemeData theme, SocialFeedState feedState) {
+  Widget _buildBody(
+    BuildContext context,
+    ThemeData theme,
+    SocialFeedState feedState,
+  ) {
     if (feedState.isLoading && feedState.posts.isEmpty) {
       return const Center(child: LoadingWidget());
     }
@@ -141,7 +144,8 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
       return Center(
         child: core.ErrorWidget(
           message: feedState.error!,
-          onRetry: () => ref.read(socialFeedControllerProvider.notifier).loadPosts(),
+          onRetry: () =>
+              ref.read(socialFeedControllerProvider.notifier).loadPosts(),
         ),
       );
     }
@@ -169,17 +173,19 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
           // const SliverToBoxAdapter(
           //   child: StoriesSection(),
           // ),
-          
+
           // Filter chips
           SliverToBoxAdapter(
             child: FeedFilterChips(
               currentFilter: feedState.filter,
               onFilterChanged: (filter) {
-                ref.read(socialFeedControllerProvider.notifier).changeFilter(filter);
+                ref
+                    .read(socialFeedControllerProvider.notifier)
+                    .changeFilter(filter);
               },
             ),
           ),
-          
+
           // Error banner if there's an error but we have posts
           if (feedState.error != null && feedState.posts.isNotEmpty)
             SliverToBoxAdapter(
@@ -207,7 +213,9 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
                     ),
                     TextButton(
                       onPressed: () {
-                        ref.read(socialFeedControllerProvider.notifier).clearError();
+                        ref
+                            .read(socialFeedControllerProvider.notifier)
+                            .clearError();
                       },
                       child: Text(
                         'Dismiss',
@@ -220,13 +228,13 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
                 ),
               ),
             ),
-          
+
           // Posts list
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final posts = feedState.filteredPosts;
-                
+
                 if (index >= posts.length) {
                   // Show loading indicator at bottom
                   if (feedState.hasMore && feedState.isLoading) {
@@ -235,7 +243,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
                       child: Center(child: LoadingWidget()),
                     );
                   }
-                  
+
                   // Show "no more posts" message
                   if (!feedState.hasMore && posts.isNotEmpty) {
                     return Padding(
@@ -250,12 +258,12 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
                       ),
                     );
                   }
-                  
+
                   return const SizedBox.shrink();
                 }
-                
+
                 final post = posts[index];
-                
+
                 return PostCard(
                   post: post,
                   onLike: () => _handlePostLike(post.id),
@@ -266,14 +274,14 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
                   isOptimistic: feedState.optimisticPosts.contains(post.id),
                 );
               },
-              childCount: feedState.filteredPosts.length + 1, // +1 for loading indicator
+              childCount:
+                  feedState.filteredPosts.length +
+                  1, // +1 for loading indicator
             ),
           ),
-          
+
           // Bottom padding for FAB
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 80),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
     );
@@ -283,7 +291,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
     return Consumer(
       builder: (context, ref, child) {
         final hasPendingPosts = ref.watch(hasPendingPostsProvider);
-        
+
         return Stack(
           children: [
             FloatingActionButton(
@@ -291,7 +299,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
               tooltip: 'Create Post',
               child: const Icon(Icons.add),
             ),
-            
+
             // Show indicator if there are pending posts
             if (hasPendingPosts)
               Positioned(
@@ -317,10 +325,9 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
   }
 
   void _handlePostLike(String postId) {
-    ref.read(socialFeedControllerProvider.notifier).reactToPost(
-      postId, 
-      ReactionType.like.name,
-    );
+    ref
+        .read(socialFeedControllerProvider.notifier)
+        .reactToPost(postId, ReactionType.like.name);
   }
 
   void _handlePostShare(dynamic post) {
@@ -340,11 +347,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
   }
 
   void _navigateToProfile(String userId) {
-    Navigator.pushNamed(
-      context,
-      '/profile',
-      arguments: {'userId': userId},
-    );
+    Navigator.pushNamed(context, '/profile', arguments: {'userId': userId});
   }
 
   void _navigateToCreatePost() {
@@ -356,15 +359,12 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen>
 class SharePostBottomSheet extends StatelessWidget {
   final dynamic post;
 
-  const SharePostBottomSheet({
-    super.key,
-    required this.post,
-  });
+  const SharePostBottomSheet({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -379,30 +379,30 @@ class SharePostBottomSheet extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          
+
           _buildShareOption(
             context,
             icon: Icons.copy,
             title: 'Copy Link',
             onTap: () => _copyLink(context),
           ),
-          
+
           _buildShareOption(
             context,
             icon: Icons.message,
             title: 'Share via Message',
             onTap: () => _shareViaMessage(context),
           ),
-          
+
           _buildShareOption(
             context,
             icon: Icons.more_horiz,
             title: 'More Options',
             onTap: () => _showMoreOptions(context),
           ),
-          
+
           const SizedBox(height: 10),
-          
+
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
@@ -419,7 +419,7 @@ class SharePostBottomSheet extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    
+
     return ListTile(
       leading: Icon(icon, color: theme.colorScheme.primary),
       title: Text(title),
@@ -432,9 +432,9 @@ class SharePostBottomSheet extends StatelessWidget {
 
   void _copyLink(BuildContext context) {
     // Implement copy link functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Link copied to clipboard')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
   }
 
   void _shareViaMessage(BuildContext context) {

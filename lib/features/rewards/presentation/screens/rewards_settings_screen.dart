@@ -51,17 +51,20 @@ class RewardsSettings {
   }) {
     return RewardsSettings(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      celebrationAnimationsEnabled: celebrationAnimationsEnabled ?? this.celebrationAnimationsEnabled,
+      celebrationAnimationsEnabled:
+          celebrationAnimationsEnabled ?? this.celebrationAnimationsEnabled,
       soundEffectsEnabled: soundEffectsEnabled ?? this.soundEffectsEnabled,
       soundVolume: soundVolume ?? this.soundVolume,
-      autoShareAchievements: autoShareAchievements ?? this.autoShareAchievements,
+      autoShareAchievements:
+          autoShareAchievements ?? this.autoShareAchievements,
       autoShareMilestones: autoShareMilestones ?? this.autoShareMilestones,
       profileVisibility: profileVisibility ?? this.profileVisibility,
       language: language ?? this.language,
       compactDisplay: compactDisplay ?? this.compactDisplay,
       darkMode: darkMode ?? this.darkMode,
       hapticFeedback: hapticFeedback ?? this.hapticFeedback,
-      notificationFrequency: notificationFrequency ?? this.notificationFrequency,
+      notificationFrequency:
+          notificationFrequency ?? this.notificationFrequency,
       celebrationIntensity: celebrationIntensity ?? this.celebrationIntensity,
     );
   }
@@ -109,25 +112,15 @@ class RewardsSettings {
   }
 }
 
-enum NotificationFrequency {
-  minimal,
-  normal,
-  frequent,
-  all,
-}
+enum NotificationFrequency { minimal, normal, frequent, all }
 
-enum CelebrationIntensity {
-  minimal,
-  low,
-  medium,
-  high,
-  maximum,
-}
+enum CelebrationIntensity { minimal, low, medium, high, maximum }
 
 /// Settings provider
-final rewardsSettingsProvider = StateNotifierProvider<RewardsSettingsNotifier, RewardsSettings>((ref) {
-  return RewardsSettingsNotifier();
-});
+final rewardsSettingsProvider =
+    StateNotifierProvider<RewardsSettingsNotifier, RewardsSettings>((ref) {
+      return RewardsSettingsNotifier();
+    });
 
 class RewardsSettingsNotifier extends StateNotifier<RewardsSettings> {
   RewardsSettingsNotifier() : super(const RewardsSettings()) {
@@ -140,7 +133,7 @@ class RewardsSettingsNotifier extends StateNotifier<RewardsSettings> {
       final settingsJson = prefs.getString('rewards_settings');
       if (settingsJson != null) {
         final settingsMap = Map<String, dynamic>.from(
-          Uri.splitQueryString(settingsJson)
+          Uri.splitQueryString(settingsJson),
         );
         state = RewardsSettings.fromMap(settingsMap);
       }
@@ -153,10 +146,12 @@ class RewardsSettingsNotifier extends StateNotifier<RewardsSettings> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final settingsMap = newSettings.toMap();
-      final settingsJson = Uri(queryParameters: settingsMap.map(
-        (key, value) => MapEntry(key, value.toString())
-      )).query;
-      
+      final settingsJson = Uri(
+        queryParameters: settingsMap.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      ).query;
+
       await prefs.setString('rewards_settings', settingsJson);
       state = newSettings;
     } catch (e) {
@@ -164,19 +159,32 @@ class RewardsSettingsNotifier extends StateNotifier<RewardsSettings> {
     }
   }
 
-  void toggleNotifications(bool value) => updateSettings(state.copyWith(notificationsEnabled: value));
-  void toggleCelebrationAnimations(bool value) => updateSettings(state.copyWith(celebrationAnimationsEnabled: value));
-  void toggleSoundEffects(bool value) => updateSettings(state.copyWith(soundEffectsEnabled: value));
-  void updateSoundVolume(double value) => updateSettings(state.copyWith(soundVolume: value));
-  void toggleAutoShareAchievements(bool value) => updateSettings(state.copyWith(autoShareAchievements: value));
-  void toggleAutoShareMilestones(bool value) => updateSettings(state.copyWith(autoShareMilestones: value));
-  void toggleProfileVisibility(bool value) => updateSettings(state.copyWith(profileVisibility: value));
-  void updateLanguage(String value) => updateSettings(state.copyWith(language: value));
-  void toggleCompactDisplay(bool value) => updateSettings(state.copyWith(compactDisplay: value));
-  void toggleDarkMode(bool value) => updateSettings(state.copyWith(darkMode: value));
-  void toggleHapticFeedback(bool value) => updateSettings(state.copyWith(hapticFeedback: value));
-  void updateNotificationFrequency(NotificationFrequency value) => updateSettings(state.copyWith(notificationFrequency: value));
-  void updateCelebrationIntensity(CelebrationIntensity value) => updateSettings(state.copyWith(celebrationIntensity: value));
+  void toggleNotifications(bool value) =>
+      updateSettings(state.copyWith(notificationsEnabled: value));
+  void toggleCelebrationAnimations(bool value) =>
+      updateSettings(state.copyWith(celebrationAnimationsEnabled: value));
+  void toggleSoundEffects(bool value) =>
+      updateSettings(state.copyWith(soundEffectsEnabled: value));
+  void updateSoundVolume(double value) =>
+      updateSettings(state.copyWith(soundVolume: value));
+  void toggleAutoShareAchievements(bool value) =>
+      updateSettings(state.copyWith(autoShareAchievements: value));
+  void toggleAutoShareMilestones(bool value) =>
+      updateSettings(state.copyWith(autoShareMilestones: value));
+  void toggleProfileVisibility(bool value) =>
+      updateSettings(state.copyWith(profileVisibility: value));
+  void updateLanguage(String value) =>
+      updateSettings(state.copyWith(language: value));
+  void toggleCompactDisplay(bool value) =>
+      updateSettings(state.copyWith(compactDisplay: value));
+  void toggleDarkMode(bool value) =>
+      updateSettings(state.copyWith(darkMode: value));
+  void toggleHapticFeedback(bool value) =>
+      updateSettings(state.copyWith(hapticFeedback: value));
+  void updateNotificationFrequency(NotificationFrequency value) =>
+      updateSettings(state.copyWith(notificationFrequency: value));
+  void updateCelebrationIntensity(CelebrationIntensity value) =>
+      updateSettings(state.copyWith(celebrationIntensity: value));
 }
 
 /// Rewards settings screen
@@ -184,7 +192,8 @@ class RewardsSettingsScreen extends ConsumerStatefulWidget {
   const RewardsSettingsScreen({super.key});
 
   @override
-  ConsumerState<RewardsSettingsScreen> createState() => _RewardsSettingsScreenState();
+  ConsumerState<RewardsSettingsScreen> createState() =>
+      _RewardsSettingsScreenState();
 }
 
 class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
@@ -240,14 +249,20 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildNotificationSection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildNotificationSection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Notifications',
       icon: Icons.notifications,
       children: [
         SwitchListTile(
           title: const Text('Enable Notifications'),
-          subtitle: const Text('Get notified about achievements and milestones'),
+          subtitle: const Text(
+            'Get notified about achievements and milestones',
+          ),
           value: settings.notificationsEnabled,
           onChanged: notifier.toggleNotifications,
         ),
@@ -255,7 +270,9 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
           const Divider(),
           ListTile(
             title: const Text('Notification Frequency'),
-            subtitle: Text(_getFrequencyDescription(settings.notificationFrequency)),
+            subtitle: Text(
+              _getFrequencyDescription(settings.notificationFrequency),
+            ),
             trailing: DropdownButton<NotificationFrequency>(
               value: settings.notificationFrequency,
               onChanged: (value) {
@@ -280,7 +297,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildCelebrationSection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildCelebrationSection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Celebration Animations',
       icon: Icons.celebration,
@@ -295,7 +316,9 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
           const Divider(),
           ListTile(
             title: const Text('Animation Intensity'),
-            subtitle: Text(_getIntensityDescription(settings.celebrationIntensity)),
+            subtitle: Text(
+              _getIntensityDescription(settings.celebrationIntensity),
+            ),
             trailing: DropdownButton<CelebrationIntensity>(
               value: settings.celebrationIntensity,
               onChanged: (value) {
@@ -320,7 +343,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildSoundSection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildSoundSection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Sound Effects',
       icon: Icons.volume_up,
@@ -355,7 +382,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildSharingSection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildSharingSection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Auto-Share Preferences',
       icon: Icons.share,
@@ -383,7 +414,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildPrivacySection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildPrivacySection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Privacy Settings',
       icon: Icons.privacy_tip,
@@ -411,7 +446,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildDisplaySection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildDisplaySection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Display Options',
       icon: Icons.display_settings,
@@ -439,7 +478,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildLanguageSection(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildLanguageSection(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return _buildSection(
       title: 'Language Preferences',
       icon: Icons.language,
@@ -475,7 +518,9 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
             ),
             child: Row(
               children: [
@@ -570,12 +615,17 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     }
   }
 
-  void _showResetDialog(BuildContext context, RewardsSettingsNotifier notifier) {
+  void _showResetDialog(
+    BuildContext context,
+    RewardsSettingsNotifier notifier,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Reset Settings'),
-        content: const Text('Reset all rewards settings to their default values?'),
+        content: const Text(
+          'Reset all rewards settings to their default values?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -626,9 +676,9 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
 
   void _exportData(BuildContext context) {
     // TODO: Implement data export
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Data export coming soon')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Data export coming soon')));
   }
 
   void _showThemeSettings(BuildContext context) {
@@ -638,7 +688,11 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  void _showLanguageSelector(BuildContext context, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  void _showLanguageSelector(
+    BuildContext context,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -657,7 +711,13 @@ class _RewardsSettingsScreenState extends ConsumerState<RewardsSettingsScreen> {
     );
   }
 
-  Widget _buildLanguageOption(BuildContext context, String code, String name, RewardsSettings settings, RewardsSettingsNotifier notifier) {
+  Widget _buildLanguageOption(
+    BuildContext context,
+    String code,
+    String name,
+    RewardsSettings settings,
+    RewardsSettingsNotifier notifier,
+  ) {
     return RadioListTile<String>(
       title: Text(name),
       value: code,

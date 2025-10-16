@@ -20,7 +20,7 @@ class RealTimeService {
   String? _authToken;
   Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
-  
+
   // Connection state
   bool _isConnected = false;
   bool _isConnecting = false;
@@ -32,21 +32,21 @@ class RealTimeService {
 
   // Subscribed channels
   final Set<String> _subscribedChannels = {};
-  
+
   // Event streams
-  final StreamController<MessageModel> _messageController = 
+  final StreamController<MessageModel> _messageController =
       StreamController<MessageModel>.broadcast();
-  final StreamController<PostModel> _postUpdateController = 
+  final StreamController<PostModel> _postUpdateController =
       StreamController<PostModel>.broadcast();
-  final StreamController<Map<String, dynamic>> _postReactionController = 
+  final StreamController<Map<String, dynamic>> _postReactionController =
       StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<FriendRequestModel> _friendRequestController = 
+  final StreamController<FriendRequestModel> _friendRequestController =
       StreamController<FriendRequestModel>.broadcast();
-  final StreamController<Map<String, dynamic>> _typingStatusController = 
+  final StreamController<Map<String, dynamic>> _typingStatusController =
       StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<Map<String, dynamic>> _readReceiptsController = 
+  final StreamController<Map<String, dynamic>> _readReceiptsController =
       StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<UserModel> _userStatusController = 
+  final StreamController<UserModel> _userStatusController =
       StreamController<UserModel>.broadcast();
 
   // Event deduplication
@@ -56,19 +56,22 @@ class RealTimeService {
   // Battery optimization
   bool _isInBackground = false;
 
-  RealTimeService({
-    required AnalyticsService analyticsService,
-  })  : _analyticsService = analyticsService {
+  RealTimeService({required AnalyticsService analyticsService})
+    : _analyticsService = analyticsService {
     _initializeService();
   }
 
   // Public stream getters
   Stream<MessageModel> get onMessage => _messageController.stream;
   Stream<PostModel> get onPostUpdate => _postUpdateController.stream;
-  Stream<Map<String, dynamic>> get onPostReaction => _postReactionController.stream;
-  Stream<FriendRequestModel> get onFriendRequest => _friendRequestController.stream;
-  Stream<Map<String, dynamic>> get onTypingStatus => _typingStatusController.stream;
-  Stream<Map<String, dynamic>> get onReadReceipts => _readReceiptsController.stream;
+  Stream<Map<String, dynamic>> get onPostReaction =>
+      _postReactionController.stream;
+  Stream<FriendRequestModel> get onFriendRequest =>
+      _friendRequestController.stream;
+  Stream<Map<String, dynamic>> get onTypingStatus =>
+      _typingStatusController.stream;
+  Stream<Map<String, dynamic>> get onReadReceipts =>
+      _readReceiptsController.stream;
   Stream<UserModel> get onUserStatus => _userStatusController.stream;
 
   bool get isConnected => _isConnected;
@@ -107,14 +110,14 @@ class RealTimeService {
 
       // Listen for connection establishment
       await _channel!.ready;
-      
+
       _isConnected = true;
       _isConnecting = false;
       _reconnectAttempts = 0;
 
       // Start listening to messages
       _listenToWebSocket();
-      
+
       // Start heartbeat
       _startHeartbeat();
 
@@ -131,12 +134,12 @@ class RealTimeService {
     } catch (e) {
       _isConnected = false;
       _isConnecting = false;
-      
+
       debugPrint('WebSocket connection failed: $e');
-      
+
       // Schedule reconnection
       _scheduleReconnect();
-      
+
       return Left('Failed to connect to real-time service: ${e.toString()}');
     }
   }
@@ -147,7 +150,7 @@ class RealTimeService {
 
     _isConnected = false;
     _isConnecting = false;
-    
+
     _heartbeatTimer?.cancel();
     _reconnectTimer?.cancel();
 
@@ -159,7 +162,7 @@ class RealTimeService {
     }
 
     _subscribedChannels.clear();
-    
+
     _analyticsService.trackEvent('websocket_disconnected', {});
   }
 
@@ -180,10 +183,8 @@ class RealTimeService {
       _subscribedChannels.add(channel);
 
       debugPrint('Subscribed to channel: $channel');
-      
-      _analyticsService.trackEvent('channel_subscribed', {
-        'channel': channel,
-      });
+
+      _analyticsService.trackEvent('channel_subscribed', {'channel': channel});
 
       return Right(true);
     } catch (e) {
@@ -209,7 +210,7 @@ class RealTimeService {
       _subscribedChannels.remove(channel);
 
       debugPrint('Unsubscribed from channel: $channel');
-      
+
       _analyticsService.trackEvent('channel_unsubscribed', {
         'channel': channel,
       });
@@ -223,10 +224,7 @@ class RealTimeService {
 
   /// Subscribe to friend-related events
   Future<Either<String, bool>> subscribeFriendEvents(String userId) async {
-    final channels = [
-      'user:$userId:friend_requests',
-      'user:$userId:friends',
-    ];
+    final channels = ['user:$userId:friend_requests', 'user:$userId:friends'];
 
     for (final channel in channels) {
       final result = await subscribe(channel);
@@ -239,7 +237,9 @@ class RealTimeService {
   }
 
   /// Subscribe to chat events for a conversation
-  Future<Either<String, bool>> subscribeChatEvents(String conversationId) async {
+  Future<Either<String, bool>> subscribeChatEvents(
+    String conversationId,
+  ) async {
     final channels = [
       'conversation:$conversationId:messages',
       'conversation:$conversationId:typing',
@@ -346,17 +346,17 @@ class RealTimeService {
   }
 
   /// Broadcast message deletion
-  Future<void> broadcastMessageDeletion(String messageId, bool forEveryone) async {
+  Future<void> broadcastMessageDeletion(
+    String messageId,
+    bool forEveryone,
+  ) async {
     if (!_isConnected) return;
 
     try {
       final broadcastData = {
         'action': 'broadcast',
         'type': 'message_deleted',
-        'data': {
-          'message_id': messageId,
-          'for_everyone': forEveryone,
-        },
+        'data': {'message_id': messageId, 'for_everyone': forEveryone},
         'timestamp': DateTime.now().toIso8601String(),
       };
 
@@ -395,7 +395,7 @@ class RealTimeService {
     try {
       final data = jsonDecode(message as String) as Map<String, dynamic>;
       final eventId = data['id'] as String?;
-      
+
       // Check for event deduplication
       if (eventId != null) {
         if (_processedEvents.contains(eventId)) {
@@ -506,24 +506,24 @@ class RealTimeService {
 
   void _handleWebSocketError(dynamic error) {
     debugPrint('WebSocket error: $error');
-    
+
     _isConnected = false;
-    
+
     _analyticsService.trackEvent('websocket_error', {
       'error': error.toString(),
     });
-    
+
     _scheduleReconnect();
   }
 
   void _handleWebSocketDone() {
     debugPrint('WebSocket connection closed');
-    
+
     _isConnected = false;
     _heartbeatTimer?.cancel();
-    
+
     _analyticsService.trackEvent('websocket_connection_closed', {});
-    
+
     if (!_isInBackground) {
       _scheduleReconnect();
     }
@@ -557,23 +557,30 @@ class RealTimeService {
     }
 
     _reconnectAttempts++;
-    
+
     if (_reconnectAttempts > _maxReconnectAttempts) {
       debugPrint('Max reconnect attempts reached');
-      _analyticsService.trackEvent('websocket_max_reconnect_attempts_reached', {});
+      _analyticsService.trackEvent(
+        'websocket_max_reconnect_attempts_reached',
+        {},
+      );
       return;
     }
 
     // Exponential backoff with jitter
     final delay = Duration(
-      milliseconds: (_initialReconnectDelay.inMilliseconds * 
-          (1 << (_reconnectAttempts - 1))).clamp(
-        _initialReconnectDelay.inMilliseconds,
-        _maxReconnectDelay.inMilliseconds,
-      ),
+      milliseconds:
+          (_initialReconnectDelay.inMilliseconds *
+                  (1 << (_reconnectAttempts - 1)))
+              .clamp(
+                _initialReconnectDelay.inMilliseconds,
+                _maxReconnectDelay.inMilliseconds,
+              ),
     );
 
-    debugPrint('Scheduling reconnect in ${delay.inSeconds}s (attempt $_reconnectAttempts)');
+    debugPrint(
+      'Scheduling reconnect in ${delay.inSeconds}s (attempt $_reconnectAttempts)',
+    );
 
     _reconnectTimer = Timer(delay, () {
       if (_websocketUrl != null && _authToken != null) {
@@ -638,13 +645,15 @@ class RealTimeService {
     if (_processedEvents.length > maxEvents) {
       final eventsToRemove = _processedEvents.length - maxEvents;
       final eventsList = _processedEvents.toList();
-      
+
       for (int i = 0; i < eventsToRemove; i++) {
         _processedEvents.remove(eventsList[i]);
       }
     }
 
-    debugPrint('Event cleanup completed. Tracking ${_processedEvents.length} events');
+    debugPrint(
+      'Event cleanup completed. Tracking ${_processedEvents.length} events',
+    );
   }
 
   void _loadConnectionConfig() {

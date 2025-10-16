@@ -1,5 +1,6 @@
 /// Helper class for image processing, compression, and avatar management
 library;
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
@@ -12,15 +13,20 @@ class ImageHelper {
   static const int thumbnailSize = 150;
   static const int fullSize = 800;
   static const int maxDimension = 2048;
-  
+
   // Supported formats
-  static const List<String> supportedFormats = ['.jpg', '.jpeg', '.png', '.webp'];
-  
+  static const List<String> supportedFormats = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+  ];
+
   // Quality settings
   static const int defaultQuality = 85;
   static const int thumbnailQuality = 90;
   static const int highQuality = 95;
-  
+
   /// Compress an image file to specified dimensions and quality
   static Future<File?> compressImage(
     File imageFile, {
@@ -32,22 +38,22 @@ class ImageHelper {
     try {
       final bytes = await imageFile.readAsBytes();
       final image = img.decodeImage(bytes);
-      
+
       if (image == null) {
         throw Exception('Unable to decode image');
       }
-      
+
       // Calculate resize dimensions maintaining aspect ratio
       final resized = _resizeImage(image, maxWidth, maxHeight);
-      
+
       // Encode with appropriate format
       final compressed = _encodeImage(resized, quality, imageFile.path);
-      
+
       // Create output file
       final compressedFile = File(
-        outputPath ?? _generateCompressedPath(imageFile.path)
+        outputPath ?? _generateCompressedPath(imageFile.path),
       );
-      
+
       await compressedFile.writeAsBytes(compressed);
       return compressedFile;
     } catch (e) {
@@ -66,7 +72,7 @@ class ImageHelper {
     try {
       final image = img.decodeImage(imageBytes);
       if (image == null) return null;
-      
+
       final resized = _resizeImage(image, maxWidth, maxHeight);
       return Uint8List.fromList(img.encodeJpg(resized, quality: quality));
     } catch (e) {
@@ -117,46 +123,50 @@ class ImageHelper {
       // Check file size
       final fileSize = await imageFile.length();
       validation['fileSize'] = fileSize;
-      
+
       if (fileSize > maxImageSizeBytes) {
         validation['isValid'] = false;
-        validation['errors'].add('Image size exceeds ${(maxImageSizeBytes / (1024 * 1024)).toStringAsFixed(1)}MB limit');
+        validation['errors'].add(
+          'Image size exceeds ${(maxImageSizeBytes / (1024 * 1024)).toStringAsFixed(1)}MB limit',
+        );
       }
 
       // Check format
       final fileName = path.basename(imageFile.path);
       validation['format'] = path.extension(fileName).toLowerCase();
-      
+
       if (!isValidImageFormat(fileName)) {
         validation['isValid'] = false;
-        validation['errors'].add('Unsupported image format. Use JPG, PNG, or WebP');
+        validation['errors'].add(
+          'Unsupported image format. Use JPG, PNG, or WebP',
+        );
       }
 
       // Check image dimensions and quality
       final bytes = await imageFile.readAsBytes();
       final image = img.decodeImage(bytes);
-      
+
       if (image == null) {
         validation['isValid'] = false;
         validation['errors'].add('Cannot decode image file');
         return validation;
       }
 
-      validation['dimensions'] = {
-        'width': image.width,
-        'height': image.height,
-      };
+      validation['dimensions'] = {'width': image.width, 'height': image.height};
 
       // Add warnings for very large images
       if (image.width > maxDimension || image.height > maxDimension) {
-        validation['warnings'].add('Image will be resized to fit maximum dimensions');
+        validation['warnings'].add(
+          'Image will be resized to fit maximum dimensions',
+        );
       }
 
       // Add warnings for very small images
       if (image.width < thumbnailSize && image.height < thumbnailSize) {
-        validation['warnings'].add('Image is very small and may appear pixelated');
+        validation['warnings'].add(
+          'Image is very small and may appear pixelated',
+        );
       }
-
     } catch (e) {
       validation['isValid'] = false;
       validation['errors'].add('Error processing image: $e');
@@ -179,7 +189,7 @@ class ImageHelper {
     try {
       final outputDir = outputDirectory ?? path.dirname(originalFile.path);
       final baseName = path.basenameWithoutExtension(originalFile.path);
-      
+
       // Generate thumbnail
       results['thumbnail'] = await compressImage(
         originalFile,
@@ -197,7 +207,6 @@ class ImageHelper {
         quality: defaultQuality,
         outputPath: path.join(outputDir, '${baseName}_full.jpg'),
       );
-
     } catch (e) {
       print('Error generating image sizes: $e');
     }
@@ -210,12 +219,12 @@ class ImageHelper {
     if (url == null || url.isEmpty) {
       return 'assets/Avatar/default-avatar.png';
     }
-    
+
     // Handle thumbnail requests for stored avatars
     if (thumbnail && url.contains('avatars/')) {
       return url.replaceFirst('avatars/', 'avatars/thumb_');
     }
-    
+
     return url;
   }
 
@@ -234,16 +243,16 @@ class ImageHelper {
   /// Get random default avatar from available options
   static String getRandomDefaultAvatar({String? gender}) {
     final random = DateTime.now().millisecondsSinceEpoch % 6 + 1;
-    
+
     switch (gender?.toLowerCase()) {
       case 'male':
         return 'assets/Avatar/male-$random.png';
       case 'female':
         return 'assets/Avatar/female-${random > 5 ? 5 : random}.png';
       default:
-        return random <= 3 
-          ? 'assets/Avatar/male-$random.png'
-          : 'assets/Avatar/female-${random - 3}.png';
+        return random <= 3
+            ? 'assets/Avatar/male-$random.png'
+            : 'assets/Avatar/female-${random - 3}.png';
     }
   }
 
@@ -259,7 +268,10 @@ class ImageHelper {
       if (image == null) return null;
 
       // Create a square image
-      final minDimension = [image.width, image.height].reduce((a, b) => a < b ? a : b);
+      final minDimension = [
+        image.width,
+        image.height,
+      ].reduce((a, b) => a < b ? a : b);
       final square = img.copyCrop(
         image,
         x: (image.width - minDimension) ~/ 2,
@@ -273,12 +285,12 @@ class ImageHelper {
 
       // Create circular mask
       final circular = _createCircularMask(resized);
-      
+
       final encoded = img.encodePng(circular);
       final outputFile = File(
-        outputPath ?? _generateCircularPath(imageFile.path)
+        outputPath ?? _generateCircularPath(imageFile.path),
       );
-      
+
       await outputFile.writeAsBytes(encoded);
       return outputFile;
     } catch (e) {
@@ -296,9 +308,9 @@ class ImageHelper {
 
       // Resize to small image for faster processing
       final small = img.copyResize(image, width: 50, height: 50);
-      
+
       final colorCounts = <int, int>{};
-      
+
       // Count pixel colors
       for (int y = 0; y < small.height; y++) {
         for (int x = 0; x < small.width; x++) {
@@ -311,12 +323,12 @@ class ImageHelper {
           colorCounts[color] = (colorCounts[color] ?? 0) + 1;
         }
       }
-      
+
       // Find most common color
       final dominantColor = colorCounts.entries
           .reduce((a, b) => a.value > b.value ? a : b)
           .key;
-      
+
       // Extract RGB components
       return {
         'r': (dominantColor >> 16) & 0xFF,
@@ -367,9 +379,13 @@ class ImageHelper {
     );
   }
 
-  static Uint8List _encodeImage(img.Image image, int quality, String originalPath) {
+  static Uint8List _encodeImage(
+    img.Image image,
+    int quality,
+    String originalPath,
+  ) {
     final extension = path.extension(originalPath).toLowerCase();
-    
+
     switch (extension) {
       case '.png':
         return Uint8List.fromList(img.encodePng(image));
@@ -396,16 +412,17 @@ class ImageHelper {
   static img.Image _createCircularMask(img.Image image) {
     final center = image.width / 2;
     final radius = center;
-    
+
     for (int y = 0; y < image.height; y++) {
       for (int x = 0; x < image.width; x++) {
-        final distance = ((x - center) * (x - center) + (y - center) * (y - center));
+        final distance =
+            ((x - center) * (x - center) + (y - center) * (y - center));
         if (distance > radius * radius) {
           image.setPixel(x, y, img.ColorRgba8(0, 0, 0, 0)); // Transparent
         }
       }
     }
-    
+
     return image;
   }
 
@@ -422,13 +439,13 @@ class ImageHelper {
       final fileSize = await imageFile.length();
       final bytes = await imageFile.readAsBytes();
       final image = img.decodeImage(bytes);
-      
+
       if (image == null) return false;
-      
+
       // Needs optimization if file is large or dimensions are too big
       return fileSize > (1024 * 1024) || // > 1MB
-             image.width > fullSize ||
-             image.height > fullSize;
+          image.width > fullSize ||
+          image.height > fullSize;
     } catch (e) {
       return false;
     }

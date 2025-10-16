@@ -35,7 +35,9 @@ class UserAchievements {
       required_progress: json['required_progress'],
       progress_percentage: json['progress_percentage'],
       is_completed: json['is_completed'],
-      completed_at: (json['completed_at'] == null ? null : DateTime.parse(json['completed_at'] as String)),
+      completed_at: (json['completed_at'] == null
+          ? null
+          : DateTime.parse(json['completed_at'] as String)),
       completion_count: json['completion_count'],
       started_at: json['started_at'] != null
           ? DateTime.parse(json['started_at'] as String)

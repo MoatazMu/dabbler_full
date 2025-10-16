@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Utility class for location-related operations
 class LocationHelper {
   static const String _distanceUnitKey = 'preferred_distance_unit';
-  
+
   /// Get the current location with permission handling
   static Future<LocationResult> getCurrentLocation({
     Duration timeout = const Duration(seconds: 10),
@@ -64,7 +64,8 @@ class LocationHelper {
     double dLat = _degreesToRadians(lat2 - lat1);
     double dLon = _degreesToRadians(lon2 - lon1);
 
-    double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+    double a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(_degreesToRadians(lat1)) *
             math.cos(_degreesToRadians(lat2)) *
             math.sin(dLon / 2) *
@@ -121,14 +122,14 @@ class LocationHelper {
   static Future<DistanceUnit> loadPreferredDistanceUnit() async {
     final prefs = await SharedPreferences.getInstance();
     final unitName = prefs.getString(_distanceUnitKey);
-    
+
     if (unitName != null) {
       return DistanceUnit.values.firstWhere(
         (unit) => unit.name == unitName,
         orElse: () => DistanceUnit.metric,
       );
     }
-    
+
     return DistanceUnit.metric;
   }
 
@@ -136,17 +137,14 @@ class LocationHelper {
   static Future<GeocodingResult> addressToCoordinates(String address) async {
     try {
       List<Location> locations = await locationFromAddress(address);
-      
+
       if (locations.isEmpty) {
         return GeocodingResult.error(GeocodingError.notFound);
       }
 
       final location = locations.first;
       return GeocodingResult.success(
-        Coordinates(
-          latitude: location.latitude,
-          longitude: location.longitude,
-        ),
+        Coordinates(latitude: location.latitude, longitude: location.longitude),
       );
     } catch (e) {
       return GeocodingResult.error(GeocodingError.apiError);
@@ -192,7 +190,12 @@ class LocationHelper {
     double pointLon,
     double radiusKm,
   ) {
-    final distance = calculateDistance(centerLat, centerLon, pointLat, pointLon);
+    final distance = calculateDistance(
+      centerLat,
+      centerLon,
+      pointLat,
+      pointLon,
+    );
     return distance <= radiusKm;
   }
 
@@ -202,7 +205,7 @@ class LocationHelper {
     double venueLon,
   ) async {
     final locationResult = await getCurrentLocation();
-    
+
     if (locationResult.isSuccess) {
       final userLocation = locationResult.location!;
       final distance = calculateDistance(
@@ -213,7 +216,7 @@ class LocationHelper {
       );
       return formatDistance(distance);
     }
-    
+
     return null;
   }
 
@@ -225,7 +228,7 @@ class LocationHelper {
   /// Format placemark to readable address
   static String _formatPlacemarkAddress(Placemark placemark) {
     final components = <String>[];
-    
+
     if (placemark.street?.isNotEmpty == true) {
       components.add(placemark.street!);
     }
@@ -238,7 +241,7 @@ class LocationHelper {
     if (placemark.postalCode?.isNotEmpty == true) {
       components.add(placemark.postalCode!);
     }
-    
+
     return components.join(', ');
   }
 }
@@ -268,10 +271,7 @@ class Coordinates {
   final double latitude;
   final double longitude;
 
-  const Coordinates({
-    required this.latitude,
-    required this.longitude,
-  });
+  const Coordinates({required this.latitude, required this.longitude});
 
   @override
   String toString() {
@@ -302,10 +302,7 @@ class VenueAddress {
 }
 
 /// Distance unit enumeration
-enum DistanceUnit {
-  metric,
-  imperial,
-}
+enum DistanceUnit { metric, imperial }
 
 /// Location operation result
 class LocationResult {
@@ -374,8 +371,4 @@ enum LocationError {
 }
 
 /// Geocoding-related errors
-enum GeocodingError {
-  notFound,
-  apiError,
-  networkError,
-}
+enum GeocodingError { notFound, apiError, networkError }

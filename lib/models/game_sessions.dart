@@ -33,19 +33,23 @@ class GameSessions {
       id: json['id'],
       game_id: json['game_id'],
       status: json['status'],
-      actual_start_time: (json['actual_start_time'] == null ? null : DateTime.parse(json['actual_start_time'] as String)),
-      actual_end_time: (json['actual_end_time'] == null ? null : DateTime.parse(json['actual_end_time'] as String)),
+      actual_start_time: (json['actual_start_time'] == null
+          ? null
+          : DateTime.parse(json['actual_start_time'] as String)),
+      actual_end_time: (json['actual_end_time'] == null
+          ? null
+          : DateTime.parse(json['actual_end_time'] as String)),
       team_a_score: json['team_a_score'],
       team_b_score: json['team_b_score'],
       weather_condition: json['weather_condition'],
       temperature: json['temperature'],
       notes: json['notes'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

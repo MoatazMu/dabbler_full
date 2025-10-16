@@ -38,9 +38,9 @@ class ChallengeProgressUpdates {
       is_verified: json['is_verified'],
       verified_by: json['verified_by'],
       notes: json['notes'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

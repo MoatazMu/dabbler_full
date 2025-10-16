@@ -5,9 +5,7 @@ import '../constants/app_constants.dart';
 extension WidgetExtensions on Widget {
   /// Adds padding to all sides
   Widget pad([double value = AppConstants.defaultPadding]) {
-    return Padding(
-      padding: EdgeInsets.all(value),
-    );
+    return Padding(padding: EdgeInsets.all(value));
   }
 
   /// Adds horizontal and vertical padding
@@ -16,10 +14,7 @@ extension WidgetExtensions on Widget {
     double vertical = AppConstants.defaultPadding,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: horizontal,
-        vertical: vertical,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
       child: this,
     );
   }
@@ -49,16 +44,11 @@ extension WidgetExtensions on Widget {
   Widget get expanded => Expanded(child: this);
 
   /// Makes the widget flexible
-  Widget flexible({int flex = 1}) => Flexible(
-        flex: flex,
-        child: this,
-      );
+  Widget flexible({int flex = 1}) => Flexible(flex: flex, child: this);
 
   /// Adds a tap handler to the widget
-  Widget onTap(VoidCallback action) => GestureDetector(
-        onTap: action,
-        child: this,
-      );
+  Widget onTap(VoidCallback action) =>
+      GestureDetector(onTap: action, child: this);
 
   /// Makes the widget dismissible
   Widget dismissible({
@@ -76,10 +66,7 @@ extension WidgetExtensions on Widget {
 
   /// Clips the widget with rounded corners
   Widget withRoundedCorners([double radius = AppConstants.defaultRadius]) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: this,
-    );
+    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: this);
   }
 
   /// Adds a border to the widget
@@ -90,10 +77,7 @@ extension WidgetExtensions on Widget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: color,
-          width: width,
-        ),
+        border: Border.all(color: color, width: width),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: this,
@@ -154,10 +138,7 @@ extension WidgetExtensions on Widget {
 
   /// Shows/hides the widget based on a condition
   Widget visible(bool visible) {
-    return Visibility(
-      visible: visible,
-      child: this,
-    );
+    return Visibility(visible: visible, child: this);
   }
 
   /// Shows a loading indicator while the widget is loading
@@ -166,10 +147,7 @@ extension WidgetExtensions on Widget {
       children: [
         this,
         if (isLoading)
-          loadingWidget ??
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
+          loadingWidget ?? const Center(child: CircularProgressIndicator()),
       ],
     );
   }

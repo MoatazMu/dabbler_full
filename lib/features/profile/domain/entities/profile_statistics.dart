@@ -64,30 +64,30 @@ class ProfileStatistics {
   /// Returns reliability score based on various factors (0-100)
   double getReliabilityScore() {
     if (totalGamesPlayed == 0) return 0.0;
-    
+
     // Base score from games played (up to 40 points)
     double score = (totalGamesPlayed * 2.0).clamp(0, 40);
-    
+
     // Bonus for organizing games (up to 20 points)
     score += (totalGamesOrganized * 4.0).clamp(0, 20);
-    
+
     // Bonus for consistent play (up to 20 points)
     score += (longestPlayStreak * 1.0).clamp(0, 20);
-    
+
     // Bonus for good ratings (up to 20 points)
     if (totalRatingsReceived > 0) {
       score += ((averageRating - 2.5) * 8.0).clamp(0, 20);
     }
-    
+
     return score.clamp(0, 100);
   }
 
   /// Returns activity level based on recent play
   String getActivityLevel() {
     if (lastGameDate == null) return 'Inactive';
-    
+
     final daysSinceLastGame = DateTime.now().difference(lastGameDate!).inDays;
-    
+
     if (daysSinceLastGame <= 7) return 'Very Active';
     if (daysSinceLastGame <= 30) return 'Active';
     if (daysSinceLastGame <= 90) return 'Moderate';
@@ -97,7 +97,7 @@ class ProfileStatistics {
   /// Returns the most played sport
   String? getMostPlayedSport() {
     if (sportGamesCount.isEmpty) return null;
-    
+
     return sportGamesCount.entries
         .reduce((a, b) => a.value > b.value ? a : b)
         .key;
@@ -105,15 +105,15 @@ class ProfileStatistics {
 
   /// Returns true if player is considered experienced
   bool isExperiencedPlayer() {
-    return totalGamesPlayed >= 10 && 
-           getReliabilityScore() >= 60 &&
-           averageRating >= 3.5;
+    return totalGamesPlayed >= 10 &&
+        getReliabilityScore() >= 60 &&
+        averageRating >= 3.5;
   }
 
   /// Returns true if player is a regular organizer
   bool isRegularOrganizer() {
-    return totalGamesOrganized >= 3 && 
-           totalGamesOrganized / totalGamesPlayed >= 0.2;
+    return totalGamesOrganized >= 3 &&
+        totalGamesOrganized / totalGamesPlayed >= 0.2;
   }
 
   // UI compatibility getters
@@ -127,26 +127,26 @@ class ProfileStatistics {
   Map<String, int> get sportSpecificStats => sportGamesCount;
   Map<String, double> get skillRatings => {
     for (final entry in sportGamesCount.entries)
-      entry.key: averageRating + (entry.value * 0.1).clamp(-1.0, 1.0)
+      entry.key: averageRating + (entry.value * 0.1).clamp(-1.0, 1.0),
   };
   double get improvementRate => getReliabilityScore() * 0.3;
   int get eventsAttended => totalGamesPlayed;
   int get mentorshipSessions => totalGamesOrganized;
-  
+
   String get winRateFormatted {
     final rate = getWinRate() * 100;
     return '${rate.toStringAsFixed(1)}%';
   }
-  
+
   String get ratingFormatted {
     return averageRating.toStringAsFixed(1);
   }
-  
+
   String get lastActiveFormatted {
     if (lastGameDate == null) return 'Never';
     final now = DateTime.now();
     final difference = now.difference(lastGameDate!);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} days ago';
     } else if (difference.inHours > 0) {
@@ -210,7 +210,8 @@ class ProfileStatistics {
       totalLosses: json['totalLosses'] as int? ?? 0,
       totalDraws: json['totalDraws'] as int? ?? 0,
       totalHoursPlayed: (json['totalHoursPlayed'] as num?)?.toDouble() ?? 0.0,
-      averageGameDuration: (json['averageGameDuration'] as num?)?.toDouble() ?? 0.0,
+      averageGameDuration:
+          (json['averageGameDuration'] as num?)?.toDouble() ?? 0.0,
       currentWinStreak: json['currentWinStreak'] as int? ?? 0,
       longestWinStreak: json['longestWinStreak'] as int? ?? 0,
       currentPlayStreak: json['currentPlayStreak'] as int? ?? 0,
@@ -221,10 +222,12 @@ class ProfileStatistics {
       totalRatingsReceived: json['totalRatingsReceived'] as int? ?? 0,
       achievements: List<String>.from(json['achievements'] as List? ?? []),
       badges: List<String>.from(json['badges'] as List? ?? []),
-      lastGameDate: json['lastGameDate'] != null 
+      lastGameDate: json['lastGameDate'] != null
           ? DateTime.parse(json['lastGameDate'] as String)
           : null,
-      sportGamesCount: Map<String, int>.from(json['sportGamesCount'] as Map? ?? {}),
+      sportGamesCount: Map<String, int>.from(
+        json['sportGamesCount'] as Map? ?? {},
+      ),
     );
   }
 

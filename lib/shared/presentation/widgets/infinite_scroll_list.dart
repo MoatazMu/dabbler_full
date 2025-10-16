@@ -4,34 +4,34 @@ import 'package:flutter/material.dart';
 class InfiniteScrollList<T> extends StatefulWidget {
   /// Items to display in the list
   final List<T> items;
-  
+
   /// Function to build each list item
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
-  
+
   /// Function called when more items need to be loaded
   final Future<void> Function()? onLoadMore;
-  
+
   /// Whether more items can be loaded
   final bool hasMore;
-  
+
   /// Whether currently loading more items
   final bool isLoadingMore;
-  
+
   /// Error that occurred during loading
   final String? loadingError;
-  
+
   /// Function called when retry is tapped
   final VoidCallback? onRetry;
-  
+
   /// Widget to show when list is empty
   final Widget? emptyWidget;
-  
+
   /// Distance from bottom to trigger loading
   final double loadingTriggerOffset;
-  
+
   /// Loading indicator widget
   final Widget? loadingIndicator;
-  
+
   /// Error widget builder
   final Widget Function(String error, VoidCallback? onRetry)? errorBuilder;
 
@@ -74,7 +74,8 @@ class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - widget.loadingTriggerOffset) {
+        _scrollController.position.maxScrollExtent -
+            widget.loadingTriggerOffset) {
       _triggerLoadMore();
     }
   }
@@ -101,7 +102,11 @@ class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
 
     return ListView.builder(
       controller: _scrollController,
-      itemCount: widget.items.length + (widget.hasMore || widget.isLoadingMore || widget.loadingError != null ? 1 : 0),
+      itemCount:
+          widget.items.length +
+          (widget.hasMore || widget.isLoadingMore || widget.loadingError != null
+              ? 1
+              : 0),
       itemBuilder: (context, index) {
         // Regular item
         if (index < widget.items.length) {
@@ -144,9 +149,7 @@ class _DefaultLoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.all(16.0),
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -156,15 +159,12 @@ class _DefaultErrorWidget extends StatelessWidget {
   final String error;
   final VoidCallback? onRetry;
 
-  const _DefaultErrorWidget({
-    required this.error,
-    this.onRetry,
-  });
+  const _DefaultErrorWidget({required this.error, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -191,10 +191,7 @@ class _DefaultErrorWidget extends StatelessWidget {
           ),
           if (onRetry != null) ...[
             const SizedBox(height: 12),
-            TextButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            TextButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ],
       ),
@@ -209,7 +206,7 @@ class _DefaultEmptyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -258,7 +255,7 @@ class LoadingMoreIndicator extends StatelessWidget {
     if (!isVisible) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -311,7 +308,7 @@ class PaginationControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -323,7 +320,7 @@ class PaginationControls extends StatelessWidget {
             icon: const Icon(Icons.chevron_left_rounded),
             label: const Text('Previous'),
           ),
-          
+
           // Page indicator
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -339,7 +336,7 @@ class PaginationControls extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Next button
           TextButton.icon(
             onPressed: hasNext ? onNext : null,

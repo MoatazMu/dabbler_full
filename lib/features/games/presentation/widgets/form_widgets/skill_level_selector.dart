@@ -5,19 +5,19 @@ import '../../../../../utils/enums/game_enums.dart';
 class SkillLevelSelector extends StatelessWidget {
   /// Currently selected skill level
   final SkillLevel? selectedLevel;
-  
+
   /// Called when skill level changes
   final ValueChanged<SkillLevel?>? onChanged;
-  
+
   /// Whether the selector is enabled
   final bool enabled;
-  
+
   /// Whether to show descriptions
   final bool showDescriptions;
-  
+
   /// Layout style for the selector
   final SkillLevelSelectorStyle style;
-  
+
   /// Custom skill levels to show (if null, shows all)
   final List<SkillLevel>? skillLevels;
 
@@ -34,7 +34,7 @@ class SkillLevelSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final levels = skillLevels ?? SkillLevel.values;
-    
+
     switch (style) {
       case SkillLevelSelectorStyle.cards:
         return _buildCardStyle(context, levels);
@@ -49,7 +49,7 @@ class SkillLevelSelector extends StatelessWidget {
 
   Widget _buildCardStyle(BuildContext context, List<SkillLevel> levels) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -59,13 +59,15 @@ class SkillLevelSelector extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
-        ...levels.map((level) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _buildSkillLevelCard(context, level),
-        )),
+
+        ...levels.map(
+          (level) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _buildSkillLevelCard(context, level),
+          ),
+        ),
       ],
     );
   }
@@ -73,7 +75,7 @@ class SkillLevelSelector extends StatelessWidget {
   Widget _buildSkillLevelCard(BuildContext context, SkillLevel level) {
     final theme = Theme.of(context);
     final isSelected = selectedLevel == level;
-    
+
     return GestureDetector(
       onTap: enabled ? () => onChanged?.call(level) : null,
       child: AnimatedContainer(
@@ -95,9 +97,9 @@ class SkillLevelSelector extends StatelessWidget {
           children: [
             // Skill level indicator
             _buildSkillLevelIndicator(context, level, isSelected),
-            
+
             const SizedBox(width: 16),
-            
+
             // Level info
             Expanded(
               child: Column(
@@ -130,7 +132,9 @@ class SkillLevelSelector extends StatelessWidget {
                       level.description,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: isSelected
-                            ? theme.colorScheme.onPrimaryContainer.withOpacity(0.8)
+                            ? theme.colorScheme.onPrimaryContainer.withOpacity(
+                                0.8,
+                              )
                             : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -151,7 +155,7 @@ class SkillLevelSelector extends StatelessWidget {
   ) {
     final theme = Theme.of(context);
     final numericValue = level.numericValue;
-    
+
     // Special case for mixed levels
     if (level == SkillLevel.mixed) {
       return Container(
@@ -171,7 +175,7 @@ class SkillLevelSelector extends StatelessWidget {
         ),
       );
     }
-    
+
     // Skill dots indicator
     return Container(
       width: 40,
@@ -188,40 +192,54 @@ class SkillLevelSelector extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (index) => Container(
-              width: 4,
-              height: 4,
-              margin: const EdgeInsets.symmetric(horizontal: 1),
-              decoration: BoxDecoration(
-                color: index < numericValue
-                    ? (isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
-                  width: 0.5,
+            children: List.generate(
+              2,
+              (index) => Container(
+                width: 4,
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: BoxDecoration(
+                  color: index < numericValue
+                      ? (isSelected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant)
+                      : Colors.transparent,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                    width: 0.5,
+                  ),
                 ),
               ),
-            )),
+            ),
           ),
           const SizedBox(height: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (index) => Container(
-              width: 4,
-              height: 4,
-              margin: const EdgeInsets.symmetric(horizontal: 1),
-              decoration: BoxDecoration(
-                color: (index + 2) < numericValue
-                    ? (isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
-                  width: 0.5,
+            children: List.generate(
+              2,
+              (index) => Container(
+                width: 4,
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: BoxDecoration(
+                  color: (index + 2) < numericValue
+                      ? (isSelected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant)
+                      : Colors.transparent,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                    width: 0.5,
+                  ),
                 ),
               ),
-            )),
+            ),
           ),
         ],
       ),
@@ -230,7 +248,7 @@ class SkillLevelSelector extends StatelessWidget {
 
   Widget _buildChipStyle(BuildContext context, List<SkillLevel> levels) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -240,23 +258,29 @@ class SkillLevelSelector extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: levels.map((level) => FilterChip(
-            label: Text(level.displayName),
-            selected: selectedLevel == level,
-            onSelected: enabled ? (selected) {
-              if (selected) {
-                onChanged?.call(level);
-              }
-            } : null,
-            selectedColor: theme.colorScheme.primaryContainer,
-            checkmarkColor: theme.colorScheme.onPrimaryContainer,
-          )).toList(),
+          children: levels
+              .map(
+                (level) => FilterChip(
+                  label: Text(level.displayName),
+                  selected: selectedLevel == level,
+                  onSelected: enabled
+                      ? (selected) {
+                          if (selected) {
+                            onChanged?.call(level);
+                          }
+                        }
+                      : null,
+                  selectedColor: theme.colorScheme.primaryContainer,
+                  checkmarkColor: theme.colorScheme.onPrimaryContainer,
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -264,7 +288,7 @@ class SkillLevelSelector extends StatelessWidget {
 
   Widget _buildRadioStyle(BuildContext context, List<SkillLevel> levels) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -274,33 +298,39 @@ class SkillLevelSelector extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        
+
         const SizedBox(height: 8),
-        
-        ...levels.map((level) => RadioListTile<SkillLevel>(
-          value: level,
-          groupValue: selectedLevel,
-          onChanged: enabled ? (value) {
-            if (value != null) {
-              onChanged?.call(value);
-            }
-          } : null,
-          title: Text(level.displayName),
-          subtitle: showDescriptions ? Text(
-            level.description,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ) : null,
-          contentPadding: EdgeInsets.zero,
-        )),
+
+        ...levels.map(
+          (level) => RadioListTile<SkillLevel>(
+            value: level,
+            groupValue: selectedLevel,
+            onChanged: enabled
+                ? (value) {
+                    if (value != null) {
+                      onChanged?.call(value);
+                    }
+                  }
+                : null,
+            title: Text(level.displayName),
+            subtitle: showDescriptions
+                ? Text(
+                    level.description,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  )
+                : null,
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildDropdownStyle(BuildContext context, List<SkillLevel> levels) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -310,49 +340,53 @@ class SkillLevelSelector extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         DropdownButtonFormField<SkillLevel>(
           initialValue: selectedLevel,
-          onChanged: enabled ? (value) {
-            if (value != null) {
-              onChanged?.call(value);
-            }
-          } : null,
+          onChanged: enabled
+              ? (value) {
+                  if (value != null) {
+                    onChanged?.call(value);
+                  }
+                }
+              : null,
           decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 16,
             ),
           ),
-          items: levels.map((level) => DropdownMenuItem(
-            value: level,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  level.displayName,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
+          items: levels
+              .map(
+                (level) => DropdownMenuItem(
+                  value: level,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        level.displayName,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (showDescriptions) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          level.description,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                if (showDescriptions) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    level.description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          )).toList(),
+              )
+              .toList(),
           hint: const Text('Select skill level'),
         ),
       ],
@@ -376,13 +410,13 @@ class SkillLevelBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     final badgeSize = switch (size) {
       SkillLevelBadgeSize.small => 24.0,
       SkillLevelBadgeSize.medium => 32.0,
       SkillLevelBadgeSize.large => 40.0,
     };
-    
+
     final iconSize = switch (size) {
       SkillLevelBadgeSize.small => 12.0,
       SkillLevelBadgeSize.medium => 16.0,
@@ -407,7 +441,7 @@ class SkillLevelBadge extends StatelessWidget {
                 )
               : _buildSkillDots(skillLevel, iconSize, theme),
         ),
-        
+
         if (showText) ...[
           const SizedBox(width: 8),
           Text(
@@ -416,9 +450,7 @@ class SkillLevelBadge extends StatelessWidget {
               SkillLevelBadgeSize.small => theme.textTheme.bodySmall,
               SkillLevelBadgeSize.medium => theme.textTheme.bodyMedium,
               SkillLevelBadgeSize.large => theme.textTheme.titleSmall,
-            }?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+            }?.copyWith(fontWeight: FontWeight.w500),
           ),
         ],
       ],
@@ -442,35 +474,29 @@ class SkillLevelBadge extends StatelessWidget {
 
   Widget _buildSkillDots(SkillLevel level, double iconSize, ThemeData theme) {
     final numericValue = level.numericValue;
-    
+
     return Center(
       child: Wrap(
         spacing: 1,
         runSpacing: 1,
-        children: List.generate(4, (index) => Container(
-          width: iconSize / 4,
-          height: iconSize / 4,
-          decoration: BoxDecoration(
-            color: index < numericValue
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onPrimary.withOpacity(0.3),
-            shape: BoxShape.circle,
+        children: List.generate(
+          4,
+          (index) => Container(
+            width: iconSize / 4,
+            height: iconSize / 4,
+            decoration: BoxDecoration(
+              color: index < numericValue
+                  ? theme.colorScheme.onPrimary
+                  : theme.colorScheme.onPrimary.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
           ),
-        )),
+        ),
       ),
     );
   }
 }
 
-enum SkillLevelSelectorStyle {
-  cards,
-  chips,
-  radio,
-  dropdown,
-}
+enum SkillLevelSelectorStyle { cards, chips, radio, dropdown }
 
-enum SkillLevelBadgeSize {
-  small,
-  medium,
-  large,
-}
+enum SkillLevelBadgeSize { small, medium, large }

@@ -10,7 +10,8 @@ class EnterPasswordScreen extends ConsumerStatefulWidget {
   const EnterPasswordScreen({super.key, required this.email});
 
   @override
-  ConsumerState<EnterPasswordScreen> createState() => _EnterPasswordScreenState();
+  ConsumerState<EnterPasswordScreen> createState() =>
+      _EnterPasswordScreenState();
 }
 
 class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
@@ -49,16 +50,20 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
       );
 
       if (result.user != null) {
-        print('🔐 [DEBUG] EnterPasswordScreen: Login successful, user: ${result.user?.email}');
-        
+        print(
+          '🔐 [DEBUG] EnterPasswordScreen: Login successful, user: ${result.user?.email}',
+        );
+
         // Handle successful login with the new method
         print('🔐 [DEBUG] EnterPasswordScreen: Handling successful login...');
         await ref.read(simpleAuthProvider.notifier).handleSuccessfulLogin();
-        
+
         // Check if auth state was updated properly
         final authState = ref.read(simpleAuthProvider);
-        print('🔐 [DEBUG] EnterPasswordScreen: Auth state after refresh - authenticated: ${authState.isAuthenticated}, loading: ${authState.isLoading}');
-        
+        print(
+          '🔐 [DEBUG] EnterPasswordScreen: Auth state after refresh - authenticated: ${authState.isAuthenticated}, loading: ${authState.isLoading}',
+        );
+
         // Let GoRouter redirect based on updated auth state; do not navigate manually
         return;
       } else {
@@ -70,9 +75,11 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
     } catch (e) {
       print('❌ [DEBUG] EnterPasswordScreen: Exception during login: $e');
       print('❌ [DEBUG] EnterPasswordScreen: Exception type: ${e.runtimeType}');
-      
+
       final errText = e.toString().toLowerCase();
-      final isInvalidCreds = errText.contains('invalid login credentials') || errText.contains('invalid_credentials');
+      final isInvalidCreds =
+          errText.contains('invalid login credentials') ||
+          errText.contains('invalid_credentials');
 
       setState(() {
         _errorMessage = isInvalidCreds
@@ -99,13 +106,18 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
             return SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight - 16),
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 16,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Email: ${widget.email}', style: const TextStyle(fontSize: 16)),
+                      Text(
+                        'Email: ${widget.email}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
                       const SizedBox(height: 8),
                       TextButton(
                         onPressed: () => context.go(RoutePaths.phoneInput),
@@ -117,12 +129,19 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
                         decoration: InputDecoration(
                           labelText: 'Password',
                           suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
-                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
                           ),
                         ),
                         obscureText: _obscurePassword,
-                        validator: (v) => v == null || v.isEmpty ? 'Enter password' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Enter password' : null,
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _signIn(),
                       ),
@@ -142,11 +161,13 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
                           ),
                           child: _isLoading
                               ? const SizedBox(
-                                  height: 20, 
-                                  width: 20, 
+                                  height: 20,
+                                  width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : const Text(
@@ -162,13 +183,19 @@ class _EnterPasswordScreenState extends ConsumerState<EnterPasswordScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () => context.go(RoutePaths.forgotPassword, extra: {'email': widget.email}),
+                          onPressed: () => context.go(
+                            RoutePaths.forgotPassword,
+                            extra: {'email': widget.email},
+                          ),
                           child: const Text('Forgot Password?'),
                         ),
                       ),
                       if (_errorMessage != null) ...[
                         const SizedBox(height: 8),
-                        Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                        Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                       ],
                     ],
                   ),

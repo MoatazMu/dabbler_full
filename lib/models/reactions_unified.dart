@@ -23,9 +23,9 @@ class ReactionsUnified {
       target_type: json['target_type'],
       target_id: json['target_id'],
       reaction: json['reaction'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

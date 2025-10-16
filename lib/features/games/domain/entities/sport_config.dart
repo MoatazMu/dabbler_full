@@ -80,31 +80,31 @@ class SportConfig {
   final String name;
   final String code;
   final String iconUrl;
-  
+
   // Player requirements
   final int minPlayers;
   final int maxPlayers;
   final int defaultDuration; // in minutes
-  
+
   // Sport characteristics
   final bool requiresVenue;
   final bool isTeamSport;
   final bool isIndoorSport;
   final bool isOutdoorSport;
-  
+
   // Equipment and rules
   final List<String> requiredEquipment;
   final List<String> optionalEquipment;
   final String? rulesDescription;
-  
+
   // Skill levels
   final List<String> availableSkillLevels;
-  
+
   // Scoring system
   final String? scoringSystem; // 'points', 'sets', 'goals', etc.
   final int? maxScore;
   final bool hasTimeLimit;
-  
+
   // Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -124,7 +124,12 @@ class SportConfig {
     this.requiredEquipment = const [],
     this.optionalEquipment = const [],
     this.rulesDescription,
-    this.availableSkillLevels = const ['beginner', 'intermediate', 'advanced', 'mixed'],
+    this.availableSkillLevels = const [
+      'beginner',
+      'intermediate',
+      'advanced',
+      'mixed',
+    ],
     this.scoringSystem,
     this.maxScore,
     this.hasTimeLimit = true,
@@ -143,7 +148,7 @@ class SportConfig {
     if (isTeamSport) {
       return maxPlayers;
     }
-    
+
     // For individual sports, return minimum needed
     return minPlayers;
   }

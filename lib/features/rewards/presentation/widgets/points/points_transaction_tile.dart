@@ -46,7 +46,7 @@ class PointsTransaction {
 
   int get totalMultipliedPoints {
     if (multipliers.isEmpty) return points;
-    
+
     double total = points.toDouble();
     for (final multiplier in multipliers) {
       total *= multiplier.value;
@@ -161,18 +161,15 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
       curve: Curves.easeInOut,
     );
 
-    _highlightAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _highlightController,
-      curve: Curves.easeInOut,
-    ));
+    _highlightAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _highlightController, curve: Curves.easeInOut),
+    );
 
     _slideController.forward();
 
     // Highlight recent transactions
-    final isRecent = DateTime.now().difference(widget.transaction.timestamp).inMinutes < 5;
+    final isRecent =
+        DateTime.now().difference(widget.transaction.timestamp).inMinutes < 5;
     if (isRecent) {
       Future.delayed(const Duration(milliseconds: 200), () {
         _highlightController.forward();
@@ -273,7 +270,7 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
     setState(() {
       _isExpanded = !_isExpanded;
     });
-    
+
     if (widget.enableHaptics) {
       HapticFeedback.selectionClick();
     }
@@ -295,15 +292,20 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
               animation: _highlightAnimation,
               builder: (context, child) {
                 return Container(
-                  margin: widget.padding ?? const EdgeInsets.symmetric(vertical: 4),
+                  margin:
+                      widget.padding ?? const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: _highlightAnimation.value > 0
-                        ? transactionColor.withOpacity(0.1 * _highlightAnimation.value)
+                        ? transactionColor.withOpacity(
+                            0.1 * _highlightAnimation.value,
+                          )
                         : null,
                     border: _highlightAnimation.value > 0
                         ? Border.all(
-                            color: transactionColor.withOpacity(0.3 * _highlightAnimation.value),
+                            color: transactionColor.withOpacity(
+                              0.3 * _highlightAnimation.value,
+                            ),
                             width: 2,
                           )
                         : null,
@@ -319,7 +321,8 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
                       child: Column(
                         children: [
                           _buildMainRow(theme, transactionColor),
-                          if (_isExpanded) _buildExpandedContent(theme, transactionColor),
+                          if (_isExpanded)
+                            _buildExpandedContent(theme, transactionColor),
                         ],
                       ),
                     ),
@@ -390,11 +393,7 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
         const SizedBox(height: 4),
         Row(
           children: [
-            Icon(
-              Icons.access_time,
-              size: 14,
-              color: Colors.grey[600],
-            ),
+            Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text(
               widget.transaction.timeAgo,
@@ -402,13 +401,10 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
                 color: Colors.grey[600],
               ),
             ),
-            if (widget.showSource && widget.transaction.sourceReference.isNotEmpty) ...[
+            if (widget.showSource &&
+                widget.transaction.sourceReference.isNotEmpty) ...[
               const SizedBox(width: 8),
-              Icon(
-                Icons.link,
-                size: 14,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.link, size: 14, color: Colors.grey[600]),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
@@ -441,9 +437,7 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
           const SizedBox(height: 2),
           Text(
             'Balance: ${widget.transaction.formattedBalance}',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
         ],
       ],
@@ -458,16 +452,19 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
         children: [
           Divider(color: Colors.grey[300]),
           const SizedBox(height: 12),
-          
-          if (widget.showMultipliers && widget.transaction.multipliers.isNotEmpty)
+
+          if (widget.showMultipliers &&
+              widget.transaction.multipliers.isNotEmpty)
             _buildMultipliers(theme),
-          
-          if (widget.transaction.totalMultipliedPoints != widget.transaction.points) ...[
+
+          if (widget.transaction.totalMultipliedPoints !=
+              widget.transaction.points) ...[
             const SizedBox(height: 12),
             _buildFinalCalculation(theme, transactionColor),
           ],
-          
-          if (widget.transaction.metadata != null && widget.transaction.metadata!.isNotEmpty) ...[
+
+          if (widget.transaction.metadata != null &&
+              widget.transaction.metadata!.isNotEmpty) ...[
             const SizedBox(height: 12),
             _buildMetadata(theme),
           ],
@@ -501,11 +498,7 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.close,
-                    size: 12,
-                    color: multiplier.color,
-                  ),
+                  Icon(Icons.close, size: 12, color: multiplier.color),
                   const SizedBox(width: 4),
                   Text(
                     multiplier.formattedValue,
@@ -550,7 +543,8 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.transaction.points != widget.transaction.totalMultipliedPoints) ...[
+              if (widget.transaction.points !=
+                  widget.transaction.totalMultipliedPoints) ...[
                 Text(
                   widget.transaction.formattedPoints,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -559,15 +553,11 @@ class _PointsTransactionTileState extends State<PointsTransactionTile>
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward,
-                  size: 16,
-                  color: transactionColor,
-                ),
+                Icon(Icons.arrow_forward, size: 16, color: transactionColor),
                 const SizedBox(width: 8),
               ],
               Text(
-                widget.transaction.isPositive 
+                widget.transaction.isPositive
                     ? '+${widget.transaction.totalMultipliedPoints}'
                     : '-${widget.transaction.totalMultipliedPoints.abs()}',
                 style: theme.textTheme.titleMedium?.copyWith(

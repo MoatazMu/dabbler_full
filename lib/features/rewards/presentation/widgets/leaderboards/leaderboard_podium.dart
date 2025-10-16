@@ -82,7 +82,7 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
   void _setupPlacements() {
     _placements = [];
     final topThree = widget.topUsers.take(3).toList();
-    
+
     for (int i = 0; i < topThree.length; i++) {
       final user = topThree[i];
       late Color color;
@@ -107,18 +107,20 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
           break;
       }
 
-      _placements.add(PodiumPlacement(
-        user: user,
-        position: i + 1,
-        title: title,
-        color: color,
-        podiumHeight: height,
-        stats: [
-          '${user.points} pts',
-          '${user.weeklyPoints} weekly',
-          '${user.achievements.length} achievements',
-        ],
-      ));
+      _placements.add(
+        PodiumPlacement(
+          user: user,
+          position: i + 1,
+          title: title,
+          color: color,
+          podiumHeight: height,
+          stats: [
+            '${user.points} pts',
+            '${user.weeklyPoints} weekly',
+            '${user.achievements.length} achievements',
+          ],
+        ),
+      );
     }
   }
 
@@ -158,35 +160,27 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
       curve: Curves.easeOut,
     );
 
-    _crownAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _crownController,
-      curve: Curves.bounceOut,
-    ));
+    _crownAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _crownController, curve: Curves.bounceOut),
+    );
 
     _pointsAnimation = CurvedAnimation(
       parent: _pointsController,
       curve: Curves.easeOut,
     );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
 
     // Start animations
     _entranceController.forward();
-    
+
     if (widget.showVictoryAnimations) {
       Future.delayed(const Duration(milliseconds: 500), () {
         _crownController.forward();
       });
-      
+
       Future.delayed(const Duration(milliseconds: 1000), () {
         _pointsController.forward();
       });
@@ -213,7 +207,7 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
 
   void _handleUserTap(LeaderboardUser user) {
     if (!widget.enableInteractions) return;
-    
+
     if (widget.enableHaptics) {
       HapticFeedback.lightImpact();
     }
@@ -228,7 +222,8 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
     if (_placements.isEmpty) return;
 
     final champion = _placements[0].user;
-    final message = 'Check out the leaderboard podium! 🏆\n'
+    final message =
+        'Check out the leaderboard podium! 🏆\n'
         '🥇 ${champion.displayName} leads with ${champion.points} points!\n'
         'Can you make it to the top?';
 
@@ -239,9 +234,7 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
   @override
   Widget build(BuildContext context) {
     if (_placements.isEmpty) {
-      return const Center(
-        child: Text('No podium data available'),
-      );
+      return const Center(child: Text('No podium data available'));
     }
 
     return Container(
@@ -279,9 +272,9 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
             ),
             Text(
               'Top 3 Champions',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -351,10 +344,7 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
     );
   }
 
-  Widget _buildUserCard(
-    PodiumPlacement placement, {
-    bool isFirst = false,
-  }) {
+  Widget _buildUserCard(PodiumPlacement placement, {bool isFirst = false}) {
     return AnimatedBuilder(
       animation: isFirst ? _glowAnimation : _entranceAnimation,
       builder: (context, child) {
@@ -364,7 +354,9 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
             boxShadow: isFirst && widget.show3DEffect
                 ? [
                     BoxShadow(
-                      color: placement.color.withOpacity(0.4 * _glowAnimation.value),
+                      color: placement.color.withOpacity(
+                        0.4 * _glowAnimation.value,
+                      ),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),
@@ -375,20 +367,14 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
             elevation: isFirst ? 12 : 6,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: placement.color,
-                width: isFirst ? 3 : 2,
-              ),
+              side: BorderSide(color: placement.color, width: isFirst ? 3 : 2),
             ),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
-                  colors: [
-                    placement.color.withOpacity(0.1),
-                    Colors.white,
-                  ],
+                  colors: [placement.color.withOpacity(0.1), Colors.white],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -516,9 +502,9 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
           placement.user.displayName.isNotEmpty
               ? placement.user.displayName
               : placement.user.username,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -531,8 +517,9 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
     return AnimatedBuilder(
       animation: _pointsAnimation,
       builder: (context, child) {
-        final animatedPoints = (_pointsAnimation.value * placement.user.points).toInt();
-        
+        final animatedPoints = (_pointsAnimation.value * placement.user.points)
+            .toInt();
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
@@ -564,10 +551,7 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
     );
   }
 
-  Widget _buildPodiumBase(
-    PodiumPlacement placement, {
-    bool isFirst = false,
-  }) {
+  Widget _buildPodiumBase(PodiumPlacement placement, {bool isFirst = false}) {
     return AnimatedBuilder(
       animation: _entranceAnimation,
       builder: (context, child) {
@@ -662,7 +646,8 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
             final startX = random.nextDouble();
             final startY = -0.1;
             final endY = 1.1;
-            final currentY = startY + (endY - startY) * _confettiAnimation.value;
+            final currentY =
+                startY + (endY - startY) * _confettiAnimation.value;
 
             return Positioned(
               left: MediaQuery.of(context).size.width * startX,
@@ -705,16 +690,14 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
         children: [
           Text(
             'Podium Statistics',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             children: _placements.map((placement) {
-              return Expanded(
-                child: _buildUserStats(placement),
-              );
+              return Expanded(child: _buildUserStats(placement));
             }).toList(),
           ),
         ],
@@ -747,24 +730,26 @@ class _LeaderboardPodiumState extends State<LeaderboardPodium>
             placement.user.displayName.length > 8
                 ? '${placement.user.displayName.substring(0, 8)}...'
                 : placement.user.displayName,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
-          ...placement.stats.map((stat) => Padding(
-            padding: const EdgeInsets.only(bottom: 2),
-            child: Text(
-              stat,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
+          ...placement.stats.map(
+            (stat) => Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(
+                stat,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
-          )),
+          ),
         ],
       ),
     );

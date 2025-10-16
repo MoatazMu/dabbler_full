@@ -6,10 +6,12 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  ConsumerState<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  ConsumerState<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends ConsumerState<NotificationSettingsScreen>
+class _NotificationSettingsScreenState
+    extends ConsumerState<NotificationSettingsScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -44,7 +46,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -53,13 +55,13 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -81,8 +83,12 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
             physics: const BouncingScrollPhysics(),
             slivers: [
               _buildAppBar(context),
-              SliverToBoxAdapter(child: _buildPushNotificationsSection(context)),
-              SliverToBoxAdapter(child: _buildEmailNotificationsSection(context)),
+              SliverToBoxAdapter(
+                child: _buildPushNotificationsSection(context),
+              ),
+              SliverToBoxAdapter(
+                child: _buildEmailNotificationsSection(context),
+              ),
               SliverToBoxAdapter(child: _buildSmsNotificationsSection(context)),
               SliverToBoxAdapter(child: _buildQuietHoursSection(context)),
               SliverToBoxAdapter(child: _buildTestNotificationSection(context)),
@@ -108,18 +114,15 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           'Notifications',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
       ),
       actions: [
-        TextButton(
-          onPressed: _saveSettings,
-          child: const Text('Save'),
-        ),
+        TextButton(onPressed: _saveSettings, child: const Text('Save')),
         const SizedBox(width: 8),
       ],
     );
@@ -261,9 +264,9 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                 Expanded(
                   child: Text(
                     'Standard messaging rates may apply',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.orange[800],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.orange[800]),
                   ),
                 ),
               ],
@@ -358,9 +361,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -388,16 +389,14 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                       children: [
                         Text(
                           'Test Notification',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Send a test notification to verify your settings',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -426,14 +425,17 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, String description, List<Widget> children) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    String description,
+    List<Widget> children,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -441,16 +443,16 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 16),
               ...children,
@@ -461,14 +463,21 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     );
   }
 
-  Widget _buildMasterToggle(String title, String subtitle, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildMasterToggle(
+    String title,
+    String subtitle,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: value ? Theme.of(context).primaryColor.withOpacity(0.05) : null,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: value ? Theme.of(context).primaryColor.withOpacity(0.3) : Colors.grey[300]!,
+          color: value
+              ? Theme.of(context).primaryColor.withOpacity(0.3)
+              : Colors.grey[300]!,
         ),
       ),
       child: Row(
@@ -487,9 +496,9 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -530,7 +539,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: value 
+                    color: value
                         ? Theme.of(context).primaryColor.withOpacity(0.1)
                         : Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
@@ -538,7 +547,9 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                   child: Icon(
                     icon,
                     size: 16,
-                    color: value ? Theme.of(context).primaryColor : Colors.grey[600],
+                    color: value
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey[600],
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -577,15 +588,19 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     );
   }
 
-  Widget _buildTimeSelector(String label, TimeOfDay time, ValueChanged<TimeOfDay> onChanged) {
+  Widget _buildTimeSelector(
+    String label,
+    TimeOfDay time,
+    ValueChanged<TimeOfDay> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Material(
@@ -639,9 +654,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -658,9 +671,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

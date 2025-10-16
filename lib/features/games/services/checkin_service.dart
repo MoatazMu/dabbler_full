@@ -47,7 +47,7 @@ class CheckinService {
 
       // Generate unique check-in token
       final checkinToken = _generateCheckinToken(gameId);
-      
+
       // Create QR code data
       final qrData = CheckinQRData(
         gameId: gameId,
@@ -83,7 +83,6 @@ class CheckinService {
         qrData: qrData,
         session: checkinSession,
       );
-
     } catch (e, stackTrace) {
       debugPrint('Error generating check-in QR: $e\n$stackTrace');
       return CheckinQRResult.failure('Failed to generate QR code: $e');
@@ -98,7 +97,9 @@ class CheckinService {
   }) async {
     try {
       // Validate QR token
-      final session = await _checkinRepository.getCheckinSessionByToken(qrToken);
+      final session = await _checkinRepository.getCheckinSessionByToken(
+        qrToken,
+      );
       if (session == null) {
         return CheckinResult.failure(
           'Invalid QR code',
@@ -200,11 +201,7 @@ class CheckinService {
         checkinTime: checkin.checkedInAt,
       );
 
-      return CheckinResult.success(
-        checkin: checkin,
-        game: game,
-      );
-
+      return CheckinResult.success(checkin: checkin, game: game);
     } catch (e, stackTrace) {
       debugPrint('Error processing check-in: $e\n$stackTrace');
       return CheckinResult.failure(
@@ -221,12 +218,14 @@ class CheckinService {
     required double requiredRadius,
   }) async {
     // If player location is not available, try to get it
-    final location = playerLocation ?? await _locationService.getCurrentLocation();
-    
+    final location =
+        playerLocation ?? await _locationService.getCurrentLocation();
+
     if (location == null) {
       return LocationVerificationResult(
         isValid: false,
-        reason: 'Unable to verify your location. Please enable location services.',
+        reason:
+            'Unable to verify your location. Please enable location services.',
         distance: null,
       );
     }
@@ -237,15 +236,13 @@ class CheckinService {
     if (distance > requiredRadius) {
       return LocationVerificationResult(
         isValid: false,
-        reason: 'You must be within ${requiredRadius}m of the venue to check in. You are ${distance.round()}m away.',
+        reason:
+            'You must be within ${requiredRadius}m of the venue to check in. You are ${distance.round()}m away.',
         distance: distance,
       );
     }
 
-    return LocationVerificationResult(
-      isValid: true,
-      distance: distance,
-    );
+    return LocationVerificationResult(isValid: true, distance: distance);
   }
 
   double _calculateDistance(Location from, Location to) {
@@ -256,10 +253,13 @@ class CheckinService {
     final double deltaLatRad = (to.latitude - from.latitude) * pi / 180;
     final double deltaLngRad = (to.longitude - from.longitude) * pi / 180;
 
-    final double a = sin(deltaLatRad / 2) * sin(deltaLatRad / 2) +
-        cos(lat1Rad) * cos(lat2Rad) *
-        sin(deltaLngRad / 2) * sin(deltaLngRad / 2);
-    
+    final double a =
+        sin(deltaLatRad / 2) * sin(deltaLatRad / 2) +
+        cos(lat1Rad) *
+            cos(lat2Rad) *
+            sin(deltaLngRad / 2) *
+            sin(deltaLngRad / 2);
+
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
 
     return earthRadius * c;
@@ -297,7 +297,7 @@ class CheckinService {
 
       // Calculate how late the player is
       final latenessMinutes = now.difference(gameStartTime).inMinutes;
-      
+
       // Check if late arrival is acceptable (within 30 minutes of start)
       const maxLateArrivalMinutes = 30;
       if (latenessMinutes > maxLateArrivalMinutes) {
@@ -347,7 +347,6 @@ class CheckinService {
         lateArrival: lateArrival,
         checkin: checkin,
       );
-
     } catch (e, stackTrace) {
       debugPrint('Error handling late arrival: $e\n$stackTrace');
       return LateArrivalResult.failure('Failed to process late arrival: $e');
@@ -381,7 +380,6 @@ class CheckinService {
 
       // Update game status
       await _updateGameCheckinStatus(gameId);
-
     } catch (e) {
       debugPrint('Error processing no-shows: $e');
     }
@@ -409,10 +407,10 @@ class CheckinService {
   CheckinWindowStatus _isCheckinWindowOpen(Game game) {
     final now = DateTime.now();
     final gameStartTime = game.dateTime;
-    
+
     // Check-in opens 2 hours before game
     final checkinOpenTime = gameStartTime.subtract(const Duration(hours: 2));
-    
+
     // Check-in closes 30 minutes after game starts
     final checkinCloseTime = gameStartTime.add(const Duration(minutes: 30));
 
@@ -452,13 +450,13 @@ class CheckinService {
       );
 
       // Check if enough players have checked in to start the game
-      final minPlayersToStart = game.minPlayers ?? (registeredCount * 0.5).ceil();
-      
-      if (checkedInCount >= minPlayersToStart && 
+      final minPlayersToStart =
+          game.minPlayers ?? (registeredCount * 0.5).ceil();
+
+      if (checkedInCount >= minPlayersToStart &&
           DateTime.now().isAfter(game.dateTime)) {
         await _gamesService.startGame(gameId);
       }
-
     } catch (e) {
       debugPrint('Error updating game check-in status: $e');
     }
@@ -474,7 +472,7 @@ class CheckinService {
 
   Future<void> expireOldSessions() async {
     final expiredSessions = await _checkinRepository.getExpiredSessions();
-    
+
     for (final session in expiredSessions) {
       await _expireCheckinSession(session.id);
     }
@@ -567,25 +565,21 @@ abstract class CheckinResult {
     required Game game,
   }) = CheckinSuccess;
 
-  factory CheckinResult.failure(
-    String error,
-    CheckinFailureReason reason,
-  ) = CheckinFailure;
+  factory CheckinResult.failure(String error, CheckinFailureReason reason) =
+      CheckinFailure;
 }
 
 class CheckinSuccess extends CheckinResult {
   final PlayerCheckin checkin;
   final Game game;
 
-  CheckinSuccess({
-    required this.checkin,
-    required this.game,
-  }) : super._(true, null, null);
+  CheckinSuccess({required this.checkin, required this.game})
+    : super._(true, null, null);
 }
 
 class CheckinFailure extends CheckinResult {
-  CheckinFailure(String error, CheckinFailureReason reason) 
-      : super._(false, error, reason);
+  CheckinFailure(String error, CheckinFailureReason reason)
+    : super._(false, error, reason);
 }
 
 abstract class LateArrivalResult {
@@ -606,10 +600,8 @@ class LateArrivalSuccess extends LateArrivalResult {
   final LateArrival lateArrival;
   final PlayerCheckin checkin;
 
-  LateArrivalSuccess({
-    required this.lateArrival,
-    required this.checkin,
-  }) : super._(true, null);
+  LateArrivalSuccess({required this.lateArrival, required this.checkin})
+    : super._(true, null);
 }
 
 class LateArrivalFailure extends LateArrivalResult {
@@ -632,10 +624,7 @@ class CheckinWindowStatus {
   final bool isOpen;
   final String? reason;
 
-  CheckinWindowStatus({
-    required this.isOpen,
-    this.reason,
-  });
+  CheckinWindowStatus({required this.isOpen, this.reason});
 }
 
 // Data classes
@@ -752,17 +741,9 @@ class PlayerNoShow {
 }
 
 // Enums
-enum CheckinSessionStatus {
-  active,
-  expired,
-  cancelled,
-}
+enum CheckinSessionStatus { active, expired, cancelled }
 
-enum CheckinStatus {
-  checkedIn,
-  lateArrival,
-  noShow,
-}
+enum CheckinStatus { checkedIn, lateArrival, noShow }
 
 enum CheckinFailureReason {
   invalidToken,
@@ -775,17 +756,9 @@ enum CheckinFailureReason {
   systemError,
 }
 
-enum LateArrivalStatus {
-  pending,
-  approved,
-  rejected,
-}
+enum LateArrivalStatus { pending, approved, rejected }
 
-enum NoShowReason {
-  didNotCheckIn,
-  tooLateToArrive,
-  cancelledLastMinute,
-}
+enum NoShowReason { didNotCheckIn, tooLateToArrive, cancelledLastMinute }
 
 // Placeholder classes
 class Location {
@@ -836,13 +809,19 @@ abstract class CheckinRepository {
   Future<void> saveCheckinSession(CheckinSession session);
   Future<CheckinSession?> getCheckinSessionByToken(String token);
   Future<CheckinSession?> getActiveCheckinSession(String gameId);
-  Future<void> updateCheckinSessionStatus(String sessionId, CheckinSessionStatus status);
+  Future<void> updateCheckinSessionStatus(
+    String sessionId,
+    CheckinSessionStatus status,
+  );
   Future<List<CheckinSession>> getExpiredSessions();
-  
+
   Future<void> savePlayerCheckin(PlayerCheckin checkin);
-  Future<PlayerCheckin?> getPlayerCheckin({required String gameId, required String playerId});
+  Future<PlayerCheckin?> getPlayerCheckin({
+    required String gameId,
+    required String playerId,
+  });
   Future<List<PlayerCheckin>> getGameCheckins(String gameId);
-  
+
   Future<void> saveLateArrival(LateArrival lateArrival);
   Future<void> savePlayerNoShow(PlayerNoShow noShow);
 }
@@ -852,10 +831,7 @@ abstract class LocationService {
 }
 
 abstract class QRCodeService {
-  Future<Uint8List> generateQRCode({
-    required String data,
-    required int size,
-  });
+  Future<Uint8List> generateQRCode({required String data, required int size});
 }
 
 abstract class NotificationService {
@@ -864,7 +840,7 @@ abstract class NotificationService {
     required Game game,
     required DateTime checkinTime,
   });
-  
+
   Future<void> sendLateArrivalNotification({
     required String gameId,
     required String organizerId,
@@ -872,7 +848,7 @@ abstract class NotificationService {
     required int latenessMinutes,
     required String reason,
   });
-  
+
   Future<void> sendNoShowNotification({
     required String playerId,
     required String gameId,

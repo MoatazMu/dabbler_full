@@ -1,5 +1,6 @@
 /// Circular progress chart widget with advanced features for profile completion
 library;
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class ProgressRing {
   final String? description;
   final IconData? icon;
   final Gradient? gradient;
-  
+
   const ProgressRing({
     required this.progress,
     required this.color,
@@ -24,7 +25,7 @@ class ProgressRing {
     this.icon,
     this.gradient,
   });
-  
+
   ProgressRing copyWith({
     double? progress,
     Color? color,
@@ -52,11 +53,8 @@ class ProgressRing {
 class ProgressBreakdown {
   final String title;
   final List<ProgressItem> items;
-  
-  const ProgressBreakdown({
-    required this.title,
-    required this.items,
-  });
+
+  const ProgressBreakdown({required this.title, required this.items});
 }
 
 class ProgressItem {
@@ -64,7 +62,7 @@ class ProgressItem {
   final double progress;
   final Color color;
   final bool isComplete;
-  
+
   const ProgressItem({
     required this.label,
     required this.progress,
@@ -94,7 +92,7 @@ class ProgressChartWidget extends StatefulWidget {
   final bool animateOnMount;
   final String? semanticLabel;
   final bool enableHapticFeedback;
-  
+
   const ProgressChartWidget({
     super.key,
     required this.rings,
@@ -117,7 +115,7 @@ class ProgressChartWidget extends StatefulWidget {
     this.semanticLabel,
     this.enableHapticFeedback = true,
   });
-  
+
   @override
   State<ProgressChartWidget> createState() => _ProgressChartWidgetState();
 }
@@ -129,84 +127,79 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
   late Animation<double> _animation;
   late Animation<double> _glowAnimation;
   late List<Animation<double>> _ringAnimations;
-  
+
   bool _showBreakdown = false;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
-    
+
     if (widget.animateOnMount) {
       _animationController.forward();
     } else {
       _animationController.value = 1.0;
     }
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _glowController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _animation = CurvedAnimation(
       parent: _animationController,
       curve: widget.animationCurve,
     );
-    
-    _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+
     // Create staggered animations for each ring
     _ringAnimations = List.generate(widget.rings.length, (index) {
       final delay = index * 0.2;
-      return Tween<double>(
-        begin: 0.0,
-        end: 1.0,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Interval(
-          delay,
-          math.min(1.0, delay + 0.8),
-          curve: widget.animationCurve,
+      return Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(
+            delay,
+            math.min(1.0, delay + 0.8),
+            curve: widget.animationCurve,
+          ),
         ),
-      ));
+      );
     });
-    
+
     if (widget.enableGlow) {
       _glowController.repeat(reverse: true);
     }
   }
-  
+
   @override
   void didUpdateWidget(ProgressChartWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.rings != oldWidget.rings) {
       _animationController.reset();
       _setupAnimations();
       _animationController.forward();
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     _glowController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -230,16 +223,17 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
                       ringAnimations: _ringAnimations,
                       enableGlow: widget.enableGlow,
                       glowRadius: widget.glowRadius,
-                      glowColor: widget.glowColor ?? Theme.of(context).primaryColor,
+                      glowColor:
+                          widget.glowColor ?? Theme.of(context).primaryColor,
                       glowAnimation: _glowAnimation,
                     ),
                   );
                 },
               ),
-              
+
               // Center content
               _buildCenterContent(),
-              
+
               // Breakdown overlay
               if (_showBreakdown && widget.breakdown != null)
                 _buildBreakdownOverlay(),
@@ -249,14 +243,14 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
       ),
     );
   }
-  
+
   Widget _buildCenterContent() {
     if (widget.centerChild != null) {
       return widget.centerChild!;
     }
-    
+
     final primaryRing = widget.rings.isNotEmpty ? widget.rings.first : null;
-    
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -268,25 +262,32 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
           ),
           const SizedBox(height: 4),
         ],
-        
+
         if (widget.centerText != null)
           Text(
             widget.centerText!,
-            style: widget.centerTextStyle ?? 
-                Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style:
+                widget.centerTextStyle ??
+                Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           )
         else if (widget.showPercentage && primaryRing != null)
           AnimatedBuilder(
-            animation: _ringAnimations.isNotEmpty ? _ringAnimations.first : _animation,
+            animation: _ringAnimations.isNotEmpty
+                ? _ringAnimations.first
+                : _animation,
             builder: (context, child) {
-              final progress = primaryRing.progress * 
-                  (_ringAnimations.isNotEmpty ? _ringAnimations.first.value : 1.0);
+              final progress =
+                  primaryRing.progress *
+                  (_ringAnimations.isNotEmpty
+                      ? _ringAnimations.first.value
+                      : 1.0);
               return Text(
                 '${(progress * 100).toInt()}%',
-                style: widget.centerTextStyle ?? 
+                style:
+                    widget.centerTextStyle ??
                     Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: primaryRing.color,
@@ -297,7 +298,7 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
       ],
     );
   }
-  
+
   Widget _buildBreakdownOverlay() {
     return Positioned.fill(
       child: Container(
@@ -320,18 +321,19 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              
+
               Expanded(
                 child: ListView.separated(
                   itemCount: widget.breakdown!.items.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 4),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 4),
                   itemBuilder: (context, index) {
                     final item = widget.breakdown!.items[index];
                     return _buildBreakdownItem(item);
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 8),
               Text(
                 'Tap to close',
@@ -346,36 +348,26 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
       ),
     );
   }
-  
+
   Widget _buildBreakdownItem(ProgressItem item) {
     return Row(
       children: [
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: item.color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: item.color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        
+
         Expanded(
           child: Text(
             item.label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
         ),
-        
+
         if (item.isComplete)
-          const Icon(
-            Icons.check,
-            color: Colors.green,
-            size: 12,
-          )
+          const Icon(Icons.check, color: Colors.green, size: 12)
         else
           Text(
             '${(item.progress * 100).toInt()}%',
@@ -387,27 +379,27 @@ class _ProgressChartWidgetState extends State<ProgressChartWidget>
       ],
     );
   }
-  
+
   void _handleTap() {
     if (widget.enableHapticFeedback) {
       // HapticFeedback.lightImpact();
     }
-    
+
     if (widget.breakdown != null) {
       setState(() {
         _showBreakdown = !_showBreakdown;
       });
     }
-    
+
     widget.onTap?.call();
   }
-  
+
   String _getDefaultSemanticLabel() {
     if (widget.rings.isEmpty) return 'Progress chart';
-    
+
     final primaryRing = widget.rings.first;
     final percentage = (primaryRing.progress * 100).toInt();
-    
+
     return '${primaryRing.label}: $percentage% complete';
   }
 }
@@ -420,7 +412,7 @@ class _ProgressChartPainter extends CustomPainter {
   final double glowRadius;
   final Color glowColor;
   final Animation<double> glowAnimation;
-  
+
   _ProgressChartPainter({
     required this.rings,
     required this.ringAnimations,
@@ -429,27 +421,21 @@ class _ProgressChartPainter extends CustomPainter {
     required this.glowColor,
     required this.glowAnimation,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final baseRadius = math.min(size.width, size.height) / 2 - 20;
-    
+
     for (int i = 0; i < rings.length; i++) {
       final ring = rings[i];
       final animation = ringAnimations.length > i ? ringAnimations[i] : null;
       final ringRadius = baseRadius - (i * (ring.strokeWidth + 8));
-      
-      _drawRing(
-        canvas,
-        center,
-        ringRadius,
-        ring,
-        animation?.value ?? 1.0,
-      );
+
+      _drawRing(canvas, center, ringRadius, ring, animation?.value ?? 1.0);
     }
   }
-  
+
   void _drawRing(
     Canvas canvas,
     Offset center,
@@ -460,7 +446,7 @@ class _ProgressChartPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
     const startAngle = -math.pi / 2; // Start from top
     final sweepAngle = 2 * math.pi * ring.progress * animationValue;
-    
+
     // Draw background circle
     if (ring.backgroundColor != null) {
       final backgroundPaint = Paint()
@@ -468,10 +454,10 @@ class _ProgressChartPainter extends CustomPainter {
         ..strokeWidth = ring.strokeWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
-      
+
       canvas.drawCircle(center, radius, backgroundPaint);
     }
-    
+
     // Draw glow effect
     if (enableGlow && ring.progress > 0) {
       final glowPaint = Paint()
@@ -480,17 +466,17 @@ class _ProgressChartPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, glowRadius / 2);
-      
+
       canvas.drawArc(rect, startAngle, sweepAngle, false, glowPaint);
     }
-    
+
     // Draw progress arc
     if (ring.progress > 0 && animationValue > 0) {
       final progressPaint = Paint()
         ..strokeWidth = ring.strokeWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
-      
+
       if (ring.gradient != null) {
         // Apply gradient
         final gradientRect = Rect.fromCircle(center: center, radius: radius);
@@ -498,17 +484,17 @@ class _ProgressChartPainter extends CustomPainter {
       } else {
         progressPaint.color = ring.color;
       }
-      
+
       canvas.drawArc(rect, startAngle, sweepAngle, false, progressPaint);
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant _ProgressChartPainter oldDelegate) {
     return rings != oldDelegate.rings ||
-           enableGlow != oldDelegate.enableGlow ||
-           glowRadius != oldDelegate.glowRadius ||
-           glowColor != oldDelegate.glowColor;
+        enableGlow != oldDelegate.enableGlow ||
+        glowRadius != oldDelegate.glowRadius ||
+        glowColor != oldDelegate.glowColor;
   }
 }
 
@@ -541,7 +527,7 @@ extension ProgressRingExtensions on ProgressRing {
       ),
     );
   }
-  
+
   /// Create a ring with success/warning/error styling
   static ProgressRing withStatus({
     required double progress,
@@ -553,7 +539,7 @@ extension ProgressRingExtensions on ProgressRing {
   }) {
     Color color;
     Color backgroundColor;
-    
+
     switch (status) {
       case ProgressStatus.success:
         color = Colors.green;
@@ -572,7 +558,7 @@ extension ProgressRingExtensions on ProgressRing {
         backgroundColor = Colors.blue.withOpacity(0.2);
         break;
     }
-    
+
     return ProgressRing(
       progress: progress,
       color: color,
@@ -585,12 +571,7 @@ extension ProgressRingExtensions on ProgressRing {
   }
 }
 
-enum ProgressStatus {
-  normal,
-  success,
-  warning,
-  error,
-}
+enum ProgressStatus { normal, success, warning, error }
 
 /// Predefined progress chart configurations
 class ProgressChartPresets {
@@ -605,7 +586,8 @@ class ProgressChartPresets {
     return ProgressChartWidget(
       rings: [
         ProgressRing(
-          progress: (personalInfo + sportsProfile + preferences + verification) / 4,
+          progress:
+              (personalInfo + sportsProfile + preferences + verification) / 4,
           color: Colors.blue,
           backgroundColor: Colors.blue.withOpacity(0.1),
           strokeWidth: 12,
@@ -667,7 +649,7 @@ class ProgressChartPresets {
       enableGlow: true,
     );
   }
-  
+
   /// Single metric with animated progress
   static ProgressChartWidget singleMetric({
     required double progress,
@@ -692,7 +674,7 @@ class ProgressChartPresets {
       enableGlow: enableGlow,
     );
   }
-  
+
   /// Skill level progress with color coding
   static ProgressChartWidget skillLevel({
     required double skillLevel, // 0.0 to 1.0 (representing 1-5 or 1-10 scale)
@@ -711,7 +693,7 @@ class ProgressChartPresets {
     } else {
       color = Colors.green;
     }
-    
+
     return ProgressChartWidget(
       rings: [
         ProgressRingExtensions.withGradient(

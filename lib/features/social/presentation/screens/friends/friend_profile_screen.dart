@@ -21,14 +21,15 @@ class FriendProfileScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FriendProfileScreen> createState() => _FriendProfileScreenState();
+  ConsumerState<FriendProfileScreen> createState() =>
+      _FriendProfileScreenState();
 }
 
 class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
-  
+
   bool _isBlocked = false;
   FriendshipStatus _friendshipStatus = FriendshipStatus.unknown;
 
@@ -36,7 +37,7 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     // Load friend profile data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadFriendProfile();
@@ -55,21 +56,22 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-  final friendAsync = ref.watch(social.friendProfileProvider(widget.friendId));
-    
+    final friendAsync = ref.watch(
+      social.friendProfileProvider(widget.friendId),
+    );
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: friendAsync.when(
         data: (friend) => _buildProfileContent(context, theme, friend),
-        loading: () => const Scaffold(
-          body: Center(child: LoadingWidget()),
-        ),
+        loading: () => const Scaffold(body: Center(child: LoadingWidget())),
         error: (error, stack) => Scaffold(
           appBar: AppBar(),
           body: Center(
             child: core_error.ErrorWidget(
               message: 'Failed to load profile: $error',
-              onRetry: () => ref.refresh(social.friendProfileProvider(widget.friendId)),
+              onRetry: () =>
+                  ref.refresh(social.friendProfileProvider(widget.friendId)),
             ),
           ),
         ),
@@ -77,7 +79,11 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
     );
   }
 
-  Widget _buildProfileContent(BuildContext context, ThemeData theme, dynamic friend) {
+  Widget _buildProfileContent(
+    BuildContext context,
+    ThemeData theme,
+    dynamic friend,
+  ) {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverAppBar(
@@ -138,7 +144,8 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                   ),
                 ),
               ],
-              onSelected: (value) => _handleMenuAction(value.toString(), friend),
+              onSelected: (value) =>
+                  _handleMenuAction(value.toString(), friend),
             ),
           ],
         ),
@@ -146,7 +153,8 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
       body: Column(
         children: [
           // Friendship actions
-          if (widget.showActions || _friendshipStatus != FriendshipStatus.friends)
+          if (widget.showActions ||
+              _friendshipStatus != FriendshipStatus.friends)
             Container(
               padding: const EdgeInsets.all(16),
               child: FriendshipActionsSection(
@@ -162,7 +170,7 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                 onUnblock: () => _unblockUser(friend.id),
               ),
             ),
-          
+
           // Tab bar
           if (!_isBlocked)
             TabBar(
@@ -173,7 +181,7 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                 Tab(text: 'Interests'),
               ],
             ),
-          
+
           // Tab content
           if (!_isBlocked)
             Expanded(
@@ -187,15 +195,17 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
               ),
             )
           else
-            Expanded(
-              child: _buildBlockedState(theme),
-            ),
+            Expanded(child: _buildBlockedState(theme)),
         ],
       ),
     );
   }
 
-  Widget _buildMutualTab(BuildContext context, ThemeData theme, dynamic friend) {
+  Widget _buildMutualTab(
+    BuildContext context,
+    ThemeData theme,
+    dynamic friend,
+  ) {
     return SingleChildScrollView(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
@@ -205,8 +215,10 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
           // Mutual friends
           Consumer(
             builder: (context, ref, child) {
-              final mutualFriendsAsync = ref.watch(social.mutualFriendsProvider(friend.id));
-              
+              final mutualFriendsAsync = ref.watch(
+                social.mutualFriendsProvider(friend.id),
+              );
+
               return mutualFriendsAsync.when(
                 data: (mutualFriends) => MutualFriendsSection(
                   mutualFriends: mutualFriends,
@@ -216,14 +228,15 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                 loading: () => const LoadingWidget(),
                 error: (error, stack) => core_error.ErrorWidget(
                   message: 'Failed to load mutual friends',
-                  onRetry: () => ref.refresh(social.mutualFriendsProvider(friend.id)),
+                  onRetry: () =>
+                      ref.refresh(social.mutualFriendsProvider(friend.id)),
                 ),
               );
             },
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Connection strength
           Card(
             child: Padding(
@@ -233,10 +246,7 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.analytics,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.analytics, color: theme.colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(
                         'Connection Strength',
@@ -246,9 +256,9 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   _buildConnectionMetric(
                     theme,
                     'Mutual Friends',
@@ -256,9 +266,9 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                     Icons.people,
                     0.8,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   _buildConnectionMetric(
                     theme,
                     'Common Interests',
@@ -266,9 +276,9 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
                     Icons.sports,
                     0.6,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   _buildConnectionMetric(
                     theme,
                     'Activity Level',
@@ -285,12 +295,18 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
     );
   }
 
-  Widget _buildActivitiesTab(BuildContext context, ThemeData theme, dynamic friend) {
+  Widget _buildActivitiesTab(
+    BuildContext context,
+    ThemeData theme,
+    dynamic friend,
+  ) {
     return Consumer(
       builder: (context, ref, child) {
-  final activitiesAsync = ref.watch(social.sharedActivitiesProvider(friend.id));
-        
-    return activitiesAsync.when(
+        final activitiesAsync = ref.watch(
+          social.sharedActivitiesProvider(friend.id),
+        );
+
+        return activitiesAsync.when(
           data: (activities) => SharedActivitiesSection(
             activities: activities,
             onActivityTap: (activity) => _viewActivity(activity.id),
@@ -300,7 +316,8 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
           error: (error, stack) => Center(
             child: core_error.ErrorWidget(
               message: 'Failed to load shared activities',
-              onRetry: () => ref.refresh(social.sharedActivitiesProvider(friend.id)),
+              onRetry: () =>
+                  ref.refresh(social.sharedActivitiesProvider(friend.id)),
             ),
           ),
         );
@@ -308,12 +325,18 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
     );
   }
 
-  Widget _buildInterestsTab(BuildContext context, ThemeData theme, dynamic friend) {
+  Widget _buildInterestsTab(
+    BuildContext context,
+    ThemeData theme,
+    dynamic friend,
+  ) {
     return Consumer(
       builder: (context, ref, child) {
-  final interestsAsync = ref.watch(social.commonInterestsProvider(friend.id));
-        
-    return interestsAsync.when(
+        final interestsAsync = ref.watch(
+          social.commonInterestsProvider(friend.id),
+        );
+
+        return interestsAsync.when(
           data: (interests) => CommonInterestsSection(
             interests: interests,
             onInterestTap: (interest) => _exploreInterest(interest),
@@ -323,7 +346,8 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
           error: (error, stack) => Center(
             child: core_error.ErrorWidget(
               message: 'Failed to load common interests',
-              onRetry: () => ref.refresh(social.commonInterestsProvider(friend.id)),
+              onRetry: () =>
+                  ref.refresh(social.commonInterestsProvider(friend.id)),
             ),
           ),
         );
@@ -340,11 +364,7 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
   ) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -371,7 +391,9 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              theme.colorScheme.primary,
+            ),
           ),
         ),
       ],
@@ -439,30 +461,30 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
 
   void _sendFriendRequest(String userId) {
     setState(() => _friendshipStatus = FriendshipStatus.requestSent);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Friend request sent!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
   }
 
   void _acceptFriendRequest(String userId) {
     setState(() => _friendshipStatus = FriendshipStatus.friends);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Friend request accepted!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Friend request accepted!')));
   }
 
   void _declineFriendRequest(String userId) {
     setState(() => _friendshipStatus = FriendshipStatus.none);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Friend request declined')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Friend request declined')));
   }
 
   void _cancelFriendRequest(String userId) {
     setState(() => _friendshipStatus = FriendshipStatus.none);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Friend request cancelled')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Friend request cancelled')));
   }
 
   void _unfriend(String userId) async {
@@ -485,10 +507,10 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
     );
 
     if (confirm == true) {
-  setState(() => _friendshipStatus = FriendshipStatus.none);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User unfriended')),
-      );
+      setState(() => _friendshipStatus = FriendshipStatus.none);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User unfriended')));
     }
   }
 
@@ -527,9 +549,9 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
         _isBlocked = true;
         _friendshipStatus = FriendshipStatus.blocked;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User blocked')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User blocked')));
     }
   }
 
@@ -557,9 +579,9 @@ class _FriendProfileScreenState extends ConsumerState<FriendProfileScreen>
         _isBlocked = false;
         _friendshipStatus = FriendshipStatus.none;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User unblocked')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User unblocked')));
     }
   }
 
@@ -673,13 +695,13 @@ class _ReportUserDialogState extends State<ReportUserDialog> {
           children: [
             const Text('Why are you reporting this user?'),
             const SizedBox(height: 16),
-            
+
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: _reportReasons.map((reason) {
                 final isSelected = _selectedReason == reason;
-                
+
                 return ChoiceChip(
                   label: Text(reason),
                   selected: isSelected,
@@ -689,7 +711,7 @@ class _ReportUserDialogState extends State<ReportUserDialog> {
                 );
               }).toList(),
             ),
-            
+
             if (_selectedReason != null) ...[
               const SizedBox(height: 16),
               TextField(

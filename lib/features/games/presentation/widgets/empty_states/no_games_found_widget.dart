@@ -18,7 +18,7 @@ class NoGamesFoundWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -29,7 +29,9 @@ class NoGamesFoundWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                  0.5,
+                ),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -38,9 +40,9 @@ class NoGamesFoundWidget extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'No games found',
@@ -50,9 +52,9 @@ class NoGamesFoundWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               _getMessage(),
@@ -61,9 +63,9 @@ class NoGamesFoundWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Action buttons
             Column(
               children: [
@@ -78,7 +80,7 @@ class NoGamesFoundWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                 ],
-                
+
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -89,9 +91,9 @@ class NoGamesFoundWidget extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Help text
             Text(
               'Try adjusting your search criteria or create your own game to get started.',
@@ -140,9 +142,9 @@ class NoGamesFoundShimmer extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title shimmer
             Container(
               width: 200,
@@ -152,9 +154,9 @@ class NoGamesFoundShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Message shimmer
             Container(
               width: 300,
@@ -164,9 +166,9 @@ class NoGamesFoundShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             Container(
               width: 250,
               height: 20,
@@ -175,9 +177,9 @@ class NoGamesFoundShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Button shimmers
             Container(
               width: double.infinity,
@@ -188,9 +190,9 @@ class NoGamesFoundShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             Container(
               width: double.infinity,
               height: 48,

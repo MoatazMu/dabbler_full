@@ -18,7 +18,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  
+
   FriendSortOption _sortOption = FriendSortOption.name;
   String _searchQuery = '';
 
@@ -27,7 +27,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController.addListener(_onSearchChanged);
-    
+
     // Load friends data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(friendsControllerProvider.notifier).loadFriends();
@@ -83,22 +83,24 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                     // Note: setSortOption method needs to be implemented
                   },
                   itemBuilder: (context) => FriendSortOption.values
-                      .map((option) => PopupMenuItem(
-                            value: option,
-                            child: Row(
-                              children: [
-                                Icon(option.icon),
-                                const SizedBox(width: 8),
-                                Text(option.displayName),
-                              ],
-                            ),
-                          ))
+                      .map(
+                        (option) => PopupMenuItem(
+                          value: option,
+                          child: Row(
+                            children: [
+                              Icon(option.icon),
+                              const SizedBox(width: 8),
+                              Text(option.displayName),
+                            ],
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ],
             ),
           ),
-          
+
           // Tab bar
           TabBar(
             controller: _tabController,
@@ -113,7 +115,10 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                       builder: (context, ref, child) {
                         final count = ref.watch(totalFriendsCountProvider);
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.primary,
                             borderRadius: BorderRadius.circular(10),
@@ -136,11 +141,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.circle,
-                      color: Colors.green,
-                      size: 8,
-                    ),
+                    Icon(Icons.circle, color: Colors.green, size: 8),
                     const SizedBox(width: 4),
                     const Text('Online'),
                     const SizedBox(width: 8),
@@ -148,7 +149,10 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                       builder: (context, ref, child) {
                         final count = ref.watch(onlineFriendsCountProvider);
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.green,
                             borderRadius: BorderRadius.circular(10),
@@ -180,7 +184,10 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                         final count = ref.watch(blockedUsersCountProvider);
                         if (count > 0) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.error,
                               borderRadius: BorderRadius.circular(10),
@@ -203,7 +210,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
               ),
             ],
           ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
@@ -237,15 +244,18 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       title: const Text('Friends'),
       actions: [
         IconButton(
-          onPressed: () => Navigator.pushNamed(context, '/social/friend-requests'),
+          onPressed: () =>
+              Navigator.pushNamed(context, '/social/friend-requests'),
           icon: Stack(
             children: [
               const Icon(Icons.person_add),
               Consumer(
                 builder: (context, ref, child) {
-                  final hasRequests = ref.watch(hasPendingFriendRequestsProvider);
+                  final hasRequests = ref.watch(
+                    hasPendingFriendRequestsProvider,
+                  );
                   if (!hasRequests) return const SizedBox.shrink();
-                  
+
                   return Positioned(
                     right: 0,
                     top: 0,
@@ -301,32 +311,35 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       return Center(
         child: core_error.ErrorWidget(
           message: friendsState.error!,
-          onRetry: () => ref.read(friendsControllerProvider.notifier).loadFriends(),
+          onRetry: () =>
+              ref.read(friendsControllerProvider.notifier).loadFriends(),
         ),
       );
     }
 
     final filteredFriends = _getFilteredFriends(friendsState.allFriends);
-    
+
     if (filteredFriends.isEmpty) {
       return _buildEmptyState(
         theme,
         icon: _searchQuery.isNotEmpty ? Icons.search_off : Icons.people_outline,
         title: _searchQuery.isNotEmpty ? 'No friends found' : 'No friends yet',
-        subtitle: _searchQuery.isNotEmpty 
-          ? 'Try a different search term'
-          : 'Start connecting with other players',
-        action: _searchQuery.isEmpty 
-          ? TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/social/find-friends'),
-              child: const Text('Find Friends'),
-            )
-          : null,
+        subtitle: _searchQuery.isNotEmpty
+            ? 'Try a different search term'
+            : 'Start connecting with other players',
+        action: _searchQuery.isEmpty
+            ? TextButton(
+                onPressed: () =>
+                    Navigator.pushNamed(context, '/social/find-friends'),
+                child: const Text('Find Friends'),
+              )
+            : null,
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () => ref.read(friendsControllerProvider.notifier).loadFriends(),
+      onRefresh: () =>
+          ref.read(friendsControllerProvider.notifier).loadFriends(),
       child: Row(
         children: [
           // Friends list
@@ -337,7 +350,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
               itemCount: filteredFriends.length,
               itemBuilder: (context, index) {
                 final friend = filteredFriends[index];
-                
+
                 return FriendTile(
                   friend: friend,
                   onTap: () => _navigateToFriendProfile(friend.id),
@@ -363,13 +376,20 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                       PopupMenuItem(
                         value: 'unfriend',
                         child: ListTile(
-                          leading: Icon(Icons.person_remove, color: theme.colorScheme.error),
-                          title: Text('Unfriend', style: TextStyle(color: theme.colorScheme.error)),
+                          leading: Icon(
+                            Icons.person_remove,
+                            color: theme.colorScheme.error,
+                          ),
+                          title: Text(
+                            'Unfriend',
+                            style: TextStyle(color: theme.colorScheme.error),
+                          ),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
                     ],
-                    onSelected: (value) => _handleFriendAction(value.toString(), friend),
+                    onSelected: (value) =>
+                        _handleFriendAction(value.toString(), friend),
                   ),
                 );
               },
@@ -388,7 +408,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     final onlineFriends = friendsState.allFriends
         .where((friend) => friendsState.onlineUsers.contains(friend.id))
         .toList();
-    
+
     if (onlineFriends.isEmpty) {
       return _buildEmptyState(
         theme,
@@ -403,7 +423,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       itemCount: onlineFriends.length,
       itemBuilder: (context, index) {
         final friend = onlineFriends[index];
-        
+
         return FriendTile(
           friend: friend,
           onTap: () => _navigateToFriendProfile(friend.id),
@@ -419,7 +439,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     FriendsState friendsState,
   ) {
     final blockedUsers = friendsState.blockedUsers;
-    
+
     if (blockedUsers.isEmpty) {
       return _buildEmptyState(
         theme,
@@ -434,13 +454,17 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       itemCount: blockedUsers.length,
       itemBuilder: (context, index) {
         final user = blockedUsers[index];
-        
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: user.profileImageUrl != null ? NetworkImage(user.profileImageUrl!) : null,
-              child: user.profileImageUrl == null ? Text(user.displayName[0].toUpperCase()) : null,
+              backgroundImage: user.profileImageUrl != null
+                  ? NetworkImage(user.profileImageUrl!)
+                  : null,
+              child: user.profileImageUrl == null
+                  ? Text(user.displayName[0].toUpperCase())
+                  : null,
             ),
             title: Text(user.displayName),
             subtitle: Text(user.email ?? 'No email'),
@@ -467,11 +491,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            Icon(icon, size: 64, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               title,
@@ -487,10 +507,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
               ),
               textAlign: TextAlign.center,
             ),
-            if (action != null) ...[
-              const SizedBox(height: 24),
-              action,
-            ],
+            if (action != null) ...[const SizedBox(height: 24), action],
           ],
         ),
       ),
@@ -499,12 +516,12 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
 
   List<dynamic> _getFilteredFriends(List<dynamic> friends) {
     if (_searchQuery.isEmpty) return friends;
-    
+
     return friends.where((friend) {
       final name = friend.displayName.toLowerCase();
       final email = friend.email?.toLowerCase() ?? '';
       final query = _searchQuery.toLowerCase();
-      
+
       return name.contains(query) || email.contains(query);
     }).toList();
   }
@@ -564,9 +581,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Implement unblock user functionality  
+              // TODO: Implement unblock user functionality
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Unblock functionality coming soon')),
+                const SnackBar(
+                  content: Text('Unblock functionality coming soon'),
+                ),
               );
             },
             child: const Text('Unblock'),
@@ -581,7 +600,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Unfriend'),
-        content: Text('Are you sure you want to unfriend ${friend.displayName}?'),
+        content: Text(
+          'Are you sure you want to unfriend ${friend.displayName}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -592,7 +613,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
               Navigator.pop(context);
               // TODO: Implement unfriend functionality
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Unfriend functionality coming soon')),
+                const SnackBar(
+                  content: Text('Unfriend functionality coming soon'),
+                ),
               );
             },
             child: const Text('Unfriend'),
@@ -611,12 +634,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
 }
 
 /// Friend sort options
-enum FriendSortOption {
-  name,
-  recent,
-  location,
-  status,
-}
+enum FriendSortOption { name, recent, location, status }
 
 extension FriendSortOptionExtension on FriendSortOption {
   String get displayName {
@@ -647,12 +665,7 @@ extension FriendSortOptionExtension on FriendSortOption {
 }
 
 /// Friend status enum
-enum FriendStatus {
-  online,
-  offline,
-  away,
-  busy,
-}
+enum FriendStatus { online, offline, away, busy }
 
 extension FriendStatusExtension on FriendStatus {
   Color get color {

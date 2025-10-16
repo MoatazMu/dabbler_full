@@ -29,14 +29,18 @@ class ScheduledRewards {
       id: json['id'],
       user_id: json['user_id'],
       reward_type: json['reward_type'],
-    scheduled_date: json['scheduled_date'] != null
-      ? DateTime.parse(json['scheduled_date'] as String)
-      : DateTime.now(),
+      scheduled_date: json['scheduled_date'] != null
+          ? DateTime.parse(json['scheduled_date'] as String)
+          : DateTime.now(),
       points_amount: json['points_amount'],
       metadata: json['metadata'],
       claimed: json['claimed'],
-      claimed_at: (json['claimed_at'] == null ? null : DateTime.parse(json['claimed_at'] as String)),
-      expires_at: (json['expires_at'] == null ? null : DateTime.parse(json['expires_at'] as String)),
+      claimed_at: (json['claimed_at'] == null
+          ? null
+          : DateTime.parse(json['claimed_at'] as String)),
+      expires_at: (json['expires_at'] == null
+          ? null
+          : DateTime.parse(json['expires_at'] as String)),
       created_at: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),

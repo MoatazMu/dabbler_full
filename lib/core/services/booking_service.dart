@@ -19,16 +19,18 @@ class BookingService extends ChangeNotifier {
   List<BookingModel> get todaysBookings => List.unmodifiable(_todaysBookings);
   bool get isLoading => _isLoading;
   String? get error => _error;
-  
+
   // Get bookings that should show reminder (not dismissed and within next 24h)
   List<BookingModel> get activeReminders {
     final now = DateTime.now();
     return _todaysBookings
-        .where((booking) => 
-            booking.isConfirmed && 
-            !_dismissedBookingIds.contains(booking.id) &&
-            booking.dateTime.isAfter(now) &&
-            booking.dateTime.isBefore(now.add(const Duration(hours: 24))))
+        .where(
+          (booking) =>
+              booking.isConfirmed &&
+              !_dismissedBookingIds.contains(booking.id) &&
+              booking.dateTime.isAfter(now) &&
+              booking.dateTime.isBefore(now.add(const Duration(hours: 24))),
+        )
         .toList()
       ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
   }
@@ -56,7 +58,7 @@ class BookingService extends ChangeNotifier {
     try {
       // Simulate API call - replace with actual API implementation
       await Future.delayed(const Duration(milliseconds: 800));
-      
+
       _todaysBookings = await _generateMockBookings();
       _error = null;
     } catch (e) {
@@ -72,14 +74,16 @@ class BookingService extends ChangeNotifier {
   Future<List<BookingModel>> _generateMockBookings() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     return [
       BookingModel(
         id: 'booking_1',
         title: 'Football Match',
         venue: 'Central Sports Complex',
         sport: 'Football',
-        dateTime: today.add(const Duration(hours: 18, minutes: 30)), // 6:30 PM today
+        dateTime: today.add(
+          const Duration(hours: 18, minutes: 30),
+        ), // 6:30 PM today
         duration: const Duration(hours: 1, minutes: 30),
         isConfirmed: true,
         playerCount: 10,
@@ -136,10 +140,10 @@ class BookingService extends ChangeNotifier {
   Duration? getCountdownToNext() {
     final next = nextBooking;
     if (next == null) return null;
-    
+
     final now = DateTime.now();
     final difference = next.dateTime.difference(now);
-    
+
     return difference.isNegative ? null : difference;
   }
 
@@ -169,8 +173,14 @@ class BookingService extends ChangeNotifier {
   Future<void> _saveDismissedBookings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_dismissedBookingsKey, _dismissedBookingIds.toList());
-      await prefs.setString(_lastDismissDateKey, DateTime.now().toIso8601String());
+      await prefs.setStringList(
+        _dismissedBookingsKey,
+        _dismissedBookingIds.toList(),
+      );
+      await prefs.setString(
+        _lastDismissDateKey,
+        DateTime.now().toIso8601String(),
+      );
     } catch (e) {
       // Handle error silently
     }
@@ -181,13 +191,17 @@ class BookingService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final lastDismissStr = prefs.getString(_lastDismissDateKey);
-      
+
       if (lastDismissStr != null) {
         final lastDismiss = DateTime.parse(lastDismissStr);
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
-        final lastDismissDay = DateTime(lastDismiss.year, lastDismiss.month, lastDismiss.day);
-        
+        final lastDismissDay = DateTime(
+          lastDismiss.year,
+          lastDismiss.month,
+          lastDismiss.day,
+        );
+
         // Reset dismissals if it's a new day
         if (today.isAfter(lastDismissDay)) {
           _dismissedBookingIds.clear();
@@ -220,4 +234,4 @@ class BookingService extends ChangeNotifier {
     final difference = booking.dateTime.difference(now);
     return difference.inHours < 2 && difference.inMinutes > 0;
   }
-} 
+}

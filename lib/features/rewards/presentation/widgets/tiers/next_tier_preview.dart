@@ -41,14 +41,18 @@ class NextTierPreviewData {
 
   bool get canUpgradeNow => pointsNeeded <= 0;
   bool get isCloseToUpgrade => progressPercentage >= 0.8;
-  
-  List<NextTierBenefit> get topBenefits => 
-      upcomingBenefits.where((b) => b.importance == BenefitImportance.high || 
-                                    b.importance == BenefitImportance.critical).toList();
+
+  List<NextTierBenefit> get topBenefits => upcomingBenefits
+      .where(
+        (b) =>
+            b.importance == BenefitImportance.high ||
+            b.importance == BenefitImportance.critical,
+      )
+      .toList();
 
   MotivationalMessage? get currentMessage {
     if (motivationalMessages.isEmpty) return null;
-    
+
     if (canUpgradeNow) {
       return motivationalMessages.firstWhere(
         (m) => m.type == MessageType.ready,
@@ -93,12 +97,7 @@ class NextTierBenefit {
   });
 }
 
-enum BenefitImportance {
-  low,
-  normal,
-  high,
-  critical,
-}
+enum BenefitImportance { low, normal, high, critical }
 
 enum BenefitCategory {
   general,
@@ -128,12 +127,7 @@ class MotivationalMessage {
   });
 }
 
-enum MessageType {
-  encourage,
-  almostThere,
-  ready,
-  celebration,
-}
+enum MessageType { encourage, almostThere, ready, celebration }
 
 /// Interactive next tier preview widget
 class NextTierPreview extends StatefulWidget {
@@ -209,37 +203,25 @@ class _NextTierPreviewState extends State<NextTierPreview>
       vsync: this,
     );
 
-    _shimmerAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _shimmerController,
-      curve: Curves.easeInOut,
-    ));
+    _shimmerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
 
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: widget.data.progressPercentage,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeOutCubic,
-    ));
+    _progressAnimation =
+        Tween<double>(begin: 0.0, end: widget.data.progressPercentage).animate(
+          CurvedAnimation(
+            parent: _progressController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     if (widget.enableAnimations) {
       _shimmerController.repeat(reverse: true);
@@ -328,20 +310,20 @@ class _NextTierPreviewState extends State<NextTierPreview>
     final nextTierName = _getTierName(widget.data.nextTier);
     final currentProgress = (widget.data.progressPercentage * 100).toInt();
     final pointsNeeded = widget.data.pointsNeeded;
-    
+
     final message = widget.data.canUpgradeNow
         ? 'I\'m ready to upgrade to $nextTierName tier! 🚀\n'
-          'Join me and unlock exclusive benefits!'
+              'Join me and unlock exclusive benefits!'
         : 'I\'m $currentProgress% towards $nextTierName tier! 📈\n'
-          'Only $pointsNeeded points to go!\n'
-          'Join me on this journey!';
+              'Only $pointsNeeded points to go!\n'
+              'Join me on this journey!';
 
     Share.share(message, subject: 'Tier Upgrade Progress');
-    
+
     if (widget.enableHaptics) {
       HapticFeedback.mediumImpact();
     }
-    
+
     widget.onShare?.call();
   }
 
@@ -367,15 +349,17 @@ class _NextTierPreviewState extends State<NextTierPreview>
         children: [
           _buildNextTierCard(),
           const SizedBox(height: 16),
-          if (widget.showMotivationalMessage && widget.data.currentMessage != null)
+          if (widget.showMotivationalMessage &&
+              widget.data.currentMessage != null)
             _buildMotivationalMessage(),
-          if (widget.showMotivationalMessage && widget.data.currentMessage != null)
+          if (widget.showMotivationalMessage &&
+              widget.data.currentMessage != null)
             const SizedBox(height: 16),
           _buildProgressSection(),
           const SizedBox(height: 16),
-          if (widget.showDetailedBenefits)
-            _buildBenefitsPreview(),
-          if (widget.showTimeEstimates && widget.data.estimatedTimeToUpgrade != null)
+          if (widget.showDetailedBenefits) _buildBenefitsPreview(),
+          if (widget.showTimeEstimates &&
+              widget.data.estimatedTimeToUpgrade != null)
             _buildTimeEstimate(),
         ],
       ),
@@ -482,7 +466,10 @@ class _NextTierPreviewState extends State<NextTierPreview>
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              if (widget.data.nextTierDescription.isNotEmpty) ...[
+                              if (widget
+                                  .data
+                                  .nextTierDescription
+                                  .isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 Text(
                                   widget.data.nextTierDescription,
@@ -495,7 +482,9 @@ class _NextTierPreviewState extends State<NextTierPreview>
                           ),
                         ),
                         IconButton(
-                          onPressed: widget.onShare != null ? _handleShare : null,
+                          onPressed: widget.onShare != null
+                              ? _handleShare
+                              : null,
                           icon: const Icon(Icons.share),
                           tooltip: 'Share Progress',
                         ),
@@ -535,11 +524,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
             ),
             child: Row(
               children: [
-                Icon(
-                  message.icon,
-                  color: messageColor,
-                  size: 24,
-                ),
+                Icon(message.icon, color: messageColor, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -580,9 +565,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
       onTap: _handleProgressTap,
       child: Card(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -627,7 +610,9 @@ class _NextTierPreviewState extends State<NextTierPreview>
                         child: LinearProgressIndicator(
                           value: _progressAnimation.value,
                           backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(nextTierColor),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            nextTierColor,
+                          ),
                           minHeight: 12,
                         ),
                       ),
@@ -656,7 +641,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                widget.data.canUpgradeNow 
+                                widget.data.canUpgradeNow
                                     ? 'Ready to Upgrade!'
                                     : 'Points Needed',
                                 style: theme.textTheme.bodySmall?.copyWith(
@@ -737,16 +722,14 @@ class _NextTierPreviewState extends State<NextTierPreview>
     final theme = Theme.of(context);
     final nextTierColor = _getTierColor(widget.data.nextTier);
     final topBenefits = widget.data.topBenefits.take(3).toList();
-    
+
     if (topBenefits.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -754,11 +737,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.star,
-                  color: nextTierColor,
-                  size: 20,
-                ),
+                Icon(Icons.star, color: nextTierColor, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Top Benefits Awaiting',
@@ -802,10 +781,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
           decoration: BoxDecoration(
             color: nextTierColor.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: nextTierColor.withOpacity(0.2),
-              width: 1,
-            ),
+            border: Border.all(color: nextTierColor.withOpacity(0.2), width: 1),
           ),
           child: Row(
             children: [
@@ -815,11 +791,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
                   color: importanceColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  benefit.icon,
-                  color: importanceColor,
-                  size: 20,
-                ),
+                child: Icon(benefit.icon, color: importanceColor, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -879,11 +851,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: Colors.grey[400],
-              ),
+              Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
             ],
           ),
         ),
@@ -898,9 +866,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -908,11 +874,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.schedule,
-                  color: nextTierColor,
-                  size: 20,
-                ),
+                Icon(Icons.schedule, color: nextTierColor, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Time to Next Tier',
@@ -953,11 +915,7 @@ class _NextTierPreviewState extends State<NextTierPreview>
                   ),
                   child: Column(
                     children: [
-                      Icon(
-                        Icons.trending_up,
-                        color: nextTierColor,
-                        size: 20,
-                      ),
+                      Icon(Icons.trending_up, color: nextTierColor, size: 20),
                       const SizedBox(height: 4),
                       Text(
                         'Based on\naverage',

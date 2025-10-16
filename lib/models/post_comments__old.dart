@@ -25,8 +25,12 @@ class PostCommentsOld {
       author_id: json['author_id'],
       content: json['content'],
       parent_comment_id: json['parent_comment_id'],
-      created_at: (json['created_at'] == null ? null : DateTime.parse(json['created_at'] as String)),
-      updated_at: (json['updated_at'] == null ? null : DateTime.parse(json['updated_at'] as String)),
+      created_at: (json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String)),
+      updated_at: (json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String)),
     );
   }
 

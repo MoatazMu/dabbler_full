@@ -10,38 +10,34 @@ class ShareResult {
   final String? error;
   final String? platform;
   final Map<String, dynamic>? analytics;
-  
+
   const ShareResult({
     required this.success,
     this.error,
     this.platform,
     this.analytics,
   });
-  
-  factory ShareResult.success({String? platform, Map<String, dynamic>? analytics}) {
-    return ShareResult(
-      success: true,
-      platform: platform,
-      analytics: analytics,
-    );
+
+  factory ShareResult.success({
+    String? platform,
+    Map<String, dynamic>? analytics,
+  }) {
+    return ShareResult(success: true, platform: platform, analytics: analytics);
   }
-  
+
   factory ShareResult.error(String error) {
-    return ShareResult(
-      success: false,
-      error: error,
-    );
+    return ShareResult(success: false, error: error);
   }
 }
 
 /// Animation controller for share actions
 class ShareAnimationController {
   static const Duration animationDuration = Duration(milliseconds: 300);
-  
+
   static void startShareAnimation(BuildContext context) {
     // TODO: Implement share animation
   }
-  
+
   static void stopShareAnimation(BuildContext context) {
     // TODO: Implement stop animation
   }
@@ -49,12 +45,16 @@ class ShareAnimationController {
 
 /// Social sharing mixin for posts, profiles, and achievements
 mixin SocialSharingMixin {
-  
   /// Track share analytics
-  void _trackShareAnalytics(String contentType, String contentId, {required bool success, String? error}) {
+  void _trackShareAnalytics(
+    String contentType,
+    String contentId, {
+    required bool success,
+    String? error,
+  }) {
     // TODO: Implement analytics tracking
   }
-  
+
   /// Share a post with full analytics and error handling
   Future<ShareResult> sharePost(
     Post post, {
@@ -67,17 +67,17 @@ mixin SocialSharingMixin {
       if (generatePreview) {
         await _generateSharePreview(post);
       }
-      
+
       // TODO: Implement actual sharing with ContentSharingHelper
       // Share content - TODO: Fix context parameter requirement
       // final result = await ContentSharingHelper.shareContent(
       //   text: shareText + '\n\n' + deepLink,
       //   context: context, // Required parameter missing
       // );
-      
+
       // Track analytics
       _trackShareAnalytics('post', post.id, success: true);
-      
+
       return ShareResult.success(
         analytics: {
           'content_type': 'post',
@@ -86,11 +86,16 @@ mixin SocialSharingMixin {
         },
       );
     } catch (e) {
-      _trackShareAnalytics('post', post.id, success: false, error: e.toString());
+      _trackShareAnalytics(
+        'post',
+        post.id,
+        success: false,
+        error: e.toString(),
+      );
       return ShareResult.error('Failed to share post: \$e');
     }
   }
-  
+
   /// Share a user profile
   Future<ShareResult> shareUserProfile(
     UserProfile profile, {
@@ -101,19 +106,21 @@ mixin SocialSharingMixin {
       // TODO: Implement actual sharing with ContentSharingHelper
       // Track analytics
       _trackShareAnalytics('profile', profile.id, success: true);
-      
+
       return ShareResult.success(
-        analytics: {
-          'content_type': 'profile',
-          'content_id': profile.id,
-        },
+        analytics: {'content_type': 'profile', 'content_id': profile.id},
       );
     } catch (e) {
-      _trackShareAnalytics('profile', profile.id, success: false, error: e.toString());
+      _trackShareAnalytics(
+        'profile',
+        profile.id,
+        success: false,
+        error: e.toString(),
+      );
       return ShareResult.error('Failed to share profile: \$e');
     }
   }
-  
+
   /// Share a game achievement
   Future<ShareResult> shareAchievement(
     String achievementName,
@@ -125,7 +132,7 @@ mixin SocialSharingMixin {
       // TODO: Implement actual sharing with ContentSharingHelper
       // Track analytics
       _trackShareAnalytics('achievement', achievementId, success: true);
-      
+
       return ShareResult.success(
         analytics: {
           'content_type': 'achievement',
@@ -134,11 +141,16 @@ mixin SocialSharingMixin {
         },
       );
     } catch (e) {
-      _trackShareAnalytics('achievement', achievementId, success: false, error: e.toString());
+      _trackShareAnalytics(
+        'achievement',
+        achievementId,
+        success: false,
+        error: e.toString(),
+      );
       return ShareResult.error('Failed to share achievement: \$e');
     }
   }
-  
+
   /// Generate a preview image for sharing
   Future<String?> _generateSharePreview(Post post) async {
     try {
@@ -149,7 +161,7 @@ mixin SocialSharingMixin {
       return null;
     }
   }
-  
+
   /// Share text content
   Future<ShareResult> shareText(
     String text, {
@@ -163,7 +175,7 @@ mixin SocialSharingMixin {
       return ShareResult.error('Failed to share text: \$e');
     }
   }
-  
+
   /// Share files
   Future<ShareResult> shareFiles(
     List<String> filePaths, {
@@ -179,10 +191,10 @@ mixin SocialSharingMixin {
       return ShareResult.error('Failed to share files: \$e');
     }
   }
-  
+
   /// Check if sharing is available
   bool get canShare => true; // TODO: Implement proper check
-  
+
   /// Get available sharing platforms
   List<String> get availablePlatforms => [
     'native_share',

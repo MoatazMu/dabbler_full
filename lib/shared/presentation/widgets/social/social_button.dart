@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Social button size variants
-enum SocialButtonSize {
-  small,
-  medium,
-  large,
-}
+enum SocialButtonSize { small, medium, large }
 
 /// Social button types with predefined styling
 enum SocialButtonType {
@@ -43,62 +39,62 @@ class SocialButtonOption {
 class SocialButton extends StatefulWidget {
   /// Button type for predefined styling
   final SocialButtonType? type;
-  
+
   /// Custom icon (overrides type icon)
   final IconData? icon;
-  
+
   /// Button text (optional)
   final String? text;
-  
+
   /// Badge count to display
   final int? badgeCount;
-  
+
   /// Loading state
   final bool isLoading;
-  
+
   /// Disabled state
   final bool isDisabled;
-  
+
   /// Selected/active state
   final bool isSelected;
-  
+
   /// Tap callback
   final VoidCallback? onTap;
-  
+
   /// Long press options
   final List<SocialButtonOption>? longPressOptions;
-  
+
   /// Custom colors
   final Color? color;
   final Color? backgroundColor;
   final Color? selectedColor;
   final Color? selectedBackgroundColor;
   final Color? disabledColor;
-  
+
   /// Button size
   final SocialButtonSize size;
-  
+
   /// Custom padding
   final EdgeInsetsGeometry? padding;
-  
+
   /// Show tooltip
   final String? tooltip;
-  
+
   /// Enable haptic feedback
   final bool enableHaptics;
-  
+
   /// Custom border radius
   final BorderRadius? borderRadius;
-  
+
   /// Show border
   final bool showBorder;
-  
+
   /// Animate state changes
   final bool animate;
-  
+
   /// Custom animation duration
   final Duration animationDuration;
-  
+
   /// Semantic label for accessibility
   final String? semanticLabel;
 
@@ -221,29 +217,24 @@ class _SocialButtonState extends State<SocialButton>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.9,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 0.1,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
 
-    _colorAnimation = ColorTween(
-      begin: _getIconColor(),
-      end: _getSelectedIconColor(),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _colorAnimation =
+        ColorTween(
+          begin: _getIconColor(),
+          end: _getSelectedIconColor(),
+        ).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
   }
 
   @override
@@ -269,10 +260,7 @@ class _SocialButtonState extends State<SocialButton>
     Widget button = _buildButton();
 
     if (widget.tooltip != null) {
-      button = Tooltip(
-        message: widget.tooltip!,
-        child: button,
-      );
+      button = Tooltip(message: widget.tooltip!, child: button);
     }
 
     return Semantics(
@@ -298,7 +286,9 @@ class _SocialButtonState extends State<SocialButton>
                 return Transform.scale(
                   scale: _isPressed ? _scaleAnimation.value : 1.0,
                   child: Transform.rotate(
-                    angle: widget.isSelected && widget.type == SocialButtonType.like
+                    angle:
+                        widget.isSelected &&
+                            widget.type == SocialButtonType.like
                         ? _rotationAnimation.value
                         : 0.0,
                     child: child,
@@ -318,20 +308,14 @@ class _SocialButtonState extends State<SocialButton>
         color: _getBackgroundColor(),
         borderRadius: widget.borderRadius ?? _getDefaultBorderRadius(),
         border: widget.showBorder
-            ? Border.all(
-                color: _getBorderColor(),
-                width: 1.0,
-              )
+            ? Border.all(color: _getBorderColor(), width: 1.0)
             : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildIconWithBadge(),
-          if (widget.text != null) ...[
-            const SizedBox(width: 8),
-            _buildText(),
-          ],
+          if (widget.text != null) ...[const SizedBox(width: 8), _buildText()],
         ],
       ),
     );
@@ -345,11 +329,7 @@ class _SocialButtonState extends State<SocialButton>
         clipBehavior: Clip.none,
         children: [
           iconWidget,
-          Positioned(
-            right: -6,
-            top: -6,
-            child: _buildBadge(),
-          ),
+          Positioned(right: -6, top: -6, child: _buildBadge()),
         ],
       );
     }
@@ -384,11 +364,7 @@ class _SocialButtonState extends State<SocialButton>
               );
             },
           )
-        : Icon(
-            iconData,
-            size: _getIconSize(),
-            color: _getIconColor(),
-          );
+        : Icon(iconData, size: _getIconSize(), color: _getIconColor());
   }
 
   Widget _buildBadge() {
@@ -483,24 +459,24 @@ class _SocialButtonState extends State<SocialButton>
             ),
           ),
           const SizedBox(height: 16),
-          ...widget.longPressOptions!.map((option) => ListTile(
-            leading: Icon(
-              option.icon,
-              color: option.isDangerous
-                  ? Colors.red
-                  : (option.color ?? Theme.of(context).iconTheme.color),
-            ),
-            title: Text(
-              option.label,
-              style: TextStyle(
-                color: option.isDangerous ? Colors.red : null,
+          ...widget.longPressOptions!.map(
+            (option) => ListTile(
+              leading: Icon(
+                option.icon,
+                color: option.isDangerous
+                    ? Colors.red
+                    : (option.color ?? Theme.of(context).iconTheme.color),
               ),
+              title: Text(
+                option.label,
+                style: TextStyle(color: option.isDangerous ? Colors.red : null),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                option.onTap();
+              },
             ),
-            onTap: () {
-              Navigator.of(context).pop();
-              option.onTap();
-            },
-          )),
+          ),
           const SizedBox(height: 16),
         ],
       ),
@@ -647,19 +623,19 @@ class _SocialButtonState extends State<SocialButton>
 
   String _getSemanticLabel() {
     String label = widget.text ?? widget.type?.name ?? 'Button';
-    
+
     if (widget.badgeCount != null && widget.badgeCount! > 0) {
       label += ', ${widget.badgeCount} count';
     }
-    
+
     if (widget.isSelected) {
       label += ', selected';
     }
-    
+
     if (widget.isDisabled) {
       label += ', disabled';
     }
-    
+
     return label;
   }
 }

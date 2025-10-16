@@ -8,11 +8,15 @@ class RouteGuard {
   static const String _logTag = 'RouteGuard';
 
   /// Check if user is authenticated for accessing protected routes
-  static String? authGuard(BuildContext context, GoRouterState state, WidgetRef ref) {
+  static String? authGuard(
+    BuildContext context,
+    GoRouterState state,
+    WidgetRef ref,
+  ) {
     try {
       // TODO: Replace with actual auth provider
       // final authState = ref.read(authNotifierProvider);
-      
+
       // Temporary: always allow access until real auth is wired
       return null;
     } catch (e) {
@@ -23,8 +27,8 @@ class RouteGuard {
 
   /// Check if user can edit the specified profile (own profile only)
   static String? profileEditGuard(
-    BuildContext context, 
-    GoRouterState state, 
+    BuildContext context,
+    GoRouterState state,
     WidgetRef ref,
   ) {
     try {
@@ -54,7 +58,11 @@ class RouteGuard {
   }
 
   /// Check if user can access admin features
-  static String? adminGuard(BuildContext context, GoRouterState state, WidgetRef ref) {
+  static String? adminGuard(
+    BuildContext context,
+    GoRouterState state,
+    WidgetRef ref,
+  ) {
     try {
       // First check if user is authenticated
       final authRedirect = authGuard(context, state, ref);
@@ -96,10 +104,13 @@ class RouteGuard {
   }
 
   /// Validate route parameters
-  static bool validateRouteParameters(GoRouterState state, List<String> requiredParams) {
+  static bool validateRouteParameters(
+    GoRouterState state,
+    List<String> requiredParams,
+  ) {
     try {
       for (final param in requiredParams) {
-        if (state.pathParameters[param] == null || 
+        if (state.pathParameters[param] == null ||
             state.pathParameters[param]!.isEmpty) {
           debugPrint('$_logTag: Missing required parameter: $param');
           return false;
@@ -116,7 +127,7 @@ class RouteGuard {
   static void handleRouteError(BuildContext context, String error) {
     try {
       debugPrint('$_logTag: Route error: $error');
-      
+
       // Show error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -150,8 +161,10 @@ class ProfilePageTransition {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: animation.drive(
-            Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                .chain(CurveTween(curve: Curves.easeInOutCubic)),
+            Tween(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).chain(CurveTween(curve: Curves.easeInOutCubic)),
           ),
           child: child,
         );
@@ -174,10 +187,7 @@ class ProfilePageTransition {
       restorationId: restorationId,
       transitionDuration: duration,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+        return FadeTransition(opacity: animation, child: child);
       },
     );
   }
@@ -199,13 +209,12 @@ class ProfilePageTransition {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return ScaleTransition(
           scale: animation.drive(
-            Tween(begin: 0.8, end: 1.0)
-                .chain(CurveTween(curve: Curves.easeInOutCubic)),
+            Tween(
+              begin: 0.8,
+              end: 1.0,
+            ).chain(CurveTween(curve: Curves.easeInOutCubic)),
           ),
-          child: FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
+          child: FadeTransition(opacity: animation, child: child),
         );
       },
     );
@@ -228,8 +237,10 @@ class ProfilePageTransition {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: animation.drive(
-            Tween(begin: const Offset(0.0, 1.0), end: Offset.zero)
-                .chain(CurveTween(curve: Curves.easeOutCubic)),
+            Tween(
+              begin: const Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).chain(CurveTween(curve: Curves.easeOutCubic)),
           ),
           child: child,
         );

@@ -25,17 +25,20 @@ class ProfileService {
     required ImageUploadService imageUploadService,
     required AnalyticsService analyticsService,
     required CacheService cacheService,
-  })  : _profileRepository = profileRepository,
-        _statsRepository = statsRepository,
-        _imageUploadService = imageUploadService,
-        _analyticsService = analyticsService,
-        _cacheService = cacheService;
+  }) : _profileRepository = profileRepository,
+       _statsRepository = statsRepository,
+       _imageUploadService = imageUploadService,
+       _analyticsService = analyticsService,
+       _cacheService = cacheService;
 
   /// Get user profile with caching and analytics tracking
-  Future<UserProfile?> getUserProfile(String userId, {bool forceRefresh = false}) async {
+  Future<UserProfile?> getUserProfile(
+    String userId, {
+    bool forceRefresh = false,
+  }) async {
     try {
       final cacheKey = 'profile_$userId';
-      
+
       // Check cache first unless forced refresh
       if (!forceRefresh) {
         final cachedProfile = await _cacheService.get<UserProfile>(cacheKey);
@@ -49,24 +52,33 @@ class ProfileService {
       final profile = await _profileRepository.getUserProfile(userId);
       if (profile != null) {
         // Cache the profile
-        await _cacheService.set(cacheKey, profile, duration: const Duration(minutes: 30));
-        
+        await _cacheService.set(
+          cacheKey,
+          profile,
+          duration: const Duration(minutes: 30),
+        );
+
         // Track profile view analytics
         await _trackProfileView(profile);
-        
+
         app_logger.Logger.info('Profile loaded for user $userId');
       }
 
       return profile;
     } catch (e) {
       app_logger.Logger.error('Error loading profile for user $userId', e);
-      await _analyticsService.trackError('profile_load_error', {'user_id': userId, 'error': e.toString()});
+      await _analyticsService.trackError('profile_load_error', {
+        'user_id': userId,
+        'error': e.toString(),
+      });
       rethrow;
     }
   }
 
   /// Get current user's profile
-  Future<UserProfile?> getCurrentUserProfile({bool forceRefresh = false}) async {
+  Future<UserProfile?> getCurrentUserProfile({
+    bool forceRefresh = false,
+  }) async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       throw app_exceptions.AuthException('User not authenticated');
@@ -75,7 +87,10 @@ class ProfileService {
   }
 
   /// Update user profile with comprehensive validation and analytics
-  Future<UserProfile> updateProfile(UserProfile profile, {Map<String, dynamic>? changes}) async {
+  Future<UserProfile> updateProfile(
+    UserProfile profile, {
+    Map<String, dynamic>? changes,
+  }) async {
     try {
       // Validate profile data
       await _validateProfileUpdate(profile);
@@ -90,22 +105,34 @@ class ProfileService {
       }
 
       // Update in repository
-      final updatedProfile = await _profileRepository.updateProfile(profile.id, profile.toJson());
+      final updatedProfile = await _profileRepository.updateProfile(
+        profile.id,
+        profile.toJson(),
+      );
 
       // Clear cache
       await _invalidateProfileCache(profile.id);
 
       // Calculate new completion percentage
-      final completionPercentage = _calculateCompletionPercentage(updatedProfile);
+      final completionPercentage = _calculateCompletionPercentage(
+        updatedProfile,
+      );
       final oldPercentage = _calculateCompletionPercentage(profile);
       if (completionPercentage != oldPercentage) {
-        await _trackCompletionChange(profile.id, oldPercentage, completionPercentage);
+        await _trackCompletionChange(
+          profile.id,
+          oldPercentage,
+          completionPercentage,
+        );
       }
 
       app_logger.Logger.info('Profile updated for user ${profile.id}');
       return updatedProfile;
     } catch (e) {
-      app_logger.Logger.error('Error updating profile for user ${profile.id}', e);
+      app_logger.Logger.error(
+        'Error updating profile for user ${profile.id}',
+        e,
+      );
       await _analyticsService.trackError('profile_update_error', {
         'user_id': profile.id,
         'error': e.toString(),
@@ -115,7 +142,10 @@ class ProfileService {
   }
 
   /// Update profile avatar with image processing
-  Future<UserProfile> updateProfileAvatar(String userId, String imagePath) async {
+  Future<UserProfile> updateProfileAvatar(
+    String userId,
+    String imagePath,
+  ) async {
     try {
       // Upload and process image
       final uploadResult = await _imageUploadService.uploadProfileImage(
@@ -136,7 +166,10 @@ class ProfileService {
       );
 
       // Save updated profile
-      final result = await updateProfile(updatedProfile, changes: {'avatarUrl': uploadResult.url});
+      final result = await updateProfile(
+        updatedProfile,
+        changes: {'avatarUrl': uploadResult.url},
+      );
 
       // Track avatar update
       await _analyticsService.trackEvent('avatar_updated', {
@@ -166,29 +199,33 @@ class ProfileService {
       }
 
       final stats = await _statsRepository.getProfileStats(userId);
-      
-      return ProfileWithStats(
-        profile: profile,
-        stats: stats,
-      );
+
+      return ProfileWithStats(profile: profile, stats: stats);
     } catch (e) {
-      app_logger.Logger.error('Error loading profile with stats for user $userId', e);
+      app_logger.Logger.error(
+        'Error loading profile with stats for user $userId',
+        e,
+      );
       rethrow;
     }
   }
 
   /// Search profiles with caching
-  Future<List<UserProfile>> searchProfiles(String query, {
+  Future<List<UserProfile>> searchProfiles(
+    String query, {
     int limit = 20,
     int offset = 0,
     List<String>? sports,
     String? location,
   }) async {
     try {
-      final cacheKey = 'search_${query}_${sports?.join(',')}_${location}_${limit}_$offset';
-      
+      final cacheKey =
+          'search_${query}_${sports?.join(',')}_${location}_${limit}_$offset';
+
       // Check cache first
-      final cachedResults = await _cacheService.get<List<UserProfile>>(cacheKey);
+      final cachedResults = await _cacheService.get<List<UserProfile>>(
+        cacheKey,
+      );
       if (cachedResults != null) {
         return cachedResults;
       }
@@ -203,22 +240,26 @@ class ProfileService {
       );
 
       // Cache results for shorter duration (search results change frequently)
-      await _cacheService.set(cacheKey, results, duration: const Duration(minutes: 5));
+      await _cacheService.set(
+        cacheKey,
+        results,
+        duration: const Duration(minutes: 5),
+      );
 
       // Track search analytics
       await _analyticsService.trackEvent('profile_search', {
         'query': query,
         'results_count': results.length,
-        'filters': {
-          'sports': sports,
-          'location': location,
-        },
+        'filters': {'sports': sports, 'location': location},
       });
 
       return results;
     } catch (e) {
       app_logger.Logger.error('Error searching profiles', e);
-      await _analyticsService.trackError('profile_search_error', {'query': query, 'error': e.toString()});
+      await _analyticsService.trackError('profile_search_error', {
+        'query': query,
+        'error': e.toString(),
+      });
       rethrow;
     }
   }
@@ -227,69 +268,85 @@ class ProfileService {
   List<ProfileCompletionStep> getCompletionSteps(UserProfile profile) {
     final steps = <ProfileCompletionStep>[];
 
-    steps.add(ProfileCompletionStep(
-      id: 'basic_info',
-      title: 'Basic Information',
-      description: 'Add your name and basic details',
-      isCompleted: profile.displayName.isNotEmpty,
-      weight: 10.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'basic_info',
+        title: 'Basic Information',
+        description: 'Add your name and basic details',
+        isCompleted: profile.displayName.isNotEmpty,
+        weight: 10.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'avatar',
-      title: 'Profile Photo',
-      description: 'Upload a profile picture',
-      isCompleted: profile.avatarUrl?.isNotEmpty ?? false,
-      weight: 15.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'avatar',
+        title: 'Profile Photo',
+        description: 'Upload a profile picture',
+        isCompleted: profile.avatarUrl?.isNotEmpty ?? false,
+        weight: 15.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'bio',
-      title: 'Bio',
-      description: 'Tell others about yourself',
-      isCompleted: profile.bio?.isNotEmpty ?? false,
-      weight: 10.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'bio',
+        title: 'Bio',
+        description: 'Tell others about yourself',
+        isCompleted: profile.bio?.isNotEmpty ?? false,
+        weight: 10.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'location',
-      title: 'Location',
-      description: 'Add your location to find nearby players',
-      isCompleted: profile.location?.isNotEmpty ?? false,
-      weight: 10.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'location',
+        title: 'Location',
+        description: 'Add your location to find nearby players',
+        isCompleted: profile.location?.isNotEmpty ?? false,
+        weight: 10.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'sports',
-      title: 'Sports & Interests',
-      description: 'Select your favorite sports',
-      isCompleted: profile.sportsProfiles.isNotEmpty,
-      weight: 20.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'sports',
+        title: 'Sports & Interests',
+        description: 'Select your favorite sports',
+        isCompleted: profile.sportsProfiles.isNotEmpty,
+        weight: 20.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'skill_levels',
-      title: 'Skill Levels',
-      description: 'Set your skill level for each sport',
-      isCompleted: profile.sportsProfiles.isNotEmpty,
-      weight: 15.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'skill_levels',
+        title: 'Skill Levels',
+        description: 'Set your skill level for each sport',
+        isCompleted: profile.sportsProfiles.isNotEmpty,
+        weight: 15.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'availability',
-      title: 'Availability',
-      description: 'Set your weekly availability',
-      isCompleted: profile.preferences.weeklyAvailability.isNotEmpty,
-      weight: 10.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'availability',
+        title: 'Availability',
+        description: 'Set your weekly availability',
+        isCompleted: profile.preferences.weeklyAvailability.isNotEmpty,
+        weight: 10.0,
+      ),
+    );
 
-    steps.add(ProfileCompletionStep(
-      id: 'preferences',
-      title: 'Game Preferences',
-      description: 'Set your game preferences',
-      isCompleted: profile.preferences.preferredGameTypes.isNotEmpty,
-      weight: 10.0,
-    ));
+    steps.add(
+      ProfileCompletionStep(
+        id: 'preferences',
+        title: 'Game Preferences',
+        description: 'Set your game preferences',
+        isCompleted: profile.preferences.preferredGameTypes.isNotEmpty,
+        weight: 10.0,
+      ),
+    );
 
     return steps;
   }
@@ -323,7 +380,8 @@ class ProfileService {
     }
 
     // Email validation if provided
-    if (profile.email.isNotEmpty && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(profile.email)) {
+    if (profile.email.isNotEmpty &&
+        !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(profile.email)) {
       errors.add('Invalid email format');
     }
 
@@ -354,7 +412,11 @@ class ProfileService {
   }
 
   /// Track completion percentage change
-  Future<void> _trackCompletionChange(String userId, double oldPercentage, double newPercentage) async {
+  Future<void> _trackCompletionChange(
+    String userId,
+    double oldPercentage,
+    double newPercentage,
+  ) async {
     await _analyticsService.trackEvent('profile_completion_changed', {
       'user_id': userId,
       'old_percentage': oldPercentage,
@@ -377,7 +439,7 @@ class ProfileService {
   /// Invalidate profile cache
   Future<void> _invalidateProfileCache(String userId) async {
     await _cacheService.delete('profile_$userId');
-    
+
     // Also clear related caches
     final keys = await _cacheService.getKeys();
     for (final key in keys) {
@@ -392,7 +454,7 @@ class ProfileService {
     try {
       await _statsRepository.getProfileStats(userId);
       await _invalidateProfileCache(userId);
-      
+
       Logger.info('Stats refreshed for user $userId');
     } catch (e) {
       Logger.error('Error refreshing stats for user $userId', e);
@@ -406,7 +468,7 @@ class ProfileService {
       // This will be called by AccountDeletionService
       await _profileRepository.deleteProfile(userId);
       await _invalidateProfileCache(userId);
-      
+
       app_logger.Logger.info('Profile deleted for user $userId');
     } catch (e) {
       app_logger.Logger.error('Error deleting profile for user $userId', e);
@@ -420,10 +482,7 @@ class ProfileWithStats {
   final UserProfile profile;
   final ProfileStatistics stats;
 
-  ProfileWithStats({
-    required this.profile,
-    required this.stats,
-  });
+  ProfileWithStats({required this.profile, required this.stats});
 }
 
 /// Profile completion step
@@ -449,7 +508,7 @@ final profileServiceProvider = Provider<ProfileService>((ref) {
     profileRepository: ref.watch(profileRepositoryProvider),
     statsRepository: ref.watch(profileStatsRepositoryProvider),
     imageUploadService: ImageUploadService(), // TODO: Add provider
-    analyticsService: AnalyticsService(), // TODO: Add provider  
+    analyticsService: AnalyticsService(), // TODO: Add provider
     cacheService: CacheService(), // TODO: Add provider
   );
 });

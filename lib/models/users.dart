@@ -69,18 +69,26 @@ class Users {
       id: json['id'],
       email: json['email'],
       display_name: json['display_name'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       age: json['age'],
       intent: json['intent'],
       avatar_url: json['avatar_url'],
-      updated_at: (json['updated_at'] == null ? null : DateTime.parse(json['updated_at'] as String)),
+      updated_at: (json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String)),
       sports: json['sports'],
       phone: json['phone'],
-      phone_confirmed_at: (json['phone_confirmed_at'] == null ? null : DateTime.parse(json['phone_confirmed_at'] as String)),
-      email_confirmed_at: (json['email_confirmed_at'] == null ? null : DateTime.parse(json['email_confirmed_at'] as String)),
-      last_sign_in_at: (json['last_sign_in_at'] == null ? null : DateTime.parse(json['last_sign_in_at'] as String)),
+      phone_confirmed_at: (json['phone_confirmed_at'] == null
+          ? null
+          : DateTime.parse(json['phone_confirmed_at'] as String)),
+      email_confirmed_at: (json['email_confirmed_at'] == null
+          ? null
+          : DateTime.parse(json['email_confirmed_at'] as String)),
+      last_sign_in_at: (json['last_sign_in_at'] == null
+          ? null
+          : DateTime.parse(json['last_sign_in_at'] as String)),
       is_anonymous: json['is_anonymous'],
       onboarding_completed: json['onboarding_completed'],
       onboarding_step: json['onboarding_step'],
@@ -91,7 +99,9 @@ class Users {
       skill_level: json['skill_level'],
       games_played: json['games_played'],
       bio: json['bio'],
-      date_of_birth: (json['date_of_birth'] == null ? null : DateTime.parse(json['date_of_birth'] as String)),
+      date_of_birth: (json['date_of_birth'] == null
+          ? null
+          : DateTime.parse(json['date_of_birth'] as String)),
       is_profile_complete: json['is_profile_complete'],
       is_email_verified: json['is_email_verified'],
       is_phone_verified: json['is_phone_verified'],

@@ -54,13 +54,14 @@ class VenuesService {
       final cachedResult = await _cacheService.get<VenueSearchResult>(
         '$_searchResultsCacheKey:$cacheKey',
       );
-      
+
       if (cachedResult != null && !_isCacheExpired(cachedResult.timestamp)) {
         return cachedResult;
       }
 
       // Get user location if not provided
-      final searchLocation = userLocation ?? await _locationService.getCurrentLocation();
+      final searchLocation =
+          userLocation ?? await _locationService.getCurrentLocation();
 
       // Search venues from repository
       final allVenues = await _venuesRepository.searchVenues(
@@ -71,13 +72,13 @@ class VenuesService {
 
       // Filter and score venues
       final filteredVenues = <ScoredVenue>[];
-      
+
       for (final venue in allVenues) {
         // Distance filter
         final distance = searchLocation != null
             ? _calculateDistance(searchLocation, venue.location)
             : 0.0;
-            
+
         if (maxDistance != null && distance > maxDistance) continue;
 
         // Availability check
@@ -86,7 +87,7 @@ class VenuesService {
           dateTime,
           duration,
         );
-        
+
         if (!availability.isAvailable) continue;
 
         // Price calculation
@@ -98,7 +99,8 @@ class VenuesService {
         );
 
         // Price range filter
-        if (priceRange != null && !_isPriceInRange(pricing.totalPrice, priceRange)) {
+        if (priceRange != null &&
+            !_isPriceInRange(pricing.totalPrice, priceRange)) {
           continue;
         }
 
@@ -111,13 +113,15 @@ class VenuesService {
           skillLevel: skillLevel,
         );
 
-        filteredVenues.add(ScoredVenue(
-          venue: venue,
-          score: score,
-          distance: distance,
-          pricing: pricing,
-          availability: availability,
-        ));
+        filteredVenues.add(
+          ScoredVenue(
+            venue: venue,
+            score: score,
+            distance: distance,
+            pricing: pricing,
+            availability: availability,
+          ),
+        );
       }
 
       // Sort by score
@@ -138,7 +142,6 @@ class VenuesService {
       );
 
       return result;
-
     } catch (e, stackTrace) {
       debugPrint('Error searching venues: $e\n$stackTrace');
       return VenueSearchResult(
@@ -158,12 +161,14 @@ class VenuesService {
     required Duration duration,
   }) async {
     // Check cache first
-    final cacheKey = '${venueId}_${dateTime.millisecondsSinceEpoch}_${duration.inMinutes}';
+    final cacheKey =
+        '${venueId}_${dateTime.millisecondsSinceEpoch}_${duration.inMinutes}';
     final cachedResult = await _cacheService.get<VenueAvailabilityResult>(
       '$_availabilityCacheKey:$cacheKey',
     );
 
-    if (cachedResult != null && !_isCacheExpired(cachedResult.timestamp, minutes: 5)) {
+    if (cachedResult != null &&
+        !_isCacheExpired(cachedResult.timestamp, minutes: 5)) {
       return cachedResult;
     }
 
@@ -177,7 +182,11 @@ class VenuesService {
       );
     }
 
-    final availability = await _checkVenueAvailability(venue, dateTime, duration);
+    final availability = await _checkVenueAvailability(
+      venue,
+      dateTime,
+      duration,
+    );
 
     // Cache the result
     await _cacheService.set(
@@ -202,10 +211,13 @@ class VenuesService {
     final double deltaLatRad = (to.latitude - from.latitude) * math.pi / 180;
     final double deltaLngRad = (to.longitude - from.longitude) * math.pi / 180;
 
-    final double a = math.sin(deltaLatRad / 2) * math.sin(deltaLatRad / 2) +
-        math.cos(lat1Rad) * math.cos(lat2Rad) *
-        math.sin(deltaLngRad / 2) * math.sin(deltaLngRad / 2);
-    
+    final double a =
+        math.sin(deltaLatRad / 2) * math.sin(deltaLatRad / 2) +
+        math.cos(lat1Rad) *
+            math.cos(lat2Rad) *
+            math.sin(deltaLngRad / 2) *
+            math.sin(deltaLngRad / 2);
+
     final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 
     return earthRadius * c;
@@ -219,13 +231,14 @@ class VenuesService {
     int limit = 10,
   }) async {
     try {
-      final cacheKey = '${userId}_${sport}_${userLocation?.toString() ?? 'no_location'}';
-      
+      final cacheKey =
+          '${userId}_${sport}_${userLocation?.toString() ?? 'no_location'}';
+
       // Check cache
       final cached = await _cacheService.get<List<RecommendedVenue>>(
         '$_recommendationsCacheKey:$cacheKey',
       );
-      
+
       if (cached != null) {
         return cached.take(limit).toList();
       }
@@ -233,13 +246,13 @@ class VenuesService {
       // Get user's game history and preferences
       final userPreferences = await _getUserPreferences(userId, sport);
       final gameHistory = await _getUserGameHistory(userId, sport);
-      
+
       // Get venues for the sport
       final venues = await _venuesRepository.searchVenues(sport: sport);
-      
+
       // Score venues based on user preferences
       final recommendations = <RecommendedVenue>[];
-      
+
       for (final venue in venues) {
         final score = _calculateRecommendationScore(
           venue: venue,
@@ -247,28 +260,34 @@ class VenuesService {
           gameHistory: gameHistory,
           userLocation: userLocation,
         );
-        
-        if (score > 0.3) { // Threshold for recommendations
-          recommendations.add(RecommendedVenue(
-            venue: venue,
-            score: score,
-            reasons: _generateRecommendationReasons(venue, userPreferences, gameHistory),
-          ));
+
+        if (score > 0.3) {
+          // Threshold for recommendations
+          recommendations.add(
+            RecommendedVenue(
+              venue: venue,
+              score: score,
+              reasons: _generateRecommendationReasons(
+                venue,
+                userPreferences,
+                gameHistory,
+              ),
+            ),
+          );
         }
       }
-      
+
       // Sort by score
       recommendations.sort((a, b) => b.score.compareTo(a.score));
-      
+
       // Cache recommendations
       await _cacheService.set(
         '$_recommendationsCacheKey:$cacheKey',
         recommendations,
         duration: const Duration(hours: 1),
       );
-      
+
       return recommendations.take(limit).toList();
-      
     } catch (e) {
       debugPrint('Error generating recommendations: $e');
       return [];
@@ -299,12 +318,12 @@ class VenuesService {
   bool isPeakTime(DateTime dateTime) {
     final hour = dateTime.hour;
     final weekday = dateTime.weekday;
-    
+
     // Weekend peak hours: 8AM - 8PM
     if (weekday == DateTime.saturday || weekday == DateTime.sunday) {
       return hour >= 8 && hour <= 20;
     }
-    
+
     // Weekday peak hours: 6PM - 10PM and 6AM - 9AM
     return (hour >= 18 && hour <= 22) || (hour >= 6 && hour <= 9);
   }
@@ -313,13 +332,13 @@ class VenuesService {
     if (isPeakTime(dateTime)) {
       return 1.5; // 50% increase during peak times
     }
-    
+
     // Off-peak discount
     final hour = dateTime.hour;
     if (hour >= 10 && hour <= 14) {
       return 0.8; // 20% discount during off-peak
     }
-    
+
     return 1.0; // Standard pricing
   }
 
@@ -348,12 +367,13 @@ class VenuesService {
       );
 
       final endTime = dateTime.add(duration);
-      
+
       for (final booking in existingBookings) {
         final bookingEnd = booking.dateTime.add(booking.duration);
-        
+
         // Check for overlap
-        if (dateTime.isBefore(bookingEnd) && endTime.isAfter(booking.dateTime)) {
+        if (dateTime.isBefore(bookingEnd) &&
+            endTime.isAfter(booking.dateTime)) {
           return VenueAvailabilityResult(
             isAvailable: false,
             reason: 'Venue already booked for this time',
@@ -369,7 +389,6 @@ class VenuesService {
         timestamp: DateTime.now(),
         requiresBooking: venue.requiresBooking,
       );
-
     } catch (e) {
       return VenueAvailabilityResult(
         isAvailable: false,
@@ -379,56 +398,72 @@ class VenuesService {
     }
   }
 
-  bool _isWithinOperatingHours(Venue venue, DateTime dateTime, Duration duration) {
+  bool _isWithinOperatingHours(
+    Venue venue,
+    DateTime dateTime,
+    Duration duration,
+  ) {
     final dayOfWeek = dateTime.weekday;
     final operatingHours = venue.operatingHours[dayOfWeek];
-    
+
     if (operatingHours == null || !operatingHours.isOpen) {
       return false;
     }
 
     final timeOfDay = TimeOfDay.fromDateTime(dateTime);
     final endTimeOfDay = TimeOfDay.fromDateTime(dateTime.add(duration));
-    
+
     return _isTimeAfterOrEqual(timeOfDay, operatingHours.openTime) &&
-           _isTimeBeforeOrEqual(endTimeOfDay, operatingHours.closeTime);
+        _isTimeBeforeOrEqual(endTimeOfDay, operatingHours.closeTime);
   }
 
   bool _isTimeAfterOrEqual(TimeOfDay time1, TimeOfDay time2) {
     return time1.hour > time2.hour ||
-           (time1.hour == time2.hour && time1.minute >= time2.minute);
+        (time1.hour == time2.hour && time1.minute >= time2.minute);
   }
 
   bool _isTimeBeforeOrEqual(TimeOfDay time1, TimeOfDay time2) {
     return time1.hour < time2.hour ||
-           (time1.hour == time2.hour && time1.minute <= time2.minute);
+        (time1.hour == time2.hour && time1.minute <= time2.minute);
   }
 
   List<DateTime> _getSuggestedTimes(Venue venue, DateTime requestedTime) {
     final suggestions = <DateTime>[];
-    final baseDate = DateTime(requestedTime.year, requestedTime.month, requestedTime.day);
-    
+    final baseDate = DateTime(
+      requestedTime.year,
+      requestedTime.month,
+      requestedTime.day,
+    );
+
     // Suggest times for the same day
     for (int hour = 8; hour <= 20; hour += 2) {
       final suggestionTime = baseDate.add(Duration(hours: hour));
-      if (suggestionTime.isAfter(DateTime.now()) && 
-          _isWithinOperatingHours(venue, suggestionTime, const Duration(hours: 1))) {
+      if (suggestionTime.isAfter(DateTime.now()) &&
+          _isWithinOperatingHours(
+            venue,
+            suggestionTime,
+            const Duration(hours: 1),
+          )) {
         suggestions.add(suggestionTime);
       }
     }
-    
+
     // Suggest times for next day if same day has no suggestions
     if (suggestions.isEmpty) {
       final nextDay = baseDate.add(const Duration(days: 1));
       for (int hour = 8; hour <= 20; hour += 2) {
         final suggestionTime = nextDay.add(Duration(hours: hour));
-        if (_isWithinOperatingHours(venue, suggestionTime, const Duration(hours: 1))) {
+        if (_isWithinOperatingHours(
+          venue,
+          suggestionTime,
+          const Duration(hours: 1),
+        )) {
           suggestions.add(suggestionTime);
           if (suggestions.length >= 3) break;
         }
       }
     }
-    
+
     return suggestions.take(5).toList();
   }
 
@@ -508,7 +543,9 @@ class VenuesService {
 
     // Amenity preferences
     final matchingAmenities = venue.amenities
-        .where((amenity) => userPreferences.preferredAmenities.contains(amenity))
+        .where(
+          (amenity) => userPreferences.preferredAmenities.contains(amenity),
+        )
         .length;
     score += matchingAmenities * 0.05;
 
@@ -537,7 +574,7 @@ class VenuesService {
     final matchingAmenities = venue.amenities
         .where((amenity) => preferences.preferredAmenities.contains(amenity))
         .toList();
-    
+
     if (matchingAmenities.isNotEmpty) {
       reasons.add('Has ${matchingAmenities.join(', ')}');
     }
@@ -545,7 +582,10 @@ class VenuesService {
     return reasons;
   }
 
-  Future<UserPreferences> _getUserPreferences(String userId, String sport) async {
+  Future<UserPreferences> _getUserPreferences(
+    String userId,
+    String sport,
+  ) async {
     // This would fetch from a repository
     return UserPreferences(
       maxPreferredDistance: 10.0,
@@ -554,7 +594,10 @@ class VenuesService {
     );
   }
 
-  Future<List<GameHistory>> _getUserGameHistory(String userId, String sport) async {
+  Future<List<GameHistory>> _getUserGameHistory(
+    String userId,
+    String sport,
+  ) async {
     // This would fetch from a repository
     return [];
   }
@@ -588,7 +631,7 @@ class VenuesService {
     buffer.write('${requiredAmenities?.join(',') ?? 'no_amenities'}_');
     buffer.write('${skillLevel ?? 'no_skill'}_');
     buffer.write('${minRating ?? 'no_rating'}');
-    
+
     return buffer.toString().hashCode.toString();
   }
 
@@ -719,7 +762,7 @@ class Location {
 
   @override
   String toString() => '($latitude,$longitude)';
-  
+
   @override
   int get hashCode => latitude.hashCode ^ longitude.hashCode;
 }
@@ -795,7 +838,11 @@ abstract class VenuesRepository {
     int? minRating,
   });
   Future<Venue?> getVenueById(String venueId);
-  Future<List<VenueBooking>> getVenueBookings(String venueId, DateTime start, DateTime end);
+  Future<List<VenueBooking>> getVenueBookings(
+    String venueId,
+    DateTime start,
+    DateTime end,
+  );
 }
 
 abstract class LocationService {

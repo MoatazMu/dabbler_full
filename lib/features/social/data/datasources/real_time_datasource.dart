@@ -54,13 +54,7 @@ enum ConnectionState {
 }
 
 /// Event types for real-time updates
-enum EventType {
-  insert,
-  update,
-  delete,
-  select,
-  custom,
-}
+enum EventType { insert, update, delete, select, custom }
 
 /// Real-time event data
 class RealTimeEvent {
@@ -92,7 +86,9 @@ class RealTimeEvent {
       table: json['table'] ?? '',
       oldRecord: Map<String, dynamic>.from(json['old_record'] ?? {}),
       newRecord: Map<String, dynamic>.from(json['new_record'] ?? {}),
-      timestamp: DateTime.parse(json['timestamp'] ?? DateTime.now().toIso8601String()),
+      timestamp: DateTime.parse(
+        json['timestamp'] ?? DateTime.now().toIso8601String(),
+      ),
       metadata: Map<String, dynamic>.from(json['metadata'] ?? {}),
     );
   }
@@ -172,10 +168,7 @@ class QueuedEvent {
     this.nextRetry,
   });
 
-  QueuedEvent copyWith({
-    int? retryCount,
-    DateTime? nextRetry,
-  }) {
+  QueuedEvent copyWith({int? retryCount, DateTime? nextRetry}) {
     return QueuedEvent(
       id: id,
       type: type,
@@ -255,7 +248,7 @@ abstract class RealTimeDataSource {
   Stream<RealTimeEvent> getAllEventsStream();
 
   /// Specific social feature subscriptions
-  
+
   /// Friends real-time updates
   Future<String> subscribeFriendRequests(String userId);
 
@@ -345,7 +338,7 @@ class EventQueueManager {
   final List<QueuedEvent> _queue = [];
   final int _maxQueueSize;
   final Duration _maxEventAge;
-  
+
   EventQueueManager({
     int maxQueueSize = 1000,
     Duration maxEventAge = const Duration(hours: 24),
@@ -354,8 +347,9 @@ class EventQueueManager {
 
   void enqueue(QueuedEvent event) {
     // Remove old events
-    _queue.removeWhere((e) => 
-        DateTime.now().difference(e.timestamp) > _maxEventAge);
+    _queue.removeWhere(
+      (e) => DateTime.now().difference(e.timestamp) > _maxEventAge,
+    );
 
     // Remove oldest events if queue is full
     while (_queue.length >= _maxQueueSize) {
@@ -373,14 +367,18 @@ class EventQueueManager {
 
   List<QueuedEvent> dequeuePending() {
     final now = DateTime.now();
-    final pendingEvents = _queue.where((event) => 
-        event.nextRetry == null || now.isAfter(event.nextRetry!)).toList();
-    
+    final pendingEvents = _queue
+        .where(
+          (event) => event.nextRetry == null || now.isAfter(event.nextRetry!),
+        )
+        .toList();
+
     _queue.removeWhere((event) => pendingEvents.contains(event));
     return pendingEvents;
   }
 
-  void requeueWithBackoff(QueuedEvent event, {
+  void requeueWithBackoff(
+    QueuedEvent event, {
     Duration baseDelay = const Duration(seconds: 1),
     double backoffMultiplier = 2.0,
     Duration maxDelay = const Duration(minutes: 5),
@@ -475,7 +473,9 @@ class PerformanceMetrics {
 
   Map<String, dynamic> getMetrics() {
     final now = DateTime.now();
-    final uptime = _startTime != null ? now.difference(_startTime!) : Duration.zero;
+    final uptime = _startTime != null
+        ? now.difference(_startTime!)
+        : Duration.zero;
 
     return {
       'uptime_seconds': uptime.inSeconds,
@@ -486,8 +486,8 @@ class PerformanceMetrics {
       'connection_events': _connectionEvents.length,
       'events_per_minute': _eventCounts.values.isEmpty
           ? 0
-          : _eventCounts.values.reduce((a, b) => a + b) / 
-            max(1, uptime.inMinutes),
+          : _eventCounts.values.reduce((a, b) => a + b) /
+                max(1, uptime.inMinutes),
     };
   }
 

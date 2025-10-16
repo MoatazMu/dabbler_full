@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
- 
 
 /// Exception types for analytics data source operations
 class AnalyticsDataSourceException implements Exception {
@@ -126,10 +125,14 @@ class ProfileCompletionMetrics {
     return ProfileCompletionMetrics(
       userId: json['user_id'],
       completionPercentage: (json['completion_percentage'] ?? 0.0).toDouble(),
-      completedSections: Map<String, bool>.from(json['completed_sections'] ?? {}),
+      completedSections: Map<String, bool>.from(
+        json['completed_sections'] ?? {},
+      ),
       missingSections: List<String>.from(json['missing_sections'] ?? []),
-      sectionCompletionDates: (json['section_completion_dates'] as Map<String, dynamic>? ?? {})
-          .map((key, value) => MapEntry(key, DateTime.parse(value))),
+      sectionCompletionDates:
+          (json['section_completion_dates'] as Map<String, dynamic>? ?? {}).map(
+            (key, value) => MapEntry(key, DateTime.parse(value)),
+          ),
       lastUpdated: DateTime.parse(json['last_updated']),
     );
   }
@@ -200,7 +203,8 @@ class EngagementMetrics {
       gameInvitesReceived: json['game_invites_received'] ?? 0,
       friendRequestsSent: json['friend_requests_sent'] ?? 0,
       friendRequestsReceived: json['friend_requests_received'] ?? 0,
-      averageSessionDuration: (json['average_session_duration'] ?? 0.0).toDouble(),
+      averageSessionDuration: (json['average_session_duration'] ?? 0.0)
+          .toDouble(),
       totalSessions: json['total_sessions'] ?? 0,
       featureUsage: Map<String, int>.from(json['feature_usage'] ?? {}),
       engagementScore: (json['engagement_score'] ?? 0.0).toDouble(),
@@ -213,44 +217,113 @@ abstract class ProfileAnalyticsDataSource {
   // Event Tracking
   Future<void> trackEvent(AnalyticsEvent event);
   Future<void> trackBatchEvents(List<AnalyticsEvent> events);
-  Future<void> trackProfileView(String viewerId, String profileUserId, {
+  Future<void> trackProfileView(
+    String viewerId,
+    String profileUserId, {
     String? source,
     Map<String, dynamic>? context,
   });
-  Future<void> trackProfileUpdate(String userId, String section, Map<String, dynamic> changes);
-  Future<void> trackAvatarUpload(String userId, {String? fileName, int? fileSize});
-  Future<void> trackSportProfileAction(String userId, String action, String sportId);
-  Future<void> trackSettingsUpdate(String userId, String category, Map<String, dynamic> changes);
-  Future<void> trackPreferencesUpdate(String userId, String category, dynamic newValue);
+  Future<void> trackProfileUpdate(
+    String userId,
+    String section,
+    Map<String, dynamic> changes,
+  );
+  Future<void> trackAvatarUpload(
+    String userId, {
+    String? fileName,
+    int? fileSize,
+  });
+  Future<void> trackSportProfileAction(
+    String userId,
+    String action,
+    String sportId,
+  );
+  Future<void> trackSettingsUpdate(
+    String userId,
+    String category,
+    Map<String, dynamic> changes,
+  );
+  Future<void> trackPreferencesUpdate(
+    String userId,
+    String category,
+    dynamic newValue,
+  );
   Future<void> trackSearch(String userId, String query, int resultsCount);
-  Future<void> trackMatchmakingRequest(String userId, Map<String, dynamic> criteria);
+  Future<void> trackMatchmakingRequest(
+    String userId,
+    Map<String, dynamic> criteria,
+  );
 
   // Profile Completion Tracking
   Future<ProfileCompletionMetrics> getProfileCompletion(String userId);
-  Future<void> updateProfileCompletion(String userId, String section, bool completed);
-  Future<Map<String, double>> getCompletionTrends(String userId, DateTime startDate, DateTime endDate);
+  Future<void> updateProfileCompletion(
+    String userId,
+    String section,
+    bool completed,
+  );
+  Future<Map<String, double>> getCompletionTrends(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  );
   Future<List<String>> getIncompleteProfileSuggestions(String userId);
 
   // Engagement Metrics
-  Future<EngagementMetrics> getEngagementMetrics(String userId, DateTime startDate, DateTime endDate);
-  Future<Map<String, int>> getFeatureUsageStats(String userId, DateTime startDate, DateTime endDate);
-  Future<double> calculateEngagementScore(String userId, DateTime startDate, DateTime endDate);
-  Future<List<Map<String, dynamic>>> getEngagementTrends(String userId, int days);
+  Future<EngagementMetrics> getEngagementMetrics(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<Map<String, int>> getFeatureUsageStats(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<double> calculateEngagementScore(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<List<Map<String, dynamic>>> getEngagementTrends(
+    String userId,
+    int days,
+  );
 
   // Session Tracking
-  Future<void> startSession(String userId, String sessionId, {
+  Future<void> startSession(
+    String userId,
+    String sessionId, {
     String? deviceId,
     String? platform,
     Map<String, dynamic>? context,
   });
   Future<void> endSession(String userId, String sessionId, Duration duration);
-  Future<Map<String, dynamic>> getSessionStats(String userId, DateTime startDate, DateTime endDate);
+  Future<Map<String, dynamic>> getSessionStats(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  );
 
   // Popular Content and Trends
-  Future<List<Map<String, dynamic>>> getMostViewedProfiles(int limit, DateTime startDate, DateTime endDate);
-  Future<List<Map<String, dynamic>>> getPopularSports(int limit, DateTime startDate, DateTime endDate);
-  Future<List<Map<String, dynamic>>> getTrendingLocations(int limit, DateTime startDate, DateTime endDate);
-  Future<Map<String, dynamic>> getSearchTrends(DateTime startDate, DateTime endDate);
+  Future<List<Map<String, dynamic>>> getMostViewedProfiles(
+    int limit,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<List<Map<String, dynamic>>> getPopularSports(
+    int limit,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<List<Map<String, dynamic>>> getTrendingLocations(
+    int limit,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<Map<String, dynamic>> getSearchTrends(
+    DateTime startDate,
+    DateTime endDate,
+  );
 
   // User Behavior Analysis
   Future<Map<String, dynamic>> getUserBehaviorPattern(String userId);
@@ -259,10 +332,23 @@ abstract class ProfileAnalyticsDataSource {
   Future<double> calculateUserRetentionScore(String userId);
 
   // Reporting and Insights
-  Future<Map<String, dynamic>> generateUserReport(String userId, DateTime startDate, DateTime endDate);
-  Future<Map<String, dynamic>> getSystemWideMetrics(DateTime startDate, DateTime endDate);
-  Future<List<Map<String, dynamic>>> getTopPerformingFeatures(DateTime startDate, DateTime endDate);
-  Future<Map<String, dynamic>> getConversionFunnelData(DateTime startDate, DateTime endDate);
+  Future<Map<String, dynamic>> generateUserReport(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<Map<String, dynamic>> getSystemWideMetrics(
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<List<Map<String, dynamic>>> getTopPerformingFeatures(
+    DateTime startDate,
+    DateTime endDate,
+  );
+  Future<Map<String, dynamic>> getConversionFunnelData(
+    DateTime startDate,
+    DateTime endDate,
+  );
 
   // Data Export and Privacy
   Future<Map<String, dynamic>> exportUserAnalytics(String userId);
@@ -276,7 +362,6 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   final String _eventsTable = 'analytics_events';
   final String _sessionsTable = 'user_sessions';
   final String _profileCompletionTable = 'profile_completion';
-  
 
   SupabaseProfileAnalyticsDataSource(this._client);
 
@@ -296,7 +381,7 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   Future<void> trackBatchEvents(List<AnalyticsEvent> events) async {
     try {
       if (events.isEmpty) return;
-      
+
       final eventData = events.map((event) => event.toJson()).toList();
       await _client.from(_eventsTable).insert(eventData);
     } catch (e) {
@@ -308,7 +393,9 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackProfileView(String viewerId, String profileUserId, {
+  Future<void> trackProfileView(
+    String viewerId,
+    String profileUserId, {
     String? source,
     Map<String, dynamic>? context,
   }) async {
@@ -324,13 +411,14 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
         },
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
 
       // Also update profile views counter
-      await _client.rpc('increment_profile_views', params: {
-        'profile_user_id': profileUserId,
-      });
+      await _client.rpc(
+        'increment_profile_views',
+        params: {'profile_user_id': profileUserId},
+      );
     } catch (e) {
       // Don't throw for analytics failures
       print('Failed to track profile view: $e');
@@ -338,7 +426,11 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackProfileUpdate(String userId, String section, Map<String, dynamic> changes) async {
+  Future<void> trackProfileUpdate(
+    String userId,
+    String section,
+    Map<String, dynamic> changes,
+  ) async {
     try {
       final event = AnalyticsEvent(
         eventId: _generateEventId(),
@@ -351,9 +443,9 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
         },
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
-      
+
       // Update profile completion if needed
       await _checkAndUpdateProfileCompletion(userId, section);
     } catch (e) {
@@ -362,19 +454,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackAvatarUpload(String userId, {String? fileName, int? fileSize}) async {
+  Future<void> trackAvatarUpload(
+    String userId, {
+    String? fileName,
+    int? fileSize,
+  }) async {
     try {
       final event = AnalyticsEvent(
         eventId: _generateEventId(),
         userId: userId,
         eventType: AnalyticsEventType.avatarUpload,
-        properties: {
-          'file_name': fileName,
-          'file_size': fileSize,
-        },
+        properties: {'file_name': fileName, 'file_size': fileSize},
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
       await updateProfileCompletion(userId, 'avatar', true);
     } catch (e) {
@@ -383,7 +476,11 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackSportProfileAction(String userId, String action, String sportId) async {
+  Future<void> trackSportProfileAction(
+    String userId,
+    String action,
+    String sportId,
+  ) async {
     try {
       final eventType = switch (action) {
         'add' => AnalyticsEventType.sportProfileAdd,
@@ -396,13 +493,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
         eventId: _generateEventId(),
         userId: userId,
         eventType: eventType,
-        properties: {
-          'action': action,
-          'sport_id': sportId,
-        },
+        properties: {'action': action, 'sport_id': sportId},
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
     } catch (e) {
       print('Failed to track sport profile action: $e');
@@ -410,7 +504,11 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackSettingsUpdate(String userId, String category, Map<String, dynamic> changes) async {
+  Future<void> trackSettingsUpdate(
+    String userId,
+    String category,
+    Map<String, dynamic> changes,
+  ) async {
     try {
       final event = AnalyticsEvent(
         eventId: _generateEventId(),
@@ -423,7 +521,7 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
         },
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
     } catch (e) {
       print('Failed to track settings update: $e');
@@ -431,19 +529,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackPreferencesUpdate(String userId, String category, dynamic newValue) async {
+  Future<void> trackPreferencesUpdate(
+    String userId,
+    String category,
+    dynamic newValue,
+  ) async {
     try {
       final event = AnalyticsEvent(
         eventId: _generateEventId(),
         userId: userId,
         eventType: AnalyticsEventType.preferencesUpdate,
-        properties: {
-          'category': category,
-          'new_value': newValue,
-        },
+        properties: {'category': category, 'new_value': newValue},
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
     } catch (e) {
       print('Failed to track preferences update: $e');
@@ -451,7 +550,11 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackSearch(String userId, String query, int resultsCount) async {
+  Future<void> trackSearch(
+    String userId,
+    String query,
+    int resultsCount,
+  ) async {
     try {
       final event = AnalyticsEvent(
         eventId: _generateEventId(),
@@ -464,7 +567,7 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
         },
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
     } catch (e) {
       print('Failed to track search: $e');
@@ -472,19 +575,19 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> trackMatchmakingRequest(String userId, Map<String, dynamic> criteria) async {
+  Future<void> trackMatchmakingRequest(
+    String userId,
+    Map<String, dynamic> criteria,
+  ) async {
     try {
       final event = AnalyticsEvent(
         eventId: _generateEventId(),
         userId: userId,
         eventType: AnalyticsEventType.matchmakingRequest,
-        properties: {
-          'criteria': criteria,
-          'criteria_count': criteria.length,
-        },
+        properties: {'criteria': criteria, 'criteria_count': criteria.length},
         timestamp: DateTime.now(),
       );
-      
+
       await trackEvent(event);
     } catch (e) {
       print('Failed to track matchmaking request: $e');
@@ -519,13 +622,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> updateProfileCompletion(String userId, String section, bool completed) async {
+  Future<void> updateProfileCompletion(
+    String userId,
+    String section,
+    bool completed,
+  ) async {
     try {
-      await _client.rpc('update_profile_completion', params: {
-        'user_id_param': userId,
-        'section_param': section,
-        'completed_param': completed,
-      });
+      await _client.rpc(
+        'update_profile_completion',
+        params: {
+          'user_id_param': userId,
+          'section_param': section,
+          'completed_param': completed,
+        },
+      );
     } catch (e) {
       throw AnalyticsDataSourceException(
         message: 'Failed to update profile completion: $e',
@@ -535,13 +645,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, double>> getCompletionTrends(String userId, DateTime startDate, DateTime endDate) async {
+  Future<Map<String, double>> getCompletionTrends(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_completion_trends', params: {
-        'user_id_param': userId,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_completion_trends',
+        params: {
+          'user_id_param': userId,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return Map<String, double>.from(response ?? {});
     } catch (e) {
@@ -563,13 +680,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<EngagementMetrics> getEngagementMetrics(String userId, DateTime startDate, DateTime endDate) async {
+  Future<EngagementMetrics> getEngagementMetrics(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_engagement_metrics', params: {
-        'user_id_param': userId,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_engagement_metrics',
+        params: {
+          'user_id_param': userId,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return EngagementMetrics.fromJson(response);
     } catch (e) {
@@ -581,13 +705,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, int>> getFeatureUsageStats(String userId, DateTime startDate, DateTime endDate) async {
+  Future<Map<String, int>> getFeatureUsageStats(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_feature_usage_stats', params: {
-        'user_id_param': userId,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_feature_usage_stats',
+        params: {
+          'user_id_param': userId,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return Map<String, int>.from(response ?? {});
     } catch (e) {
@@ -599,7 +730,11 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<double> calculateEngagementScore(String userId, DateTime startDate, DateTime endDate) async {
+  Future<double> calculateEngagementScore(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
       final metrics = await getEngagementMetrics(userId, startDate, endDate);
       return metrics.engagementScore;
@@ -612,17 +747,23 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getEngagementTrends(String userId, int days) async {
+  Future<List<Map<String, dynamic>>> getEngagementTrends(
+    String userId,
+    int days,
+  ) async {
     try {
       final endDate = DateTime.now();
       final startDate = endDate.subtract(Duration(days: days));
 
-      final response = await _client.rpc('get_engagement_trends', params: {
-        'user_id_param': userId,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-        'days_param': days,
-      });
+      final response = await _client.rpc(
+        'get_engagement_trends',
+        params: {
+          'user_id_param': userId,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+          'days_param': days,
+        },
+      );
 
       return List<Map<String, dynamic>>.from(response ?? []);
     } catch (e) {
@@ -634,7 +775,9 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> startSession(String userId, String sessionId, {
+  Future<void> startSession(
+    String userId,
+    String sessionId, {
     String? deviceId,
     String? platform,
     Map<String, dynamic>? context,
@@ -655,7 +798,11 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<void> endSession(String userId, String sessionId, Duration duration) async {
+  Future<void> endSession(
+    String userId,
+    String sessionId,
+    Duration duration,
+  ) async {
     try {
       await _client
           .from(_sessionsTable)
@@ -672,13 +819,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getSessionStats(String userId, DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> getSessionStats(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_session_stats', params: {
-        'user_id_param': userId,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_session_stats',
+        params: {
+          'user_id_param': userId,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return response ?? {};
     } catch (e) {
@@ -691,13 +845,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
 
   // Additional implementation methods...
   @override
-  Future<List<Map<String, dynamic>>> getMostViewedProfiles(int limit, DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getMostViewedProfiles(
+    int limit,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_most_viewed_profiles', params: {
-        'limit_param': limit,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_most_viewed_profiles',
+        params: {
+          'limit_param': limit,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return List<Map<String, dynamic>>.from(response ?? []);
     } catch (e) {
@@ -706,13 +867,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getPopularSports(int limit, DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getPopularSports(
+    int limit,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_popular_sports', params: {
-        'limit_param': limit,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_popular_sports',
+        params: {
+          'limit_param': limit,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return List<Map<String, dynamic>>.from(response ?? []);
     } catch (e) {
@@ -721,13 +889,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getTrendingLocations(int limit, DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getTrendingLocations(
+    int limit,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_trending_locations', params: {
-        'limit_param': limit,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_trending_locations',
+        params: {
+          'limit_param': limit,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return List<Map<String, dynamic>>.from(response ?? []);
     } catch (e) {
@@ -736,12 +911,18 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getSearchTrends(DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> getSearchTrends(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_search_trends', params: {
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_search_trends',
+        params: {
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return response ?? {};
     } catch (e) {
@@ -752,9 +933,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<Map<String, dynamic>> getUserBehaviorPattern(String userId) async {
     try {
-      final response = await _client.rpc('get_user_behavior_pattern', params: {
-        'user_id_param': userId,
-      });
+      final response = await _client.rpc(
+        'get_user_behavior_pattern',
+        params: {'user_id_param': userId},
+      );
 
       return response ?? {};
     } catch (e) {
@@ -765,9 +947,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<List<String>> getPredictedInterests(String userId) async {
     try {
-      final response = await _client.rpc('get_predicted_interests', params: {
-        'user_id_param': userId,
-      });
+      final response = await _client.rpc(
+        'get_predicted_interests',
+        params: {'user_id_param': userId},
+      );
 
       return List<String>.from(response ?? []);
     } catch (e) {
@@ -778,9 +961,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<Map<String, dynamic>> getPersonalizationInsights(String userId) async {
     try {
-      final response = await _client.rpc('get_personalization_insights', params: {
-        'user_id_param': userId,
-      });
+      final response = await _client.rpc(
+        'get_personalization_insights',
+        params: {'user_id_param': userId},
+      );
 
       return response ?? {};
     } catch (e) {
@@ -791,9 +975,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<double> calculateUserRetentionScore(String userId) async {
     try {
-      final response = await _client.rpc('calculate_retention_score', params: {
-        'user_id_param': userId,
-      });
+      final response = await _client.rpc(
+        'calculate_retention_score',
+        params: {'user_id_param': userId},
+      );
 
       return (response ?? 0.0).toDouble();
     } catch (e) {
@@ -802,13 +987,20 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> generateUserReport(String userId, DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> generateUserReport(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('generate_user_report', params: {
-        'user_id_param': userId,
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'generate_user_report',
+        params: {
+          'user_id_param': userId,
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return response ?? {};
     } catch (e) {
@@ -820,12 +1012,18 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getSystemWideMetrics(DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> getSystemWideMetrics(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_system_wide_metrics', params: {
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_system_wide_metrics',
+        params: {
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return response ?? {};
     } catch (e) {
@@ -834,12 +1032,18 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getTopPerformingFeatures(DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getTopPerformingFeatures(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_top_performing_features', params: {
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_top_performing_features',
+        params: {
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return List<Map<String, dynamic>>.from(response ?? []);
     } catch (e) {
@@ -848,12 +1052,18 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getConversionFunnelData(DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> getConversionFunnelData(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      final response = await _client.rpc('get_conversion_funnel_data', params: {
-        'start_date_param': startDate.toIso8601String(),
-        'end_date_param': endDate.toIso8601String(),
-      });
+      final response = await _client.rpc(
+        'get_conversion_funnel_data',
+        params: {
+          'start_date_param': startDate.toIso8601String(),
+          'end_date_param': endDate.toIso8601String(),
+        },
+      );
 
       return response ?? {};
     } catch (e) {
@@ -864,9 +1074,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<Map<String, dynamic>> exportUserAnalytics(String userId) async {
     try {
-      final response = await _client.rpc('export_user_analytics', params: {
-        'user_id_param': userId,
-      });
+      final response = await _client.rpc(
+        'export_user_analytics',
+        params: {'user_id_param': userId},
+      );
 
       return response ?? {};
     } catch (e) {
@@ -880,9 +1091,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<void> deleteUserAnalytics(String userId) async {
     try {
-      await _client.rpc('delete_user_analytics', params: {
-        'user_id_param': userId,
-      });
+      await _client.rpc(
+        'delete_user_analytics',
+        params: {'user_id_param': userId},
+      );
     } catch (e) {
       throw AnalyticsDataSourceException(
         message: 'Failed to delete user analytics: $e',
@@ -894,9 +1106,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
   @override
   Future<void> anonymizeUserData(String userId) async {
     try {
-      await _client.rpc('anonymize_user_data', params: {
-        'user_id_param': userId,
-      });
+      await _client.rpc(
+        'anonymize_user_data',
+        params: {'user_id_param': userId},
+      );
     } catch (e) {
       throw AnalyticsDataSourceException(
         message: 'Failed to anonymize user data: $e',
@@ -912,12 +1125,19 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
 
   String _generateRandomString(int length) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return String.fromCharCodes(Iterable.generate(
-      length, (_) => chars.codeUnitAt((DateTime.now().millisecondsSinceEpoch % chars.length))
-    ));
+    return String.fromCharCodes(
+      Iterable.generate(
+        length,
+        (_) => chars.codeUnitAt(
+          (DateTime.now().millisecondsSinceEpoch % chars.length),
+        ),
+      ),
+    );
   }
 
-  Future<ProfileCompletionMetrics> _calculateInitialProfileCompletion(String userId) async {
+  Future<ProfileCompletionMetrics> _calculateInitialProfileCompletion(
+    String userId,
+  ) async {
     // This would calculate initial profile completion based on profile data
     final sections = {
       'basic_info': false,
@@ -946,7 +1166,10 @@ class SupabaseProfileAnalyticsDataSource implements ProfileAnalyticsDataSource {
     return metrics;
   }
 
-  Future<void> _checkAndUpdateProfileCompletion(String userId, String section) async {
+  Future<void> _checkAndUpdateProfileCompletion(
+    String userId,
+    String section,
+  ) async {
     // This would check if the section is now complete and update metrics
     await updateProfileCompletion(userId, section, true);
   }

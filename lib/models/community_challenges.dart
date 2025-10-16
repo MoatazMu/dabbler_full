@@ -81,12 +81,12 @@ class CommunityChallenges {
       description: json['description'],
       type: json['type'],
       status: json['status'],
-    start_date: json['start_date'] != null
-      ? DateTime.parse(json['start_date'] as String)
-      : DateTime.now(),
-    end_date: json['end_date'] != null
-      ? DateTime.parse(json['end_date'] as String)
-      : DateTime.now(),
+      start_date: json['start_date'] != null
+          ? DateTime.parse(json['start_date'] as String)
+          : DateTime.now(),
+      end_date: json['end_date'] != null
+          ? DateTime.parse(json['end_date'] as String)
+          : DateTime.now(),
       metric_type: json['metric_type'],
       target_value: json['target_value'],
       unit: json['unit'],
@@ -110,12 +110,12 @@ class CommunityChallenges {
       icon_url: json['icon_url'],
       total_progress: json['total_progress'],
       completion_rate: json['completion_rate'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

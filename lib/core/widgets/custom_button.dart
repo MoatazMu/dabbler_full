@@ -32,7 +32,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return SizedBox(
       width: width,
       height: height,
@@ -61,11 +61,7 @@ class CustomButton extends StatelessWidget {
     if (icon != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 8),
-          Text(text),
-        ],
+        children: [Icon(icon, size: 18), const SizedBox(width: 8), Text(text)],
       );
     }
 
@@ -79,7 +75,8 @@ class CustomButton extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius ?? BorderRadius.circular(8),
       ),
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
     );
@@ -108,16 +105,14 @@ class CustomButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return SizedBox(
       width: width,
       height: height,
       child: OutlinedButton(
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           side: BorderSide(color: theme.colorScheme.primary),
         ),
@@ -133,9 +128,7 @@ class CustomButtonSecondary extends StatelessWidget {
         height: 20,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            theme.colorScheme.primary,
-          ),
+          valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
         ),
       );
     }

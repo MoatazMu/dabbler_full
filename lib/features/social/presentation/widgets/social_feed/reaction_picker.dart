@@ -28,7 +28,7 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   bool _isShowingReactions = false;
 
   final List<ReactionData> _reactions = [
@@ -43,37 +43,30 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOut,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+        );
   }
 
   @override
@@ -95,7 +88,7 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
 
   void _handleQuickReaction() {
     HapticFeedback.lightImpact();
-    
+
     // Quick like if no reaction, otherwise show picker
     if (widget.post.currentUserReaction == null) {
       widget.onReactionSelected('like');
@@ -114,10 +107,10 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
 
   void _showReactionPicker() {
     if (_isShowingReactions) return;
-    
+
     HapticFeedback.mediumImpact();
     _isShowingReactions = true;
-    
+
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
     _animationController.forward();
@@ -128,16 +121,17 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
     final screenSize = MediaQuery.of(context).size;
-    
+
     // Calculate position for reaction picker
     double left = offset.dx + (size.width / 2) - 150; // Center picker on widget
     double top = offset.dy - 80; // Show above the widget
-    
+
     // Adjust if picker would go off screen
     if (left < 10) left = 10;
     if (left + 300 > screenSize.width) left = screenSize.width - 310;
-    if (top < 50) top = offset.dy + size.height + 10; // Show below if no space above
-    
+    if (top < 50)
+      top = offset.dy + size.height + 10; // Show below if no space above
+
     return OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -150,13 +144,9 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
               color: Colors.transparent,
             ),
           ),
-          
+
           // Reaction picker
-          Positioned(
-            left: left,
-            top: top,
-            child: _buildReactionPicker(),
-          ),
+          Positioned(left: left, top: top, child: _buildReactionPicker()),
         ],
       ),
     );
@@ -205,7 +195,7 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
 
   Widget _buildReactionButton(ReactionData reaction) {
     final isSelected = widget.post.currentUserReaction == reaction.type;
-    
+
     return GestureDetector(
       onTap: () => _selectReaction(reaction),
       child: Container(
@@ -214,9 +204,9 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
         margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isSelected 
-            ? reaction.color.withOpacity(0.2)
-            : Colors.transparent,
+          color: isSelected
+              ? reaction.color.withOpacity(0.2)
+              : Colors.transparent,
         ),
         child: AnimatedScale(
           scale: isSelected ? 1.2 : 1.0,
@@ -225,10 +215,7 @@ class _ReactionPickerState extends ConsumerState<ReactionPicker>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  reaction.emoji,
-                  style: const TextStyle(fontSize: 24),
-                ),
+                Text(reaction.emoji, style: const TextStyle(fontSize: 24)),
                 if (isSelected)
                   Container(
                     width: 4,
@@ -292,36 +279,31 @@ class _QuickReactionWidgetState extends State<QuickReactionWidget>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.5,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
-    ));
-    
-    _opacityAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
-    ));
-    
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.5).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
+      ),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0, -100),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
     _controller.forward().then((_) {
       widget.onComplete?.call();
     });
@@ -395,19 +377,16 @@ class _ReactionCountWidgetState extends State<ReactionCountWidget>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -419,17 +398,19 @@ class _ReactionCountWidgetState extends State<ReactionCountWidget>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalReactions = widget.reactions.values.fold(0, (sum, count) => sum + count);
-    
+    final totalReactions = widget.reactions.values.fold(
+      0,
+      (sum, count) => sum + count,
+    );
+
     if (totalReactions == 0) {
       return const SizedBox.shrink();
     }
-    
-    final topReactions = widget.reactions.entries
-        .where((entry) => entry.value > 0)
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    
+
+    final topReactions =
+        widget.reactions.entries.where((entry) => entry.value > 0).toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
     return GestureDetector(
       onTap: () {
         _controller.forward().then((_) => _controller.reverse());
@@ -457,15 +438,12 @@ class _ReactionCountWidgetState extends State<ReactionCountWidget>
                     final emoji = _getEmojiForReaction(entry.key);
                     return Container(
                       margin: const EdgeInsets.only(right: 2),
-                      child: Text(
-                        emoji,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      child: Text(emoji, style: const TextStyle(fontSize: 16)),
                     );
                   }),
-                  
+
                   const SizedBox(width: 4),
-                  
+
                   // Total count
                   Text(
                     totalReactions.toString(),
@@ -544,32 +522,24 @@ class _AnimatedReactionButtonState extends State<AnimatedReactionButton>
   @override
   void initState() {
     super.initState();
-    
+
     _pressController = AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    
+
     _bounceController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _pressAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.9,
-    ).animate(CurvedAnimation(
-      parent: _pressController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _bounceAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.3,
-    ).animate(CurvedAnimation(
-      parent: _bounceController,
-      curve: Curves.elasticOut,
-    ));
+
+    _pressAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+
+    _bounceAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _bounceController, curve: Curves.elasticOut),
+    );
   }
 
   @override
@@ -582,7 +552,7 @@ class _AnimatedReactionButtonState extends State<AnimatedReactionButton>
   @override
   void didUpdateWidget(AnimatedReactionButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Animate when becoming active
     if (!oldWidget.isActive && widget.isActive) {
       _bounceController.forward().then((_) => _bounceController.reverse());
@@ -592,7 +562,7 @@ class _AnimatedReactionButtonState extends State<AnimatedReactionButton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -611,13 +581,13 @@ class _AnimatedReactionButtonState extends State<AnimatedReactionButton>
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: widget.isActive
-                  ? theme.colorScheme.primaryContainer
-                  : theme.colorScheme.surfaceContainerHighest,
+                    ? theme.colorScheme.primaryContainer
+                    : theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: widget.isActive
-                    ? theme.colorScheme.primary
-                    : Colors.transparent,
+                      ? theme.colorScheme.primary
+                      : Colors.transparent,
                 ),
               ),
               child: Row(
@@ -634,8 +604,8 @@ class _AnimatedReactionButtonState extends State<AnimatedReactionButton>
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: widget.isActive
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurfaceVariant,
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

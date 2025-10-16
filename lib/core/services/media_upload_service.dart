@@ -36,7 +36,7 @@ class MediaUploadService {
     try {
       final bytes = await file.readAsBytes();
       final image = img.decodeImage(bytes);
-      
+
       if (image == null) {
         throw Exception('Invalid image file');
       }
@@ -52,14 +52,20 @@ class MediaUploadService {
       }
 
       // Compress image
-      final compressedBytes = img.encodeJpg(processedImage, quality: _imageQuality);
-      
+      final compressedBytes = img.encodeJpg(
+        processedImage,
+        quality: _imageQuality,
+      );
+
       // TODO: Implement actual upload to storage service
       // For now, return a mock URL but use the compressed bytes length for validation
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${path.basename(file.path)}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${path.basename(file.path)}';
       final fileSize = compressedBytes.length;
       if (fileSize > _maxFileSize) {
-        throw Exception('Compressed file size exceeds maximum allowed size of 50MB');
+        throw Exception(
+          'Compressed file size exceeds maximum allowed size of 50MB',
+        );
       }
       return 'https://storage.example.com/uploads/$fileName';
     } catch (e) {
@@ -72,7 +78,8 @@ class MediaUploadService {
     try {
       // TODO: Implement actual upload to storage service
       // For now, return a mock URL
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${path.basename(file.path)}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${path.basename(file.path)}';
       return 'https://storage.example.com/uploads/$fileName';
     } catch (e) {
       throw Exception('Failed to upload file: ${e.toString()}');
@@ -94,7 +101,8 @@ class MediaUploadService {
 
       // TODO: Implement actual upload to storage service
       // For now, return a mock URL
-      final uploadFileName = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
+      final uploadFileName =
+          '${DateTime.now().millisecondsSinceEpoch}_$fileName';
       return 'https://storage.example.com/uploads/$uploadFileName';
     } catch (e) {
       throw Exception('Failed to upload bytes: ${e.toString()}');

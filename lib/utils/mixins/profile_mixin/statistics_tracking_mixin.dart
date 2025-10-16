@@ -1,5 +1,6 @@
 /// Mixin for tracking user statistics and profile-related events
 library;
+
 import 'dart:async';
 import 'dart:collection';
 
@@ -9,15 +10,16 @@ class AnalyticsEvent {
   final Map<String, dynamic> properties;
   final DateTime timestamp;
   final String sessionId;
-  
+
   AnalyticsEvent({
     required this.eventName,
     required this.properties,
     DateTime? timestamp,
     String? sessionId,
   }) : timestamp = timestamp ?? DateTime.now(),
-        sessionId = sessionId ?? DateTime.now().millisecondsSinceEpoch.toString();
-  
+       sessionId =
+           sessionId ?? DateTime.now().millisecondsSinceEpoch.toString();
+
   Map<String, dynamic> toJson() => {
     'event': eventName,
     'properties': properties,
@@ -34,7 +36,7 @@ mixin StatisticsTrackingMixin {
   bool _isInitialized = false;
   int _maxQueueSize = 100;
   Duration _flushInterval = const Duration(seconds: 30);
-  
+
   /// Initialize statistics tracking with custom settings
   void initStatisticsTracking({
     Duration? flushInterval,
@@ -42,15 +44,15 @@ mixin StatisticsTrackingMixin {
     String? sessionId,
   }) {
     if (_isInitialized) return;
-    
+
     _flushInterval = flushInterval ?? _flushInterval;
     _maxQueueSize = maxQueueSize ?? _maxQueueSize;
     _sessionId = sessionId ?? DateTime.now().millisecondsSinceEpoch.toString();
     _isInitialized = true;
-    
+
     // Start periodic flush timer
     _flushTimer = Timer.periodic(_flushInterval, (_) => _flushEvents());
-    
+
     // Track session start
     _queueEvent('session_start', {
       'session_id': _sessionId,
@@ -58,7 +60,7 @@ mixin StatisticsTrackingMixin {
       'app_version': '1.0.0', // Would come from package info
     });
   }
-  
+
   /// Track profile view event
   void trackProfileView(
     String profileId, {
@@ -74,7 +76,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track profile edit event
   void trackProfileEdit(
     String field, {
@@ -92,7 +94,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track sport addition event
   void trackSportAdded(
     String sportName,
@@ -110,7 +112,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track sport removal event
   void trackSportRemoved(String sportName, {String? reason}) {
     _queueEvent('sport_removed', {
@@ -119,7 +121,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track privacy setting change
   void trackPrivacyChange(
     String setting,
@@ -135,7 +137,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track achievement unlocked event
   void trackAchievementUnlocked(
     String achievement, {
@@ -151,7 +153,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track profile completion milestone
   void trackProfileCompletionMilestone(
     double completionPercentage, {
@@ -166,7 +168,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track search/filter usage
   void trackSearchUsage(
     String searchType, {
@@ -182,7 +184,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track game creation or joining
   void trackGameInteraction(
     String action, // 'create', 'join', 'leave', 'cancel'
@@ -200,7 +202,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track user engagement metrics
   void trackEngagementMetric(
     String metricType, {
@@ -214,7 +216,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track feature usage
   void trackFeatureUsage(
     String featureName, {
@@ -230,7 +232,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track error events
   void trackError(
     String errorType,
@@ -248,7 +250,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track performance metrics
   void trackPerformanceMetric(
     String metricName,
@@ -262,7 +264,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track onboarding progress
   void trackOnboardingStep(
     String stepName, {
@@ -278,7 +280,7 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Track notification interactions
   void trackNotificationInteraction(
     String action, // 'received', 'opened', 'dismissed'
@@ -294,48 +296,47 @@ mixin StatisticsTrackingMixin {
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
-  
+
   /// Internal method to queue events
   void _queueEvent(String eventName, Map<String, dynamic> properties) {
     if (!_isInitialized) {
       initStatisticsTracking(); // Auto-initialize if not done
     }
-    
+
     final event = AnalyticsEvent(
       eventName: eventName,
       properties: properties,
       sessionId: _sessionId,
     );
-    
+
     _eventQueue.add(event);
-    
+
     // Auto-flush if queue is getting large
     if (_eventQueue.length >= _maxQueueSize) {
       _flushEvents();
     }
   }
-  
+
   /// Flush events to analytics service
   void _flushEvents() {
     if (_eventQueue.isEmpty) return;
-    
+
     try {
       // Convert events to JSON for transmission
       final events = _eventQueue.map((event) => event.toJson()).toList();
       _eventQueue.clear();
-      
+
       // Send to analytics service
       _sendToAnalyticsService(events);
-      
+
       // Debug logging
       print('📊 Flushed ${events.length} analytics events');
-      
     } catch (e) {
       print('❌ Error flushing analytics events: $e');
       // Could implement retry logic here
     }
   }
-  
+
   /// Send events to analytics service (placeholder implementation)
   void _sendToAnalyticsService(List<Map<String, dynamic>> events) {
     // This would integrate with your analytics service:
@@ -343,7 +344,7 @@ mixin StatisticsTrackingMixin {
     // - Mixpanel
     // - Amplitude
     // - Custom analytics backend
-    
+
     // Example implementations:
     /*
     // Firebase Analytics
@@ -361,19 +362,19 @@ mixin StatisticsTrackingMixin {
       body: jsonEncode({'events': events}),
     );
     */
-    
+
     // For now, just log events
     for (final event in events) {
       print('📈 Analytics: ${event['event']} - ${event['properties']}');
     }
   }
-  
+
   /// Sanitize sensitive data before logging
   dynamic _sanitizeValue(dynamic value) {
     if (value == null) return null;
-    
+
     final valueStr = value.toString();
-    
+
     // Sanitize email addresses
     if (valueStr.contains('@')) {
       return valueStr.replaceAllMapped(
@@ -381,20 +382,20 @@ mixin StatisticsTrackingMixin {
         (match) => '${match.group(1)?.substring(0, 3)}***@${match.group(2)}',
       );
     }
-    
+
     // Sanitize phone numbers
     if (RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(valueStr)) {
       return '***${valueStr.substring(valueStr.length - 4)}';
     }
-    
+
     // Truncate very long values
     if (valueStr.length > 200) {
       return '${valueStr.substring(0, 200)}...';
     }
-    
+
     return value;
   }
-  
+
   /// Get completion tier for milestones
   String _getCompletionTier(double percentage) {
     if (percentage >= 95) return 'complete';
@@ -404,21 +405,21 @@ mixin StatisticsTrackingMixin {
     if (percentage >= 25) return 'started';
     return 'minimal';
   }
-  
+
   /// Force flush all pending events
   void flushEventsImmediate() {
     _flushEvents();
   }
-  
+
   /// Get current queue size
   int get pendingEventsCount => _eventQueue.length;
-  
+
   /// Check if tracking is initialized
   bool get isTrackingInitialized => _isInitialized;
-  
+
   /// Get current session ID
   String? get currentSessionId => _sessionId;
-  
+
   /// Update session ID (for new sessions)
   void updateSessionId(String newSessionId) {
     _sessionId = newSessionId;
@@ -427,7 +428,7 @@ mixin StatisticsTrackingMixin {
       'previous_session_id': _sessionId,
     });
   }
-  
+
   /// Enable/disable tracking
   void setTrackingEnabled(bool enabled) {
     if (enabled && !_isInitialized) {
@@ -438,7 +439,7 @@ mixin StatisticsTrackingMixin {
       _isInitialized = false;
     }
   }
-  
+
   /// Track custom event with validation
   void trackCustomEvent(
     String eventName,
@@ -449,24 +450,24 @@ mixin StatisticsTrackingMixin {
       print('⚠️ Invalid event name: $eventName');
       return;
     }
-    
+
     _queueEvent(eventName, properties);
   }
-  
+
   /// Validate event name format
   bool _isValidEventName(String eventName) {
     // Event names should be lowercase with underscores
     final validPattern = RegExp(r'^[a-z][a-z0-9_]*$');
     return validPattern.hasMatch(eventName) && eventName.length <= 50;
   }
-  
+
   /// Clean up resources
   void disposeStatisticsTracking() {
     _flushEvents(); // Flush any pending events
     _flushTimer?.cancel();
     _eventQueue.clear();
     _isInitialized = false;
-    
+
     // Track session end
     if (_sessionId != null) {
       _queueEvent('session_end', {

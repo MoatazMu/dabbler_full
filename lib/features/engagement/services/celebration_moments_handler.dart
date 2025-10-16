@@ -74,7 +74,7 @@ class CelebrationAnimation {
 /// Celebration moments handler for rewards system
 class CelebrationMomentsHandler {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  
+
   // Active celebrations tracking
   final List<CelebrationData> _activeCelebrations = [];
   final Map<CelebrationMoment, DateTime> _lastCelebrationTimes = {};
@@ -140,7 +140,7 @@ class CelebrationMomentsHandler {
 
     await _showCelebration(celebration);
     await _trackCelebrationMoment(userId, celebration);
-    
+
     // Play special tier promotion sound
     await _playTierPromotionSound(newTier);
   }
@@ -182,7 +182,7 @@ class CelebrationMomentsHandler {
     String message = '';
     IconData icon = Icons.leaderboard;
     Color primaryColor = Colors.blue;
-    
+
     if (position == 1) {
       title = '👑 #1 Position!';
       message = 'You\'re at the top of the $leaderboardType leaderboard!';
@@ -263,7 +263,9 @@ class CelebrationMomentsHandler {
       duration: const Duration(seconds: 5),
       hasConfetti: true,
       metadata: {
-        'weekStart': DateTime.now().subtract(const Duration(days: 7)).toIso8601String(),
+        'weekStart': DateTime.now()
+            .subtract(const Duration(days: 7))
+            .toIso8601String(),
         'weekEnd': DateTime.now().toIso8601String(),
       },
     );
@@ -285,7 +287,9 @@ class CelebrationMomentsHandler {
       duration: const Duration(seconds: 6),
       hasConfetti: true,
       metadata: {
-        'monthStart': DateTime.now().subtract(const Duration(days: 30)).toIso8601String(),
+        'monthStart': DateTime.now()
+            .subtract(const Duration(days: 30))
+            .toIso8601String(),
         'monthEnd': DateTime.now().toIso8601String(),
       },
     );
@@ -310,10 +314,7 @@ class CelebrationMomentsHandler {
       secondaryColor: Colors.orange,
       duration: const Duration(seconds: 4),
       hasConfetti: streakCount >= 30,
-      metadata: {
-        'streakType': streakType,
-        'streakCount': streakCount,
-      },
+      metadata: {'streakType': streakType, 'streakCount': streakCount},
     );
 
     await _showCelebration(celebration);
@@ -336,10 +337,7 @@ class CelebrationMomentsHandler {
       secondaryColor: Colors.yellow,
       duration: const Duration(seconds: 4),
       hasConfetti: milestone >= 10000,
-      metadata: {
-        'totalPoints': totalPoints,
-        'milestone': milestone,
-      },
+      metadata: {'totalPoints': totalPoints, 'milestone': milestone},
     );
 
     await _showCelebration(celebration);
@@ -355,7 +353,7 @@ class CelebrationMomentsHandler {
     String title = '';
     String message = '';
     IconData icon = Icons.people;
-    
+
     switch (milestoneType) {
       case 'friends':
         title = '👫 $count Friends!';
@@ -388,10 +386,7 @@ class CelebrationMomentsHandler {
       secondaryColor: Colors.pinkAccent,
       duration: const Duration(seconds: 3),
       hasConfetti: count >= 100,
-      metadata: {
-        'milestoneType': milestoneType,
-        'count': count,
-      },
+      metadata: {'milestoneType': milestoneType, 'count': count},
     );
 
     await _showCelebration(celebration);
@@ -403,7 +398,8 @@ class CelebrationMomentsHandler {
   Future<void> _showCelebration(CelebrationData celebration) async {
     // Prevent duplicate celebrations within a short time
     final lastTime = _lastCelebrationTimes[celebration.type];
-    if (lastTime != null && DateTime.now().difference(lastTime) < const Duration(minutes: 1)) {
+    if (lastTime != null &&
+        DateTime.now().difference(lastTime) < const Duration(minutes: 1)) {
       return;
     }
 
@@ -422,11 +418,13 @@ class CelebrationMomentsHandler {
       }
 
       // Show visual celebration (this would be integrated with the UI layer)
-      debugPrint('🎉 CELEBRATION: ${celebration.title} - ${celebration.message}');
-      
+      debugPrint(
+        '🎉 CELEBRATION: ${celebration.title} - ${celebration.message}',
+      );
+
       // Simulate celebration duration
       await Future.delayed(celebration.duration);
-      
+
       _activeCelebrations.remove(celebration);
     } catch (e) {
       debugPrint('Error showing celebration: $e');
@@ -434,15 +432,20 @@ class CelebrationMomentsHandler {
     }
   }
 
-  Future<void> _trackCelebrationMoment(String userId, CelebrationData celebration) async {
+  Future<void> _trackCelebrationMoment(
+    String userId,
+    CelebrationData celebration,
+  ) async {
     // Track celebration analytics
-    debugPrint('Celebration tracked: ${celebration.type.name} for user $userId');
+    debugPrint(
+      'Celebration tracked: ${celebration.type.name} for user $userId',
+    );
   }
 
   Future<void> _playCelebrationSound(CelebrationMoment type) async {
     try {
       String soundFile = '';
-      
+
       switch (type) {
         case CelebrationMoment.firstAchievement:
           soundFile = 'celebration_first.mp3';
@@ -460,7 +463,7 @@ class CelebrationMomentsHandler {
         default:
           soundFile = 'celebration_general.mp3';
       }
-      
+
       // This would play the actual sound file
       debugPrint('Playing celebration sound: $soundFile');
     } catch (e) {
@@ -471,7 +474,7 @@ class CelebrationMomentsHandler {
   Future<void> _playTierPromotionSound(BadgeTier tier) async {
     try {
       String soundFile = '';
-      
+
       switch (tier) {
         case BadgeTier.bronze:
           soundFile = 'tier_bronze.mp3';
@@ -489,7 +492,7 @@ class CelebrationMomentsHandler {
           soundFile = 'tier_diamond.mp3';
           break;
       }
-      
+
       debugPrint('Playing tier promotion sound: $soundFile');
     } catch (e) {
       debugPrint('Error playing tier promotion sound: $e');
@@ -570,7 +573,7 @@ class CelebrationMomentsHandler {
   bool shouldThrottleCelebration(CelebrationMoment type) {
     final lastTime = _lastCelebrationTimes[type];
     if (lastTime == null) return false;
-    
+
     const throttleMap = {
       CelebrationMoment.firstAchievement: Duration(hours: 24),
       CelebrationMoment.tierPromotion: Duration(minutes: 30),
@@ -583,13 +586,14 @@ class CelebrationMomentsHandler {
       CelebrationMoment.pointsMilestone: Duration(minutes: 15),
       CelebrationMoment.socialMilestone: Duration(minutes: 10),
     };
-    
+
     final throttleDuration = throttleMap[type] ?? const Duration(minutes: 5);
     return DateTime.now().difference(lastTime) < throttleDuration;
   }
 
   /// Get active celebrations
-  List<CelebrationData> get activeCelebrations => List.unmodifiable(_activeCelebrations);
+  List<CelebrationData> get activeCelebrations =>
+      List.unmodifiable(_activeCelebrations);
 
   /// Clean up resources
   void dispose() {

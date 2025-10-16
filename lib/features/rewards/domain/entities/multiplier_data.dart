@@ -2,14 +2,19 @@
 enum MultiplierType {
   /// Multiplier based on user's current tier
   tier,
+
   /// Multiplier for active streak
   streak,
+
   /// Special event multiplier
   event,
+
   /// First-time bonus multiplier
   firstTime,
+
   /// Achievement completion multiplier
   achievement,
+
   /// Daily/weekly/monthly bonus
   bonus,
 }
@@ -61,14 +66,7 @@ class MultiplierData {
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      type,
-      multiplier,
-      reason,
-      expiresAt,
-      isActive,
-    );
+    return Object.hash(id, type, multiplier, reason, expiresAt, isActive);
   }
 
   @override

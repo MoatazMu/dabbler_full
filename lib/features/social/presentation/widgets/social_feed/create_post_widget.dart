@@ -18,7 +18,7 @@ class CreatePostWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final currentUser = ref.watch(currentUserProvider);
-    
+
     return Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Card(
@@ -34,19 +34,19 @@ class CreatePostWidget extends ConsumerWidget {
                   // User avatar
                   CircleAvatar(
                     radius: 20,
-                    backgroundImage: currentUser.avatarUrl != null 
-                      ? NetworkImage(currentUser.avatarUrl!)
-                      : null,
-                    child: currentUser.avatarUrl == null 
-                      ? Text(
-                          currentUser.displayName[0].toUpperCase(),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      : null,
+                    backgroundImage: currentUser.avatarUrl != null
+                        ? NetworkImage(currentUser.avatarUrl!)
+                        : null,
+                    child: currentUser.avatarUrl == null
+                        ? Text(
+                            currentUser.displayName[0].toUpperCase(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          )
+                        : null,
                   ),
-                  
+
                   const SizedBox(width: 12),
-                  
+
                   // Expandable text field
                   Expanded(
                     child: GestureDetector(
@@ -82,10 +82,10 @@ class CreatePostWidget extends ConsumerWidget {
                   ),
                 ],
               ),
-              
+
               if (showQuickActions) ...[
                 const SizedBox(height: 16),
-                
+
                 // Quick action buttons
                 Row(
                   children: [
@@ -96,7 +96,7 @@ class CreatePostWidget extends ConsumerWidget {
                       color: Colors.green,
                       onTap: () => _openPhotoSelector(context),
                     ),
-                    
+
                     _buildQuickAction(
                       context: context,
                       icon: Icons.videocam,
@@ -104,7 +104,7 @@ class CreatePostWidget extends ConsumerWidget {
                       color: Colors.red,
                       onTap: () => _openVideoSelector(context),
                     ),
-                    
+
                     _buildQuickAction(
                       context: context,
                       icon: Icons.sports_esports,
@@ -112,7 +112,7 @@ class CreatePostWidget extends ConsumerWidget {
                       color: Colors.purple,
                       onTap: () => _shareGameResult(context),
                     ),
-                    
+
                     _buildQuickAction(
                       context: context,
                       icon: Icons.location_on,
@@ -123,7 +123,7 @@ class CreatePostWidget extends ConsumerWidget {
                   ],
                 ),
               ],
-              
+
               // Recent media preview
               _buildRecentMediaPreview(context, ref),
             ],
@@ -148,11 +148,7 @@ class CreatePostWidget extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: color,
-              ),
+              Icon(icon, size: 20, color: color),
               const SizedBox(width: 4),
               Text(
                 label,
@@ -173,25 +169,25 @@ class CreatePostWidget extends ConsumerWidget {
     return Consumer(
       builder: (context, ref, child) {
         final recentMedia = ref.watch(recentMediaProvider);
-        
+
         return recentMedia.when(
           data: (mediaList) {
             if (mediaList.isEmpty) {
               return const SizedBox.shrink();
             }
-            
+
             return Column(
               children: [
                 const SizedBox(height: 12),
-                
+
                 // Divider
                 Container(
                   height: 1,
                   color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Recent media header
                 Row(
                   children: [
@@ -210,9 +206,9 @@ class CreatePostWidget extends ConsumerWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Media grid
                 SizedBox(
                   height: 60,
@@ -221,7 +217,7 @@ class CreatePostWidget extends ConsumerWidget {
                     itemCount: mediaList.length.clamp(0, 10),
                     itemBuilder: (context, index) {
                       final media = mediaList[index];
-                      
+
                       return GestureDetector(
                         onTap: () => _selectRecentMedia(context, media),
                         child: Container(
@@ -230,7 +226,9 @@ class CreatePostWidget extends ConsumerWidget {
                           margin: const EdgeInsets.only(right: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
@@ -242,20 +240,29 @@ class CreatePostWidget extends ConsumerWidget {
                                   Image.network(
                                     media.thumbnailUrl ?? media.url,
                                     fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded / 
-                                              loadingProgress.expectedTotalBytes!
-                                            : null,
-                                        ),
-                                      );
-                                    },
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              value:
+                                                  loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          );
+                                        },
                                     errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(Icons.image_not_supported);
+                                      return const Icon(
+                                        Icons.image_not_supported,
+                                      );
                                     },
                                   )
                                 else if (media.type == 'video')
@@ -280,11 +287,13 @@ class CreatePostWidget extends ConsumerWidget {
                                   Center(
                                     child: Icon(
                                       _getFileIcon(media.type),
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                       size: 24,
                                     ),
                                   ),
-                                
+
                                 // Selection overlay
                                 Container(
                                   decoration: BoxDecoration(
@@ -333,27 +342,15 @@ class CreatePostWidget extends ConsumerWidget {
   }
 
   void _openPhotoSelector(BuildContext context) {
-    Navigator.pushNamed(
-      context,
-      '/post/create',
-      arguments: {'mode': 'photo'},
-    );
+    Navigator.pushNamed(context, '/post/create', arguments: {'mode': 'photo'});
   }
 
   void _openVideoSelector(BuildContext context) {
-    Navigator.pushNamed(
-      context,
-      '/post/create',
-      arguments: {'mode': 'video'},
-    );
+    Navigator.pushNamed(context, '/post/create', arguments: {'mode': 'video'});
   }
 
   void _shareGameResult(BuildContext context) {
-    Navigator.pushNamed(
-      context,
-      '/post/create',
-      arguments: {'mode': 'game'},
-    );
+    Navigator.pushNamed(context, '/post/create', arguments: {'mode': 'game'});
   }
 
   void _addLocation(BuildContext context) {
@@ -379,16 +376,13 @@ class CreatePostWidget extends ConsumerWidget {
 class ProfileCreatePostWidget extends ConsumerWidget {
   final VoidCallback? onTap;
 
-  const ProfileCreatePostWidget({
-    super.key,
-    this.onTap,
-  });
+  const ProfileCreatePostWidget({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final currentUser = ref.watch(currentUserProvider);
-    
+
     return Container(
       margin: const EdgeInsets.all(16),
       child: Card(
@@ -403,22 +397,22 @@ class ProfileCreatePostWidget extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundImage: currentUser.avatarUrl != null 
-                    ? NetworkImage(currentUser.avatarUrl!)
-                    : null,
-                  child: currentUser.avatarUrl == null 
-                    ? Text(
-                        currentUser.displayName[0].toUpperCase(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      )
-                    : null,
+                  backgroundImage: currentUser.avatarUrl != null
+                      ? NetworkImage(currentUser.avatarUrl!)
+                      : null,
+                  child: currentUser.avatarUrl == null
+                      ? Text(
+                          currentUser.displayName[0].toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        )
+                      : null,
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 Expanded(
                   child: Text(
                     'Share something with your followers...',
@@ -427,7 +421,7 @@ class ProfileCreatePostWidget extends ConsumerWidget {
                     ),
                   ),
                 ),
-                
+
                 Icon(
                   Icons.add_circle_outline,
                   color: theme.colorScheme.primary,
@@ -453,7 +447,8 @@ class FloatingCreatePostButton extends StatefulWidget {
   });
 
   @override
-  State<FloatingCreatePostButton> createState() => _FloatingCreatePostButtonState();
+  State<FloatingCreatePostButton> createState() =>
+      _FloatingCreatePostButtonState();
 }
 
 class _FloatingCreatePostButtonState extends State<FloatingCreatePostButton>
@@ -465,28 +460,22 @@ class _FloatingCreatePostButtonState extends State<FloatingCreatePostButton>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
     _rotateAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
     if (widget.isVisible) {
       _controller.forward();
     }
@@ -501,7 +490,7 @@ class _FloatingCreatePostButtonState extends State<FloatingCreatePostButton>
   @override
   void didUpdateWidget(FloatingCreatePostButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.isVisible != oldWidget.isVisible) {
       if (widget.isVisible) {
         _controller.forward();
@@ -521,7 +510,9 @@ class _FloatingCreatePostButtonState extends State<FloatingCreatePostButton>
           child: Transform.rotate(
             angle: _rotateAnimation.value * 0.5,
             child: FloatingActionButton.extended(
-              onPressed: widget.onTap ?? () => Navigator.pushNamed(context, '/post/create'),
+              onPressed:
+                  widget.onTap ??
+                  () => Navigator.pushNamed(context, '/post/create'),
               icon: const Icon(Icons.add),
               label: const Text('Post'),
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -538,16 +529,13 @@ class _FloatingCreatePostButtonState extends State<FloatingCreatePostButton>
 class CreatePostStoryWidget extends ConsumerWidget {
   final VoidCallback? onTap;
 
-  const CreatePostStoryWidget({
-    super.key,
-    this.onTap,
-  });
+  const CreatePostStoryWidget({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final currentUser = ref.watch(currentUserProvider);
-    
+
     return GestureDetector(
       onTap: onTap ?? () => Navigator.pushNamed(context, '/story/create'),
       child: Container(
@@ -571,21 +559,21 @@ class CreatePostStoryWidget extends ConsumerWidget {
               padding: const EdgeInsets.all(8),
               child: CircleAvatar(
                 radius: 16,
-                backgroundImage: currentUser.avatarUrl != null 
-                  ? NetworkImage(currentUser.avatarUrl!)
-                  : null,
-                child: currentUser.avatarUrl == null 
-                  ? Text(
-                      currentUser.displayName[0].toUpperCase(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    )
-                  : null,
+                backgroundImage: currentUser.avatarUrl != null
+                    ? NetworkImage(currentUser.avatarUrl!)
+                    : null,
+                child: currentUser.avatarUrl == null
+                    ? Text(
+                        currentUser.displayName[0].toUpperCase(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      )
+                    : null,
               ),
             ),
-            
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -629,11 +617,11 @@ class PostDraftIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final draftsCount = ref.watch(savedDraftsCountProvider);
-    
+
     return draftsCount.when(
       data: (count) {
         if (count == 0) return const SizedBox.shrink();
-        
+
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Card(

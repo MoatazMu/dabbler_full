@@ -25,10 +25,12 @@ class Leaderboards {
       sport_id: json['sport_id'],
       time_period: json['time_period'],
       entries: json['entries'],
-      last_calculated: (json['last_calculated'] == null ? null : DateTime.parse(json['last_calculated'] as String)),
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
+      last_calculated: (json['last_calculated'] == null
+          ? null
+          : DateTime.parse(json['last_calculated'] as String)),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

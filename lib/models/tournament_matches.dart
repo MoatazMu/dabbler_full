@@ -52,9 +52,15 @@ class TournamentMatches {
       match_number: json['match_number'],
       participant1_id: json['participant1_id'],
       participant2_id: json['participant2_id'],
-      scheduled_time: (json['scheduled_time'] == null ? null : DateTime.parse(json['scheduled_time'] as String)),
-      actual_start_time: (json['actual_start_time'] == null ? null : DateTime.parse(json['actual_start_time'] as String)),
-      actual_end_time: (json['actual_end_time'] == null ? null : DateTime.parse(json['actual_end_time'] as String)),
+      scheduled_time: (json['scheduled_time'] == null
+          ? null
+          : DateTime.parse(json['scheduled_time'] as String)),
+      actual_start_time: (json['actual_start_time'] == null
+          ? null
+          : DateTime.parse(json['actual_start_time'] as String)),
+      actual_end_time: (json['actual_end_time'] == null
+          ? null
+          : DateTime.parse(json['actual_end_time'] as String)),
       status: json['status'],
       participant1_score: json['participant1_score'],
       participant2_score: json['participant2_score'],
@@ -64,12 +70,12 @@ class TournamentMatches {
       notes: json['notes'],
       next_match_id: json['next_match_id'],
       next_match_position: json['next_match_position'],
-    created_at: json['created_at'] != null
-      ? DateTime.parse(json['created_at'] as String)
-      : DateTime.now(),
-    updated_at: json['updated_at'] != null
-      ? DateTime.parse(json['updated_at'] as String)
-      : DateTime.now(),
+      created_at: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updated_at: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 

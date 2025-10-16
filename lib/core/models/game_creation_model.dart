@@ -197,23 +197,20 @@ class PadelFormat extends GameFormat {
     defaultDuration: const Duration(minutes: 90),
   );
 
-  static final List<PadelFormat> allFormats = [
-    single,
-    double,
-  ];
+  static final List<PadelFormat> allFormats = [single, double];
 }
 
 enum ParticipationMode {
-  public,      // Open to anyone
-  private,     // Invite only
-  hybrid,      // Mix of invited and open spots
+  public, // Open to anyone
+  private, // Invite only
+  hybrid, // Mix of invited and open spots
 }
 
 enum PaymentSplit {
-  organizer,   // Organizer pays everything
-  equal,       // Split equally among all players
-  perPlayer,   // Each player pays their share
-  custom,      // Custom split percentages
+  organizer, // Organizer pays everything
+  equal, // Split equally among all players
+  perPlayer, // Each player pays their share
+  custom, // Custom split percentages
 }
 
 class TimeSlot {
@@ -232,7 +229,7 @@ class TimeSlot {
   });
 
   DateTime get endTime => startTime.add(duration);
-  
+
   String get formattedTime {
     final start = TimeOfDay.fromDateTime(startTime);
     final end = TimeOfDay.fromDateTime(endTime);
@@ -281,20 +278,20 @@ class VenueSlot {
 class GameCreationModel {
   // Current step
   final GameCreationStep currentStep;
-  
+
   // Sport & Format Selection
   final String? selectedSport;
   final GameFormat? selectedFormat;
   final String? skillLevel;
   final int? maxPlayers;
   final int? gameDuration; // in minutes
-  
+
   // Venue & Slot Selection
   final VenueSlot? selectedVenueSlot;
   final List<String>? amenityFilters;
   final List<String>? venueFilters;
   final double? maxDistance;
-  
+
   // Participation & Payment
   final ParticipationMode? participationMode;
   final PaymentSplit? paymentSplit;
@@ -303,30 +300,30 @@ class GameCreationModel {
   final String? gameDescription;
   final bool? allowWaitlist;
   final int? maxWaitlistSize;
-  
+
   // Player Invitation
   final List<String>? invitedPlayerIds;
   final List<String>? invitedPlayerEmails;
   final bool? allowFriendsToInvite;
   final String? invitationMessage;
-  
+
   // Review & Confirm
   final String? gameTitle;
   final bool? agreeToTerms;
   final bool? sendReminders;
   final DateTime? reminderTime;
-  
+
   // Draft functionality
   final String? draftId;
   final DateTime? lastSaved;
   final bool isDraft;
-  
+
   // Step-specific local state for draft resume
   final DateTime? selectedDate;
   final String? selectedTimeSlot;
   final List<String>? selectedPlayers;
   final Map<String, dynamic>? stepLocalState;
-  
+
   // Computed properties
   final bool isLoading;
   final String? error;
@@ -334,20 +331,20 @@ class GameCreationModel {
   const GameCreationModel({
     // Current step
     this.currentStep = GameCreationStep.sportAndFormat,
-    
+
     // Sport & Format Selection
     this.selectedSport,
     this.selectedFormat,
     this.skillLevel,
     this.maxPlayers,
     this.gameDuration,
-    
+
     // Venue & Slot Selection
     this.selectedVenueSlot,
     this.amenityFilters,
     this.venueFilters,
     this.maxDistance,
-    
+
     // Participation & Payment
     this.participationMode,
     this.paymentSplit,
@@ -356,30 +353,30 @@ class GameCreationModel {
     this.gameDescription,
     this.allowWaitlist,
     this.maxWaitlistSize,
-    
+
     // Player Invitation
     this.invitedPlayerIds,
     this.invitedPlayerEmails,
     this.allowFriendsToInvite,
     this.invitationMessage,
-    
+
     // Review & Confirm
     this.gameTitle,
     this.agreeToTerms,
     this.sendReminders,
     this.reminderTime,
-    
+
     // Draft functionality
     this.draftId,
     this.lastSaved,
     this.isDraft = false,
-    
+
     // Step-specific local state for draft resume
     this.selectedDate,
     this.selectedTimeSlot,
     this.selectedPlayers,
     this.stepLocalState,
-    
+
     // Computed properties
     this.isLoading = false,
     this.error,
@@ -392,20 +389,20 @@ class GameCreationModel {
   GameCreationModel copyWith({
     // Current step
     GameCreationStep? currentStep,
-    
+
     // Sport & Format Selection
     String? selectedSport,
     GameFormat? selectedFormat,
     String? skillLevel,
     int? maxPlayers,
     int? gameDuration,
-    
+
     // Venue & Slot Selection
     VenueSlot? selectedVenueSlot,
     List<String>? amenityFilters,
     List<String>? venueFilters,
     double? maxDistance,
-    
+
     // Participation & Payment
     ParticipationMode? participationMode,
     PaymentSplit? paymentSplit,
@@ -414,30 +411,30 @@ class GameCreationModel {
     String? gameDescription,
     bool? allowWaitlist,
     int? maxWaitlistSize,
-    
+
     // Player Invitation
     List<String>? invitedPlayerIds,
     List<String>? invitedPlayerEmails,
     bool? allowFriendsToInvite,
     String? invitationMessage,
-    
+
     // Review & Confirm
     String? gameTitle,
     bool? agreeToTerms,
     bool? sendReminders,
     DateTime? reminderTime,
-    
+
     // Draft functionality
     String? draftId,
     DateTime? lastSaved,
     bool? isDraft,
-    
+
     // Step-specific local state for draft resume
     DateTime? selectedDate,
     String? selectedTimeSlot,
     List<String>? selectedPlayers,
     Map<String, dynamic>? stepLocalState,
-    
+
     // Computed properties
     bool? isLoading,
     String? error,
@@ -445,20 +442,20 @@ class GameCreationModel {
     return GameCreationModel(
       // Current step
       currentStep: currentStep ?? this.currentStep,
-      
+
       // Sport & Format Selection
       selectedSport: selectedSport ?? this.selectedSport,
       selectedFormat: selectedFormat ?? this.selectedFormat,
       skillLevel: skillLevel ?? this.skillLevel,
       maxPlayers: maxPlayers ?? this.maxPlayers,
       gameDuration: gameDuration ?? this.gameDuration,
-      
+
       // Venue & Slot Selection
       selectedVenueSlot: selectedVenueSlot ?? this.selectedVenueSlot,
       amenityFilters: amenityFilters ?? this.amenityFilters,
       venueFilters: venueFilters ?? this.venueFilters,
       maxDistance: maxDistance ?? this.maxDistance,
-      
+
       // Participation & Payment
       participationMode: participationMode ?? this.participationMode,
       paymentSplit: paymentSplit ?? this.paymentSplit,
@@ -467,30 +464,30 @@ class GameCreationModel {
       gameDescription: gameDescription ?? this.gameDescription,
       allowWaitlist: allowWaitlist ?? this.allowWaitlist,
       maxWaitlistSize: maxWaitlistSize ?? this.maxWaitlistSize,
-      
+
       // Player Invitation
       invitedPlayerIds: invitedPlayerIds ?? this.invitedPlayerIds,
       invitedPlayerEmails: invitedPlayerEmails ?? this.invitedPlayerEmails,
       allowFriendsToInvite: allowFriendsToInvite ?? this.allowFriendsToInvite,
       invitationMessage: invitationMessage ?? this.invitationMessage,
-      
+
       // Review & Confirm
       gameTitle: gameTitle ?? this.gameTitle,
       agreeToTerms: agreeToTerms ?? this.agreeToTerms,
       sendReminders: sendReminders ?? this.sendReminders,
       reminderTime: reminderTime ?? this.reminderTime,
-      
+
       // Draft functionality
       draftId: draftId ?? this.draftId,
       lastSaved: lastSaved ?? this.lastSaved,
       isDraft: isDraft ?? this.isDraft,
-      
+
       // Step-specific local state for draft resume
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTimeSlot: selectedTimeSlot ?? this.selectedTimeSlot,
       selectedPlayers: selectedPlayers ?? this.selectedPlayers,
       stepLocalState: stepLocalState ?? this.stepLocalState,
-      
+
       // Computed properties
       isLoading: isLoading ?? this.isLoading,
       error: error,
@@ -565,16 +562,18 @@ class GameCreationModel {
   }
 
   // Validation helpers
-  bool get isStep1Valid => selectedSport != null && 
-                          selectedFormat != null && 
-                          maxPlayers != null &&
-                          selectedDate != null &&
-                          selectedTimeSlot != null &&
-                          gameDuration != null;
+  bool get isStep1Valid =>
+      selectedSport != null &&
+      selectedFormat != null &&
+      maxPlayers != null &&
+      selectedDate != null &&
+      selectedTimeSlot != null &&
+      gameDuration != null;
   bool get isStep2Valid => selectedVenueSlot != null;
   bool get isStep3Valid => true; // Player invitation is optional
   bool get isStep4Valid => participationMode != null && paymentSplit != null;
-  bool get isStep5Valid => agreeToTerms == true && gameTitle?.isNotEmpty == true;
+  bool get isStep5Valid =>
+      agreeToTerms == true && gameTitle?.isNotEmpty == true;
 
   bool get canProceedToNextStep {
     switch (currentStep) {
@@ -645,4 +644,4 @@ extension TimeOfDayFormat on TimeOfDay {
     final m = minute.toString().padLeft(2, '0');
     return '$h:$m';
   }
-} 
+}

@@ -13,7 +13,7 @@ class NotificationHelper {
     String? actionLabel,
   }) {
     final colorScheme = _getColorSchemeForType(type);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -59,16 +59,14 @@ class NotificationHelper {
         backgroundColor: colorScheme.backgroundColor.withValues(alpha: 0.9),
         duration: duration,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         action: onActionPressed != null && actionLabel != null
-          ? SnackBarAction(
-              label: actionLabel,
-              textColor: Colors.white,
-              onPressed: onActionPressed,
-            )
-          : null,
+            ? SnackBarAction(
+                label: actionLabel,
+                textColor: Colors.white,
+                onPressed: onActionPressed,
+              )
+            : null,
       ),
     );
   }
@@ -103,10 +101,7 @@ class NotificationHelper {
               ),
               const SizedBox(width: 12),
               const Expanded(
-                child: Text(
-                  'Game Invitation',
-                  style: TextStyle(fontSize: 18),
-                ),
+                child: Text('Game Invitation', style: TextStyle(fontSize: 18)),
               ),
             ],
           ),
@@ -116,10 +111,7 @@ class NotificationHelper {
             children: [
               Text(
                 '$playerName invited you to join:',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 8),
               Text(
@@ -132,10 +124,7 @@ class NotificationHelper {
               const SizedBox(height: 16),
               Text(
                 'Would you like to join this game?',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[700], fontSize: 14),
               ),
             ],
           ),
@@ -145,10 +134,7 @@ class NotificationHelper {
                 Navigator.of(context).pop();
                 onDecline?.call();
               },
-              child: Text(
-                'Decline',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
+              child: Text('Decline', style: TextStyle(color: Colors.grey[600])),
             ),
             ElevatedButton(
               onPressed: () {
@@ -193,10 +179,7 @@ class NotificationHelper {
               color: badgeColor,
               borderRadius: BorderRadius.circular(size / 2),
             ),
-            constraints: BoxConstraints(
-              minWidth: size,
-              minHeight: size,
-            ),
+            constraints: BoxConstraints(minWidth: size, minHeight: size),
             child: Text(
               count > 99 ? '99+' : count.toString(),
               style: TextStyle(
@@ -232,10 +215,7 @@ class NotificationHelper {
             decoration: BoxDecoration(
               color: dotColor,
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 1,
-              ),
+              border: Border.all(color: Colors.white, width: 1),
             ),
           ),
         ),
@@ -243,7 +223,9 @@ class NotificationHelper {
     );
   }
 
-  static _NotificationColorScheme _getColorSchemeForType(NotificationType type) {
+  static _NotificationColorScheme _getColorSchemeForType(
+    NotificationType type,
+  ) {
     switch (type) {
       case NotificationType.gameInvite:
         return _NotificationColorScheme(
@@ -305,7 +287,8 @@ class NotificationHelper {
       case NotificationType.loyaltyPoints:
         return LucideIcons.gift;
       case NotificationType.systemAlert:
-        return Icons.warning; // Using standard warning icon instead of triangleAlert
+        return Icons
+            .warning; // Using standard warning icon instead of triangleAlert
       default:
         return LucideIcons.bell;
     }
@@ -320,4 +303,4 @@ class _NotificationColorScheme {
     required this.backgroundColor,
     required this.iconColor,
   });
-} 
+}

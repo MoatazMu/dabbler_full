@@ -7,10 +7,12 @@ Future<void> demoFetchFeed() async {
   debugPrint('Feed: current user: ${user?.id ?? 'anonymous'}');
 
   final repo = FeedRepo();
-  final page = await repo.fetchFeed(page: 1, limit: 10);
+  final page = await repo.fetchFeed(limit: 10);
 
-  debugPrint('Feed page=${page.page} items=${page.items.length} totalEst=${page.totalItemsEstimate}');
+  debugPrint('Feed items=${page.items.length} next=${page.next != null}');
   for (final item in page.items) {
-    debugPrint(' • ${item.id} by ${item.authorId} vis=${item.visibility} at ${item.createdAt.toIso8601String()}');
+    debugPrint(
+      ' • ${item.id} by ${item.authorId} vis=${item.visibility} at ${item.createdAt.toIso8601String()}',
+    );
   }
 }

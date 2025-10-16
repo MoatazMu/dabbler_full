@@ -55,27 +55,24 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
   late TextEditingController _commentController;
   late AnimationController _submitAnimationController;
   late Animation<double> _submitAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    _ratings = {
-      for (var category in widget.categories) category: 0.0
-    };
+    _ratings = {for (var category in widget.categories) category: 0.0};
     _commentController = TextEditingController();
-    
+
     _submitAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _submitAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _submitAnimationController,
-      curve: Curves.easeInOut,
-    ));
+
+    _submitAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(
+        parent: _submitAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
@@ -141,7 +138,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
                 : null,
           ),
           const SizedBox(width: 16),
-          
+
           // Player info
           Expanded(
             child: Column(
@@ -166,10 +163,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
                 const SizedBox(height: 4),
                 Text(
                   'How was their performance?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -185,17 +179,16 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
       children: [
         const Text(
           'Rating Categories',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        
-        ...widget.categories.map((category) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: _buildRatingCategory(category),
-        )),
+
+        ...widget.categories.map(
+          (category) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildRatingCategory(category),
+          ),
+        ),
       ],
     );
   }
@@ -203,22 +196,26 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
   Widget _buildRatingCategory(RatingCategory category) {
     final currentRating = _ratings[category] ?? 0.0;
     final categoryData = _getCategoryData(category);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: currentRating > 0 ? categoryData.color.withOpacity(0.3) : Colors.grey[300]!,
+          color: currentRating > 0
+              ? categoryData.color.withOpacity(0.3)
+              : Colors.grey[300]!,
         ),
-        boxShadow: currentRating > 0 ? [
-          BoxShadow(
-            color: categoryData.color.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ] : null,
+        boxShadow: currentRating > 0
+            ? [
+                BoxShadow(
+                  color: categoryData.color.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,11 +223,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
           // Category header
           Row(
             children: [
-              Icon(
-                categoryData.icon,
-                color: categoryData.color,
-                size: 20,
-              ),
+              Icon(categoryData.icon, color: categoryData.color, size: 20),
               const SizedBox(width: 8),
               Text(
                 categoryData.label,
@@ -244,22 +237,20 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
           const SizedBox(height: 4),
           Text(
             categoryData.description,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
-          
+
           // Star rating
           Row(
             children: [
-              Expanded(
-                child: _buildStarRating(category),
-              ),
+              Expanded(child: _buildStarRating(category)),
               if (currentRating > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: categoryData.color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -275,7 +266,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
                 ),
             ],
           ),
-          
+
           // Rating description
           if (currentRating > 0) ...[
             const SizedBox(height: 8),
@@ -295,13 +286,13 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
 
   Widget _buildStarRating(RatingCategory category) {
     final currentRating = _ratings[category] ?? 0.0;
-    
+
     return Row(
       children: List.generate(5, (index) {
         final starValue = index + 1.0;
         final isHalfStar = currentRating > index && currentRating < starValue;
         final isFilled = currentRating >= starValue;
-        
+
         return GestureDetector(
           onTap: () {
             setState(() {
@@ -327,21 +318,15 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
       children: [
         const Text(
           'Additional Comments',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
           'Share any specific feedback (optional)',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         const SizedBox(height: 12),
-        
+
         TextField(
           controller: _commentController,
           maxLines: 3,
@@ -388,18 +373,14 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
             ],
           ),
           const SizedBox(height: 12),
-          
+
           ...widget.previousRatings!.entries.map((entry) {
             final categoryData = _getCategoryData(entry.key);
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
-                  Icon(
-                    categoryData.icon,
-                    color: Colors.blue[600],
-                    size: 16,
-                  ),
+                  Icon(categoryData.icon, color: Colors.blue[600], size: 16),
                   const SizedBox(width: 8),
                   Text(
                     categoryData.label,
@@ -437,7 +418,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
 
   Widget _buildActionButtons() {
     final hasRatings = _ratings.values.any((rating) => rating > 0);
-    
+
     return Column(
       children: [
         // Submit button
@@ -464,7 +445,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
             );
           },
         ),
-        
+
         // Skip button
         if (widget.allowSkip) ...[
           const SizedBox(height: 12),
@@ -481,8 +462,8 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
     );
   }
 
-  ({IconData icon, String label, String description, Color color}) _getCategoryData(
-      RatingCategory category) {
+  ({IconData icon, String label, String description, Color color})
+  _getCategoryData(RatingCategory category) {
     switch (category) {
       case RatingCategory.overall:
         return (
@@ -546,11 +527,13 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
     // Create rating list
     final ratings = _ratings.entries
         .where((entry) => entry.value > 0)
-        .map((entry) => PlayerRating(
-              category: entry.key,
-              rating: entry.value,
-              label: _getCategoryData(entry.key).label,
-            ))
+        .map(
+          (entry) => PlayerRating(
+            category: entry.key,
+            rating: entry.value,
+            label: _getCategoryData(entry.key).label,
+          ),
+        )
         .toList();
 
     // Submit ratings
@@ -566,9 +549,7 @@ class _PlayerRatingWidgetState extends State<PlayerRatingWidget>
 
   void clearRatings() {
     setState(() {
-      _ratings = {
-        for (var category in widget.categories) category: 0.0
-      };
+      _ratings = {for (var category in widget.categories) category: 0.0};
       _commentController.clear();
     });
   }

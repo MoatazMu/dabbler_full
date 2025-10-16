@@ -1,5 +1,6 @@
 /// Visual indicator for profile completion status with animated progress
 library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -16,7 +17,7 @@ class ProfileSection {
   final List<String> missingItems;
   final DateTime? lastUpdated;
   final bool isRequired;
-  
+
   const ProfileSection({
     required this.id,
     required this.name,
@@ -30,10 +31,10 @@ class ProfileSection {
     this.lastUpdated,
     this.isRequired = true,
   });
-  
-  double get completionPercentage => 
+
+  double get completionPercentage =>
       totalItems > 0 ? completedItems / totalItems : 0.0;
-  
+
   ProfileSection copyWith({
     String? id,
     String? name,
@@ -71,7 +72,7 @@ class ProgressMilestone {
   final Color color;
   final String description;
   final bool showCelebration;
-  
+
   const ProgressMilestone({
     required this.percentage,
     required this.label,
@@ -80,7 +81,7 @@ class ProgressMilestone {
     required this.description,
     this.showCelebration = false,
   });
-  
+
   static const List<ProgressMilestone> defaultMilestones = [
     ProgressMilestone(
       percentage: 0.25,
@@ -147,7 +148,7 @@ class CompletionIndicator extends StatefulWidget {
   final String title;
   final String subtitle;
   final bool enableHapticFeedback;
-  
+
   const CompletionIndicator({
     super.key,
     required this.sections,
@@ -172,7 +173,7 @@ class CompletionIndicator extends StatefulWidget {
     this.subtitle = 'Complete your profile to get better matches',
     this.enableHapticFeedback = true,
   });
-  
+
   @override
   State<CompletionIndicator> createState() => _CompletionIndicatorState();
 }
@@ -185,83 +186,79 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
   late Animation<double> _progressAnimation;
   late Animation<double> _celebrationAnimation;
   late Animation<double> _expansionAnimation;
-  
+
   bool _isExpanded = false;
   double _currentProgress = 0.0;
   double _targetProgress = 0.0;
   bool _showCelebration = false;
-  
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _calculateProgress();
   }
-  
+
   void _setupAnimations() {
     _progressController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _celebrationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _expansionController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeOutCubic,
-    ));
-    
-    _celebrationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _celebrationController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _expansionAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _expansionController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _progressController, curve: Curves.easeOutCubic),
+    );
+
+    _celebrationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _celebrationController, curve: Curves.elasticOut),
+    );
+
+    _expansionAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _expansionController, curve: Curves.easeInOut),
+    );
+
     _progressController.addListener(() {
       setState(() {
         _currentProgress = _targetProgress * _progressAnimation.value;
       });
     });
   }
-  
+
   void _calculateProgress() {
-    final totalItems = widget.sections.fold<int>(0, (sum, section) => sum + section.totalItems);
-    final completedItems = widget.sections.fold<int>(0, (sum, section) => sum + section.completedItems);
-    
+    final totalItems = widget.sections.fold<int>(
+      0,
+      (sum, section) => sum + section.totalItems,
+    );
+    final completedItems = widget.sections.fold<int>(
+      0,
+      (sum, section) => sum + section.completedItems,
+    );
+
     final newProgress = totalItems > 0 ? completedItems / totalItems : 0.0;
-    
+
     if (newProgress != _targetProgress) {
       _targetProgress = newProgress;
-      
+
       if (widget.animateChanges) {
         _progressController.forward(from: _currentProgress / _targetProgress);
       } else {
         _currentProgress = _targetProgress;
       }
-      
+
       // Trigger celebration if reaching 100%
-      if (_targetProgress >= 1.0 && widget.showCelebration && !_showCelebration) {
+      if (_targetProgress >= 1.0 &&
+          widget.showCelebration &&
+          !_showCelebration) {
         _showCelebration = true;
         Future.delayed(const Duration(milliseconds: 500), () {
           _celebrationController.forward();
@@ -269,16 +266,16 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       }
     }
   }
-  
+
   @override
   void didUpdateWidget(CompletionIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.sections != oldWidget.sections) {
       _calculateProgress();
     }
   }
-  
+
   @override
   void dispose() {
     _progressController.dispose();
@@ -286,7 +283,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
     _expansionController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -308,17 +305,18 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
           _buildHeader(),
           const SizedBox(height: 16),
           _buildProgressIndicator(),
-          
-          if (widget.enableExpansion && (_isExpanded || widget.displayMode == CompletionDisplayMode.expanded))
+
+          if (widget.enableExpansion &&
+              (_isExpanded ||
+                  widget.displayMode == CompletionDisplayMode.expanded))
             _buildExpandedContent(),
-          
-          if (_showCelebration)
-            _buildCelebrationOverlay(),
+
+          if (_showCelebration) _buildCelebrationOverlay(),
         ],
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return GestureDetector(
       onTap: widget.enableExpansion ? _toggleExpansion : widget.onTap,
@@ -332,7 +330,8 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                   children: [
                     Text(
                       widget.title,
-                      style: widget.titleStyle ?? 
+                      style:
+                          widget.titleStyle ??
                           Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -341,12 +340,13 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                     _buildProgressBadge(),
                   ],
                 ),
-                
+
                 if (widget.subtitle.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     widget.subtitle,
-                    style: widget.subtitleStyle ?? 
+                    style:
+                        widget.subtitleStyle ??
                         Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -355,24 +355,21 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
               ],
             ),
           ),
-          
+
           if (widget.enableExpansion)
             AnimatedRotation(
               turns: _isExpanded ? 0.5 : 0.0,
               duration: const Duration(milliseconds: 200),
-              child: Icon(
-                Icons.expand_more,
-                color: Colors.grey[600],
-              ),
+              child: Icon(Icons.expand_more, color: Colors.grey[600]),
             ),
         ],
       ),
     );
   }
-  
+
   Widget _buildProgressBadge() {
     final percentage = (_currentProgress * 100).round();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -393,7 +390,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ),
     );
   }
-  
+
   Widget _buildProgressIndicator() {
     switch (widget.displayMode) {
       case CompletionDisplayMode.linear:
@@ -409,7 +406,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
         return _buildCardProgress();
     }
   }
-  
+
   Widget _buildLinearProgress() {
     return Column(
       children: [
@@ -422,7 +419,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
             minHeight: 8,
           ),
         ),
-        
+
         if (widget.showMilestones) ...[
           const SizedBox(height: 8),
           _buildMilestoneMarkers(),
@@ -430,7 +427,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ],
     );
   }
-  
+
   Widget _buildCircularProgress() {
     return Center(
       child: SizedBox(
@@ -445,7 +442,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
               valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor()),
               strokeWidth: 8,
             ),
-            
+
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -456,12 +453,12 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                     color: _getProgressColor(),
                   ),
                 ),
-                
+
                 Text(
                   'Complete',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -470,13 +467,13 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ),
     );
   }
-  
+
   Widget _buildSegmentedProgress() {
     return Row(
       children: widget.sections.asMap().entries.map((entry) {
         final index = entry.key;
         final section = entry.value;
-        
+
         return Expanded(
           child: Container(
             margin: EdgeInsets.only(
@@ -488,15 +485,15 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildSegment(ProfileSection section) {
     return GestureDetector(
       onTap: () => widget.onSectionTap?.call(section),
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: section.isCompleted 
-              ? section.color 
+          color: section.isCompleted
+              ? section.color
               : section.color.withOpacity(0.2),
           borderRadius: BorderRadius.circular(6),
         ),
@@ -525,7 +522,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ),
     );
   }
-  
+
   Widget _buildCompactProgress() {
     return Row(
       children: [
@@ -545,10 +542,12 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ],
     );
   }
-  
+
   Widget _buildCompletedSectionsCount() {
-    final completedSections = widget.sections.where((s) => s.isCompleted).length;
-    
+    final completedSections = widget.sections
+        .where((s) => s.isCompleted)
+        .length;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -565,13 +564,13 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ),
     );
   }
-  
+
   Widget _buildCardProgress() {
     return Column(
       children: [
         _buildLinearProgress(),
         const SizedBox(height: 16),
-        
+
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -582,7 +581,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ],
     );
   }
-  
+
   Widget _buildSectionCard(ProfileSection section) {
     return GestureDetector(
       onTap: () => widget.onSectionTap?.call(section),
@@ -590,14 +589,12 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
         width: 100,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: section.isCompleted 
+          color: section.isCompleted
               ? section.color.withOpacity(0.1)
               : Colors.grey[100],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: section.isCompleted 
-                ? section.color 
-                : Colors.grey[300]!,
+            color: section.isCompleted ? section.color : Colors.grey[300]!,
             width: section.isCompleted ? 2 : 1,
           ),
         ),
@@ -609,7 +606,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
               size: 24,
             ),
             const SizedBox(height: 4),
-            
+
             Text(
               section.name,
               style: TextStyle(
@@ -621,27 +618,24 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            
+
             const SizedBox(height: 2),
             Text(
               '${section.completedItems}/${section.totalItems}',
-              style: TextStyle(
-                fontSize: 9,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 9, color: Colors.grey[600]),
             ),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildMilestoneMarkers() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: widget.milestones.map((milestone) {
         final isReached = _currentProgress >= milestone.percentage;
-        
+
         return Expanded(
           child: Column(
             children: [
@@ -654,7 +648,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                 ),
               ),
               const SizedBox(height: 4),
-              
+
               Text(
                 milestone.label,
                 style: TextStyle(
@@ -672,7 +666,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       }).toList(),
     );
   }
-  
+
   Widget _buildExpandedContent() {
     return AnimatedBuilder(
       animation: _expansionAnimation,
@@ -690,26 +684,25 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
         child: Column(
           children: [
             ...widget.sections.map((section) => _buildSectionDetail(section)),
-            
-            if (widget.showMissingItems)
-              _buildMissingItemsSummary(),
+
+            if (widget.showMissingItems) _buildMissingItemsSummary(),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildSectionDetail(ProfileSection section) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: section.isCompleted 
+        color: section.isCompleted
             ? section.color.withOpacity(0.05)
             : Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: section.isCompleted 
+          color: section.isCompleted
               ? section.color.withOpacity(0.3)
               : Colors.grey[200]!,
         ),
@@ -720,9 +713,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: section.isCompleted 
-                  ? section.color 
-                  : Colors.grey[300],
+              color: section.isCompleted ? section.color : Colors.grey[300],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -732,7 +723,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
             ),
           ),
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -743,8 +734,8 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                       section.name,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: section.isCompleted 
-                            ? section.color 
+                        color: section.isCompleted
+                            ? section.color
                             : Colors.grey[700],
                       ),
                     ),
@@ -759,24 +750,25 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 4),
                 Text(
                   section.description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
-                
-                if (!section.isCompleted && section.missingItems.isNotEmpty) ...[
+
+                if (!section.isCompleted &&
+                    section.missingItems.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 4,
                     runSpacing: 4,
                     children: section.missingItems.take(3).map((item) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange[100],
                           borderRadius: BorderRadius.circular(4),
@@ -795,26 +787,22 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
               ],
             ),
           ),
-          
+
           const SizedBox(width: 8),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey[400],
-            size: 20,
-          ),
+          Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
         ],
       ),
     );
   }
-  
+
   Widget _buildMissingItemsSummary() {
     final allMissingItems = widget.sections
         .where((section) => !section.isCompleted)
         .expand((section) => section.missingItems)
         .toList();
-    
+
     if (allMissingItems.isEmpty) return const SizedBox.shrink();
-    
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
@@ -834,7 +822,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                 size: 20,
               ),
               const SizedBox(width: 8),
-              
+
               Text(
                 'Missing Items (${allMissingItems.length})',
                 style: TextStyle(
@@ -844,7 +832,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
@@ -859,15 +847,12 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
                 ),
                 child: Text(
                   item,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.orange[700],
-                  ),
+                  style: TextStyle(fontSize: 11, color: Colors.orange[700]),
                 ),
               );
             }).toList(),
           ),
-          
+
           if (allMissingItems.length > 8) ...[
             const SizedBox(height: 6),
             Text(
@@ -883,7 +868,7 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       ),
     );
   }
-  
+
   Widget _buildCelebrationOverlay() {
     return AnimatedBuilder(
       animation: _celebrationAnimation,
@@ -891,11 +876,13 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
         if (_celebrationAnimation.value == 0.0) {
           return const SizedBox.shrink();
         }
-        
+
         return Positioned.fill(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1 * _celebrationAnimation.value),
+              color: Colors.green.withOpacity(
+                0.1 * _celebrationAnimation.value,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -927,25 +914,25 @@ class _CompletionIndicatorState extends State<CompletionIndicator>
       },
     );
   }
-  
+
   Color _getProgressColor() {
     if (widget.progressColor != null) return widget.progressColor!;
-    
+
     if (_currentProgress >= 1.0) return Colors.green;
     if (_currentProgress >= 0.75) return Colors.blue;
     if (_currentProgress >= 0.50) return Colors.orange;
     return Colors.red;
   }
-  
+
   void _toggleExpansion() {
     if (widget.enableHapticFeedback) {
       HapticFeedback.selectionClick();
     }
-    
+
     setState(() {
       _isExpanded = !_isExpanded;
     });
-    
+
     if (_isExpanded) {
       _expansionController.forward();
     } else {
@@ -971,7 +958,7 @@ extension CompletionIndicatorExtensions on CompletionIndicator {
       onTap: onTap,
     );
   }
-  
+
   /// Create a circular progress indicator
   static CompletionIndicator circular({
     required List<ProfileSection> sections,
@@ -985,7 +972,7 @@ extension CompletionIndicatorExtensions on CompletionIndicator {
       onTap: onTap,
     );
   }
-  
+
   /// Create a segmented progress indicator
   static CompletionIndicator segmented({
     required List<ProfileSection> sections,
@@ -998,7 +985,7 @@ extension CompletionIndicatorExtensions on CompletionIndicator {
       onSectionTap: onSectionTap,
     );
   }
-  
+
   /// Create a compact progress indicator
   static CompletionIndicator compact({
     required List<ProfileSection> sections,
@@ -1051,7 +1038,7 @@ class CompletionIndicatorPresets {
       missingItems: ['Location', 'Availability'],
     ),
   ];
-  
+
   /// Complete profile with all sections
   static CompletionIndicator completeProfile({
     Function(ProfileSection)? onSectionTap,
@@ -1065,7 +1052,7 @@ class CompletionIndicatorPresets {
       onSectionTap: onSectionTap,
     );
   }
-  
+
   /// Quick completion overview
   static CompletionIndicator quickOverview({
     required List<ProfileSection> sections,
@@ -1075,7 +1062,8 @@ class CompletionIndicatorPresets {
       sections: sections,
       displayMode: CompletionDisplayMode.linear,
       title: 'Profile Status',
-      subtitle: '${sections.where((s) => s.isCompleted).length}/${sections.length} sections complete',
+      subtitle:
+          '${sections.where((s) => s.isCompleted).length}/${sections.length} sections complete',
       height: 80,
       onTap: onTap,
     );

@@ -46,7 +46,9 @@ class SocialNotifications {
       body: json['body'],
       data: json['data'],
       is_read: json['is_read'],
-      read_at: (json['read_at'] == null ? null : DateTime.parse(json['read_at'] as String)),
+      read_at: (json['read_at'] == null
+          ? null
+          : DateTime.parse(json['read_at'] as String)),
       created_at: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),

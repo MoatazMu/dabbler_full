@@ -1,5 +1,6 @@
 /// Interactive star rating input widget with advanced features
 library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,8 +8,10 @@ import 'package:flutter/services.dart';
 enum RatingDisplayMode {
   /// Interactive rating input
   interactive,
+
   /// Read-only display
   readOnly,
+
   /// Display with statistics
   withStats,
 }
@@ -19,16 +22,16 @@ class RatingStats {
   final int totalRatings;
   final Map<int, int>? ratingDistribution;
   final String? label;
-  
+
   const RatingStats({
     required this.averageRating,
     required this.totalRatings,
     this.ratingDistribution,
     this.label,
   });
-  
+
   String get formattedAverage => averageRating.toStringAsFixed(1);
-  String get formattedCount => totalRatings > 999 
+  String get formattedCount => totalRatings > 999
       ? '${(totalRatings / 1000).toStringAsFixed(1)}k'
       : totalRatings.toString();
 }
@@ -62,7 +65,7 @@ class RatingField extends StatefulWidget {
   final List<String>? ratingLabels;
   final TextStyle? labelStyle;
   final bool enableHapticFeedback;
-  
+
   const RatingField({
     super.key,
     this.initialRating,
@@ -93,7 +96,7 @@ class RatingField extends StatefulWidget {
     this.labelStyle,
     this.enableHapticFeedback = true,
   });
-  
+
   @override
   State<RatingField> createState() => _RatingFieldState();
 }
@@ -106,7 +109,7 @@ class _RatingFieldState extends State<RatingField>
   late AnimationController _pulseController;
   final List<AnimationController> _starControllers = [];
   final List<Animation<double>> _starAnimations = [];
-  
+
   @override
   void initState() {
     super.initState();
@@ -114,67 +117,64 @@ class _RatingFieldState extends State<RatingField>
     _setupAnimations();
     _setupStarAnimations();
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
   }
-  
+
   void _setupStarAnimations() {
     _starControllers.clear();
     _starAnimations.clear();
-    
+
     for (int i = 0; i < widget.maxRating; i++) {
       final controller = AnimationController(
         duration: Duration(milliseconds: 200 + (i * 50)),
         vsync: this,
       );
-      
+
       final animation = Tween<double>(
         begin: 0.0,
         end: 1.0,
-      ).animate(CurvedAnimation(
-        parent: controller,
-        curve: Curves.elasticOut,
-      ));
-      
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.elasticOut));
+
       _starControllers.add(controller);
       _starAnimations.add(animation);
     }
-    
+
     // Animate stars on mount
     _animateStars();
   }
-  
+
   void _animateStars() async {
     for (int i = 0; i < _starControllers.length; i++) {
       _starControllers[i].forward();
       await Future.delayed(const Duration(milliseconds: 50));
     }
   }
-  
+
   @override
   void didUpdateWidget(RatingField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.initialRating != oldWidget.initialRating) {
       setState(() {
         _currentRating = widget.initialRating;
       });
     }
-    
+
     if (widget.maxRating != oldWidget.maxRating) {
       _setupStarAnimations();
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -184,7 +184,7 @@ class _RatingFieldState extends State<RatingField>
     }
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -196,30 +196,33 @@ class _RatingFieldState extends State<RatingField>
           if (widget.label != null) ...[
             Text(
               widget.label!,
-              style: widget.labelStyle ?? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style:
+                  widget.labelStyle ??
+                  Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
           ],
-          
+
           _buildRatingWidget(),
-          
-          if (widget.stats != null && widget.mode == RatingDisplayMode.withStats) ...[
+
+          if (widget.stats != null &&
+              widget.mode == RatingDisplayMode.withStats) ...[
             const SizedBox(height: 8),
             _buildStatsWidget(),
           ],
-          
+
           if (widget.helperText != null) ...[
             const SizedBox(height: 4),
             Text(
               widget.helperText!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
-          
+
           if (widget.errorText != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -233,19 +236,21 @@ class _RatingFieldState extends State<RatingField>
       ),
     );
   }
-  
+
   Widget _buildRatingWidget() {
     return Row(
       mainAxisAlignment: widget.alignment,
       mainAxisSize: MainAxisSize.min,
       children: [
         ...List.generate(widget.maxRating, (index) => _buildStar(index + 1)),
-        
-        if (widget.allowClear && _currentRating != null && widget.mode == RatingDisplayMode.interactive) ...[
+
+        if (widget.allowClear &&
+            _currentRating != null &&
+            widget.mode == RatingDisplayMode.interactive) ...[
           const SizedBox(width: 8),
           _buildClearButton(),
         ],
-        
+
         if (_currentRating != null && widget.ratingLabels != null) ...[
           const SizedBox(width: 12),
           _buildRatingLabel(),
@@ -253,14 +258,14 @@ class _RatingFieldState extends State<RatingField>
       ],
     );
   }
-  
+
   Widget _buildStar(int position) {
     final isActive = _getStarState(position);
     final animationIndex = position - 1;
-    
+
     Color starColor;
     IconData starIcon;
-    
+
     if (isActive == StarState.full) {
       starColor = widget.activeColor ?? Colors.amber;
       starIcon = widget.starIcon!;
@@ -271,32 +276,30 @@ class _RatingFieldState extends State<RatingField>
       starColor = widget.inactiveColor ?? Colors.grey[300]!;
       starIcon = widget.emptyStarIcon!;
     }
-    
+
     // Apply hover color if hovering
     if (_hoverRating != null && position <= _hoverRating!) {
-      starColor = widget.hoverColor ?? (widget.activeColor ?? Colors.amber).withOpacity(0.8);
+      starColor =
+          widget.hoverColor ??
+          (widget.activeColor ?? Colors.amber).withOpacity(0.8);
     }
-    
+
     Widget star = AnimatedBuilder(
-      animation: animationIndex < _starAnimations.length 
-          ? _starAnimations[animationIndex] 
+      animation: animationIndex < _starAnimations.length
+          ? _starAnimations[animationIndex]
           : _animationController,
       builder: (context, child) {
-        final scale = animationIndex < _starAnimations.length 
-            ? _starAnimations[animationIndex].value 
+        final scale = animationIndex < _starAnimations.length
+            ? _starAnimations[animationIndex].value
             : 1.0;
-        
+
         return Transform.scale(
           scale: scale,
-          child: Icon(
-            starIcon,
-            size: widget.size,
-            color: starColor,
-          ),
+          child: Icon(starIcon, size: widget.size, color: starColor),
         );
       },
     );
-    
+
     if (widget.mode == RatingDisplayMode.interactive && widget.enabled) {
       star = MouseRegion(
         onEnter: (_) => _handleHover(position.toDouble()),
@@ -308,20 +311,17 @@ class _RatingFieldState extends State<RatingField>
         ),
       );
     }
-    
+
     if (widget.showTooltip && widget.mode == RatingDisplayMode.interactive) {
-      star = Tooltip(
-        message: _getTooltipMessage(position),
-        child: star,
-      );
+      star = Tooltip(message: _getTooltipMessage(position), child: star);
     }
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.spacing / 2),
       child: star,
     );
   }
-  
+
   Widget _buildClearButton() {
     return GestureDetector(
       onTap: _clearRating,
@@ -331,21 +331,17 @@ class _RatingFieldState extends State<RatingField>
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          Icons.close,
-          size: 16,
-          color: Colors.grey[600],
-        ),
+        child: Icon(Icons.close, size: 16, color: Colors.grey[600]),
       ),
     );
   }
-  
+
   Widget _buildRatingLabel() {
     final rating = (_hoverRating ?? _currentRating ?? 0).round();
     final label = rating > 0 && rating <= widget.ratingLabels!.length
         ? widget.ratingLabels![rating - 1]
         : '';
-    
+
     return AnimatedOpacity(
       opacity: label.isNotEmpty ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 200),
@@ -358,10 +354,10 @@ class _RatingFieldState extends State<RatingField>
       ),
     );
   }
-  
+
   Widget _buildStatsWidget() {
     final stats = widget.stats!;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -369,12 +365,12 @@ class _RatingFieldState extends State<RatingField>
           children: [
             Text(
               stats.formattedAverage,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 4),
-            
+
             // Small stars showing average
             ...List.generate(5, (index) {
               final starValue = index + 1;
@@ -382,35 +378,35 @@ class _RatingFieldState extends State<RatingField>
                 starValue <= stats.averageRating
                     ? widget.starIcon
                     : (starValue - 0.5 <= stats.averageRating
-                        ? widget.halfStarIcon
-                        : widget.emptyStarIcon),
+                          ? widget.halfStarIcon
+                          : widget.emptyStarIcon),
                 size: 14,
                 color: starValue <= stats.averageRating + 0.5
                     ? widget.activeColor ?? Colors.amber
                     : Colors.grey[300],
               );
             }),
-            
+
             const SizedBox(width: 8),
             Text(
               '(${stats.formattedCount})',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
-        
+
         if (stats.label != null) ...[
           const SizedBox(height: 4),
           Text(
             stats.label!,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
         ],
-        
+
         if (stats.ratingDistribution != null) ...[
           const SizedBox(height: 8),
           _buildRatingDistribution(stats),
@@ -418,26 +414,32 @@ class _RatingFieldState extends State<RatingField>
       ],
     );
   }
-  
+
   Widget _buildRatingDistribution(RatingStats stats) {
     final distribution = stats.ratingDistribution!;
-    final maxCount = distribution.values.isEmpty ? 1 : distribution.values.reduce((a, b) => a > b ? a : b);
-    
+    final maxCount = distribution.values.isEmpty
+        ? 1
+        : distribution.values.reduce((a, b) => a > b ? a : b);
+
     return Column(
       children: List.generate(5, (index) {
         final star = 5 - index;
         final count = distribution[star] ?? 0;
         final percentage = maxCount > 0 ? count / maxCount : 0.0;
-        
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 2),
           child: Row(
             children: [
               Text('$star', style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(width: 4),
-              Icon(widget.starIcon, size: 12, color: widget.activeColor ?? Colors.amber),
+              Icon(
+                widget.starIcon,
+                size: 12,
+                color: widget.activeColor ?? Colors.amber,
+              ),
               const SizedBox(width: 8),
-              
+
               Expanded(
                 child: Container(
                   height: 8,
@@ -457,7 +459,7 @@ class _RatingFieldState extends State<RatingField>
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 8),
               SizedBox(
                 width: 30,
@@ -473,10 +475,10 @@ class _RatingFieldState extends State<RatingField>
       }),
     );
   }
-  
+
   StarState _getStarState(int position) {
     final rating = _hoverRating ?? _currentRating ?? 0;
-    
+
     if (position <= rating) {
       return StarState.full;
     } else if (widget.allowHalfRating && position - 0.5 <= rating) {
@@ -485,30 +487,30 @@ class _RatingFieldState extends State<RatingField>
       return StarState.empty;
     }
   }
-  
+
   void _handleHover(double rating) {
     if (!widget.enabled) return;
-    
+
     setState(() {
       _hoverRating = rating;
     });
   }
-  
+
   void _handleHoverExit() {
     if (!widget.enabled) return;
-    
+
     setState(() {
       _hoverRating = null;
     });
   }
-  
+
   void _handleTap(double rating) {
     if (!widget.enabled) return;
-    
+
     if (widget.enableHapticFeedback) {
       HapticFeedback.lightImpact();
     }
-    
+
     setState(() {
       if (_currentRating == rating && widget.allowClear) {
         _currentRating = null;
@@ -517,68 +519,67 @@ class _RatingFieldState extends State<RatingField>
       }
       _hoverRating = null;
     });
-    
+
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    
+
     widget.onRatingChanged?.call(_currentRating);
   }
-  
+
   void _handlePanUpdate(DragUpdateDetails details, int position) {
     if (!widget.enabled || !widget.allowHalfRating) return;
-    
+
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final localPosition = renderBox.globalToLocal(details.globalPosition);
-    
+
     // Calculate which star and which half
-    final starIndex = (localPosition.dx / (widget.size + widget.spacing)).floor();
-    final starPosition = localPosition.dx - (starIndex * (widget.size + widget.spacing));
+    final starIndex = (localPosition.dx / (widget.size + widget.spacing))
+        .floor();
+    final starPosition =
+        localPosition.dx - (starIndex * (widget.size + widget.spacing));
     final isLeftHalf = starPosition < widget.size / 2;
-    
+
     double newRating = (starIndex + 1).toDouble();
     if (isLeftHalf && widget.allowHalfRating) {
       newRating -= 0.5;
     }
-    
+
     newRating = newRating.clamp(0.5, widget.maxRating.toDouble());
-    
+
     if (newRating != _hoverRating) {
       setState(() {
         _hoverRating = newRating;
       });
     }
   }
-  
+
   void _clearRating() {
     if (!widget.enabled) return;
-    
+
     if (widget.enableHapticFeedback) {
       HapticFeedback.lightImpact();
     }
-    
+
     setState(() {
       _currentRating = null;
       _hoverRating = null;
     });
-    
+
     widget.onRatingChanged?.call(null);
     widget.onRatingCleared?.call();
   }
-  
+
   String _getTooltipMessage(int position) {
-    if (widget.ratingLabels != null && position <= widget.ratingLabels!.length) {
+    if (widget.ratingLabels != null &&
+        position <= widget.ratingLabels!.length) {
       return '${widget.ratingLabels![position - 1]} ($position star${position > 1 ? 's' : ''})';
     }
     return '$position star${position > 1 ? 's' : ''}';
   }
 }
 
-enum StarState {
-  full,
-  half,
-  empty,
-}
+enum StarState { full, half, empty }
 
 /// Extension methods for easy RatingField creation
 extension RatingFieldExtensions on RatingField {
@@ -598,7 +599,7 @@ extension RatingFieldExtensions on RatingField {
       spacing: 2,
     );
   }
-  
+
   /// Create a detailed rating with half-stars
   static RatingField detailed({
     double? initialRating,
@@ -619,7 +620,7 @@ extension RatingFieldExtensions on RatingField {
       showTooltip: true,
     );
   }
-  
+
   /// Create a display-only rating with stats
   static RatingField display({
     required RatingStats stats,
@@ -635,7 +636,7 @@ extension RatingFieldExtensions on RatingField {
       enabled: false,
     );
   }
-  
+
   /// Create a compact rating for lists
   static RatingField compact({
     double? rating,
@@ -645,7 +646,9 @@ extension RatingFieldExtensions on RatingField {
     return RatingField(
       initialRating: rating,
       maxRating: maxRating,
-      mode: readOnly ? RatingDisplayMode.readOnly : RatingDisplayMode.interactive,
+      mode: readOnly
+          ? RatingDisplayMode.readOnly
+          : RatingDisplayMode.interactive,
       size: 16,
       spacing: 1,
       padding: EdgeInsets.zero,
@@ -668,15 +671,23 @@ class RatingPresets {
       onRatingChanged: onChanged,
       label: skillName,
       ratingLabels: const [
-        'Terrible', 'Poor', 'Below Average', 'Average', 'Good',
-        'Very Good', 'Great', 'Excellent', 'Outstanding', 'Perfect'
+        'Terrible',
+        'Poor',
+        'Below Average',
+        'Average',
+        'Good',
+        'Very Good',
+        'Great',
+        'Excellent',
+        'Outstanding',
+        'Perfect',
       ],
       size: 24,
       activeColor: Colors.blue,
       enableHapticFeedback: true,
     );
   }
-  
+
   /// Experience rating (1-5 scale)
   static RatingField experience({
     double? initialRating,
@@ -690,16 +701,16 @@ class RatingPresets {
       label: label,
       ratingLabels: const [
         'Beginner',
-        'Novice', 
+        'Novice',
         'Intermediate',
         'Advanced',
-        'Expert'
+        'Expert',
       ],
       activeColor: Colors.green,
       size: 28,
     );
   }
-  
+
   /// Game/match rating
   static RatingField gameRating({
     double? initialRating,
@@ -712,19 +723,13 @@ class RatingPresets {
       allowHalfRating: true,
       onRatingChanged: onChanged,
       label: label,
-      ratingLabels: const [
-        'Terrible',
-        'Poor', 
-        'Average',
-        'Good',
-        'Excellent'
-      ],
+      ratingLabels: const ['Terrible', 'Poor', 'Average', 'Good', 'Excellent'],
       activeColor: Colors.orange,
       size: 32,
       allowClear: true,
     );
   }
-  
+
   /// Facility rating with stats
   static RatingField facilityRating({
     required RatingStats stats,

@@ -69,7 +69,9 @@ class UserStats {
       completedChallenges: json['completed_challenges'] as int? ?? 0,
       streakDays: json['streak_days'] as int? ?? 0,
       averageScore: (json['average_score'] as num?)?.toDouble() ?? 0.0,
-      categoryStats: Map<String, int>.from(json['category_stats'] as Map? ?? {}),
+      categoryStats: Map<String, int>.from(
+        json['category_stats'] as Map? ?? {},
+      ),
       gameStats: json['game_stats'] as Map<String, dynamic>? ?? {},
       lastActivity: DateTime.parse(json['last_activity'] as String),
       createdAt: DateTime.parse(json['created_at'] as String),

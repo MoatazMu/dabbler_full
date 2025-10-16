@@ -20,11 +20,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     6,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(
-    6,
-    (index) => FocusNode(),
-  );
-  
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+
   bool _isLoading = false;
   bool _isResending = false;
   int _resendCountdown = 0;
@@ -50,7 +47,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     setState(() {
       _resendCountdown = 30;
     });
-    
+
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted && _resendCountdown > 0) {
         setState(() {
@@ -75,14 +72,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Future<void> _handleSubmit() async {
     final otpCode = _getOtpCode();
-    
+
     final otpError = AppValidators.validateOTP(otpCode);
     if (otpError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(otpError),
-          backgroundColor: Colors.orange,
-        ),
+        SnackBar(content: Text(otpError), backgroundColor: Colors.orange),
       );
       return;
     }
@@ -90,13 +84,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     setState(() => _isLoading = true);
 
     try {
-      print('🔐 [DEBUG] OtpVerificationScreen: Verifying OTP for phone: ${widget.phoneNumber}');
-      
+      print(
+        '🔐 [DEBUG] OtpVerificationScreen: Verifying OTP for phone: ${widget.phoneNumber}',
+      );
+
       final authService = AuthService();
       await authService.verifyOtp(phone: widget.phoneNumber!, token: otpCode);
-      
+
       print('✅ [DEBUG] OtpVerificationScreen: OTP verification successful');
-      
+
       if (mounted) {
         // Check if user needs to complete profile
         await _checkUserProfileAndNavigate();
@@ -104,10 +100,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -120,24 +113,36 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   /// Check if user has completed profile and navigate accordingly
   Future<void> _checkUserProfileAndNavigate() async {
     try {
-      print('🔍 [DEBUG] OtpVerificationScreen: Checking user profile completion');
-      
+      print(
+        '🔍 [DEBUG] OtpVerificationScreen: Checking user profile completion',
+      );
+
       final authService = AuthService();
       final userProfile = await authService.getUserProfile();
-      
+
       if (userProfile == null) {
-        print('🆕 [DEBUG] OtpVerificationScreen: No profile found, redirecting to profile creation');
+        print(
+          '🆕 [DEBUG] OtpVerificationScreen: No profile found, redirecting to profile creation',
+        );
         // No profile found - redirect to profile creation
-        context.push('/create_user_information', extra: {'phone': widget.phoneNumber});
+        context.push(
+          '/create_user_information',
+          extra: {'phone': widget.phoneNumber},
+        );
       } else {
-        print('✅ [DEBUG] OtpVerificationScreen: Profile found, redirecting to home');
+        print(
+          '✅ [DEBUG] OtpVerificationScreen: Profile found, redirecting to home',
+        );
         // Profile exists - redirect to home
         context.go('/home');
       }
     } catch (e) {
       print('❌ [DEBUG] OtpVerificationScreen: Error checking profile: $e');
       // On error, redirect to profile creation as fallback
-      context.push('/create_user_information', extra: {'phone': widget.phoneNumber});
+      context.push(
+        '/create_user_information',
+        extra: {'phone': widget.phoneNumber},
+      );
     }
   }
 
@@ -149,7 +154,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     try {
       final authService = AuthService();
       await authService.signInWithPhone(phone: widget.phoneNumber!);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -162,10 +167,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -190,7 +192,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 32),
-              
+
               // Header
               Text(
                 'Verify Your Phone',
@@ -199,29 +201,29 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 'We\'ve sent a 6-digit code to',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 4),
-              
+
               Text(
                 widget.phoneNumber ?? '',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 48),
-              
+
               // OTP Input Fields
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -234,48 +236,50 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 1,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         counterText: '',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.borderRadius,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                       ),
                       onChanged: (value) => _onOtpChanged(value, index),
                     ),
                   );
                 }),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Verify Button
               CustomButton(
                 onPressed: _isLoading ? null : _handleSubmit,
                 text: _isLoading ? 'Verifying...' : 'Verify',
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Resend OTP
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Didn\'t receive the code? ',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                   ),
                   if (_resendCountdown > 0)
                     Text(
                       'Resend in $_resendCountdown seconds',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[500],
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
                     )
                   else
                     TextButton(
@@ -290,9 +294,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                 ],
               ),
-              
+
               const Spacer(),
-              
+
               // Change Phone Number
               TextButton(
                 onPressed: () {
@@ -306,7 +310,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
             ],
           ),

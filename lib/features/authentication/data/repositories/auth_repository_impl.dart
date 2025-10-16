@@ -15,15 +15,24 @@ class AuthRepositoryImpl implements AuthRepository {
   final NetworkInfo networkInfo;
   User? _cachedUser;
 
-  AuthRepositoryImpl({required this.remoteDataSource, required this.networkInfo});
+  AuthRepositoryImpl({
+    required this.remoteDataSource,
+    required this.networkInfo,
+  });
 
   @override
-  Future<Either<Failure, AuthSession>> signInWithEmail({required String email, required String password}) async {
+  Future<Either<Failure, AuthSession>> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
     if (!await networkInfo.isConnected) {
       return left(NetworkFailure('No internet connection'));
     }
     try {
-      final response = await remoteDataSource.signInWithEmail(email: email, password: password);
+      final response = await remoteDataSource.signInWithEmail(
+        email: email,
+        password: password,
+      );
       _cacheUser(response.user as User?);
       // TODO: Persist token for single-session enforcement
       if (response.session == null) {
@@ -44,7 +53,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthSession>> signInWithPhone({required String phone}) async {
+  Future<Either<Failure, AuthSession>> signInWithPhone({
+    required String phone,
+  }) async {
     if (!await networkInfo.isConnected) {
       return left(NetworkFailure('No internet connection'));
     }
@@ -61,12 +72,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthSession>> signUp({required String email, required String password}) async {
+  Future<Either<Failure, AuthSession>> signUp({
+    required String email,
+    required String password,
+  }) async {
     if (!await networkInfo.isConnected) {
       return left(NetworkFailure('No internet connection'));
     }
     try {
-      final response = await remoteDataSource.signUp(email: email, password: password);
+      final response = await remoteDataSource.signUp(
+        email: email,
+        password: password,
+      );
       _cacheUser(response.user as User?);
       // TODO: Persist token for single-session enforcement
       return right(response.session!);
@@ -134,7 +151,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updatePassword({required String newPassword}) async {
+  Future<Either<Failure, void>> updatePassword({
+    required String newPassword,
+  }) async {
     try {
       await remoteDataSource.updatePassword(newPassword: newPassword);
       return right(null);
@@ -148,9 +167,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthSession>> verifyOTP({required String phone, required String token}) async {
+  Future<Either<Failure, AuthSession>> verifyOTP({
+    required String phone,
+    required String token,
+  }) async {
     try {
-      final response = await remoteDataSource.verifyOTP(phone: phone, token: token);
+      final response = await remoteDataSource.verifyOTP(
+        phone: phone,
+        token: token,
+      );
       _cacheUser(response.user as User?);
       // TODO: Persist token for single-session enforcement
       return right(response.session!);

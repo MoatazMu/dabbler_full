@@ -8,7 +8,9 @@ class OfflineSupportService {
 
   static Stream<bool> connectivityStream() async* {
     final connectivity = Connectivity();
-    yield* connectivity.onConnectivityChanged.map((r) => r != ConnectivityResult.none);
+    yield* connectivity.onConnectivityChanged.map(
+      (r) => r != ConnectivityResult.none,
+    );
   }
 
   static Future<void> cacheGames(List<Map<String, dynamic>> games) async {

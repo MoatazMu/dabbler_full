@@ -5,104 +5,100 @@ enum ActivityType {
   // Core activities
   game,
   booking,
-  
+
   // Social activities
   post,
   comment,
   like,
   share,
   follow,
-  
+
   // Team & Community
   team,
   challenge,
   group,
   event,
-  
+
   // Financial
   payment,
   refund,
   loyaltyPoints,
-  
+
   // Achievements
   achievement,
   badge,
   reward,
-  
+
   // Profile & Settings
   profileUpdate,
   settingsChange,
-  
+
   // Communication
   message,
   friendRequest,
-  
+
   // Venue & Location
   venueReview,
   checkIn,
-  
+
   // Game specific
   gameInvite,
   gameJoin,
   gameLeave,
   gameComplete,
   gameCancel,
-  
+
   // Booking specific
   bookingConfirm,
   bookingCancel,
   bookingModify,
-  
+
   // Misc
   other,
 }
 
 /// Activity status for tracking completion state
-enum ActivityStatus {
-  pending,
-  completed,
-  cancelled,
-  failed,
-  inProgress,
-}
+enum ActivityStatus { pending, completed, cancelled, failed, inProgress }
 
 /// Comprehensive activity log entity for audit trail
 class ActivityLog extends Equatable {
   final String id;
   final String userId;
   final ActivityType type;
-  final String? subType; // More specific categorization (e.g., 'like', 'comment')
+  final String?
+  subType; // More specific categorization (e.g., 'like', 'comment')
   final String title;
   final String? description;
   final ActivityStatus status;
-  
+
   // Target references
-  final String? targetId; // Reference to related entity (game_id, post_id, etc.)
+  final String?
+  targetId; // Reference to related entity (game_id, post_id, etc.)
   final String? targetType; // Type of target ('game', 'post', 'user', etc.)
   final String? targetUserId; // User who is target of action
   final String? targetUserName;
   final String? targetUserAvatar;
-  
+
   // Location/Venue data
   final String? venue;
   final String? location;
-  
+
   // Financial data
   final double? amount;
   final String? currency;
-  
+
   // Engagement metrics
   final int? points; // Loyalty points earned/spent
   final int? count; // Generic count (likes, comments, etc.)
-  
+
   // Timestamps
   final DateTime createdAt;
   final DateTime? updatedAt;
   final DateTime? scheduledDate; // For future events
-  
+
   // Additional metadata
   final Map<String, dynamic>? metadata;
-  
+
   // Display helpers
   final String? iconUrl;
   final String? thumbnailUrl;
@@ -138,32 +134,32 @@ class ActivityLog extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        type,
-        subType,
-        title,
-        description,
-        status,
-        targetId,
-        targetType,
-        targetUserId,
-        targetUserName,
-        targetUserAvatar,
-        venue,
-        location,
-        amount,
-        currency,
-        points,
-        count,
-        createdAt,
-        updatedAt,
-        scheduledDate,
-        metadata,
-        iconUrl,
-        thumbnailUrl,
-        actionRoute,
-      ];
+    id,
+    userId,
+    type,
+    subType,
+    title,
+    description,
+    status,
+    targetId,
+    targetType,
+    targetUserId,
+    targetUserName,
+    targetUserAvatar,
+    venue,
+    location,
+    amount,
+    currency,
+    points,
+    count,
+    createdAt,
+    updatedAt,
+    scheduledDate,
+    metadata,
+    iconUrl,
+    thumbnailUrl,
+    actionRoute,
+  ];
 
   /// Get category for filtering
   String get category {
@@ -175,23 +171,23 @@ class ActivityLog extends Equatable {
       case ActivityType.gameComplete:
       case ActivityType.gameCancel:
         return 'Games';
-        
+
       case ActivityType.booking:
       case ActivityType.bookingConfirm:
       case ActivityType.bookingCancel:
       case ActivityType.bookingModify:
         return 'Bookings';
-        
+
       case ActivityType.team:
         return 'Teams';
-        
+
       case ActivityType.challenge:
         return 'Challenges';
-        
+
       case ActivityType.payment:
       case ActivityType.refund:
         return 'Payments';
-        
+
       case ActivityType.post:
       case ActivityType.comment:
       case ActivityType.like:
@@ -200,19 +196,19 @@ class ActivityLog extends Equatable {
       case ActivityType.message:
       case ActivityType.friendRequest:
         return 'Community';
-        
+
       case ActivityType.group:
         return 'Groups';
-        
+
       case ActivityType.event:
         return 'Events';
-        
+
       case ActivityType.achievement:
       case ActivityType.badge:
       case ActivityType.reward:
       case ActivityType.loyaltyPoints:
         return 'Rewards';
-        
+
       default:
         return 'Other';
     }

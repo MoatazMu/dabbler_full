@@ -30,19 +30,23 @@ abstract class VenueFailure extends Failure {
 }
 
 class VenueServerFailure extends VenueFailure {
-  const VenueServerFailure([String? message]) : super(message ?? 'Venue server error');
+  const VenueServerFailure([String? message])
+    : super(message ?? 'Venue server error');
 }
 
 class VenueCacheFailure extends VenueFailure {
-  const VenueCacheFailure([String? message]) : super(message ?? 'Venue cache error');
+  const VenueCacheFailure([String? message])
+    : super(message ?? 'Venue cache error');
 }
 
 class VenueNotFoundFailure extends VenueFailure {
-  const VenueNotFoundFailure([String? message]) : super(message ?? 'Venue not found');
+  const VenueNotFoundFailure([String? message])
+    : super(message ?? 'Venue not found');
 }
 
 class UnknownFailure extends VenueFailure {
-  const UnknownFailure([String? message]) : super(message ?? 'Unknown venue error');
+  const UnknownFailure([String? message])
+    : super(message ?? 'Unknown venue error');
 }
 
 class VenuesRepositoryImpl implements VenuesRepository {
@@ -55,14 +59,12 @@ class VenuesRepositoryImpl implements VenuesRepository {
   final Map<String, List<TimeSlotModel>> _availabilityCache = {};
   final Map<String, List<String>> _photosCache = {};
   final Map<String, dynamic> _metadataCache = {};
-  
+
   // Cache TTL - 5 minutes
   final Map<String, DateTime> _cacheTimestamps = {};
   static const Duration _cacheDuration = Duration(minutes: 5);
 
-  VenuesRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  VenuesRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Either<Failure, List<Venue>>> getVenues({
@@ -74,7 +76,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
   }) async {
     try {
       print('🏛️ [REPO] getVenues called with filters: ${filters?.toJson()}');
-      
+
       final cacheKey = _generateListCacheKey('venues', {
         'filters': filters?.toJson(),
         'page': page,
@@ -87,7 +89,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
       if (_isListCacheValid(cacheKey)) {
         final cached = _listCache[cacheKey]!;
         print('📦 [REPO] Returning ${cached.length} venues from cache');
-        return Right(cached); // VenueModel extends Venue, so no conversion needed
+        return Right(
+          cached,
+        ); // VenueModel extends Venue, so no conversion needed
       }
 
       // Fetch from remote
@@ -112,7 +116,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
         _cacheTimestamps[model.id] = DateTime.now();
       }
 
-      return Right(venueModels); // VenueModel extends Venue, so no conversion needed
+      return Right(
+        venueModels,
+      ); // VenueModel extends Venue, so no conversion needed
     } on VenueServerException catch (e) {
       print('❌ [REPO] VenueServerException: ${e.message}');
       return Left(VenueServerFailure(e.message));
@@ -131,7 +137,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
       // Check cache first
       if (_isVenueCacheValid(venueId)) {
         final cached = _venuesCache[venueId]!;
-        return Right(cached); // VenueModel extends Venue, so no conversion needed
+        return Right(
+          cached,
+        ); // VenueModel extends Venue, so no conversion needed
       }
 
       // Fetch from remote
@@ -141,7 +149,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
       _venuesCache[venueId] = venueModel;
       _cacheTimestamps[venueId] = DateTime.now();
 
-      return Right(venueModel); // VenueModel extends Venue, so no conversion needed
+      return Right(
+        venueModel,
+      ); // VenueModel extends Venue, so no conversion needed
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } on VenueNotFoundException catch (e) {
@@ -175,7 +185,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
       // Check cache first
       if (_isListCacheValid(cacheKey)) {
         final cached = _listCache[cacheKey]!;
-        return Right(cached); // VenueModel extends Venue, so no conversion needed
+        return Right(
+          cached,
+        ); // VenueModel extends Venue, so no conversion needed
       }
 
       // Fetch from remote
@@ -199,7 +211,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
         _cacheTimestamps[model.id] = DateTime.now();
       }
 
-      return Right(venueModels); // VenueModel extends Venue, so no conversion needed
+      return Right(
+        venueModels,
+      ); // VenueModel extends Venue, so no conversion needed
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
@@ -229,7 +243,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
       // Check cache first
       if (_isListCacheValid(cacheKey)) {
         final cached = _listCache[cacheKey]!;
-        return Right(cached); // VenueModel extends Venue, so no conversion needed
+        return Right(
+          cached,
+        ); // VenueModel extends Venue, so no conversion needed
       }
 
       // Fetch from remote
@@ -252,23 +268,31 @@ class VenuesRepositoryImpl implements VenuesRepository {
         _cacheTimestamps[model.id] = DateTime.now();
       }
 
-      return Right(venueModels); // VenueModel extends Venue, so no conversion needed
+      return Right(
+        venueModels,
+      ); // VenueModel extends Venue, so no conversion needed
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get nearby venues: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get nearby venues: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, List<SportConfig>>> getVenueSports(String venueId) async {
+  Future<Either<Failure, List<SportConfig>>> getVenueSports(
+    String venueId,
+  ) async {
     try {
       final cacheKey = 'sports_$venueId';
 
       // Check cache first
       if (_isSportsCacheValid(cacheKey)) {
         final cached = _sportsCache[cacheKey]!;
-        return Right(cached); // SportConfigModel extends SportConfig, so no conversion needed
+        return Right(
+          cached,
+        ); // SportConfigModel extends SportConfig, so no conversion needed
       }
 
       // Fetch from remote
@@ -278,13 +302,17 @@ class VenuesRepositoryImpl implements VenuesRepository {
       _sportsCache[cacheKey] = sportModels;
       _cacheTimestamps[cacheKey] = DateTime.now();
 
-      return Right(sportModels); // SportConfigModel extends SportConfig, so no conversion needed
+      return Right(
+        sportModels,
+      ); // SportConfigModel extends SportConfig, so no conversion needed
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue sports: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue sports: ${e.toString()}'),
+      );
     }
   }
 
@@ -330,7 +358,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to check availability: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to check availability: ${e.toString()}'),
+      );
     }
   }
 
@@ -358,7 +388,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue photos: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue photos: ${e.toString()}'),
+      );
     }
   }
 
@@ -394,7 +426,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue reviews: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue reviews: ${e.toString()}'),
+      );
     }
   }
 
@@ -422,7 +456,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to add venue review: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to add venue review: ${e.toString()}'),
+      );
     }
   }
 
@@ -432,7 +468,10 @@ class VenuesRepositoryImpl implements VenuesRepository {
     String userId,
   ) async {
     try {
-      final success = await remoteDataSource.toggleVenueFavorite(venueId, userId);
+      final success = await remoteDataSource.toggleVenueFavorite(
+        venueId,
+        userId,
+      );
 
       // Clear related cache entries
       _clearUserRelatedCache(userId);
@@ -443,7 +482,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to toggle venue favorite: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to toggle venue favorite: ${e.toString()}'),
+      );
     }
   }
 
@@ -476,7 +517,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get featured venues: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get featured venues: ${e.toString()}'),
+      );
     }
   }
 
@@ -525,12 +568,16 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venues by sport: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venues by sport: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getVenueOperatingHours(String venueId) async {
+  Future<Either<Failure, Map<String, dynamic>>> getVenueOperatingHours(
+    String venueId,
+  ) async {
     try {
       final cacheKey = 'hours_$venueId';
 
@@ -553,7 +600,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue operating hours: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue operating hours: ${e.toString()}'),
+      );
     }
   }
 
@@ -564,7 +613,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
     DateTime? date,
   }) async {
     try {
-      final cacheKey = 'pricing_${venueId}_${sport ?? 'any'}_${date?.toIso8601String() ?? 'any'}';
+      final cacheKey =
+          'pricing_${venueId}_${sport ?? 'any'}_${date?.toIso8601String() ?? 'any'}';
 
       // Check cache first
       if (_isMetadataCacheValid(cacheKey)) {
@@ -589,7 +639,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue pricing: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue pricing: ${e.toString()}'),
+      );
     }
   }
 
@@ -610,12 +662,16 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to check venue amenities: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to check venue amenities: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getVenueContactInfo(String venueId) async {
+  Future<Either<Failure, Map<String, dynamic>>> getVenueContactInfo(
+    String venueId,
+  ) async {
     try {
       final cacheKey = 'contact_$venueId';
 
@@ -638,7 +694,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue contact info: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue contact info: ${e.toString()}'),
+      );
     }
   }
 
@@ -729,7 +787,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get favorite venues: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get favorite venues: ${e.toString()}'),
+      );
     }
   }
 
@@ -742,7 +802,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
     int limit = 20,
   }) async {
     try {
-      final cacheKey = 'history_${venueId}_${startDate?.toIso8601String() ?? 'any'}_${endDate?.toIso8601String() ?? 'any'}_${page}_$limit';
+      final cacheKey =
+          'history_${venueId}_${startDate?.toIso8601String() ?? 'any'}_${endDate?.toIso8601String() ?? 'any'}_${page}_$limit';
 
       // Check cache first
       if (_isMetadataCacheValid(cacheKey)) {
@@ -769,7 +830,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue booking history: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue booking history: ${e.toString()}'),
+      );
     }
   }
 
@@ -780,7 +843,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
     DateTime? endDate,
   }) async {
     try {
-      final cacheKey = 'utilization_${venueId}_${startDate?.toIso8601String() ?? 'any'}_${endDate?.toIso8601String() ?? 'any'}';
+      final cacheKey =
+          'utilization_${venueId}_${startDate?.toIso8601String() ?? 'any'}_${endDate?.toIso8601String() ?? 'any'}';
 
       // Check cache first
       if (_isMetadataCacheValid(cacheKey)) {
@@ -805,7 +869,11 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue utilization stats: ${e.toString()}'));
+      return Left(
+        UnknownFailure(
+          'Failed to get venue utilization stats: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -818,7 +886,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
     int limit = 20,
   }) async {
     try {
-      final cacheKey = 'recommended_${userId}_${latitude ?? 'any'}_${longitude ?? 'any'}_${page}_$limit';
+      final cacheKey =
+          'recommended_${userId}_${latitude ?? 'any'}_${longitude ?? 'any'}_${page}_$limit';
 
       // Check cache first
       if (_isListCacheValid(cacheKey)) {
@@ -843,12 +912,16 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get recommended venues: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get recommended venues: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getVenuePeakHours(String venueId) async {
+  Future<Either<Failure, Map<String, dynamic>>> getVenuePeakHours(
+    String venueId,
+  ) async {
     try {
       final cacheKey = 'peak_hours_$venueId';
 
@@ -871,7 +944,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue peak hours: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venue peak hours: ${e.toString()}'),
+      );
     }
   }
 
@@ -882,7 +957,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
     String sport,
   ) async {
     try {
-      final cacheKey = 'capacity_${venueId}_${dateTime.toIso8601String()}_$sport';
+      final cacheKey =
+          'capacity_${venueId}_${dateTime.toIso8601String()}_$sport';
 
       // Check cache first
       if (_isMetadataCacheValid(cacheKey)) {
@@ -907,12 +983,16 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to check venue capacity: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to check venue capacity: ${e.toString()}'),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getVenueWeatherSuitability(String venueId) async {
+  Future<Either<Failure, Map<String, dynamic>>> getVenueWeatherSuitability(
+    String venueId,
+  ) async {
     try {
       final cacheKey = 'weather_$venueId';
 
@@ -923,7 +1003,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
       }
 
       // Fetch from remote
-      final weather = await remoteDataSource.getVenueWeatherSuitability(venueId);
+      final weather = await remoteDataSource.getVenueWeatherSuitability(
+        venueId,
+      );
 
       // Update cache
       _metadataCache[cacheKey] = weather;
@@ -935,7 +1017,11 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueNotFoundException catch (e) {
       return Left(VenueNotFoundFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venue weather suitability: ${e.toString()}'));
+      return Left(
+        UnknownFailure(
+          'Failed to get venue weather suitability: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -979,7 +1065,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
     } on VenueServerException catch (e) {
       return Left(VenueServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get venues with promotions: ${e.toString()}'));
+      return Left(
+        UnknownFailure('Failed to get venues with promotions: ${e.toString()}'),
+      );
     }
   }
 
@@ -1029,9 +1117,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
   // Cache key generation
   String _generateListCacheKey(String prefix, Map<String, dynamic> params) {
     final sortedKeys = params.keys.toList()..sort();
-    final keyParts = sortedKeys
-        .map((key) => '$key:${params[key]}')
-        .join('|');
+    final keyParts = sortedKeys.map((key) => '$key:${params[key]}').join('|');
     return '${prefix}_$keyParts';
   }
 

@@ -14,7 +14,7 @@ class RewardsAdminTools extends ConsumerStatefulWidget {
 class _RewardsAdminToolsState extends ConsumerState<RewardsAdminTools>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +70,8 @@ class AchievementEditorTab extends ConsumerStatefulWidget {
   const AchievementEditorTab({super.key});
 
   @override
-  ConsumerState<AchievementEditorTab> createState() => _AchievementEditorTabState();
+  ConsumerState<AchievementEditorTab> createState() =>
+      _AchievementEditorTabState();
 }
 
 class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
@@ -79,14 +80,14 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
   final _descriptionController = TextEditingController();
   final _pointsController = TextEditingController();
   final _maxProgressController = TextEditingController();
-  
+
   AchievementCategory _selectedCategory = AchievementCategory.gaming;
   BadgeTier _selectedTier = BadgeTier.bronze;
   String _selectedDifficulty = 'easy';
   AchievementType _selectedType = AchievementType.single;
   bool _isHidden = false;
   bool _isActive = true;
-  
+
   List<AchievementCriteria> _criteria = [];
 
   @override
@@ -101,7 +102,7 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
   @override
   Widget build(BuildContext context) {
     final achievements = ref.watch(adminAchievementsProvider);
-    
+
     return Row(
       children: [
         // Achievement List
@@ -140,14 +141,18 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
               ),
               Expanded(
                 child: achievements.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (error, stack) => Center(child: Text('Error: $error')),
                   data: (achievementList) => ListView.builder(
                     itemCount: achievementList.length,
                     itemBuilder: (context, index) {
                       final achievement = achievementList[index];
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundColor: _getTierColor(achievement.tier),
@@ -164,16 +169,37 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (!achievement.isActive)
-                                const Icon(Icons.pause_circle, color: Colors.orange),
+                                const Icon(
+                                  Icons.pause_circle,
+                                  color: Colors.orange,
+                                ),
                               if (achievement.isHidden)
-                                const Icon(Icons.visibility_off, color: Colors.grey),
+                                const Icon(
+                                  Icons.visibility_off,
+                                  color: Colors.grey,
+                                ),
                               PopupMenuButton<String>(
-                                onSelected: (value) => _handleAchievementAction(value, achievement),
+                                onSelected: (value) => _handleAchievementAction(
+                                  value,
+                                  achievement,
+                                ),
                                 itemBuilder: (context) => [
-                                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                  const PopupMenuItem(value: 'duplicate', child: Text('Duplicate')),
-                                  const PopupMenuItem(value: 'toggle', child: Text('Toggle Active')),
-                                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text('Edit'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'duplicate',
+                                    child: Text('Duplicate'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'toggle',
+                                    child: Text('Toggle Active'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text('Delete'),
+                                  ),
                                 ],
                               ),
                             ],
@@ -204,10 +230,13 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                   children: [
                     const Text(
                       'Achievement Editor',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Basic Information
                     _buildSectionHeader('Basic Information'),
                     const SizedBox(height: 16),
@@ -228,11 +257,12 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                         border: OutlineInputBorder(),
                       ),
                       maxLines: 3,
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Description is required' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Description is required'
+                          : null,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Category and Tier Selection
                     Row(
                       children: [
@@ -244,12 +274,25 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                               border: OutlineInputBorder(),
                             ),
                             items: const [
-                              DropdownMenuItem(value: AchievementCategory.gaming, child: Text('Games')),
-                              DropdownMenuItem(value: AchievementCategory.social, child: Text('Social')),
-                              DropdownMenuItem(value: AchievementCategory.profile, child: Text('Profile')),
-                              DropdownMenuItem(value: AchievementCategory.venue, child: Text('Venue')),
+                              DropdownMenuItem(
+                                value: AchievementCategory.gaming,
+                                child: Text('Games'),
+                              ),
+                              DropdownMenuItem(
+                                value: AchievementCategory.social,
+                                child: Text('Social'),
+                              ),
+                              DropdownMenuItem(
+                                value: AchievementCategory.profile,
+                                child: Text('Profile'),
+                              ),
+                              DropdownMenuItem(
+                                value: AchievementCategory.venue,
+                                child: Text('Venue'),
+                              ),
                             ],
-                            onChanged: (value) => setState(() => _selectedCategory = value!),
+                            onChanged: (value) =>
+                                setState(() => _selectedCategory = value!),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -261,18 +304,21 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                               border: OutlineInputBorder(),
                             ),
                             items: BadgeTier.values
-                                .map((tier) => DropdownMenuItem(
-                                      value: tier,
-                                      child: Text(tier.name.toUpperCase()),
-                                    ))
+                                .map(
+                                  (tier) => DropdownMenuItem(
+                                    value: tier,
+                                    child: Text(tier.name.toUpperCase()),
+                                  ),
+                                )
                                 .toList(),
-                            onChanged: (value) => setState(() => _selectedTier = value!),
+                            onChanged: (value) =>
+                                setState(() => _selectedTier = value!),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Points and Difficulty
                     Row(
                       children: [
@@ -286,8 +332,10 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                             ),
                             keyboardType: TextInputType.number,
                             validator: (value) {
-                              if (value?.isEmpty ?? true) return 'Points required';
-                              if (int.tryParse(value!) == null) return 'Invalid number';
+                              if (value?.isEmpty ?? true)
+                                return 'Points required';
+                              if (int.tryParse(value!) == null)
+                                return 'Invalid number';
                               return null;
                             },
                           ),
@@ -301,18 +349,31 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                               border: OutlineInputBorder(),
                             ),
                             items: const [
-                              DropdownMenuItem(value: 'easy', child: Text('Easy')),
-                              DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                              DropdownMenuItem(value: 'hard', child: Text('Hard')),
-                              DropdownMenuItem(value: 'expert', child: Text('Expert')),
+                              DropdownMenuItem(
+                                value: 'easy',
+                                child: Text('Easy'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'medium',
+                                child: Text('Medium'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'hard',
+                                child: Text('Hard'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'expert',
+                                child: Text('Expert'),
+                              ),
                             ],
-                            onChanged: (value) => setState(() => _selectedDifficulty = value!),
+                            onChanged: (value) =>
+                                setState(() => _selectedDifficulty = value!),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Achievement Type and Settings
                     DropdownButtonFormField<AchievementType>(
                       initialValue: _selectedType,
@@ -321,27 +382,31 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                         border: OutlineInputBorder(),
                       ),
                       items: AchievementType.values
-                          .map((type) => DropdownMenuItem(
-                                value: type,
-                                child: Text(type.name.toUpperCase()),
-                              ))
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(type.name.toUpperCase()),
+                            ),
+                          )
                           .toList(),
-                      onChanged: (value) => setState(() => _selectedType = value!),
+                      onChanged: (value) =>
+                          setState(() => _selectedType = value!),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     if (_selectedType != AchievementType.single)
                       TextFormField(
                         controller: _maxProgressController,
                         decoration: const InputDecoration(
                           labelText: 'Max Progress',
                           border: OutlineInputBorder(),
-                          helperText: 'Required for streak/cumulative achievements',
+                          helperText:
+                              'Required for streak/cumulative achievements',
                         ),
                         keyboardType: TextInputType.number,
                       ),
                     const SizedBox(height: 16),
-                    
+
                     // Toggles
                     Row(
                       children: [
@@ -350,7 +415,8 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                             title: const Text('Hidden Achievement'),
                             subtitle: const Text('Not visible until unlocked'),
                             value: _isHidden,
-                            onChanged: (value) => setState(() => _isHidden = value!),
+                            onChanged: (value) =>
+                                setState(() => _isHidden = value!),
                           ),
                         ),
                         Expanded(
@@ -358,13 +424,14 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                             title: const Text('Active'),
                             subtitle: const Text('Available for completion'),
                             value: _isActive,
-                            onChanged: (value) => setState(() => _isActive = value!),
+                            onChanged: (value) =>
+                                setState(() => _isActive = value!),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Criteria Section
                     _buildSectionHeader('Achievement Criteria'),
                     const SizedBox(height: 16),
@@ -383,11 +450,16 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                                   Expanded(
                                     child: Text(
                                       'Criteria ${index + 1}',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
                                     onPressed: () => _removeCriteria(index),
                                   ),
                                 ],
@@ -434,7 +506,7 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
                       label: const Text('Add Criteria'),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Action Buttons
                     Row(
                       children: [
@@ -484,25 +556,39 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
 
   Color _getTierColor(BadgeTier tier) {
     switch (tier) {
-      case BadgeTier.bronze: return Colors.brown;
-      case BadgeTier.silver: return Colors.grey;
-      case BadgeTier.gold: return Colors.amber;
-      case BadgeTier.platinum: return Colors.blue[200]!;
-      case BadgeTier.diamond: return Colors.cyan;
+      case BadgeTier.bronze:
+        return Colors.brown;
+      case BadgeTier.silver:
+        return Colors.grey;
+      case BadgeTier.gold:
+        return Colors.amber;
+      case BadgeTier.platinum:
+        return Colors.blue[200]!;
+      case BadgeTier.diamond:
+        return Colors.cyan;
     }
   }
 
   IconData _getCategoryIcon(AchievementCategory category) {
     switch (category) {
-      case AchievementCategory.gaming: return Icons.sports_esports;
-      case AchievementCategory.social: return Icons.people;
-      case AchievementCategory.venue: return Icons.explore;
-      case AchievementCategory.profile: return Icons.trending_up;
-      case AchievementCategory.engagement: return Icons.favorite;
-      case AchievementCategory.special: return Icons.star;
-      case AchievementCategory.gameParticipation: return Icons.games;
-      case AchievementCategory.skillPerformance: return Icons.speed;
-      case AchievementCategory.milestone: return Icons.flag;
+      case AchievementCategory.gaming:
+        return Icons.sports_esports;
+      case AchievementCategory.social:
+        return Icons.people;
+      case AchievementCategory.venue:
+        return Icons.explore;
+      case AchievementCategory.profile:
+        return Icons.trending_up;
+      case AchievementCategory.engagement:
+        return Icons.favorite;
+      case AchievementCategory.special:
+        return Icons.star;
+      case AchievementCategory.gameParticipation:
+        return Icons.games;
+      case AchievementCategory.skillPerformance:
+        return Icons.speed;
+      case AchievementCategory.milestone:
+        return Icons.flag;
     }
   }
 
@@ -518,13 +604,16 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
     _selectedTier = achievement.tier;
     _isHidden = achievement.isHidden;
     _isActive = achievement.isActive;
-    _criteria = achievement.criteria.entries.map((entry) =>
-        AchievementCriteria(
-          key: entry.key,
-          value: entry.value,
-          comparator: CriteriaComparator.greaterThanOrEqual,
-          description: '${entry.key} must be ${entry.value}',
-        )).toList();
+    _criteria = achievement.criteria.entries
+        .map(
+          (entry) => AchievementCriteria(
+            key: entry.key,
+            value: entry.value,
+            comparator: CriteriaComparator.greaterThanOrEqual,
+            description: '${entry.key} must be ${entry.value}',
+          ),
+        )
+        .toList();
     setState(() {});
   }
 
@@ -538,7 +627,9 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
         _nameController.text = '${achievement.name} (Copy)';
         break;
       case 'toggle':
-        ref.read(adminAchievementsProvider.notifier).toggleActive(achievement.id);
+        ref
+            .read(adminAchievementsProvider.notifier)
+            .toggleActive(achievement.id);
         break;
       case 'delete':
         _confirmDelete(achievement);
@@ -559,7 +650,9 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
           ),
           TextButton(
             onPressed: () {
-              ref.read(adminAchievementsProvider.notifier).delete(achievement.id);
+              ref
+                  .read(adminAchievementsProvider.notifier)
+                  .delete(achievement.id);
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -572,12 +665,14 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
 
   void _addCriteria() {
     setState(() {
-      _criteria.add(AchievementCriteria(
-        key: '',
-        value: 1.0,
-        comparator: CriteriaComparator.greaterThanOrEqual,
-        description: 'New criteria',
-      ));
+      _criteria.add(
+        AchievementCriteria(
+          key: '',
+          value: 1.0,
+          comparator: CriteriaComparator.greaterThanOrEqual,
+          description: 'New criteria',
+        ),
+      );
     });
   }
 
@@ -609,18 +704,20 @@ class _AchievementEditorTabState extends ConsumerState<AchievementEditorTab> {
         category: _selectedCategory,
         tier: _selectedTier,
         points: int.parse(_pointsController.text),
-        criteria: Map.fromEntries(_criteria.map((c) => MapEntry(c.key, c.value))),
+        criteria: Map.fromEntries(
+          _criteria.map((c) => MapEntry(c.key, c.value)),
+        ),
         type: _selectedType,
         isHidden: _isHidden,
         isActive: _isActive,
-        maxProgress: _maxProgressController.text.isNotEmpty 
-            ? int.parse(_maxProgressController.text) 
+        maxProgress: _maxProgressController.text.isNotEmpty
+            ? int.parse(_maxProgressController.text)
             : null,
         createdAt: DateTime.now(),
       );
 
       ref.read(adminAchievementsProvider.notifier).save(achievement);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Achievement saved successfully!')),
       );
@@ -649,14 +746,15 @@ class PointsAdjustmentTab extends ConsumerStatefulWidget {
   const PointsAdjustmentTab({super.key});
 
   @override
-  ConsumerState<PointsAdjustmentTab> createState() => _PointsAdjustmentTabState();
+  ConsumerState<PointsAdjustmentTab> createState() =>
+      _PointsAdjustmentTabState();
 }
 
 class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
   final _userSearchController = TextEditingController();
   final _pointsController = TextEditingController();
   final _reasonController = TextEditingController();
-  
+
   String? _selectedUserId;
   String _adjustmentType = 'add';
 
@@ -672,7 +770,7 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          
+
           // User Search
           Card(
             child: Padding(
@@ -707,9 +805,7 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
                       ),
                       child: const Row(
                         children: [
-                          CircleAvatar(
-                            child: Icon(Icons.person),
-                          ),
+                          CircleAvatar(child: Icon(Icons.person)),
                           SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -732,7 +828,7 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Points Adjustment
           Card(
             child: Padding(
@@ -755,11 +851,21 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
                             border: OutlineInputBorder(),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'add', child: Text('Add Points')),
-                            DropdownMenuItem(value: 'subtract', child: Text('Subtract Points')),
-                            DropdownMenuItem(value: 'set', child: Text('Set Points')),
+                            DropdownMenuItem(
+                              value: 'add',
+                              child: Text('Add Points'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'subtract',
+                              child: Text('Subtract Points'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'set',
+                              child: Text('Set Points'),
+                            ),
                           ],
-                          onChanged: (value) => setState(() => _adjustmentType = value!),
+                          onChanged: (value) =>
+                              setState(() => _adjustmentType = value!),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -782,7 +888,8 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
                     decoration: const InputDecoration(
                       labelText: 'Reason for Adjustment',
                       border: OutlineInputBorder(),
-                      hintText: 'e.g., Compensation for bug, Contest prize, etc.',
+                      hintText:
+                          'e.g., Compensation for bug, Contest prize, etc.',
                     ),
                     maxLines: 2,
                   ),
@@ -791,7 +898,9 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _selectedUserId != null ? _applyAdjustment : null,
+                          onPressed: _selectedUserId != null
+                              ? _applyAdjustment
+                              : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.white,
@@ -817,7 +926,7 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Recent Adjustments
           Card(
             child: Padding(
@@ -835,12 +944,11 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: 5,
                     itemBuilder: (context, index) => ListTile(
-                      leading: Icon(
-                        Icons.edit,
-                        color: Colors.orange[600],
-                      ),
+                      leading: Icon(Icons.edit, color: Colors.orange[600]),
                       title: const Text('Points adjustment for user123'),
-                      subtitle: const Text('+500 points • Contest prize • 2 hours ago'),
+                      subtitle: const Text(
+                        '+500 points • Contest prize • 2 hours ago',
+                      ),
                       trailing: const Text(
                         '+500',
                         style: TextStyle(
@@ -885,7 +993,9 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
               // Apply adjustment logic here
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Points adjustment applied successfully!')),
+                const SnackBar(
+                  content: Text('Points adjustment applied successfully!'),
+                ),
               );
               _clearForm();
             },
@@ -916,8 +1026,14 @@ class _PointsAdjustmentTabState extends ConsumerState<PointsAdjustmentTab> {
             Text('Current Tier: Gold'),
             SizedBox(height: 16),
             Text('After Adjustment:'),
-            Text('New Points: 1,750', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text('New Tier: Gold', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'New Points: 1,750',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'New Tier: Gold',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 16),
             Text('Impact:'),
             Text('• No tier change'),
@@ -951,9 +1067,7 @@ class TierManagementTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Center(
-      child: Text('Tier Management - Coming Soon'),
-    );
+    return const Center(child: Text('Tier Management - Coming Soon'));
   }
 }
 
@@ -962,9 +1076,7 @@ class SpecialRewardsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Center(
-      child: Text('Special Rewards - Coming Soon'),
-    );
+    return const Center(child: Text('Special Rewards - Coming Soon'));
   }
 }
 
@@ -973,9 +1085,7 @@ class EventCreationTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Center(
-      child: Text('Event Creation - Coming Soon'),
-    );
+    return const Center(child: Text('Event Creation - Coming Soon'));
   }
 }
 
@@ -984,18 +1094,19 @@ class UserProgressViewerTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Center(
-      child: Text('User Progress Viewer - Coming Soon'),
-    );
+    return const Center(child: Text('User Progress Viewer - Coming Soon'));
   }
 }
 
 // Mock provider for demonstration
-final adminAchievementsProvider = StateNotifierProvider<AdminAchievementsNotifier, AsyncValue<List<Achievement>>>(
-  (ref) => AdminAchievementsNotifier(),
-);
+final adminAchievementsProvider =
+    StateNotifierProvider<
+      AdminAchievementsNotifier,
+      AsyncValue<List<Achievement>>
+    >((ref) => AdminAchievementsNotifier());
 
-class AdminAchievementsNotifier extends StateNotifier<AsyncValue<List<Achievement>>> {
+class AdminAchievementsNotifier
+    extends StateNotifier<AsyncValue<List<Achievement>>> {
   AdminAchievementsNotifier() : super(const AsyncValue.loading()) {
     _loadAchievements();
   }

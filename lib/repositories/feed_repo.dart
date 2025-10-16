@@ -4,14 +4,23 @@ import '../models/post_feed_item.dart';
 
 class FeedRepo {
   final SupabaseClient _client;
-  FeedRepo({SupabaseClient? client}) : _client = client ?? Supabase.instance.client;
+  FeedRepo({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client;
 
-  /// Fetch a mixed feed (public + friends) via edge function.
-  /// If the user is authenticated, pass the access token automatically via Supabase client.
-  Future<PostFeedPage> fetchFeed({int page = 1, int limit = 20}) async {
+  /// Keyset-friendly fetch: pass optional cursor (created_before + last_id).
+  Future<PostFeedPage> fetchFeed({
+    int limit = 20,
+    String? createdBeforeIso,
+    String? lastId,
+    String scope = 'public',
+  }) async {
+    final qp = <String, String>{'limit': limit.toString(), 'scope': scope};
+    if (createdBeforeIso != null) qp['created_before'] = createdBeforeIso;
+    if (lastId != null) qp['last_id'] = lastId;
+
     final res = await _client.functions.invoke(
       'public-feed',
-      queryParameters: {'page': page.toString(), 'limit': limit.toString()},
+      queryParameters: qp,
     );
 
     if (res.data == null) {
@@ -22,9 +31,13 @@ class FeedRepo {
     final Map<String, dynamic> map = switch (res.data) {
       final Map<String, dynamic> m => m,
       final String s => jsonDecode(s) as Map<String, dynamic>,
-      _ => throw StateError('Unexpected response type: ${res.data.runtimeType}'),
+      _ => throw StateError(
+        'Unexpected response type: ${res.data.runtimeType}',
+      ),
     };
 
-    return PostFeedPage.fromMap(map);
+    return PostFeedPage.fromMap(
+      map,
+    ); // expects { items: [...], next: { created_before, last_id } | null }
   }
 }

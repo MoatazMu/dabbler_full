@@ -2,9 +2,7 @@
 class RoutePaths {
   // Deep Link Configuration
   static const String deepLinkPrefix = 'dabbler://app';
-  
 
-  
   // Authentication & Onboarding
   static const String phoneInput = '/phone_input';
   static const String emailInput = '/email_input';
@@ -18,7 +16,7 @@ class RoutePaths {
   static const String intentSelection = '/intent-selection';
   static const String setPassword = '/set-password';
   static const String welcome = '/welcome';
-  
+
   // Onboarding Routes
   static const String onboardingWelcome = '/onboarding-welcome';
   static const String onboardingBasicInfo = '/onboarding-basic-info';
@@ -26,7 +24,7 @@ class RoutePaths {
   static const String onboardingPreferences = '/onboarding-preferences';
   static const String onboardingPrivacy = '/onboarding-privacy';
   static const String onboardingCompletion = '/onboarding-completion';
-  
+
   // Main App
   static const String home = '/home';
   static const String profile = '/profile';
@@ -39,11 +37,11 @@ class RoutePaths {
   static const String support = '/support';
   static const String loyalty = '/loyalty';
   static const String designSystemDemo = '/design-system-demo';
-  
+
   // Rewards & Leaderboard
   static const String rewards = '/rewards';
   static const String leaderboard = '/rewards/leaderboard';
-  
+
   // Game Creation Routes
   static const String createGame = '/create-game';
   static const String createGameBasicInfo = '/create-game-basic-info';
@@ -51,9 +49,10 @@ class RoutePaths {
   static const String createGameDateTime = '/create-game-date-time';
   static const String createGamePlayerSettings = '/create-game-player-settings';
   static const String createGamePricing = '/create-game-pricing';
-  static const String createGameAdditionalDetails = '/create-game-additional-details';
+  static const String createGameAdditionalDetails =
+      '/create-game-additional-details';
   static const String createGameReview = '/create-game-review';
-  
+
   // Social Routes
   static const String socialFeed = '/social-feed';
   static const String socialPost = '/social-post';
@@ -71,14 +70,28 @@ class RoutePaths {
   static const String socialCreatePost = '/social-create-post';
   static const String socialEditPost = '/social-edit-post';
   static const String socialAnalytics = '/social-analytics';
-  
+  static const String socialFriendRequests = '/social-friend-requests';
+
+  // Friends Routes
+  static const String friends = '/friends';
+  static const String friendRequests = '/friends/requests';
+
+  // Game & Booking Detail Routes
+  static const String gameDetail = '/game-detail';
+  static const String bookingDetail = '/booking-detail';
+
+  // Status & Wallet Routes
+  static const String status = '/status';
+  static const String walletPoints = '/wallet/points';
+
   // Social Onboarding Routes
   static const String socialOnboardingWelcome = '/social-onboarding-welcome';
   static const String socialOnboardingFriends = '/social-onboarding-friends';
   static const String socialOnboardingPrivacy = '/social-onboarding-privacy';
-  static const String socialOnboardingNotifications = '/social-onboarding-notifications';
+  static const String socialOnboardingNotifications =
+      '/social-onboarding-notifications';
   static const String socialOnboardingComplete = '/social-onboarding-complete';
-  
+
   // Error Routes
   static const String error = '/error';
 }
@@ -88,7 +101,7 @@ class RouteNames {
   // Core Routes
   static const String home = 'home';
   static const String error = 'error';
-  
+
   // Auth Routes
   static const String login = 'login';
   static const String register = 'register';
@@ -98,7 +111,7 @@ class RouteNames {
   static const String setPassword = 'set_password';
   static const String welcome = 'welcome';
   static const String resetPassword = 'reset_password';
-  
+
   // Profile Onboarding Routes
   static const String onboardingWelcome = 'onboarding-welcome';
   static const String onboardingBasicInfo = 'onboarding-basic-info';
@@ -106,7 +119,7 @@ class RouteNames {
   static const String onboardingPreferences = 'onboarding-preferences';
   static const String onboardingPrivacy = 'onboarding-privacy';
   static const String onboardingCompletion = 'onboarding-completion';
-  
+
   // Feature Routes
   static const String profile = 'profile';
   static const String profileUser = 'profile-user';
@@ -120,7 +133,7 @@ class RouteNames {
   static const String settingsNotifications = 'settings-notifications';
   static const String settingsAccount = 'settings-account';
   static const String notifications = 'notifications';
-  
+
   // Games Routes
   static const String games = 'games';
   static const String availableGames = 'available-games';
@@ -132,7 +145,7 @@ class RouteNames {
   static const String gameLobby = 'game-lobby';
   static const String liveGame = 'live-game';
   static const String postGame = 'post-game';
-  
+
   // Game Creation Routes
   static const String createGame = 'create-game';
   static const String createGameBasicInfo = 'create-game-basic-info';
@@ -140,13 +153,14 @@ class RouteNames {
   static const String createGameDateTime = 'create-game-date-time';
   static const String createGamePlayerSettings = 'create-game-player-settings';
   static const String createGamePricing = 'create-game-pricing';
-  static const String createGameAdditionalDetails = 'create-game-additional-details';
+  static const String createGameAdditionalDetails =
+      'create-game-additional-details';
   static const String createGameReview = 'create-game-review';
-  
+
   // Venue Routes
   static const String venuesList = 'venues-list';
   static const String venueDetail = 'venue-detail';
-  
+
   // Social Routes
   static const String social = 'social';
   static const String socialFeed = 'social-feed';
@@ -164,23 +178,33 @@ class RouteNames {
   static const String socialCreatePost = 'social-create-post';
   static const String socialEditPost = 'social-edit-post';
   static const String socialAnalytics = 'social-analytics';
-  
+  static const String socialFriendRequests = 'social-friend-requests';
+
+  // Friends Routes
+  static const String friends = 'friends';
+  static const String friendRequests = 'friend-requests';
+
+  // Status & Wallet Routes
+  static const String status = 'status';
+  static const String walletPoints = 'wallet-points';
+
   // Main Navigation Routes
   static const String explore = 'explore';
   static const String activities = 'activities';
-  
+
   // Rewards & Leaderboard
   static const String rewards = 'rewards';
   static const String leaderboard = 'leaderboard';
-  
+
   // Main App Navigation
   static const String mainApp = 'main-app';
-  
+
   // Social Onboarding Routes
   static const String socialOnboardingWelcome = 'social-onboarding-welcome';
   static const String socialOnboardingFriends = 'social-onboarding-friends';
   static const String socialOnboardingPrivacy = 'social-onboarding-privacy';
-  static const String socialOnboardingNotifications = 'social-onboarding-notifications';
+  static const String socialOnboardingNotifications =
+      'social-onboarding-notifications';
   static const String socialOnboardingComplete = 'social-onboarding-complete';
 }
 
@@ -198,4 +222,5 @@ class RouteParams {
   static const String searchQuery = 'q';
   static const String searchType = 'type';
   static const String notificationId = 'notificationId';
+  static const String bookingId = 'bookingId';
 }

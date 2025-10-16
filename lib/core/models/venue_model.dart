@@ -1,4 +1,3 @@
-
 // Venue model for venue list
 class Venue {
   final String id;

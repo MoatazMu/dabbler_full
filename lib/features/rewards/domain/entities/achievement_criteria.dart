@@ -56,7 +56,7 @@ class AchievementCriteria {
   /// Check if the given value meets this criteria
   bool evaluate(dynamic testValue) {
     if (testValue == null) return false;
-    
+
     switch (comparator) {
       case CriteriaComparator.equal:
         return testValue == value;
@@ -126,6 +126,9 @@ class AchievementCriteria {
 
   @override
   int get hashCode {
-    return key.hashCode ^ value.hashCode ^ comparator.hashCode ^ description.hashCode;
+    return key.hashCode ^
+        value.hashCode ^
+        comparator.hashCode ^
+        description.hashCode;
   }
 }

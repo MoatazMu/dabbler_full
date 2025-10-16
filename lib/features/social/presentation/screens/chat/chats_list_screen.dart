@@ -20,10 +20,10 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  
+
   String _searchQuery = '';
   bool _showSearchBar = false;
-  
+
   @override
   bool get wantKeepAlive => true;
 
@@ -31,7 +31,7 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    
+
     // Load conversations
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(chatControllerProvider.notifier).loadConversations();
@@ -56,7 +56,7 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     final theme = Theme.of(context);
     final chatState = ref.watch(chatControllerProvider);
 
@@ -111,7 +111,10 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
               final unreadCount = ref.watch(totalUnreadMessagesProvider);
               if (unreadCount > 0) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(10),
@@ -157,9 +160,9 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
                 subtitle: Consumer(
                   builder: (context, ref, child) {
                     final archivedCount = ref.watch(archivedChatsCountProvider);
-                    return archivedCount > 0 
-                      ? Text('$archivedCount chats')
-                      : const SizedBox.shrink();
+                    return archivedCount > 0
+                        ? Text('$archivedCount chats')
+                        : const SizedBox.shrink();
                   },
                 ),
                 contentPadding: EdgeInsets.zero,
@@ -188,7 +191,11 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
     );
   }
 
-  Widget _buildBody(BuildContext context, ThemeData theme, ChatState chatState) {
+  Widget _buildBody(
+    BuildContext context,
+    ThemeData theme,
+    ChatState chatState,
+  ) {
     if (chatState.isLoading && chatState.conversations.isEmpty) {
       return const Center(child: LoadingWidget());
     }
@@ -198,11 +205,7 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: theme.colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               chatState.error!,
@@ -211,7 +214,8 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.read(chatControllerProvider.notifier).loadConversations(),
+              onPressed: () =>
+                  ref.read(chatControllerProvider.notifier).loadConversations(),
               child: const Text('Retry'),
             ),
           ],
@@ -221,7 +225,9 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
 
     final conversations = _getFilteredConversations(chatState.conversations);
     final pinnedConversations = conversations.where((c) => c.isPinned).toList();
-    final regularConversations = conversations.where((c) => !c.isPinned && !c.isArchived).toList();
+    final regularConversations = conversations
+        .where((c) => !c.isPinned && !c.isArchived)
+        .toList();
 
     if (conversations.isEmpty && _searchQuery.isEmpty) {
       return _buildEmptyState(theme);
@@ -232,7 +238,8 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: () => ref.read(chatControllerProvider.notifier).refreshConversations(),
+      onRefresh: () =>
+          ref.read(chatControllerProvider.notifier).refreshConversations(),
       child: CustomScrollView(
         controller: _scrollController,
         slivers: [
@@ -258,29 +265,27 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
               child: PinnedChatsSection(
                 conversations: pinnedConversations,
                 unreadCounts: chatState.unreadCounts,
-                onConversationTap: (conversation) => _openConversation(conversation),
-                onConversationAction: (conversation, action) => 
-                  _handleConversationAction(conversation, action),
+                onConversationTap: (conversation) =>
+                    _openConversation(conversation),
+                onConversationAction: (conversation, action) =>
+                    _handleConversationAction(conversation, action),
               ),
             ),
 
           // Regular conversations
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final conversation = regularConversations[index];
-                
-                return ConversationTile(
-                  conversation: conversation,
-                  onTap: () => _openConversation(conversation),
-                  onLongPress: () => _showConversationOptions(conversation),
-                  onSwipeArchive: () => _archiveConversation(conversation),
-                  onSwipeDelete: () => _deleteConversation(conversation),
-                  onSwipePin: () => _pinConversation(conversation),
-                );
-              },
-              childCount: regularConversations.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final conversation = regularConversations[index];
+
+              return ConversationTile(
+                conversation: conversation,
+                onTap: () => _openConversation(conversation),
+                onLongPress: () => _showConversationOptions(conversation),
+                onSwipeArchive: () => _archiveConversation(conversation),
+                onSwipeDelete: () => _deleteConversation(conversation),
+                onSwipePin: () => _pinConversation(conversation),
+              );
+            }, childCount: regularConversations.length),
           ),
 
           // Loading indicator
@@ -293,9 +298,7 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
             ),
 
           // Bottom padding
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 80),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
     );
@@ -372,16 +375,22 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
     );
   }
 
-  List<ConversationModel> _getFilteredConversations(List<dynamic> conversations) {
+  List<ConversationModel> _getFilteredConversations(
+    List<dynamic> conversations,
+  ) {
     if (_searchQuery.isEmpty) return conversations.cast<ConversationModel>();
-    
-    return conversations.where((conversation) {
-      final name = conversation.name?.toLowerCase() ?? '';
-      final lastMessage = conversation.lastMessage?.content?.toLowerCase() ?? '';
-      final query = _searchQuery.toLowerCase();
-      
-      return name.contains(query) || lastMessage.contains(query);
-    }).cast<ConversationModel>().toList();
+
+    return conversations
+        .where((conversation) {
+          final name = conversation.name?.toLowerCase() ?? '';
+          final lastMessage =
+              conversation.lastMessage?.content?.toLowerCase() ?? '';
+          final query = _searchQuery.toLowerCase();
+
+          return name.contains(query) || lastMessage.contains(query);
+        })
+        .cast<ConversationModel>()
+        .toList();
   }
 
   void _handleMenuAction(String action) {
@@ -433,11 +442,7 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
   }
 
   void _openChatWithUser(String userId) {
-    Navigator.pushNamed(
-      context,
-      '/chat/detail',
-      arguments: {'userId': userId},
-    );
+    Navigator.pushNamed(context, '/chat/detail', arguments: {'userId': userId});
   }
 
   void _showConversationOptions(dynamic conversation) {
@@ -477,16 +482,22 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
         _deleteConversation(conversation);
         break;
       case 'mark_read':
-        ref.read(chatControllerProvider.notifier).markConversationRead(conversation.id);
+        ref
+            .read(chatControllerProvider.notifier)
+            .markConversationRead(conversation.id);
         break;
       case 'mark_unread':
-        ref.read(chatControllerProvider.notifier).markConversationUnread(conversation.id);
+        ref
+            .read(chatControllerProvider.notifier)
+            .markConversationUnread(conversation.id);
         break;
     }
   }
 
   void _archiveConversation(dynamic conversation) {
-    ref.read(chatControllerProvider.notifier).archiveConversation(conversation.id);
+    ref
+        .read(chatControllerProvider.notifier)
+        .archiveConversation(conversation.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Chat archived'),
@@ -499,18 +510,22 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
   }
 
   void _unarchiveConversation(dynamic conversation) {
-    ref.read(chatControllerProvider.notifier).unarchiveConversation(conversation.id);
+    ref
+        .read(chatControllerProvider.notifier)
+        .unarchiveConversation(conversation.id);
   }
 
   void _pinConversation(dynamic conversation) {
     ref.read(chatControllerProvider.notifier).pinConversation(conversation.id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chat pinned')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Chat pinned')));
   }
 
   void _unpinConversation(dynamic conversation) {
-    ref.read(chatControllerProvider.notifier).unpinConversation(conversation.id);
+    ref
+        .read(chatControllerProvider.notifier)
+        .unpinConversation(conversation.id);
   }
 
   void _muteConversation(dynamic conversation) {
@@ -519,15 +534,18 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
       builder: (context) => MuteConversationDialog(
         onMute: (duration) {
           Navigator.pop(context);
-          ref.read(chatControllerProvider.notifier)
-            .muteConversation(conversation.id);
+          ref
+              .read(chatControllerProvider.notifier)
+              .muteConversation(conversation.id);
         },
       ),
     );
   }
 
   void _unmuteConversation(dynamic conversation) {
-    ref.read(chatControllerProvider.notifier).unmuteConversation(conversation.id);
+    ref
+        .read(chatControllerProvider.notifier)
+        .unmuteConversation(conversation.id);
   }
 
   void _deleteConversation(dynamic conversation) async {
@@ -535,7 +553,9 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Chat'),
-        content: Text('Are you sure you want to delete this chat with ${conversation.name}?'),
+        content: Text(
+          'Are you sure you want to delete this chat with ${conversation.name}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -553,10 +573,12 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen>
     );
 
     if (confirm == true) {
-      ref.read(chatControllerProvider.notifier).deleteConversation(conversation.id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Chat deleted')),
-      );
+      ref
+          .read(chatControllerProvider.notifier)
+          .deleteConversation(conversation.id);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Chat deleted')));
     }
   }
 
@@ -579,7 +601,7 @@ class NewChatBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       padding: const EdgeInsets.all(16),
@@ -601,17 +623,15 @@ class NewChatBottomSheet extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Quick actions
           Card(
             child: Column(
               children: [
                 ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.group_add),
-                  ),
+                  leading: const CircleAvatar(child: Icon(Icons.group_add)),
                   title: const Text('New Group'),
                   subtitle: const Text('Create a group chat'),
                   onTap: onCreateGroup,
@@ -631,54 +651,62 @@ class NewChatBottomSheet extends ConsumerWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           Text(
             'Recent Chats',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Recent contacts
           Expanded(
             child: Consumer(
               builder: (context, ref, child) {
                 final friendsAsync = ref.watch(recentChatContactsProvider);
-                
+
                 return friendsAsync.when(
                   data: (friends) => ListView.builder(
                     itemCount: friends.length,
                     itemBuilder: (context, index) {
                       final friend = friends[index];
-                      
+
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: friend.avatarUrl != null 
-                            ? NetworkImage(friend.avatarUrl!)
-                            : null,
-                          child: friend.avatarUrl == null 
-                            ? Text(friend.displayName[0].toUpperCase())
-                            : null,
+                          backgroundImage: friend.avatarUrl != null
+                              ? NetworkImage(friend.avatarUrl!)
+                              : null,
+                          child: friend.avatarUrl == null
+                              ? Text(friend.displayName[0].toUpperCase())
+                              : null,
                         ),
                         title: Text(friend.displayName),
                         subtitle: friend.lastActiveAt != null
-                          ? const Text('Online', style: TextStyle(color: Colors.green))
-                          : Text('Last seen ${friend.lastActiveAt ?? 'Unknown'}'),
+                            ? const Text(
+                                'Online',
+                                style: TextStyle(color: Colors.green),
+                              )
+                            : Text(
+                                'Last seen ${friend.lastActiveAt ?? 'Unknown'}',
+                              ),
                         trailing: friend.lastActiveAt != null
-                          ? const Icon(Icons.circle, color: Colors.green, size: 12)
-                          : null,
+                            ? const Icon(
+                                Icons.circle,
+                                color: Colors.green,
+                                size: 12,
+                              )
+                            : null,
                         onTap: () => onUserSelected(friend.id),
                       );
                     },
                   ),
                   loading: () => const Center(child: LoadingWidget()),
-                  error: (error, stack) => Center(
-                    child: Text('Error loading contacts: $error'),
-                  ),
+                  error: (error, stack) =>
+                      Center(child: Text('Error loading contacts: $error')),
                 );
               },
             ),
@@ -703,7 +731,7 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -713,12 +741,12 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                backgroundImage: conversation.avatar != null 
-                  ? NetworkImage(conversation.avatar!)
-                  : null,
-                child: conversation.avatar == null 
-                  ? Text(conversation.name[0].toUpperCase())
-                  : null,
+                backgroundImage: conversation.avatar != null
+                    ? NetworkImage(conversation.avatar!)
+                    : null,
+                child: conversation.avatar == null
+                    ? Text(conversation.name[0].toUpperCase())
+                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -745,9 +773,9 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Actions
           if (conversation.unreadCount > 0)
             _buildActionTile(
@@ -761,29 +789,32 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
               title: 'Mark as unread',
               onTap: () => onAction('mark_unread'),
             ),
-          
+
           _buildActionTile(
-            icon: conversation.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+            icon: conversation.isPinned
+                ? Icons.push_pin_outlined
+                : Icons.push_pin,
             title: conversation.isPinned ? 'Unpin' : 'Pin',
             onTap: () => onAction(conversation.isPinned ? 'unpin' : 'pin'),
           ),
-          
+
           _buildActionTile(
-            icon: conversation.isMuted 
-              ? Icons.notifications 
-              : Icons.notifications_off,
+            icon: conversation.isMuted
+                ? Icons.notifications
+                : Icons.notifications_off,
             title: conversation.isMuted ? 'Unmute' : 'Mute',
             onTap: () => onAction(conversation.isMuted ? 'unmute' : 'mute'),
           ),
-          
+
           _buildActionTile(
             icon: conversation.isArchived ? Icons.unarchive : Icons.archive,
             title: conversation.isArchived ? 'Unarchive' : 'Archive',
-            onTap: () => onAction(conversation.isArchived ? 'unarchive' : 'archive'),
+            onTap: () =>
+                onAction(conversation.isArchived ? 'unarchive' : 'archive'),
           ),
-          
+
           const Divider(),
-          
+
           _buildActionTile(
             icon: Icons.delete,
             title: 'Delete chat',
@@ -802,15 +833,10 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
     bool isDestructive = false,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isDestructive ? Colors.red : null,
-      ),
+      leading: Icon(icon, color: isDestructive ? Colors.red : null),
       title: Text(
         title,
-        style: TextStyle(
-          color: isDestructive ? Colors.red : null,
-        ),
+        style: TextStyle(color: isDestructive ? Colors.red : null),
       ),
       onTap: onTap,
     );
@@ -821,10 +847,7 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
 class MuteConversationDialog extends StatefulWidget {
   final Function(Duration) onMute;
 
-  const MuteConversationDialog({
-    super.key,
-    required this.onMute,
-  });
+  const MuteConversationDialog({super.key, required this.onMute});
 
   @override
   State<MuteConversationDialog> createState() => _MuteConversationDialogState();
@@ -865,9 +888,9 @@ class _MuteConversationDialogState extends State<MuteConversationDialog> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: _selectedDuration != null 
-            ? () => widget.onMute(_selectedDuration!)
-            : null,
+          onPressed: _selectedDuration != null
+              ? () => widget.onMute(_selectedDuration!)
+              : null,
           child: const Text('Mute'),
         ),
       ],

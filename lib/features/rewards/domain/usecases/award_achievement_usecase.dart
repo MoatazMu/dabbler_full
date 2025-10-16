@@ -40,16 +40,16 @@ class AwardAchievementResult {
   bool get hasPoints => pointsAwarded > 0;
 
   /// Whether celebration should be shown
-  bool get shouldCelebrate => success && (hasPoints || hasBadges || hasTierUpgrade);
+  bool get shouldCelebrate =>
+      success && (hasPoints || hasBadges || hasTierUpgrade);
 }
 
 /// Use case for awarding achievements with full business logic
 class AwardAchievementUseCase {
   final RewardsRepository _repository;
 
-  AwardAchievementUseCase({
-    required RewardsRepository repository,
-  }) : _repository = repository;
+  AwardAchievementUseCase({required RewardsRepository repository})
+    : _repository = repository;
 
   /// Award an achievement to a user with full validation and business logic
   Future<AwardAchievementResult> execute({
@@ -60,12 +60,14 @@ class AwardAchievementUseCase {
   }) async {
     try {
       // Step 1: Get achievement details
-      final achievementResult = await _repository.getAchievementById(achievementId);
+      final achievementResult = await _repository.getAchievementById(
+        achievementId,
+      );
       final achievement = achievementResult.fold(
         (failure) => null,
         (achievement) => achievement,
       );
-      
+
       if (achievement == null) {
         return AwardAchievementResult(
           success: false,
@@ -80,7 +82,7 @@ class AwardAchievementUseCase {
         userId,
         achievementId,
       );
-      
+
       final currentProgress = progressResult.fold(
         (failure) => null,
         (progress) => progress,
@@ -96,8 +98,8 @@ class AwardAchievementUseCase {
       }
 
       // Step 3: Check if already completed (unless repeatable or forced)
-      if (currentProgress.status == ProgressStatus.completed && 
-          !achievement.type.isRepeatable && 
+      if (currentProgress.status == ProgressStatus.completed &&
+          !achievement.type.isRepeatable &&
           !force) {
         return AwardAchievementResult(
           success: false,
@@ -233,7 +235,6 @@ class AwardAchievementUseCase {
           'event_context': eventContext,
         },
       );
-
     } catch (error) {
       return AwardAchievementResult(
         success: false,
@@ -263,10 +264,12 @@ class AwardAchievementUseCase {
 
     // Check availability window
     final now = DateTime.now();
-    if (achievement.availableFrom != null && now.isBefore(achievement.availableFrom!)) {
+    if (achievement.availableFrom != null &&
+        now.isBefore(achievement.availableFrom!)) {
       errors.add('Achievement not yet available');
     }
-    if (achievement.availableUntil != null && now.isAfter(achievement.availableUntil!)) {
+    if (achievement.availableUntil != null &&
+        now.isAfter(achievement.availableUntil!)) {
       errors.add('Achievement is no longer available');
     }
 
@@ -327,10 +330,7 @@ class AwardAchievementUseCase {
         break;
     }
 
-    return _CriteriaValidation(
-      isValid: errors.isEmpty,
-      errors: errors,
-    );
+    return _CriteriaValidation(isValid: errors.isEmpty, errors: errors);
   }
 
   /// Check if all prerequisites are completed
@@ -344,95 +344,115 @@ class AwardAchievementUseCase {
 
     final errors = <String>[];
     for (final prerequisiteId in achievement.prerequisites) {
-      final prerequisiteResult = await _repository.getUserProgressForAchievement(
-        userId,
-        prerequisiteId,
-      );
-      
+      final prerequisiteResult = await _repository
+          .getUserProgressForAchievement(userId, prerequisiteId);
+
       final prerequisiteProgress = prerequisiteResult.fold(
         (failure) => null,
         (progress) => progress,
       );
 
-      if (prerequisiteProgress == null || 
+      if (prerequisiteProgress == null ||
           prerequisiteProgress.status != ProgressStatus.completed) {
-        final prerequisiteResult = await _repository.getAchievementById(prerequisiteId);
+        final prerequisiteResult = await _repository.getAchievementById(
+          prerequisiteId,
+        );
         final prerequisiteAchievement = prerequisiteResult.fold(
           (failure) => null,
           (achievement) => achievement,
         );
-        errors.add('Prerequisite not completed: ${prerequisiteAchievement?.name ?? prerequisiteId}');
+        errors.add(
+          'Prerequisite not completed: ${prerequisiteAchievement?.name ?? prerequisiteId}',
+        );
       }
     }
 
-    return _PrerequisiteCheck(
-      passed: errors.isEmpty,
-      errors: errors,
-    );
+    return _PrerequisiteCheck(passed: errors.isEmpty, errors: errors);
   }
 
   // =============================================================================
   // CRITERIA VALIDATION HELPERS
   // =============================================================================
 
-  bool _validateProgressCriteria(Map<String, dynamic> criteria, UserProgress progress) {
-    final requiredProgress = criteria['required'] as Map<String, dynamic>? ?? {};
-    
+  bool _validateProgressCriteria(
+    Map<String, dynamic> criteria,
+    UserProgress progress,
+  ) {
+    final requiredProgress =
+        criteria['required'] as Map<String, dynamic>? ?? {};
+
     for (final entry in requiredProgress.entries) {
       final key = entry.key;
       final requiredValue = entry.value;
       final currentValue = progress.currentProgress[key];
-      
-      if (currentValue == null || !_compareValues(currentValue, requiredValue)) {
+
+      if (currentValue == null ||
+          !_compareValues(currentValue, requiredValue)) {
         return false;
       }
     }
-    
+
     return true;
   }
-  
-  bool _validateStandardCriteria(Map<String, dynamic> criteria, UserProgress progress) {
+
+  bool _validateStandardCriteria(
+    Map<String, dynamic> criteria,
+    UserProgress progress,
+  ) {
     // For standard achievements, use the same logic as progress criteria
     return _validateProgressCriteria(criteria, progress);
   }
 
-  bool _validateMilestoneCriteria(Map<String, dynamic> criteria, Map<String, dynamic> context) {
+  bool _validateMilestoneCriteria(
+    Map<String, dynamic> criteria,
+    Map<String, dynamic> context,
+  ) {
     final milestoneValue = criteria['milestone_value'];
     final contextValue = context[criteria['context_key']];
-    
+
     return contextValue != null && _compareValues(contextValue, milestoneValue);
   }
 
-  bool _validateStreakCriteria(Map<String, dynamic> criteria, Map<String, dynamic> context) {
+  bool _validateStreakCriteria(
+    Map<String, dynamic> criteria,
+    Map<String, dynamic> context,
+  ) {
     final requiredStreak = criteria['required_streak'] as int? ?? 0;
     final currentStreak = context['streak'] as int? ?? 0;
-    
+
     return currentStreak >= requiredStreak;
   }
 
-  bool _validateSocialCriteria(Map<String, dynamic> criteria, Map<String, dynamic> context) {
+  bool _validateSocialCriteria(
+    Map<String, dynamic> criteria,
+    Map<String, dynamic> context,
+  ) {
     final socialType = criteria['social_type'] as String?;
-    
+
     switch (socialType) {
       case 'friends_invited':
         final required = criteria['required_invites'] as int? ?? 0;
         final actual = context['friends_invited'] as int? ?? 0;
         return actual >= required;
-        
+
       case 'games_with_friends':
         final required = criteria['required_games'] as int? ?? 0;
         final actual = context['games_with_friends'] as int? ?? 0;
         return actual >= required;
-        
+
       default:
         return false;
     }
   }
 
-  bool _validateChallengeCriteria(Map<String, dynamic> criteria, Map<String, dynamic> context) {
+  bool _validateChallengeCriteria(
+    Map<String, dynamic> criteria,
+    Map<String, dynamic> context,
+  ) {
     final challengeId = criteria['challenge_id'] as String?;
-    final completedChallenges = context['completed_challenges'] as List<String>? ?? [];
-    
+    final completedChallenges =
+        context['completed_challenges'] as List<String>? ?? [];
+
     return challengeId != null && completedChallenges.contains(challengeId);
   }
 
@@ -468,7 +488,8 @@ class AwardAchievementUseCase {
         final userStats = userStatsResult.getOrElse(() => null);
         if (userStats != null) {
           // Tier multiplier (higher tiers get small bonus)
-          final totalAchievements = userStats['total_achievements'] as int? ?? 0;
+          final totalAchievements =
+              userStats['total_achievements'] as int? ?? 0;
           final tierMultiplier = 1.0 + (totalAchievements * 0.01);
           multipliers['tier'] = tierMultiplier;
           totalPoints = (totalPoints * tierMultiplier).round();
@@ -508,7 +529,8 @@ class AwardAchievementUseCase {
 
       // Special event multiplier
       if (eventContext.containsKey('special_event')) {
-        final eventMultiplier = eventContext['event_multiplier'] as double? ?? 1.5;
+        final eventMultiplier =
+            eventContext['event_multiplier'] as double? ?? 1.5;
         multipliers['event'] = eventMultiplier;
         totalPoints = (totalPoints * eventMultiplier).round();
       }
@@ -518,7 +540,6 @@ class AwardAchievementUseCase {
         multipliers['first_time'] = 1.1;
         totalPoints = (totalPoints * 1.1).round();
       }
-
     } catch (error) {
       // Fallback to base points if calculation fails
       totalPoints = basePoints;
@@ -541,8 +562,10 @@ class AwardAchievementUseCase {
 
     try {
       // Get badges for this achievement
-      final badgeResult = await _repository.getBadgesForAchievement(achievement.id);
-      
+      final badgeResult = await _repository.getBadgesForAchievement(
+        achievement.id,
+      );
+
       if (badgeResult.isRight()) {
         final achievementBadges = badgeResult.getOrElse(() => []);
         for (final badge in achievementBadges) {
@@ -551,7 +574,7 @@ class AwardAchievementUseCase {
           if (userBadgesResult.isRight()) {
             final userBadges = userBadgesResult.getOrElse(() => []);
             final alreadyHas = userBadges.any((b) => b.id == badge.id);
-            
+
             if (!alreadyHas) {
               // Award the badge
               await _repository.awardBadge(userId, badge.id);
@@ -572,7 +595,6 @@ class AwardAchievementUseCase {
       if (streakBadge != null) {
         badges.add(streakBadge);
       }
-
     } catch (error) {
       // Log error but don't fail the entire operation
       print('Error awarding badges: $error');
@@ -592,7 +614,7 @@ class AwardAchievementUseCase {
     Map<String, dynamic> eventContext,
   ) async {
     final now = DateTime.now();
-    
+
     // Mark as completed with full progress
     final updatedProgress = currentProgress.copyWith(
       currentProgress: achievement.criteria,
@@ -608,7 +630,7 @@ class AwardAchievementUseCase {
 
     // Save to repository
     await _repository.updateUserProgress(updatedProgress);
-    
+
     return updatedProgress;
   }
 
@@ -622,15 +644,12 @@ class AwardAchievementUseCase {
     try {
       // This would typically update user stats
       // Implementation depends on your UserStats structure
-      await _repository.incrementUserStats(
-        userId,
-        {
-          'achievements_completed': 1,
-          'points_earned': pointsAwarded,
-          'badges_earned': badgesAwarded.length,
-          'category': achievement.category.name,
-        },
-      );
+      await _repository.incrementUserStats(userId, {
+        'achievements_completed': 1,
+        'points_earned': pointsAwarded,
+        'badges_earned': badgesAwarded.length,
+        'category': achievement.category.name,
+      });
     } catch (error) {
       print('Error updating user statistics: $error');
     }
@@ -641,11 +660,11 @@ class AwardAchievementUseCase {
     try {
       final userTierResult = await _repository.getUserTier(userId);
       final userStatsResult = await _repository.getUserStats(userId);
-      
+
       if (userTierResult.isRight() && userStatsResult.isRight()) {
         final userTier = userTierResult.getOrElse(() => null);
         final userStats = userStatsResult.getOrElse(() => null);
-        
+
         if (userTier != null && userStats != null) {
           // Simplified tier checking - would need proper implementation
           // For now, just return null to avoid compilation errors
@@ -655,7 +674,7 @@ class AwardAchievementUseCase {
     } catch (error) {
       print('Error checking tier upgrade: $error');
     }
-    
+
     return null;
   }
 
@@ -671,25 +690,27 @@ class AwardAchievementUseCase {
     TierLevel? tierUpgrade,
   ) {
     final messages = <String>[];
-    
+
     // Achievement completion
     messages.add('🎉 Achievement unlocked: ${achievement.name}!');
-    
+
     // Points awarded
     if (pointsAwarded > 0) {
       messages.add('💰 +$pointsAwarded points earned!');
     }
-    
+
     // Badges awarded
     if (badgesAwarded.isNotEmpty) {
-      messages.add('🏆 ${badgesAwarded.length} badge${badgesAwarded.length > 1 ? 's' : ''} earned!');
+      messages.add(
+        '🏆 ${badgesAwarded.length} badge${badgesAwarded.length > 1 ? 's' : ''} earned!',
+      );
     }
-    
+
     // Tier upgrade
     if (tierUpgrade != null) {
       messages.add('⭐ Tier upgraded to ${tierUpgrade.displayName}!');
     }
-    
+
     return messages.join('\n');
   }
 
@@ -724,11 +745,11 @@ class AwardAchievementUseCase {
           userId: userId,
           type: 'tier_upgrade',
           title: 'Tier Upgrade!',
-          message: 'Congratulations! You\'ve reached ${tierUpgrade.displayName}!',
+          message:
+              'Congratulations! You\'ve reached ${tierUpgrade.displayName}!',
           data: {'new_tier': tierUpgrade.displayName},
         );
       }
-
     } catch (error) {
       print('Error queuing notifications: $error');
     }
@@ -819,7 +840,10 @@ class AwardAchievementUseCase {
   }
 
   /// Check for streak badges
-  Future<Badge?> _checkStreakBadge(String userId, Map<String, dynamic> context) async {
+  Future<Badge?> _checkStreakBadge(
+    String userId,
+    Map<String, dynamic> context,
+  ) async {
     // Implementation for streak badge logic
     return null;
   }
@@ -833,20 +857,14 @@ class _CriteriaValidation {
   final bool isValid;
   final List<String> errors;
 
-  _CriteriaValidation({
-    required this.isValid,
-    required this.errors,
-  });
+  _CriteriaValidation({required this.isValid, required this.errors});
 }
 
 class _PrerequisiteCheck {
   final bool passed;
   final List<String> errors;
 
-  _PrerequisiteCheck({
-    required this.passed,
-    required this.errors,
-  });
+  _PrerequisiteCheck({required this.passed, required this.errors});
 }
 
 class _PointsCalculation {

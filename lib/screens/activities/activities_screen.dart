@@ -19,7 +19,8 @@ class ActivitiesScreen extends ConsumerStatefulWidget {
   ConsumerState<ActivitiesScreen> createState() => _ActivitiesScreenState();
 }
 
-class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with SingleTickerProviderStateMixin {
+class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final AuthService _authService = AuthService();
 
@@ -38,13 +39,15 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
   Future<void> _refreshGames() async {
     final user = _authService.getCurrentUser();
     if (user == null) return;
-    
+
     // Refresh both games and bookings
     await Future.wait([
       ref.read(myGamesControllerProvider(user.id).notifier).refresh(),
-      ref.read(bookingsControllerProvider(user.id).notifier).loadUpcomingBookings(user.id),
+      ref
+          .read(bookingsControllerProvider(user.id).notifier)
+          .loadUpcomingBookings(user.id),
     ]);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -59,7 +62,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
   Future<void> _refreshBookings() async {
     // TODO: Implement bookings refresh when BookingsRepository is ready
     await Future.delayed(const Duration(seconds: 1));
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -88,10 +91,11 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
                     children: [
                       Text(
                         'Activities',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -119,7 +123,8 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const audit_log.AllHistoryScreen(),
+                          builder: (context) =>
+                              const audit_log.AllHistoryScreen(),
                         ),
                       );
                     },
@@ -133,35 +138,37 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
             child: Material(
               color: Colors.transparent,
               child: TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(LucideIcons.gamepad2, size: 20),
-                      SizedBox(width: 8),
-                      Text('Games'),
-                    ],
+                controller: _tabController,
+                tabs: const [
+                  Tab(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(LucideIcons.gamepad2, size: 20),
+                        SizedBox(width: 8),
+                        Text('Games'),
+                      ],
+                    ),
                   ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(LucideIcons.mapPin, size: 20),
-                      SizedBox(width: 8),
-                      Text('Bookings'),
-                    ],
+                  Tab(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(LucideIcons.mapPin, size: 20),
+                        SizedBox(width: 8),
+                        Text('Bookings'),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
-              indicatorColor: Colors.white,
-              indicatorWeight: 3,
-              indicatorSize: TabBarIndicatorSize.tab,
-              labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                ],
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
+                indicatorColor: Colors.white,
+                indicatorWeight: 3,
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelStyle: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -174,9 +181,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: const CustomAppBar(
-        actionIcon: Iconsax.calendar_copy,
-      ),
+      appBar: const CustomAppBar(actionIcon: Iconsax.calendar_copy),
       body: Column(
         children: [
           const SizedBox(height: 100),
@@ -197,74 +202,76 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
 
   Widget _buildJoinedGamesTab(BuildContext context) {
     final user = _authService.getCurrentUser();
-    
+
     if (user == null) {
-      return const Center(
-        child: Text('Please log in to view your games'),
-      );
+      return const Center(child: Text('Please log in to view your games'));
     }
-    
+
     final myGamesState = ref.watch(myGamesControllerProvider(user.id));
     final upcomingGames = myGamesState.upcomingGames;
     final isLoading = myGamesState.isLoadingUpcoming;
     final error = myGamesState.error;
-    
+
     return RefreshIndicator(
       onRefresh: _refreshGames,
       child: isLoading
           ? const Center(child: CircularProgressIndicator())
           : error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(LucideIcons.alertCircle, size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text('Error: $error'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _refreshGames,
-                        child: const Text('Retry'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    LucideIcons.alertCircle,
+                    size: 48,
+                    color: Colors.red,
                   ),
-                )
-              : upcomingGames.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(LucideIcons.calendar, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'No upcoming games',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Join a game to see it here',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.all(20),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            context,
-                            'Upcoming Games',
-                            '${upcomingGames.length} ${upcomingGames.length == 1 ? "game" : "games"}',
-                            Icons.schedule,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildUpcomingGamesList(context, upcomingGames),
-                        ],
-                      ),
-                    ),
+                  const SizedBox(height: 16),
+                  Text('Error: $error'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _refreshGames,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : upcomingGames.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(LucideIcons.calendar, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No upcoming games',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Join a game to see it here',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionHeader(
+                    context,
+                    'Upcoming Games',
+                    '${upcomingGames.length} ${upcomingGames.length == 1 ? "game" : "games"}',
+                    Icons.schedule,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildUpcomingGamesList(context, upcomingGames),
+                ],
+              ),
+            ),
     );
   }
 
@@ -291,7 +298,12 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, String subtitle, IconData icon) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+  ) {
     return Row(
       children: [
         Container(
@@ -331,7 +343,10 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
     );
   }
 
-  Widget _buildUpcomingGamesList(BuildContext context, List<Game> upcomingGames) {
+  Widget _buildUpcomingGamesList(
+    BuildContext context,
+    List<Game> upcomingGames,
+  ) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -343,8 +358,6 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
     );
   }
 
-
-
   /// Build game card from real Game entity (Supabase data)
   Widget _buildGameCardFromEntity(BuildContext context, Game game) {
     // Format date and time
@@ -352,23 +365,23 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
     final timeFormat = DateFormat('h:mm a');
     final now = DateTime.now();
     final gameDateTime = game.scheduledDate;
-    
+
     String dateDisplay;
-    if (gameDateTime.year == now.year && 
-        gameDateTime.month == now.month && 
+    if (gameDateTime.year == now.year &&
+        gameDateTime.month == now.month &&
         gameDateTime.day == now.day) {
       dateDisplay = 'Today';
-    } else if (gameDateTime.year == now.year && 
-               gameDateTime.month == now.month && 
-               gameDateTime.day == now.day + 1) {
+    } else if (gameDateTime.year == now.year &&
+        gameDateTime.month == now.month &&
+        gameDateTime.day == now.day + 1) {
       dateDisplay = 'Tomorrow';
     } else {
       dateDisplay = dateFormat.format(gameDateTime);
     }
-    
+
     final timeDisplay = timeFormat.format(gameDateTime);
     final playersDisplay = '${game.currentPlayers}/${game.maxPlayers}';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -460,9 +473,14 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -504,9 +522,13 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
 
     // Load bookings on first build
     ref.listen(bookingsControllerProvider(user.id), (previous, next) {
-      if (previous == null && next.upcomingBookings.isEmpty && !next.isLoading) {
+      if (previous == null &&
+          next.upcomingBookings.isEmpty &&
+          !next.isLoading) {
         Future.microtask(() {
-          ref.read(bookingsControllerProvider(user.id).notifier).loadUpcomingBookings(user.id);
+          ref
+              .read(bookingsControllerProvider(user.id).notifier)
+              .loadUpcomingBookings(user.id);
         });
       }
     });
@@ -537,10 +559,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: Text(
-            'No active bookings',
-            style: context.textTheme.bodyLarge,
-          ),
+          child: Text('No active bookings', style: context.textTheme.bodyLarge),
         ),
       );
     }
@@ -556,27 +575,30 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
     );
   }
 
-
-
   Widget _buildBookingCardFromEntity(BuildContext context, Booking booking) {
     final dateFormat = DateFormat('MMM d');
-    
+
     // Format booking date
-    final isToday = booking.bookingDate.year == DateTime.now().year &&
-                    booking.bookingDate.month == DateTime.now().month &&
-                    booking.bookingDate.day == DateTime.now().day;
-    final isTomorrow = booking.bookingDate.difference(DateTime.now()).inDays == 1;
-    
-    final dateStr = isToday ? 'Today' : 
-                    isTomorrow ? 'Tomorrow' : 
-                    dateFormat.format(booking.bookingDate);
-    
+    final isToday =
+        booking.bookingDate.year == DateTime.now().year &&
+        booking.bookingDate.month == DateTime.now().month &&
+        booking.bookingDate.day == DateTime.now().day;
+    final isTomorrow =
+        booking.bookingDate.difference(DateTime.now()).inDays == 1;
+
+    final dateStr = isToday
+        ? 'Today'
+        : isTomorrow
+        ? 'Tomorrow'
+        : dateFormat.format(booking.bookingDate);
+
     // Format time range
     final timeStr = '${booking.startTime} - ${booking.endTime}';
-    
+
     // Format price
-    final priceStr = '${booking.currency} ${booking.totalAmount.toStringAsFixed(0)}';
-    
+    final priceStr =
+        '${booking.currency} ${booking.totalAmount.toStringAsFixed(0)}';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -620,7 +642,10 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
                       color: context.colors.primary,
                     ),
                   ),
-                  _buildStatusBadge(context, booking.status.toString().split('.').last),
+                  _buildStatusBadge(
+                    context,
+                    booking.status.toString().split('.').last,
+                  ),
                 ],
               ),
             ],
@@ -628,7 +653,11 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildInfoChip(context, Icons.calendar_today, '$dateStr • $timeStr'),
+              _buildInfoChip(
+                context,
+                Icons.calendar_today,
+                '$dateStr • $timeStr',
+              ),
             ],
           ),
           if (booking.status == BookingStatus.confirmed) ...[
@@ -640,7 +669,9 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('📍 View venue details - Coming soon!'),
+                          content: const Text(
+                            '📍 View venue details - Coming soon!',
+                          ),
                           backgroundColor: context.colors.primary,
                         ),
                       );
@@ -654,7 +685,10 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
                     onPressed: () {
                       _showCancelBookingDialog(context, booking);
                     },
-                    icon: const Icon(Icons.cancel_outlined, color: Colors.white),
+                    icon: const Icon(
+                      Icons.cancel_outlined,
+                      color: Colors.white,
+                    ),
                     label: const Text('Cancel'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: context.colors.primary,
@@ -676,7 +710,9 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Cancel Booking?'),
-          content: Text('Are you sure you want to cancel your booking at ${booking.venueName}?'),
+          content: Text(
+            'Are you sure you want to cancel your booking at ${booking.venueName}?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -685,12 +721,13 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
             ElevatedButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                
+
                 final user = _authService.getCurrentUser();
                 if (user != null) {
-                  await ref.read(bookingsControllerProvider(user.id).notifier)
+                  await ref
+                      .read(bookingsControllerProvider(user.id).notifier)
                       .cancelBooking(booking.id, 'User requested cancellation');
-                  
+
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -720,12 +757,16 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
 
     switch (status.toLowerCase()) {
       case 'confirmed':
-        backgroundColor = context.successColor(true);  // ✅ Semantic success color
+        backgroundColor = context.successColor(
+          true,
+        ); // ✅ Semantic success color
         textColor = context.successColor();
         displayText = 'Confirmed';
         break;
       case 'waiting':
-        backgroundColor = context.warningColor(true);   // ✅ Semantic warning color
+        backgroundColor = context.warningColor(
+          true,
+        ); // ✅ Semantic warning color
         textColor = context.warningColor();
         displayText = 'Waiting';
         break;
@@ -744,12 +785,15 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16), // ✅ Larger radius for modern look
+        borderRadius: BorderRadius.circular(
+          16,
+        ), // ✅ Larger radius for modern look
         // ✅ No borders - pure violet shade design
       ),
       child: Text(
         displayText.toUpperCase(),
-        style: context.textTheme.bodySmall?.copyWith(  // ✅ ShadCN typography
+        style: context.textTheme.bodySmall?.copyWith(
+          // ✅ ShadCN typography
           color: textColor,
           fontWeight: FontWeight.w600,
           fontSize: 10,
@@ -762,18 +806,23 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: context.violetWidgetBg,          // ✅ Violet widget background
+        color: context.violetWidgetBg, // ✅ Violet widget background
         borderRadius: BorderRadius.circular(8), // ✅ Slightly larger radius
         // ✅ No borders - pure violet shade design
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: context.colors.primary), // ✅ Primary color for icon
+          Icon(
+            icon,
+            size: 14,
+            color: context.colors.primary,
+          ), // ✅ Primary color for icon
           const SizedBox(width: 6),
           Text(
             text,
-            style: context.textTheme.bodySmall?.copyWith(  // ✅ ShadCN typography
+            style: context.textTheme.bodySmall?.copyWith(
+              // ✅ ShadCN typography
               color: context.colors.onSurface,
               fontWeight: FontWeight.w500,
             ),
@@ -782,5 +831,4 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> with Single
       ),
     );
   }
-
-} 
+}

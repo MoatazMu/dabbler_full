@@ -38,24 +38,30 @@ class SocialAbuseDetectionService {
   SocialAbuseDetectionService({
     required AnalyticsService analytics,
     required StorageService storage, // TODO: Use storage for persistence
-  })  : _analytics = analytics {
+  }) : _analytics = analytics {
     _initializeAbuseDetection();
   }
 
   /// Initialize abuse detection system
   void _initializeAbuseDetection() {
     // Behavior analysis every 10 minutes
-    _behaviorAnalysisTimer = Timer.periodic(_behaviorAnalysisInterval, (_) async {
+    _behaviorAnalysisTimer = Timer.periodic(_behaviorAnalysisInterval, (
+      _,
+    ) async {
       await _analyzeBehaviorPatterns();
     });
 
     // Pattern detection every 30 minutes
-    _patternDetectionTimer = Timer.periodic(_patternDetectionInterval, (_) async {
+    _patternDetectionTimer = Timer.periodic(_patternDetectionInterval, (
+      _,
+    ) async {
       await _detectAbusePatterns();
     });
 
     // Process reports every 5 minutes
-    _reportProcessingTimer = Timer.periodic(_reportProcessingInterval, (_) async {
+    _reportProcessingTimer = Timer.periodic(_reportProcessingInterval, (
+      _,
+    ) async {
       await _processAbuseReports();
     });
 
@@ -88,7 +94,7 @@ class SocialAbuseDetectionService {
     // Add to signals buffer
     _abuseSignals.putIfAbsent(userId, () => <AbuseSignal>[]);
     final userSignals = _abuseSignals[userId]!;
-    
+
     if (userSignals.length >= _maxSignalHistory) {
       userSignals.removeAt(0);
     }
@@ -171,10 +177,19 @@ class SocialAbuseDetectionService {
 
       // Calculate metrics
       final spamMetrics = await _calculateSpamMetrics(startTime, now);
-      final harassmentMetrics = await _calculateHarassmentMetrics(startTime, now);
-      final botDetectionMetrics = await _calculateBotDetectionMetrics(startTime, now);
+      final harassmentMetrics = await _calculateHarassmentMetrics(
+        startTime,
+        now,
+      );
+      final botDetectionMetrics = await _calculateBotDetectionMetrics(
+        startTime,
+        now,
+      );
       final reportingMetrics = await _calculateReportingMetrics(startTime, now);
-      final moderationMetrics = await _calculateModerationMetrics(startTime, now);
+      final moderationMetrics = await _calculateModerationMetrics(
+        startTime,
+        now,
+      );
       final trendAnalysis = await _calculateAbuseTrends(startTime, now);
 
       final metrics = SocialAbuseMetrics(
@@ -197,15 +212,23 @@ class SocialAbuseDetectionService {
   }
 
   /// Get spam detection metrics
-  Future<SpamDetectionMetrics> _calculateSpamMetrics(DateTime start, DateTime end) async {
+  Future<SpamDetectionMetrics> _calculateSpamMetrics(
+    DateTime start,
+    DateTime end,
+  ) async {
     final spamIncidents = _recentIncidents
-        .where((i) => i.type == 'spam' && 
-                     i.detectedAt.isAfter(start) && 
-                     i.detectedAt.isBefore(end))
+        .where(
+          (i) =>
+              i.type == 'spam' &&
+              i.detectedAt.isAfter(start) &&
+              i.detectedAt.isBefore(end),
+        )
         .toList();
 
     final totalMessages = await _getTotalMessages(start, end);
-    final spamRate = totalMessages == 0 ? 0.0 : spamIncidents.length / totalMessages;
+    final spamRate = totalMessages == 0
+        ? 0.0
+        : spamIncidents.length / totalMessages;
 
     return SpamDetectionMetrics(
       totalSpamDetected: spamIncidents.length,
@@ -219,17 +242,25 @@ class SocialAbuseDetectionService {
   }
 
   /// Get harassment detection metrics
-  Future<HarassmentDetectionMetrics> _calculateHarassmentMetrics(DateTime start, DateTime end) async {
+  Future<HarassmentDetectionMetrics> _calculateHarassmentMetrics(
+    DateTime start,
+    DateTime end,
+  ) async {
     final harassmentIncidents = _recentIncidents
-        .where((i) => i.type == 'harassment' && 
-                     i.detectedAt.isAfter(start) && 
-                     i.detectedAt.isBefore(end))
+        .where(
+          (i) =>
+              i.type == 'harassment' &&
+              i.detectedAt.isAfter(start) &&
+              i.detectedAt.isBefore(end),
+        )
         .toList();
 
     return HarassmentDetectionMetrics(
       totalHarassmentDetected: harassmentIncidents.length,
       severityDistribution: _analyzeSeverityDistribution(harassmentIncidents),
-      targetedHarassment: harassmentIncidents.where((i) => i.severity == 'high').length,
+      targetedHarassment: harassmentIncidents
+          .where((i) => i.severity == 'high')
+          .length,
       harassmentPatterns: _identifyHarassmentPatterns(harassmentIncidents),
       victimSupport: await _calculateVictimSupportMetrics(start, end),
       escalationRate: await _calculateHarassmentEscalationRate(start, end),
@@ -237,11 +268,17 @@ class SocialAbuseDetectionService {
   }
 
   /// Get bot detection metrics
-  Future<BotDetectionMetrics> _calculateBotDetectionMetrics(DateTime start, DateTime end) async {
+  Future<BotDetectionMetrics> _calculateBotDetectionMetrics(
+    DateTime start,
+    DateTime end,
+  ) async {
     final botIncidents = _recentIncidents
-        .where((i) => i.type == 'bot_behavior' && 
-                     i.detectedAt.isAfter(start) && 
-                     i.detectedAt.isBefore(end))
+        .where(
+          (i) =>
+              i.type == 'bot_behavior' &&
+              i.detectedAt.isAfter(start) &&
+              i.detectedAt.isBefore(end),
+        )
         .toList();
 
     final suspiciousUsers = _identifySuspiciousBotUsers();
@@ -257,15 +294,20 @@ class SocialAbuseDetectionService {
   }
 
   /// Get reporting metrics
-  Future<ReportingMetrics> _calculateReportingMetrics(DateTime start, DateTime end) async {
+  Future<ReportingMetrics> _calculateReportingMetrics(
+    DateTime start,
+    DateTime end,
+  ) async {
     final reports = await _getReportsInPeriod(start, end);
-    
+
     final reportsByType = <String, int>{};
     final reportsByStatus = <ReportStatus, int>{};
-    
+
     for (final report in reports) {
-      reportsByType[report.reportType] = (reportsByType[report.reportType] ?? 0) + 1;
-      reportsByStatus[report.status] = (reportsByStatus[report.status] ?? 0) + 1;
+      reportsByType[report.reportType] =
+          (reportsByType[report.reportType] ?? 0) + 1;
+      reportsByStatus[report.status] =
+          (reportsByStatus[report.status] ?? 0) + 1;
     }
 
     return ReportingMetrics(
@@ -280,9 +322,12 @@ class SocialAbuseDetectionService {
   }
 
   /// Get moderation metrics
-  Future<ModerationMetrics> _calculateModerationMetrics(DateTime start, DateTime end) async {
+  Future<ModerationMetrics> _calculateModerationMetrics(
+    DateTime start,
+    DateTime end,
+  ) async {
     final actions = await _getModerationActions(start, end);
-    
+
     final actionsByType = <String, int>{};
     for (final action in actions) {
       actionsByType[action.type] = (actionsByType[action.type] ?? 0) + 1;
@@ -294,29 +339,36 @@ class SocialAbuseDetectionService {
       autoModerationRate: _calculateAutoModerationRate(actions),
       manualReviewRate: _calculateManualReviewRate(actions),
       appealRate: await _calculateAppealRate(start, end),
-      moderationEffectiveness: await _calculateModerationEffectiveness(start, end),
+      moderationEffectiveness: await _calculateModerationEffectiveness(
+        start,
+        end,
+      ),
     );
   }
 
   /// Update user behavior profile
   void _updateUserBehaviorProfile(String userId, AbuseSignal signal) {
-    _userProfiles.putIfAbsent(userId, () => UserBehaviorProfile(
-      userId: userId,
-      firstSeen: DateTime.now(),
-      lastActivity: DateTime.now(),
-      totalActions: 0,
-      riskScore: 0.0,
-      behaviorPatterns: {},
-      flags: [],
-    ));
+    _userProfiles.putIfAbsent(
+      userId,
+      () => UserBehaviorProfile(
+        userId: userId,
+        firstSeen: DateTime.now(),
+        lastActivity: DateTime.now(),
+        totalActions: 0,
+        riskScore: 0.0,
+        behaviorPatterns: {},
+        flags: [],
+      ),
+    );
 
     final profile = _userProfiles[userId]!;
     profile.lastActivity = signal.timestamp;
     profile.totalActions++;
-    
+
     // Update behavior patterns
     final actionKey = signal.action;
-    profile.behaviorPatterns[actionKey] = (profile.behaviorPatterns[actionKey] ?? 0) + 1;
+    profile.behaviorPatterns[actionKey] =
+        (profile.behaviorPatterns[actionKey] ?? 0) + 1;
 
     // Calculate new risk score
     profile.riskScore = _calculateUserRiskScore(userId, profile);
@@ -361,24 +413,24 @@ class SocialAbuseDetectionService {
   /// Analyze content for risk factors
   double _analyzeContentRisk(String content) {
     double risk = 0.0;
-    
+
     final lowercaseContent = content.toLowerCase();
-    
+
     // Check for spam indicators
     if (_isSpammy(lowercaseContent)) {
       risk += 0.3;
     }
-    
+
     // Check for harassment indicators
     if (_isHarassment(lowercaseContent)) {
       risk += 0.4;
     }
-    
+
     // Check for excessive caps
     if (_hasExcessiveCaps(content)) {
       risk += 0.1;
     }
-    
+
     // Check for repetitive content
     if (_isRepetitive(content)) {
       risk += 0.2;
@@ -390,9 +442,12 @@ class SocialAbuseDetectionService {
   /// Check for immediate threats
   void _checkImmediateThreats(String userId, AbuseSignal signal) {
     // Check for rapid actions
-    final recentSignals = _abuseSignals[userId]?.where(
-        (s) => DateTime.now().difference(s.timestamp).inMinutes < 1).toList() ?? [];
-    
+    final recentSignals =
+        _abuseSignals[userId]
+            ?.where((s) => DateTime.now().difference(s.timestamp).inMinutes < 1)
+            .toList() ??
+        [];
+
     if (recentSignals.length >= _rapidActionThreshold) {
       _handleRapidActionThreat(userId, recentSignals);
     }
@@ -413,14 +468,17 @@ class SocialAbuseDetectionService {
       severity: 'medium',
       confidence: 0.8,
       autoModerated: true,
-      description: 'Rapid action pattern detected: ${signals.length} actions in 1 minute',
+      description:
+          'Rapid action pattern detected: ${signals.length} actions in 1 minute',
       evidence: {'signals': signals.map((s) => s.action).toList()},
     );
 
     _recentIncidents.add(incident);
-    
+
     // Could trigger rate limiting or temporary restrictions
-    print('RAPID ACTION THREAT: User $userId performed ${signals.length} actions in 1 minute');
+    print(
+      'RAPID ACTION THREAT: User $userId performed ${signals.length} actions in 1 minute',
+    );
   }
 
   /// Handle high-risk content
@@ -439,7 +497,7 @@ class SocialAbuseDetectionService {
       );
 
       _recentIncidents.add(incident);
-      
+
       print('HIGH RISK CONTENT: User $userId - ${signal.action}');
     }
   }
@@ -447,47 +505,60 @@ class SocialAbuseDetectionService {
   /// Calculate user risk score
   double _calculateUserRiskScore(String userId, UserBehaviorProfile profile) {
     double riskScore = 0.0;
-    
+
     // Base score from recent actions
-    final recentSignals = _abuseSignals[userId]?.where(
-        (s) => DateTime.now().difference(s.timestamp).inHours < 24).toList() ?? [];
-    
+    final recentSignals =
+        _abuseSignals[userId]
+            ?.where((s) => DateTime.now().difference(s.timestamp).inHours < 24)
+            .toList() ??
+        [];
+
     if (recentSignals.isNotEmpty) {
-      final avgRiskScore = recentSignals.map((s) => s.riskScore).reduce((a, b) => a + b) / recentSignals.length;
+      final avgRiskScore =
+          recentSignals.map((s) => s.riskScore).reduce((a, b) => a + b) /
+          recentSignals.length;
       riskScore += avgRiskScore * 0.4;
     }
-    
+
     // Account age factor
     final accountAge = DateTime.now().difference(profile.firstSeen).inDays;
     if (accountAge < 7) {
       riskScore += 0.2; // New accounts are riskier
     }
-    
+
     // Activity frequency factor
     final actionsPerDay = profile.totalActions / math.max(1, accountAge);
     if (actionsPerDay > 100) {
       riskScore += 0.3; // Very active accounts might be bots
     }
-    
+
     // Flag factor
     riskScore += profile.flags.length * 0.1;
-    
+
     return math.min(1.0, riskScore);
   }
 
   /// Check for behavior flags
-  void _checkBehaviorFlags(String userId, UserBehaviorProfile profile, AbuseSignal signal) {
+  void _checkBehaviorFlags(
+    String userId,
+    UserBehaviorProfile profile,
+    AbuseSignal signal,
+  ) {
     // Check for repetitive behavior
     final actionCounts = profile.behaviorPatterns;
     final totalActions = actionCounts.values.fold(0, (a, b) => a + b);
-    
+
     for (final entry in actionCounts.entries) {
       final actionRatio = entry.value / totalActions;
       if (actionRatio > 0.8) {
-        _addFlag(profile, 'repetitive_behavior', 'Over 80% of actions are ${entry.key}');
+        _addFlag(
+          profile,
+          'repetitive_behavior',
+          'Over 80% of actions are ${entry.key}',
+        );
       }
     }
-    
+
     // Check for bot-like patterns
     if (_detectBotPattern(userId, profile)) {
       _addFlag(profile, 'bot_behavior', 'Exhibits bot-like behavior patterns');
@@ -502,7 +573,7 @@ class SocialAbuseDetectionService {
       timestamp: DateTime.now(),
       severity: _getFlagSeverity(flagType),
     );
-    
+
     // Don't duplicate flags
     if (!profile.flags.any((f) => f.type == flagType)) {
       profile.flags.add(flag);
@@ -513,9 +584,13 @@ class SocialAbuseDetectionService {
   bool _isSpammy(String content) {
     // Check for spam patterns
     return content.contains('buy now') ||
-           content.contains('click here') ||
-           content.contains('free money') ||
-           content.split(' ').where((word) => word == word.toUpperCase() && word.length > 3).length > 3;
+        content.contains('click here') ||
+        content.contains('free money') ||
+        content
+                .split(' ')
+                .where((word) => word == word.toUpperCase() && word.length > 3)
+                .length >
+            3;
   }
 
   bool _isHarassment(String content) {
@@ -526,19 +601,24 @@ class SocialAbuseDetectionService {
 
   bool _hasExcessiveCaps(String content) {
     if (content.isEmpty) return false;
-    final capsCount = content.split('').where((char) => char == char.toUpperCase() && char != char.toLowerCase()).length;
+    final capsCount = content
+        .split('')
+        .where(
+          (char) => char == char.toUpperCase() && char != char.toLowerCase(),
+        )
+        .length;
     return capsCount / content.length > 0.7;
   }
 
   bool _isRepetitive(String content) {
     final words = content.split(' ');
     if (words.length < 5) return false;
-    
+
     final wordCounts = <String, int>{};
     for (final word in words) {
       wordCounts[word] = (wordCounts[word] ?? 0) + 1;
     }
-    
+
     return wordCounts.values.any((count) => count > words.length / 2);
   }
 
@@ -552,10 +632,10 @@ class SocialAbuseDetectionService {
     // Simple bot detection logic
     final actionVariety = profile.behaviorPatterns.keys.length;
     final totalActions = profile.totalActions;
-    
+
     // Low action variety suggests bot
     if (totalActions > 50 && actionVariety < 3) return true;
-    
+
     // Very regular timing patterns (would need more data)
     return false;
   }
@@ -576,10 +656,15 @@ class SocialAbuseDetectionService {
   }
 
   // Helper methods
-  String _generateReportId() => 'report_${DateTime.now().millisecondsSinceEpoch}';
-  String _generateIncidentId() => 'incident_${DateTime.now().millisecondsSinceEpoch}';
-  
-  ReportPriority _calculateReportPriority(String reportType, Map<String, dynamic>? evidence) {
+  String _generateReportId() =>
+      'report_${DateTime.now().millisecondsSinceEpoch}';
+  String _generateIncidentId() =>
+      'incident_${DateTime.now().millisecondsSinceEpoch}';
+
+  ReportPriority _calculateReportPriority(
+    String reportType,
+    Map<String, dynamic>? evidence,
+  ) {
     switch (reportType) {
       case 'harassment':
       case 'threats':
@@ -605,28 +690,68 @@ class SocialAbuseDetectionService {
   Future<int> _getTotalMessages(DateTime start, DateTime end) async => 10000;
   List<String> _identifyCommonSpamPatterns(List<AbuseIncident> incidents) => [];
   Map<String, int> _analyzeSpamSources(List<AbuseIncident> incidents) => {};
-  Future<double> _calculateSpamFalsePositiveRate(DateTime start, DateTime end) async => 0.05;
-  Future<double> _calculateSpamDetectionAccuracy(DateTime start, DateTime end) async => 0.92;
-  Map<String, int> _analyzeSeverityDistribution(List<AbuseIncident> incidents) => {};
+  Future<double> _calculateSpamFalsePositiveRate(
+    DateTime start,
+    DateTime end,
+  ) async => 0.05;
+  Future<double> _calculateSpamDetectionAccuracy(
+    DateTime start,
+    DateTime end,
+  ) async => 0.92;
+  Map<String, int> _analyzeSeverityDistribution(
+    List<AbuseIncident> incidents,
+  ) => {};
   List<String> _identifyHarassmentPatterns(List<AbuseIncident> incidents) => [];
-  Future<Map<String, dynamic>> _calculateVictimSupportMetrics(DateTime start, DateTime end) async => {};
-  Future<double> _calculateHarassmentEscalationRate(DateTime start, DateTime end) async => 0.1;
+  Future<Map<String, dynamic>> _calculateVictimSupportMetrics(
+    DateTime start,
+    DateTime end,
+  ) async => {};
+  Future<double> _calculateHarassmentEscalationRate(
+    DateTime start,
+    DateTime end,
+  ) async => 0.1;
   List<String> _identifySuspiciousBotUsers() => [];
-  Map<String, dynamic> _analyzeBotActivityPatterns(List<AbuseIncident> incidents) => {};
+  Map<String, dynamic> _analyzeBotActivityPatterns(
+    List<AbuseIncident> incidents,
+  ) => {};
   Future<int> _countAutomatedContent(DateTime start, DateTime end) async => 50;
   List<String> _detectBotNetworks(List<String> users) => [];
-  Future<double> _calculateBotDetectionAccuracy(DateTime start, DateTime end) async => 0.88;
-  Future<List<AbuseReport>> _getReportsInPeriod(DateTime start, DateTime end) async => [];
-  Future<Duration> _calculateAverageProcessingTime(List<AbuseReport> reports) async => const Duration(hours: 24);
-  Future<double> _calculateFalseReportRate(List<AbuseReport> reports) async => 0.15;
-  Future<double> _calculateActionableReportRate(List<AbuseReport> reports) async => 0.75;
-  Future<Map<String, dynamic>> _calculateReporterEngagement(DateTime start, DateTime end) async => {};
-  Future<List<ModerationAction>> _getModerationActions(DateTime start, DateTime end) async => [];
+  Future<double> _calculateBotDetectionAccuracy(
+    DateTime start,
+    DateTime end,
+  ) async => 0.88;
+  Future<List<AbuseReport>> _getReportsInPeriod(
+    DateTime start,
+    DateTime end,
+  ) async => [];
+  Future<Duration> _calculateAverageProcessingTime(
+    List<AbuseReport> reports,
+  ) async => const Duration(hours: 24);
+  Future<double> _calculateFalseReportRate(List<AbuseReport> reports) async =>
+      0.15;
+  Future<double> _calculateActionableReportRate(
+    List<AbuseReport> reports,
+  ) async => 0.75;
+  Future<Map<String, dynamic>> _calculateReporterEngagement(
+    DateTime start,
+    DateTime end,
+  ) async => {};
+  Future<List<ModerationAction>> _getModerationActions(
+    DateTime start,
+    DateTime end,
+  ) async => [];
   double _calculateAutoModerationRate(List<ModerationAction> actions) => 0.6;
   double _calculateManualReviewRate(List<ModerationAction> actions) => 0.4;
-  Future<double> _calculateAppealRate(DateTime start, DateTime end) async => 0.1;
-  Future<double> _calculateModerationEffectiveness(DateTime start, DateTime end) async => 0.85;
-  Future<AbuseTrendAnalysis> _calculateAbuseTrends(DateTime start, DateTime end) async => AbuseTrendAnalysis.empty();
+  Future<double> _calculateAppealRate(DateTime start, DateTime end) async =>
+      0.1;
+  Future<double> _calculateModerationEffectiveness(
+    DateTime start,
+    DateTime end,
+  ) async => 0.85;
+  Future<AbuseTrendAnalysis> _calculateAbuseTrends(
+    DateTime start,
+    DateTime end,
+  ) async => AbuseTrendAnalysis.empty();
   Future<List<String>> _identifyRiskUsers() async => [];
 
   /// Dispose resources
@@ -640,6 +765,7 @@ class SocialAbuseDetectionService {
 
 // Data models for abuse detection
 enum ReportStatus { pending, investigating, resolved, dismissed }
+
 enum ReportPriority { low, medium, high, urgent }
 
 class AbuseSignal {

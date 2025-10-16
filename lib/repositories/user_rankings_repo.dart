@@ -7,17 +7,21 @@ class UserRankingsRepo {
   UserRankingsRepo(this._db);
 
   Future<List<UserRankings>> list({int limit = 50, int offset = 0}) async {
-    final res = await _db.from('user_rankings')
-      .select('*')
-      .range(offset, offset + limit - 1)
-      .order('created_at', ascending: false);
+    final res = await _db
+        .from('user_rankings')
+        .select('*')
+        .range(offset, offset + limit - 1)
+        .order('created_at', ascending: false);
     final list = (res as List).cast<Map<String, dynamic>>();
     return list.map(UserRankings.fromJson).toList();
   }
 
   Future<UserRankings?> getById(dynamic id) async {
-    final res = await _db.from('user_rankings')
-      .select('*').eq('id', id).maybeSingle();
+    final res = await _db
+        .from('user_rankings')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
     if (res == null) return null;
     return UserRankings.fromJson(res);
   }
